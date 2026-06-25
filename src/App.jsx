@@ -35,6 +35,8 @@ const CHART_COLORS = {
 const TIPOS_PROYECTO = [
   { id: "instalacion", label: "Instalación", icon: "🏗️", desc: "Proyecto de instalación o construcción con ingresos por facturación" },
   { id: "servicio",    label: "Servicio",    icon: "⚙️", desc: "Contrato de servicio recurrente con facturación mensual" },
+  { id: "departamento",    label: "Departamento",    icon: "⚙️", desc: "Para uso en áreas internas Innovacion, Administración" },
+  { id: "suministro",    label: "Suministro",    icon: "⚙️", desc: "Suministros Proyectos/Servicios" },
 ];
 
 const AREAS_CATALOGO = [
