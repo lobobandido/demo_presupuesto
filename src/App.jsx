@@ -13,28 +13,28 @@ const C = {
 
 // ─── ÁREAS ───────────────────────────────────────────────────────────────────
 const AREAS_CAMPO = [
-  {id:"operaciones",   label:"Operaciones",           },
-  {id:"construccion",  label:"Construcción",          },
-  {id:"electricidad",  label:"Electricidad",          },
-  {id:"generacion",    label:"Generación",            },
-  {id:"calidad",       label:"Calidad",               },
-  {id:"sspa",          label:"SSPA",                  },
-  {id:"hps",           label:"HPS",                   },
-  {id:"mantenimiento", label:"Mantenimiento",         },
-  {id:"logistica",     label:"Logística",             },
+  {id:"operaciones",   label:"Operaciones",           icon:"🔧"},
+  {id:"construccion",  label:"Construcción",          icon:"🏗️"},
+  {id:"electricidad",  label:"Electricidad",          icon:"⚡"},
+  {id:"generacion",    label:"Generación",            icon:"⚙️"},
+  {id:"calidad",       label:"Calidad",               icon:"✅"},
+  {id:"sspa",          label:"SSPA",                  icon:"🦺"},
+  {id:"hps",           label:"HPS",                   icon:"🔩"},
+  {id:"mantenimiento", label:"Mantenimiento",         icon:"🛠️"},
+  {id:"logistica",     label:"Logística",             icon:"🚛"},
 ];
 const AREAS_DEPTO = [
-  {id:"ti",        label:"Tecnología (TI)",        },
-  {id:"innovacion",label:"Innovación y Tecnología", },
-  {id:"finanzas",  label:"Finanzas",               },
+  {id:"ti",        label:"Tecnología (TI)",        icon:"💻"},
+  {id:"innovacion",label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"finanzas",  label:"Finanzas",               icon:"💰"},
 ];
 const AREAS_SUMINISTRO = [
-  {id:"seguridad",      label:"Seguridad",               },
-  {id:"staff_dir",      label:"Staff de Dirección",     },
-  {id:"dir_general",    label:"Dirección General",       },
-  {id:"comunicacion",   label:"Comunicación",            },
-  {id:"innov_tec",      label:"Innovación y Tecnología", },
-  {id:"almacen",        label:"Almacén",                 },
+  {id:"seguridad",      label:"Seguridad",               icon:"🔒"},
+  {id:"staff_dir",      label:"Staff de Dirección",      icon:"👔"},
+  {id:"dir_general",    label:"Dirección General",       icon:"🏛️"},
+  {id:"comunicacion",   label:"Comunicación",            icon:"📢"},
+  {id:"innov_tec",      label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"almacen",        label:"Almacén",                 icon:"📦"},
 ];
 function getAreasCat(tipo){
   if(tipo==="departamento") return AREAS_DEPTO;
@@ -85,7 +85,7 @@ const PUESTOS_CAT=[
 // ─── PLANTILLAS ───────────────────────────────────────────────────────────────
 const PLANTILLAS={
   cuervito:{
-    nombre:"Monitoreo Cuervito", tipos:["servicio"],
+    nombre:"Monitoreo Cuervito",icon:"📋",tipos:["servicio"],
     desc:"Basada en 01022026 Presupuesto Monitoreo Cuervito",
     capex:[
       {cat:"EQUIPO DE COMPUTO",     desc:"Laptops / Equipos de cómputo",          unidad:"Unidad",cantidad:1,monto:0},
@@ -108,7 +108,7 @@ const PLANTILLAS={
     ],
   },
   instalacion:{
-    nombre:"Proyecto de Instalación", tipos:["instalacion"],
+    nombre:"Proyecto de Instalación",icon:"🏗️",tipos:["instalacion"],
     desc:"Proyectos de campo con mano de obra",
     capex:[
       {cat:"EQUIPO DE TRANSPORTE", desc:"Camionetas de campo",                    unidad:"Unidad",cantidad:1,monto:0},
@@ -127,7 +127,7 @@ const PLANTILLAS={
     ],
   },
   depto_ti:{
-    nombre:"Departamento TI 2026", tipos:["departamento"],
+    nombre:"Departamento TI 2026",icon:"💻",tipos:["departamento"],
     desc:"Basada en Presupuesto_Geolis_2026_v4.1 · Área TI",
     capex:[
       {cat:"EQUIPO DE COMPUTO",     desc:"Laptops Geolis y Cuervito (Dell Pro)",         unidad:"Unidad",cantidad:1,monto:0},
@@ -763,7 +763,28 @@ export default function App(){
 
   function confirmarAreas(){
     const c={};
-    areas.forEach(id=>{c[id]=costos[id]||{capex:[],mat:[],nomina:[],via:[],estado:"pendiente"};});
+    areas.forEach((id,idx)=>{
+      const existing=costos[id];
+      if(existing){ c[id]=existing; return; }
+      // Si hay plantilla cargada la distribuimos en el primer area
+      if(idx===0&&(capexPM.length>0||opexPM.length>0)){
+        const nomPL=opexPM
+          .filter(p=>p.cat&&p.cat.toUpperCase().includes("NOMINA"))
+          .map(p=>initN({puesto:p.desc||p.cat,cantidad:1,salario:p.monto||0}));
+        const matPL=opexPM
+          .filter(p=>!p.cat?.toUpperCase().includes("NOMINA"))
+          .map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        c[id]={
+          capex:capexPM.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto})),
+          mat:matPL,
+          nomina:nomPL,
+          via:[],
+          estado:"pendiente",
+        };
+      } else {
+        c[id]={capex:[],mat:[],nomina:[],via:[],estado:"pendiente"};
+      }
+    });
     setCostos(c); setStep(3); setActiva(areas[0]||null);
   }
 
@@ -995,10 +1016,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",       desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento", desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
