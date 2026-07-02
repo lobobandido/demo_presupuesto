@@ -13,15 +13,15 @@ const C = {
 
 // ─── ÁREAS (confirmadas del audio) ───────────────────────────────────────────
 const AREAS_CATALOGO = [
-  { id:"operaciones",  label:"Operaciones",  icon:"🔧" },
-  { id:"construccion", label:"Construcción", icon:"🏗️" },
-  { id:"electricidad", label:"Electricidad", icon:"⚡" },
-  { id:"generacion",   label:"Generación",   icon:"⚙️" },
-  { id:"calidad",      label:"Calidad",      icon:"✅" },
-  { id:"sspa",         label:"SSPA",         icon:"🦺" },
-  { id:"hps",          label:"HPS",          icon:"🔩" },
-  { id:"mantenimiento",label:"Mantenimiento",icon:"🛠️" },
-  { id:"logistica",    label:"Logística",    icon:"🚛" },
+  { id:"operaciones",  label:"Operaciones",  },
+  { id:"construccion", label:"Construcción", },
+  { id:"electricidad", label:"Electricidad",  },
+  { id:"generacion",   label:"Generación",    },
+  { id:"calidad",      label:"Calidad",       },
+  { id:"sspa",         label:"SSPA",          },
+  { id:"hps",          label:"HPS",           },
+  { id:"mantenimiento",label:"Mantenimiento", },
+  { id:"logistica",    label:"Logística",     },
 ];
 
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -33,7 +33,7 @@ const PLANTILLAS = {
   cuervito: {
     nombre: "Monitoreo Cuervito",
     descripcion: "Basada en 01022026 Presupuesto Monitoreo Cuervito",
-    icon: "📋",
+    //icon: 
     capex: [
       { cat:"EQUIPO DE COMPUTO",  desc:"Laptops / Equipos de cómputo", unidad:"Unidad", cantidad:1, monto:0 },
       { cat:"ACCESORIOS",         desc:"Monitores, teclados, periféricos", unidad:"Unidad", cantidad:1, monto:0 },
@@ -57,7 +57,7 @@ const PLANTILLAS = {
   departamento: {
     nombre: "Presupuesto Departamental",
     descripcion: "Plantilla para áreas internas (TI, RRHH, Administración)",
-    icon: "🏢",
+    //icon: 
     capex: [
       { cat:"EQUIPO DE COMPUTO",  desc:"Laptops y equipos de cómputo", unidad:"Unidad", cantidad:1, monto:0 },
       { cat:"EQUIPO DE MOBILIARIO",desc:"Mobiliario y enseres de oficina", unidad:"Unidad", cantidad:1, monto:0 },
@@ -74,7 +74,7 @@ const PLANTILLAS = {
   instalacion: {
     nombre: "Proyecto de Instalación",
     descripcion: "Plantilla para proyectos de campo con mano de obra",
-    icon: "🏗️",
+    //icon: 
     capex: [
       { cat:"EQUIPO DE TRANSPORTE",  desc:"Camionetas de campo", unidad:"Unidad", cantidad:1, monto:0 },
       { cat:"MAQUINARIA Y EQUIPO",   desc:"Equipo especializado de instalación", unidad:"Unidad", cantidad:1, monto:0 },
@@ -428,11 +428,11 @@ export default function App() {
         </div>
         <nav style={{ padding:"16px 0", flex:1 }}>
           {[
-            {i:0, icon:"📋", label:"Presupuestos"},
-            {i:1, icon:"➕", label:"Nuevo presupuesto"},
-            {i:2, icon:"🏢", label:"Áreas"},
-            {i:3, icon:"📝", label:"Capturar costos"},
-            {i:4, icon:"📊", label:"Resumen mensual"},
+            {i:0, label:"Presupuestos"},
+            {i:1, label:"Nuevo presupuesto"},
+            {i:2, label:"Áreas"},
+            {i:3, label:"Capturar costos"},
+            {i:4, label:"Resumen mensual"},
           ].map(t=>(
             <div key={t.i} onClick={()=>t.i<=step?setStep(t.i):null}
               style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 20px", cursor:t.i<=step?"pointer":"default",
@@ -535,10 +535,10 @@ export default function App() {
               <label style={{ fontSize:13, fontWeight:600, color:C.grayDark, display:"block", marginBottom:8 }}>Tipo de presupuesto *</label>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
                 {[
-                  {id:"instalacion",label:"Instalación",icon:"🏗️"},
-                  {id:"servicio",label:"Servicio",icon:"⚙️"},
-                  {id:"departamento",label:"Departamento",icon:"🏢"},
-                  {id:"suministro",label:"Suministro",icon:"📦"},
+                  {id:"instalacion",label:"Instalación"},
+                  {id:"servicio",label:"Servicio"},
+                  {id:"departamento",label:"Departamento"},
+                  {id:"suministro",label:"Suministro"},
                 ].map(t=>(
                   <div key={t.id} onClick={()=>setNuevoForm({...nuevoForm,tipo:t.id})} style={{
                     border:`2px solid`, borderColor:nuevoForm.tipo===t.id?C.yellow:C.grayBorder,
