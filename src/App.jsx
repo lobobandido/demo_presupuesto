@@ -13,28 +13,28 @@ const C = {
 
 // ─── ÁREAS ───────────────────────────────────────────────────────────────────
 const AREAS_CAMPO = [
-  {id:"operaciones",   label:"Operaciones",           },
-  {id:"construccion",  label:"Construcción",         },
-  {id:"electricidad",  label:"Electricidad",          },
-  {id:"generacion",    label:"Generación",            },
-  {id:"calidad",       label:"Calidad",               },
-  {id:"sspa",          label:"SSPA",                 },
-  {id:"hps",           label:"HPS",                  },
-  {id:"mantenimiento", label:"Mantenimiento",         },
-  {id:"logistica",     label:"Logística",            },
+  {id:"operaciones",   label:"Operaciones",           icon:"🔧"},
+  {id:"construccion",  label:"Construcción",          icon:"🏗️"},
+  {id:"electricidad",  label:"Electricidad",          icon:"⚡"},
+  {id:"generacion",    label:"Generación",            icon:"⚙️"},
+  {id:"calidad",       label:"Calidad",               icon:"✅"},
+  {id:"sspa",          label:"SSPA",                  icon:"🦺"},
+  {id:"hps",           label:"HPS",                   icon:"🔩"},
+  {id:"mantenimiento", label:"Mantenimiento",         icon:"🛠️"},
+  {id:"logistica",     label:"Logística",             icon:"🚛"},
 ];
 const AREAS_DEPTO = [
-  {id:"ti",        label:"Tecnología (TI)",        },
-  {id:"innovacion",label:"Innovación y Tecnología",},
-  {id:"finanzas",  label:"Finanzas",               },
+  {id:"ti",        label:"Tecnología (TI)",        icon:"💻"},
+  {id:"innovacion",label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"finanzas",  label:"Finanzas",               icon:"💰"},
 ];
 const AREAS_SUMINISTRO = [
-  {id:"seguridad",      label:"Seguridad",             },
-  {id:"staff_dir",      label:"Staff de Dirección",    },
-  {id:"dir_general",    label:"Dirección General",     },
-  {id:"comunicacion",   label:"Comunicación",            },
-  {id:"innov_tec",      label:"Innovación y Tecnología", },
-  {id:"almacen",        label:"Almacén",                 },
+  {id:"seguridad",      label:"Seguridad",               icon:"🔒"},
+  {id:"staff_dir",      label:"Staff de Dirección",      icon:"👔"},
+  {id:"dir_general",    label:"Dirección General",       icon:"🏛️"},
+  {id:"comunicacion",   label:"Comunicación",            icon:"📢"},
+  {id:"innov_tec",      label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"almacen",        label:"Almacén",                 icon:"📦"},
 ];
 function getAreasCat(tipo){
   if(tipo==="departamento") return AREAS_DEPTO;
@@ -43,6 +43,37 @@ function getAreasCat(tipo){
 }
 
 const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+// ─── DATOS HISTÓRICOS DE PRESUPUESTOS REALES (Excel Geolis) ─────────────────
+// Fuente: 01022026_Presupuesto_Monitoreo_Cuervito y PERDIZ_HPS_800_HP
+const CATS_MACRO_CONTABLE = ["ACTIVOS", "ARRENDA DE INMUEBLES Y SERV", "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO", "EQUIPOS Y ENSERES", "INSUMOS OPERATIVOS", "INSUMOS DE OFICINA", "MARKETING", "MATERIALES", "MATERIALES DE SALUD", "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR Y RADIO", "SERVICIOS", "SERVICIOS DE CAPACITACION", "SERVICIOS DE SALUD", "UNIFORMES", "VEHICULOS Y COMBUSTIBLE", "VIATICOS", "EQUIPO DE TRANSPORTE", "EQUIPO DE ADQUISICION", "GABINETE Y ENERGIA", "TRANSMISION", "CENTRO DE MONITOREO", "MAQUINARIA Y EQUIPO", "EQUIPO DE MOBILIARIO", "SOFTWARE Y LICENCIAS", "OTROS ACTIVOS"];
+
+// Mapping: subcategoría escrita → categoría macro contable
+const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LUZ, AGUA E INTERNET": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LIMPIEZA": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE VIGILANCIA": "ARRENDA DE INMUEBLES Y SERV", "TELEFONIA FIJA": "ARRENDA DE INMUEBLES Y SERV", "AGUA Y ALCANTARILLADO": "ARRENDA DE INMUEBLES Y SERV", "ARRENDAMIENTO DE OF. MOVILES": "ARRENDA DE INMUEBLES Y SERV", "ROPA Y ARTICULOS DE PROTECCION": "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO (ADQUISICION)": "EQUIPO DE COMPUTO", "ARRENDAMIENTO DE EQ. COMPUTO": "EQUIPO DE COMPUTO", "ENSERES MENORES DIVERSOS": "EQUIPOS Y ENSERES", "INSUMOS AGRICOLAS": "INSUMOS OPERATIVOS", "PAPELERIA Y UTILES DE OFICINA": "INSUMOS DE OFICINA", "ARTICULOS DE ASEO Y SANITARIOS": "INSUMOS DE OFICINA", "ARTICULOS DE CAFETERIA": "INSUMOS DE OFICINA", "ARTICULOS DIGITALES Y DE COMPUTO": "INSUMOS DE OFICINA", "SERVICIOS DE MERCADOTECNIA": "MARKETING", "PUBLICIDAD Y PROPAGANDA": "MARKETING", "ABRASIVOS": "MATERIALES", "ACEITE LUBRICANTE P/MAQUINARIA": "MATERIALES", "ACEITES Y LUBRICANTES": "MATERIALES", "BANDA CADEN TRANS COPL": "MATERIALES", "CONEXIONES PARA TUBERIA": "MATERIALES", "FIBRAS HILOS Y TELAS": "MATERIALES", "GRASAS": "MATERIALES", "HERRAMIENTAS MANUALES": "MATERIALES", "LLANTAS, CAMARAS Y ACCESORIOS": "MATERIALES", "MATERIAL ELECTRICO": "MATERIALES", "MATERIALES Y ART P/MANTENIMIENTO": "MATERIALES", "POSTE DE TELEMETRIA": "MATERIALES", "MATERIAL PRIMEROS AUXILIOS": "MATERIALES DE SALUD", "NOMINA": "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR (PARA TRANSMITIR)": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE BANDA ANCHA": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE RADIOCOMUNICACION": "SERV TELEFONIA CELULAR Y RADIO", "CUADRILLA DE INSTALACION": "SERVICIOS", "HERRAMIENTA": "SERVICIOS", "CAPACITACION": "SERVICIOS DE CAPACITACION", "SERVICIOS MEDICOS": "SERVICIOS DE SALUD", "SERVICIOS Y COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "ALIMENTACION": "VIATICOS", "CASETAS PUENTES Y PEAJES": "VIATICOS", "SERV DE TRANSPORTAC AEREA": "VIATICOS", "SERV DE TRANSPORTAC TERRESTRE": "VIATICOS", "SERVICIOS DE HOSPEDAJE": "VIATICOS", "CAJA CHICA": "VIATICOS", "REEMBOLSOS": "VIATICOS", "MOBILIARIO": "EQUIPOS Y ENSERES", "SILLA DE OFICINA": "EQUIPOS Y ENSERES", "ESCRITORIO": "EQUIPOS Y ENSERES", "MUEBLES": "EQUIPOS Y ENSERES"};
+
+// Partidas históricas para autocompletar al escribir categoría
+const HISTORIAL_CAPEX = {
+  "cuervito": [{"cat": "EQUIPO DE TRANSPORTE", "desc": "Camionetas", "unidad": "Unidad", "cantidad": 1, "monto": 550000.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Sensores de presión", "unidad": "Unidad", "cantidad": 360, "monto": 165.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Gateway", "unidad": "Unidad", "cantidad": 180, "monto": 175.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "PLC", "unidad": "Unidad", "cantidad": 50, "monto": 300.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Arreglos  y accesorios", "unidad": "Unidad", "cantidad": 180, "monto": 650.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Panel solar", "unidad": "Unidad", "cantidad": 180, "monto": 60.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Controlador de carga", "unidad": "Unidad", "cantidad": 180, "monto": 35.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Bateria Ciclo profundo", "unidad": "Unidad", "cantidad": 360, "monto": 80.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Gabinete", "unidad": "Unidad", "cantidad": 180, "monto": 90.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Cableado, clemas y riel", "unidad": "Unidad", "cantidad": 180, "monto": 60.0}, {"cat": "TRANSMISION", "desc": "Kit Starlink mini", "unidad": "Unidad", "cantidad": 40, "monto": 277.0}, {"cat": "TRANSMISION", "desc": "Antenas repetidoras", "unidad": "Unidad", "cantidad": 40, "monto": 1100.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Monitores", "unidad": "Unidad", "cantidad": 6, "monto": 450.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Workstation", "unidad": "Unidad", "cantidad": 1, "monto": 1800.0}, {"cat": "CENTRO DE MONITOREO", "desc": "UPS", "unidad": "Unidad", "cantidad": 1, "monto": 250.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Accesorios", "unidad": "Unidad", "cantidad": 1, "monto": 200.0}],
+  "perdiz":   [{"cat": "EQUIPO DE TRANSPORTE", "desc": "Camionetas", "unidad": "Unidad", "cantidad": 0, "monto": 32025.45}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Comisionamiento Gen", "unidad": "Unidad", "cantidad": 1, "monto": 6500.0}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Material de Seguridad", "unidad": "Unidad", "cantidad": 0, "monto": 3500.0}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Herramienta Manual", "unidad": "Unidad", "cantidad": 1, "monto": 11538.46}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Comisionamiento HPS", "unidad": "Unidad", "cantidad": 0, "monto": 2000.0}, {"cat": "MAQUINARIA Y EQUIPO 1", "desc": "Bomba HPS", "unidad": "Unidad", "cantidad": 1, "monto": 176089.03}, {"cat": "MAQUINARIA Y EQUIPO 2", "desc": "VDF", "unidad": "Unidad", "cantidad": 1, "monto": 79961.3}, {"cat": "MAQUINARIA Y EQUIPO 3", "desc": "Generador", "unidad": "Unidad", "cantidad": 1, "monto": 513000.0}, {"cat": "MAQUINARIA Y EQUIPO 4", "desc": "Refaccionamiento bomba", "unidad": "Unidad", "cantidad": 1, "monto": 65000.0}, {"cat": "MAQUINARIA Y EQUIPO 5", "desc": "Refaccionamiento generador", "unidad": "Unidad", "cantidad": 1, "monto": 65000.0}, {"cat": "MAQUINARIA Y EQUIPO 6", "desc": "CCM", "unidad": "Unidad", "cantidad": 1, "monto": 160486.99501936912}, {"cat": "MAQUINARIA Y EQUIPO 7", "desc": "Cobertizo", "unidad": "Unidad", "cantidad": 1, "monto": 100000.0}, {"cat": "OTROS ACTIVOS", "desc": "Obra mecanica", "unidad": "Unidad", "cantidad": 1, "monto": 94452.26}, {"cat": "OTROS ACTIVOS", "desc": "Valvulas", "unidad": "Unidad", "cantidad": 1, "monto": 117998.91}, {"cat": "OTROS ACTIVOS", "desc": "Obra Electrica", "unidad": "Unidad", "cantidad": 1, "monto": 556015.9120088544}, {"cat": "OTROS ACTIVOS", "desc": "RICCSSA", "unidad": "Obra civil", "cantidad": 1, "monto": 280969.06156405987}, {"cat": "OTROS ACTIVOS", "desc": "Pruebas PND y Pintura", "unidad": "Unidad", "cantidad": 1, "monto": 17867.79}, {"cat": "PARIDAD", "desc": "18.07", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "MES", "desc": "30.4", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "PERIODO PAGO (DÍAS)", "desc": "30", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "GASOLINA MAGNA", "desc": "22", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "DIESEL", "desc": "23", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "LINEA DE 12 A 4", "desc": "1265057.97", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "LINEA DE 16 A 6", "desc": "1553586.78", "unidad": "Unidad", "cantidad": 1, "monto": 0}],
+};
+const HISTORIAL_NOMINA = {
+  "cuervito": [{"puesto": "Especialista telemetría", "cantidad": 1, "salario": 25000.0}, {"puesto": "Técnico instrumentista", "cantidad": 1, "salario": 20000.0}],
+};
+
+// Buscar partidas históricas por categoría (para autocompletar)
+function buscarHistorial(cat, tipo="capex") {
+  const hist = tipo==="capex" ? HISTORIAL_CAPEX : {};
+  const results = [];
+  Object.values(hist).forEach(pres => {
+    pres.forEach(p => {
+      if(p.cat.toUpperCase().includes(cat.toUpperCase()) || cat.toUpperCase().includes(p.cat.toUpperCase())) {
+        if(!results.find(r => r.desc===p.desc)) results.push(p);
+      }
+    });
+  });
+  return results.slice(0,6);
+}
+
 const UNIDADES=["Unidad","Día","Semana","Mes","Año","Servicio","Viaje","Pieza","Kg","Metro","Litro","Hora","Global"];
 
 // Catálogo de puestos nómina
@@ -54,7 +85,7 @@ const PUESTOS_CAT=[
 // ─── PLANTILLAS ───────────────────────────────────────────────────────────────
 const PLANTILLAS={
   cuervito:{
-    nombre:"Monitoreo Cuervito",tipos:["servicio"],
+    nombre:"Monitoreo Cuervito",icon:"📋",tipos:["servicio"],
     desc:"Basada en 01022026 Presupuesto Monitoreo Cuervito",
     capex:[
       {cat:"EQUIPO DE COMPUTO",     desc:"Laptops / Equipos de cómputo",          unidad:"Unidad",cantidad:1,monto:0},
@@ -77,7 +108,7 @@ const PLANTILLAS={
     ],
   },
   instalacion:{
-    nombre:"Proyecto de Instalación",tipos:["instalacion"],
+    nombre:"Proyecto de Instalación",icon:"🏗️",tipos:["instalacion"],
     desc:"Proyectos de campo con mano de obra",
     capex:[
       {cat:"EQUIPO DE TRANSPORTE", desc:"Camionetas de campo",                    unidad:"Unidad",cantidad:1,monto:0},
@@ -96,7 +127,7 @@ const PLANTILLAS={
     ],
   },
   depto_ti:{
-    nombre:"Departamento TI 2026",tipos:["departamento"],
+    nombre:"Departamento TI 2026",icon:"💻",tipos:["departamento"],
     desc:"Basada en Presupuesto_Geolis_2026_v4.1 · Área TI",
     capex:[
       {cat:"EQUIPO DE COMPUTO",     desc:"Laptops Geolis y Cuervito (Dell Pro)",         unidad:"Unidad",cantidad:1,monto:0},
@@ -120,6 +151,11 @@ function plantillasSugeridas(tipo){
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
+// ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
+const LS_APP_KEY = "geolis_app_state_v2";
+function saveAppState(state){ try{ localStorage.setItem(LS_APP_KEY, JSON.stringify(state)); }catch(e){} }
+function loadAppState(){ try{ const s=localStorage.getItem(LS_APP_KEY); return s?JSON.parse(s):null; }catch(e){return null;} }
+
 const F_IMSS=0.32, F_PREST=0.40, F_ISR=0.05;
 let _id=1; const uid=()=>++_id;
 
@@ -209,9 +245,11 @@ function EstadoBadge({estado}){
 }
 
 // ─── CATALOG INPUT (CatInput + PuestoInput — mismo patrón) ───────────────────
-function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true}){
+function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect}){
   const [open,setOpen]=useState(false);
   const [txt,setTxt]=useState(value||"");
+  const [macroModal,setMacroModal]=useState(false);
+  const [newCatPending,setNewCatPending]=useState("");
   const ref=useRef();
   const allOpts=[...new Set([...options,...getCats()])];
   const filtered=allOpts.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
@@ -223,14 +261,50 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
     return()=>document.removeEventListener("mousedown",h);
   },[]);
 
-  function pick(v){setTxt(v);onChange(v);setOpen(false);}
+  function pick(v){
+    setTxt(v);onChange(v);setOpen(false);
+    // Si hay historial para esta categoría, notificar
+    if(onPartidaSelect){
+      const hist=buscarHistorial(v,"capex");
+      if(hist.length>0) onPartidaSelect(hist[0]);
+    }
+  }
+
+  function handleNewCat(rawTxt){
+    const upper=rawTxt.trim().toUpperCase();
+    // Verificar si ya existe en cats macro
+    const isMacro=CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===upper);
+    const hasSub=SUBCAT_MAPPING[upper];
+    if(isMacro||hasSub){
+      // Existe, guardar directo
+      saveCat(upper); pick(upper);
+    } else {
+      // Nueva categoría — pedir categoría macro
+      setNewCatPending(upper);
+      setMacroModal(true);
+      setOpen(false);
+    }
+  }
+
+  function confirmMacro(macro){
+    saveCat(newCatPending);
+    // Guardar el mapping en localStorage
+    try{
+      const m=JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}");
+      m[newCatPending]=macro||"";
+      localStorage.setItem("geolis_subcat_map",JSON.stringify(m));
+    }catch(e){}
+    pick(newCatPending);
+    setMacroModal(false);
+    setNewCatPending("");
+  }
 
   return(
     <div ref={ref} style={{position:"relative"}}>
       <input value={txt}
         onChange={e=>{setTxt(e.target.value);onChange(e.target.value);setOpen(true);}}
         onFocus={()=>setOpen(true)}
-        onKeyDown={e=>{if(e.key==="Enter"&&txt.trim()){if(allowCustom)saveCat(txt.trim().toUpperCase());pick(txt.trim().toUpperCase());}}}
+        onKeyDown={e=>{if(e.key==="Enter"&&txt.trim())handleNewCat(txt);}}
         placeholder={placeholder}
         style={{width:"100%",padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
           borderRadius:6,fontSize:12,boxSizing:"border-box",outline:"none",
@@ -243,7 +317,7 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
           background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:8,
           maxHeight:220,overflowY:"auto",boxShadow:"0 8px 24px rgba(0,0,0,0.12)"}}>
           {allowCustom&&txt&&!allOpts.map(o=>o.toUpperCase()).includes(txt.toUpperCase())&&(
-            <div onMouseDown={e=>{e.preventDefault();saveCat(txt.toUpperCase());pick(txt.toUpperCase());}}
+            <div onMouseDown={e=>{e.preventDefault();handleNewCat(txt);}}
               style={{padding:"9px 12px",fontSize:12,color:C.yellowDark,cursor:"pointer",
                 borderBottom:`1px solid ${C.line}`,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
               <span style={{fontSize:14}}>+</span> Agregar "{txt.toUpperCase()}"
@@ -262,10 +336,42 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
           ))}
         </div>
       )}
+      {/* PUNTO 1+2: Modal categoría contable macro */}
+      {macroModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:2000,
+          display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:C.white,borderRadius:12,padding:28,maxWidth:500,width:"90%",
+            boxShadow:"0 16px 48px rgba(0,0,0,0.2)"}}>
+            <h3 style={{margin:"0 0 8px",fontSize:17,fontWeight:800,color:C.grayDark}}>
+              Nueva categoría: <span style={{color:C.yellowDark}}>{newCatPending}</span>
+            </h3>
+            <p style={{margin:"0 0 20px",fontSize:13,color:C.grayMid,lineHeight:1.5}}>
+              ¿A qué categoría contable pertenece? <br/>
+              <span style={{fontSize:11}}>Ejemplo: "Silla de oficina" pertenece a <strong>INSUMOS DE OFICINA</strong></span>
+            </p>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,maxHeight:260,overflowY:"auto",marginBottom:16}}>
+              {CATS_MACRO_CONTABLE.map(m=>(
+                <button key={m} onClick={()=>confirmMacro(m)}
+                  style={{padding:"9px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
+                    background:C.white,cursor:"pointer",fontSize:11,fontWeight:600,
+                    color:C.grayDark,textAlign:"left",transition:"all 0.12s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.background=C.yellowLight;e.currentTarget.style.borderColor=C.yellowBorder;}}
+                  onMouseLeave={e=>{e.currentTarget.style.background=C.white;e.currentTarget.style.borderColor=C.grayBorder;}}>
+                  {m}
+                </button>
+              ))}
+            </div>
+            <button onClick={()=>confirmMacro("")}
+              style={{width:"100%",padding:"9px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
+                background:C.grayLight,cursor:"pointer",fontSize:12,color:C.grayMid,fontWeight:600}}>
+              No sé / Dejar sin categoría contable
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 const CAT_CAPEX=[
   "EQUIPO DE COMPUTO","EQUIPO DE TRANSPORTE","MAQUINARIA Y EQUIPO","ACCESORIOS",
   "INFRAESTRUCTURA DE RED","GABINETE Y ENERGÍA","TRANSMISIÓN","EQUIPO DE MOBILIARIO",
@@ -536,12 +642,33 @@ export default function App(){
     {id:1,nombre:"Monitoreo Cuervito",tipo:"servicio",   estado:"Borrador",   fecha:"2026-02-01"},
     {id:2,nombre:"BEH Jujo F218358",  tipo:"instalacion",estado:"En revisión",fecha:"2026-01-15"},
   ]);
-  const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:""});
+  const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   const [plantKey,setPlantKey]     = useState(null);
   const [modoEdit,setModoEdit]     = useState(false);
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
+
+  // ── PUNTO 5: Persistir estado en localStorage ─────────────────────────────
+  // Restaurar al montar
+  useEffect(()=>{
+    const saved=loadAppState();
+    if(saved&&saved.pres){
+      setPres(saved.pres); setAreas(saved.areas||[]); setCostos(saved.costos||{});
+      setCapexPM(saved.capexPM||[]); setOpexPM(saved.opexPM||[]);
+      setLista(prev=>{
+        const ids=prev.map(x=>x.id);
+        const extra=(saved.lista||[]).filter(x=>!ids.includes(x.id));
+        return [...prev,...extra];
+      });
+      setAreaSaved(saved.areaSaved||false);
+      if(saved.step>0) setStep(saved.step);
+    }
+  },[]);
+  // Guardar ante cualquier cambio relevante
+  useEffect(()=>{
+    if(pres) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step});
+  },[pres,areas,costos,capexPM,opexPM,areaSaved,step]);
 
   function showToast(msg){setToast(msg);}
 
@@ -570,6 +697,42 @@ export default function App(){
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
+    setStep(1);
+  }
+
+  // PUNTO 9: Clonar presupuesto como base de uno nuevo
+  function clonarPresupuesto(p){
+    const hoy = new Date().toISOString().slice(0,10);
+    setForm({
+      nombre: p.nombre + " (copia)",
+      tipo: p.tipo,
+      empresa: p.empresa||"GEOLIS SA DE CV",
+      fechaInicio: p.fechaInicio||hoy,
+      fechaFin: p.fechaFin||"",
+      fechaElaboracion: hoy,
+    });
+    // Copiar partidas con nuevos IDs
+    setCapexPM((p._capexPM||[]).map(x=>({...x,id:uid()})));
+    setOpexPM((p._opexPM||[]).map(x=>({...x,id:uid()})));
+    // Copiar costos de áreas con nuevos IDs
+    const nuevosCostos={};
+    (p._areas||[]).forEach(id=>{
+      if(p._costos?.[id]){
+        const ac=p._costos[id];
+        nuevosCostos[id]={
+          ...ac,
+          capex:(ac.capex||[]).map(x=>({...x,id:uid()})),
+          mat:(ac.mat||[]).map(x=>({...x,id:uid()})),
+          nomina:(ac.nomina||[]).map(x=>({...x,id:uid()})),
+          via:(ac.via||[]).map(x=>({...x,id:uid()})),
+          estado:"pendiente",
+        };
+      }
+    });
+    setAreas(p._areas||[]);
+    setCostos(nuevosCostos);
+    setPres(null); setModoEdit(false);
+    setPlantKey(null); setAreaSaved(false);
     setStep(1);
   }
 
@@ -761,6 +924,13 @@ export default function App(){
                     border:`1px solid ${C.grayBorder}`,borderRadius:6,
                     cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Editar</button>
               )}
+              <button onClick={()=>clonarPresupuesto(p)}
+                title="Crear nuevo presupuesto basado en este"
+                style={{padding:"6px 14px",background:C.white,
+                  border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>
+                Clonar
+              </button>
             </div>
           </div>
         ))}
@@ -815,17 +985,37 @@ export default function App(){
                   style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
+              <div>
+                <FL>Fecha de elaboración</FL>
+                <input type="date" value={form.fechaElaboracion} onChange={e=>setForm({...form,fechaElaboracion:e.target.value})}
+                  style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
+              </div>
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required>Tipo de presupuesto</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación", esc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",      desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
-                      onClick={()=>{setForm({...form,tipo:t.id});setAreas([]);setPlantKey(null);setCapexPM([]);setOpexPM([]);}}
+                      onClick={()=>{
+                        setForm({...form,tipo:t.id});
+                        setAreas([]);
+                        setOpexPM([]);
+                        // PUNTO 6: auto-cargar plantilla Cuervito para instalacion y servicio
+                        if(t.id==="instalacion"||t.id==="servicio"){
+                          const pl=PLANTILLAS["cuervito"];
+                          setCapexPM(pl.capex.map(p=>initP(p)));
+                          setOpexPM(pl.opex.map(p=>initP(p)));
+                          setPlantKey("cuervito");
+                        } else {
+                          setCapexPM([]);
+                          setPlantKey(null);
+                        }
+                      }}
                       style={{border:"2px solid",borderColor:form.tipo===t.id?C.yellow:C.grayBorder,
                         borderRadius:10,padding:"14px 10px",cursor:"pointer",textAlign:"center",
                         background:form.tipo===t.id?C.yellowLight:C.white,transition:"all 0.15s",
@@ -848,7 +1038,7 @@ export default function App(){
             <div style={{padding:"14px 20px",borderBottom:`1px solid ${C.line}`,
               borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Plantilla de partidas</div>
+                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>📋 Plantilla de partidas</div>
                 <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                   {sug.length>0?"Estructura base para este tipo · editable después.":"Próxima versión."}
                 </div>
@@ -1190,6 +1380,7 @@ export default function App(){
           <div>
             <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+          {pres?.fechaElaboracion&&<div style={{fontSize:11,color:C.grayMid}}>Elaborado: {pres.fechaElaboracion} · Vigente: {pres?.fechaInicio||'—'} → {pres?.fechaFin||'—'}</div>}
           </div>
           <div style={{display:"flex",gap:10}} className="noprint">
             {btn("← Captura",()=>setStep(3),"secondary")}
