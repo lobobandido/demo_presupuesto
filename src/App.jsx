@@ -3,9 +3,12 @@ import { useState, useEffect, useRef } from "react";
 // ─── PALETA GEOLIS ────────────────────────────────────────────────────────────
 const C = {
   yellow:"#DDAC00", yellowLight:"#FFF8E1", yellowBorder:"#F0C800", yellowDark:"#B08900",
-  grayDark:"#2C2C2C", grayMid:"#6B6B6B", grayLight:"#F5F5F5", grayBorder:"#DEDEDE",
+  grayDark:"#1a1a1a", grayMid:"#6B6B6B", grayLight:"#F5F5F5", grayBorder:"#E0E0E0",
   white:"#FFFFFF", danger:"#C0392B", dangerLight:"#FDECEA",
   success:"#1E7E34", successLight:"#EAF7ED",
+  // CoreWell sidebar
+  sidebar:"#111111", sidebarText:"#DDAC00", sidebarMuted:"#888888",
+  contentBg:"#F8F8F8",
 };
 
 // ─── ÁREAS (confirmadas del audio) ───────────────────────────────────────────
@@ -158,19 +161,21 @@ function CatInput({ value, onChange, placeholder="Categoría" }) {
         onFocus={() => setOpen(true)} onKeyDown={handleKey} placeholder={placeholder}
         style={{ width:"100%", padding:"7px 10px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12 }} />
       {open && filtradas.length > 0 && (
-        <div style={{ position:"absolute", top:"100%", left:0, right:0, zIndex:100, background:C.white,
-          border:`1px solid ${C.grayBorder}`, borderRadius:6, maxHeight:180, overflowY:"auto", boxShadow:"0 4px 12px rgba(0,0,0,0.1)" }}>
+        <div style={{ position:"absolute", top:"100%", left:0, right:0, zIndex:999, background:C.white,
+          border:`1px solid ${C.grayBorder}`, borderRadius:6, maxHeight:180, overflowY:"auto",
+          boxShadow:"0 4px 16px rgba(0,0,0,0.15)", marginTop:2 }}>
           {texto && !baseCats.includes(texto.toUpperCase()) && (
-            <div onClick={() => { saveCatCustom(texto.toUpperCase()); select(texto.toUpperCase()); }}
+            <div onMouseDown={e=>{e.preventDefault();saveCatCustom(texto.toUpperCase());select(texto.toUpperCase());}}
               style={{ padding:"8px 12px", fontSize:12, color:C.yellowDark, cursor:"pointer", borderBottom:`1px solid ${C.grayLight}`, fontWeight:700 }}>
               + Agregar "{texto.toUpperCase()}"
             </div>
           )}
-          {filtradas.map(c => (
-            <div key={c} onClick={() => select(c)} style={{ padding:"7px 12px", fontSize:12, cursor:"pointer", background:value===c?C.yellowLight:"transparent" }}
+          {filtradas.map(cat => (
+            <div key={cat} onMouseDown={e=>{e.preventDefault();select(cat);}}
+              style={{ padding:"7px 12px", fontSize:12, cursor:"pointer", background:value===cat?C.yellowLight:"transparent" }}
               onMouseEnter={e => e.currentTarget.style.background=C.yellowLight}
-              onMouseLeave={e => e.currentTarget.style.background=value===c?C.yellowLight:"transparent"}>
-              {c}
+              onMouseLeave={e => e.currentTarget.style.background=value===cat?C.yellowLight:"transparent"}>
+              {cat}
             </div>
           ))}
         </div>
@@ -413,14 +418,62 @@ export default function App() {
   }
 
   const wrap = (children) => (
-    <div style={{ maxWidth:1050, margin:"0 auto", padding:"20px 24px", fontFamily:"Inter,system-ui,sans-serif" }}>
-      <div style={{ marginBottom:20 }}>
-        <span style={{ fontSize:20, fontWeight:800, color:C.grayDark }}>
-          <span style={{ color:C.yellow }}>GEOLIS</span> · Módulo de Presupuestos
-        </span>
+    <div style={{ display:"flex", minHeight:"100vh", fontFamily:"Inter,system-ui,sans-serif", background:C.contentBg }}>
+      {/* Sidebar estilo CoreWell */}
+      <div style={{ width:220, background:C.sidebar, flexShrink:0, display:"flex", flexDirection:"column", position:"fixed", top:0, left:0, bottom:0, zIndex:50 }}>
+        <div style={{ padding:"20px 20px 16px", borderBottom:"1px solid #2a2a2a" }}>
+          <div style={{ fontSize:11, color:"#555", letterSpacing:2, textTransform:"uppercase", marginBottom:4 }}>Corporativo</div>
+          <div style={{ fontSize:20, fontWeight:800, color:C.yellow }}>GEOLIS</div>
+          <div style={{ fontSize:11, color:"#777", marginTop:2 }}>Módulo de Presupuestos</div>
+        </div>
+        <nav style={{ padding:"16px 0", flex:1 }}>
+          {[
+            {i:0, icon:"📋", label:"Presupuestos"},
+            {i:1, icon:"➕", label:"Nuevo presupuesto"},
+            {i:2, icon:"🏢", label:"Áreas"},
+            {i:3, icon:"📝", label:"Capturar costos"},
+            {i:4, icon:"📊", label:"Resumen mensual"},
+          ].map(t=>(
+            <div key={t.i} onClick={()=>t.i<=step?setStep(t.i):null}
+              style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 20px", cursor:t.i<=step?"pointer":"default",
+                background:step===t.i?"#222":"transparent",
+                borderLeft:step===t.i?`3px solid ${C.yellow}`:"3px solid transparent",
+              }}>
+              <span style={{ fontSize:15 }}>{t.icon}</span>
+              <span style={{ fontSize:13, fontWeight:step===t.i?700:400,
+                color:step===t.i?C.yellow:step>t.i?"#aaa":"#555" }}>{t.label}</span>
+            </div>
+          ))}
+        </nav>
+        {presupuesto && (
+          <div style={{ padding:"14px 16px", borderTop:"1px solid #2a2a2a", fontSize:11 }}>
+            <div style={{ color:"#555", marginBottom:4 }}>Presupuesto activo</div>
+            <div style={{ color:C.yellow, fontWeight:700, wordBreak:"break-word" }}>{presupuesto.nombre}</div>
+            <button onClick={()=>{setPres(null);setStep(0);}}
+              style={{ marginTop:6, background:"none", border:`1px solid #333`, color:"#777", borderRadius:4, padding:"4px 10px", cursor:"pointer", fontSize:11, width:"100%" }}>
+              ← Cambiar
+            </button>
+          </div>
+        )}
       </div>
-      <TabBar/>
-      {children}
+      {/* Contenido principal */}
+      <div style={{ flex:1, marginLeft:220, display:"flex", flexDirection:"column", minHeight:"100vh" }}>
+        {/* Top bar */}
+        <div style={{ background:C.white, borderBottom:`1px solid ${C.grayBorder}`, padding:"12px 28px",
+          display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:40 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13, color:C.grayMid }}>
+            <span>Inicio</span><span>/</span>
+            <span style={{ color:C.grayDark, fontWeight:600 }}>
+              {step===0?"Presupuestos":step===1?"Nuevo":step===2?"Áreas":step===3?"Capturar costos":"Resumen mensual"}
+            </span>
+          </div>
+          {presupuesto && <span style={{ fontSize:12, color:C.grayMid }}>{presupuesto.empresa}</span>}
+        </div>
+        {/* Body */}
+        <div style={{ padding:"24px 28px", flex:1 }}>
+          {children}
+        </div>
+      </div>
     </div>
   );
 
@@ -880,7 +933,7 @@ export default function App() {
                 </div>)}
               </div>
               <LineChart series={seriesCats} height={220}/>
-              <div style={{ fontSize:11, color:C.grayMid, textAlign:"center", marginTop:6 }}>CAPEX concentrado en M0 · OPEX distribuido uniformemente</div>
+
             </div>
           )}
 
