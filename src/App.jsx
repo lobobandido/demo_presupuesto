@@ -559,7 +559,7 @@ export default function App() {
       <div style={{ border:`1px solid ${C.yellowBorder}`, borderRadius:10, overflow:"hidden", marginBottom:20 }}>
         <div style={{ background:C.yellowLight, padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div>
-            <div style={{ fontWeight:700, fontSize:14, color:C.yellowDark }}>📋 Cargar plantilla (opcional)</div>
+            <div style={{ fontWeight:700, fontSize:14, color:C.yellowDark }}> Cargar plantilla (opcional)</div>
             <div style={{ fontSize:12, color:C.grayMid }}>Precarga partidas desde una estructura existente. Puedes editarlas después.</div>
           </div>
           <button onClick={()=>setPlantillaModal(true)} style={{ padding:"8px 16px", background:C.yellow, border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:13, color:C.grayDark }}>
@@ -811,36 +811,7 @@ export default function App() {
               </div>
             )}
 
-            {/* CAPEX/OPEX adicional del PM */}
-            <div style={{ marginTop:24, borderTop:`2px solid ${C.grayBorder}`, paddingTop:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:C.grayMid, marginBottom:12 }}>CAPEX / OPEX adicional (PM)</div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-                <div>
-                  <div style={{ fontSize:12, fontWeight:700, color:C.yellowDark, marginBottom:8 }}>CAPEX adicional · {fmt(capexPMTotal)}</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, marginBottom:4 }}>
-                    {["Cat","Desc","Unidad","Cant","Monto","Total",""].map((h,i)=>
-                      <div key={i} style={{ fontSize:9, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
-                    )}
-                  </div>
-                  {capexPM.map(p=>(
-                    <PartidaRow key={p.id} p={p} onUpdate={u=>setCapexPM(capexPM.map(x=>x.id===p.id?u:x))} onRemove={()=>setCapexPM(capexPM.filter(x=>x.id!==p.id))} />
-                  ))}
-                  <button onClick={()=>setCapexPM([...capexPM,initPartida()])} style={{ width:"100%",padding:"7px",border:`2px dashed ${C.yellowBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.yellowDark,fontSize:12 }}>+ CAPEX</button>
-                </div>
-                <div>
-                  <div style={{ fontSize:12, fontWeight:700, color:C.grayMid, marginBottom:8 }}>OPEX adicional · {fmt(opexPMTotal)}</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, marginBottom:4 }}>
-                    {["Cat","Desc","Unidad","Cant","Monto","Total",""].map((h,i)=>
-                      <div key={i} style={{ fontSize:9, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
-                    )}
-                  </div>
-                  {opexPM.map(p=>(
-                    <PartidaRow key={p.id} p={p} onUpdate={u=>setOpexPM(opexPM.map(x=>x.id===p.id?u:x))} onRemove={()=>setOpexPM(opexPM.filter(x=>x.id!==p.id))} />
-                  ))}
-                  <button onClick={()=>setOpexPM([...opexPM,initPartida()])} style={{ width:"100%",padding:"7px",border:`2px dashed ${C.grayBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.grayMid,fontSize:12 }}>+ OPEX</button>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
 
