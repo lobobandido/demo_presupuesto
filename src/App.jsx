@@ -13,28 +13,28 @@ const C = {
 
 // ─── ÁREAS ───────────────────────────────────────────────────────────────────
 const AREAS_CAMPO = [
-  {id:"operaciones",   label:"Operaciones",        },
-  {id:"construccion",  label:"Construcción",       },
-  {id:"electricidad",  label:"Electricidad",       },
-  {id:"generacion",    label:"Generación",         },
-  {id:"calidad",       label:"Calidad",            },
-  {id:"sspa",          label:"SSPA",               },
-  {id:"hps",           label:"HPS",                },
-  {id:"mantenimiento", label:"Mantenimiento",      },
-  {id:"logistica",     label:"Logística",          },
+  {id:"operaciones",   label:"Operaciones",           icon:"🔧"},
+  {id:"construccion",  label:"Construcción",          icon:"🏗️"},
+  {id:"electricidad",  label:"Electricidad",          icon:"⚡"},
+  {id:"generacion",    label:"Generación",            icon:"⚙️"},
+  {id:"calidad",       label:"Calidad",               icon:"✅"},
+  {id:"sspa",          label:"SSPA",                  icon:"🦺"},
+  {id:"hps",           label:"HPS",                   icon:"🔩"},
+  {id:"mantenimiento", label:"Mantenimiento",         icon:"🛠️"},
+  {id:"logistica",     label:"Logística",             icon:"🚛"},
 ];
 const AREAS_DEPTO = [
-  {id:"ti",        label:"Tecnología (TI)",        },
-  {id:"innovacion",label:"Innovación y Tecnología",},
-  {id:"finanzas",  label:"Finanzas",               },
+  {id:"ti",        label:"Tecnología (TI)",        icon:"💻"},
+  {id:"innovacion",label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"finanzas",  label:"Finanzas",               icon:"💰"},
 ];
 const AREAS_SUMINISTRO = [
-  {id:"seguridad",      label:"Seguridad",               },
-  {id:"staff_dir",      label:"Staff de Dirección",      },
-  {id:"dir_general",    label:"Dirección General",       },
-  {id:"comunicacion",   label:"Comunicación",            },
-  {id:"innov_tec",      label:"Innovación y Tecnología", },
-  {id:"almacen",        label:"Almacén",                 },
+  {id:"seguridad",      label:"Seguridad",               icon:"🔒"},
+  {id:"staff_dir",      label:"Staff de Dirección",      icon:"👔"},
+  {id:"dir_general",    label:"Dirección General",       icon:"🏛️"},
+  {id:"comunicacion",   label:"Comunicación",            icon:"📢"},
+  {id:"innov_tec",      label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"almacen",        label:"Almacén",                 icon:"📦"},
 ];
 function getAreasCat(tipo){
   if(tipo==="departamento") return AREAS_DEPTO;
@@ -85,30 +85,48 @@ const PUESTOS_CAT=[
 // ─── PLANTILLAS ───────────────────────────────────────────────────────────────
 const PLANTILLAS={
   cuervito:{
-    nombre:"Monitoreo Cuervito",tipos:["servicio"],
-    desc:"Basada en 01022026 Presupuesto Monitoreo Cuervito",
+    nombre:"Monitoreo Cuervito", icon:"📋", tipos:["servicio","instalacion"],
+    desc:"01022026 Presupuesto Monitoreo Cuervito — datos reales del Excel",
+    // ── CAPEX real del archivo Excel F00 INVERSIÓN ──────────────────────────
     capex:[
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptops / Equipos de cómputo",          unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"ACCESORIOS",            desc:"Monitores, teclados, periféricos",       unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"EQUIPO DE TRANSPORTE",  desc:"Vehículos / Camionetas de campo",        unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"MAQUINARIA Y EQUIPO",   desc:"Maquinaria especializada",               unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"INFRAESTRUCTURA DE RED",desc:"Switches, access points, cableado",      unidad:"Global",cantidad:1,monto:0},
-      {cat:"GABINETE Y ENERGÍA",    desc:"Gabinetes, UPS, instalación eléctrica",  unidad:"Global",cantidad:1,monto:0},
+      {cat:"EQUIPO DE TRANSPORTE",   desc:"Camionetas",              unidad:"Unidad", cantidad:1,   monto:550000},
+      {cat:"EQUIPO DE ADQUISICION",  desc:"Sensores de presión",     unidad:"Unidad", cantidad:360, monto:165},
+      {cat:"EQUIPO DE ADQUISICION",  desc:"Gateway",                 unidad:"Unidad", cantidad:180, monto:175},
+      {cat:"EQUIPO DE ADQUISICION",  desc:"PLC",                     unidad:"Unidad", cantidad:50,  monto:300},
+      {cat:"EQUIPO DE ADQUISICION",  desc:"Arreglos y accesorios",   unidad:"Unidad", cantidad:180, monto:650},
+      {cat:"GABINETE Y ENERGIA",     desc:"Panel solar",             unidad:"Unidad", cantidad:180, monto:60},
+      {cat:"GABINETE Y ENERGIA",     desc:"Controlador de carga",    unidad:"Unidad", cantidad:180, monto:35},
+      {cat:"GABINETE Y ENERGIA",     desc:"Bateria Ciclo profundo",  unidad:"Unidad", cantidad:360, monto:80},
+      {cat:"GABINETE Y ENERGIA",     desc:"Gabinete",                unidad:"Unidad", cantidad:180, monto:90},
+      {cat:"GABINETE Y ENERGIA",     desc:"Cableado, clemas y riel", unidad:"Unidad", cantidad:180, monto:60},
+      {cat:"TRANSMISION",            desc:"Kit Starlink mini",       unidad:"Unidad", cantidad:40,  monto:277},
+      {cat:"TRANSMISION",            desc:"Antenas repetidoras",     unidad:"Unidad", cantidad:40,  monto:1100},
+      {cat:"CENTRO DE MONITOREO",    desc:"Monitores",               unidad:"Unidad", cantidad:6,   monto:450},
+      {cat:"CENTRO DE MONITOREO",    desc:"Workstation",             unidad:"Unidad", cantidad:1,   monto:1800},
+      {cat:"CENTRO DE MONITOREO",    desc:"UPS",                     unidad:"Unidad", cantidad:1,   monto:250},
+      {cat:"CENTRO DE MONITOREO",    desc:"Accesorios",              unidad:"Unidad", cantidad:1,   monto:200},
     ],
+    // ── OPEX real del archivo Excel (pestaña SERVICIO/EGRESOS) ───────────────
     opex:[
-      {cat:"NÓMINA Y ADICIONALES",       desc:"Nómina mensual del proyecto",               unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"Software mensual (Office, Adobe, etc.)",    unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"LICENCIAMIENTO MXN ANUAL",   desc:"Software anual (AutoCAD, etc.)",            unidad:"Año",     cantidad:1,monto:0},
-      {cat:"TELECOMUNICACIONES",         desc:"Internet, radio, telefonía",                unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"VEHÍCULOS Y COMBUSTIBLE",    desc:"Combustible y operación de vehículos",      unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"VIÁTICOS",                   desc:"Viáticos y gastos de campo",                unidad:"Día",     cantidad:1,monto:0},
-      {cat:"ARTÍCULOS DE SEGURIDAD",     desc:"EPP y uniformes",                           unidad:"Unidad",  cantidad:1,monto:0},
-      {cat:"MATERIALES",                 desc:"Materiales de instalación y operación",      unidad:"Unidad",  cantidad:1,monto:0},
-      {cat:"SERVICIOS",                  desc:"Servicios externos y contratistas",          unidad:"Servicio",cantidad:1,monto:0},
+      {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Mes",      cantidad:12, monto:13000},
+      {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad",   cantidad:1,  monto:40000},
+      {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad",   cantidad:1,  monto:84000},
+      {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Mes",      cantidad:12, monto:2700},
+      {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Mes",      cantidad:12, monto:2700},
+      {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global",   cantidad:1,  monto:810000},
+      {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Mes",      cantidad:12, monto:73490.13},
+      {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Mes",      cantidad:12, monto:66000},
+      {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global",   cantidad:1,  monto:1294000},
+      {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Mes",      cantidad:12, monto:26216.67},
+    ],
+    // ── Nómina real del archivo Excel F01 NÓMINA ─────────────────────────────
+    nomina:[
+      {puesto:"Especialista telemetría",   cantidad:1, salario:25000},
+      {puesto:"Técnico instrumentista",    cantidad:1, salario:20000},
     ],
   },
   instalacion:{
-    nombre:"Proyecto de Instalación",tipos:["instalacion"],
+    nombre:"Proyecto de Instalación",icon:"🏗️",tipos:["instalacion"],
     desc:"Proyectos de campo con mano de obra",
     capex:[
       {cat:"EQUIPO DE TRANSPORTE", desc:"Camionetas de campo",                    unidad:"Unidad",cantidad:1,monto:0},
@@ -127,7 +145,7 @@ const PLANTILLAS={
     ],
   },
   depto_ti:{
-    nombre:"Departamento TI 2026",tipos:["departamento"],
+    nombre:"Departamento TI 2026",icon:"💻",tipos:["departamento"],
     desc:"Basada en Presupuesto_Geolis_2026_v4.1 · Área TI",
     capex:[
       {cat:"EQUIPO DE COMPUTO",     desc:"Laptops Geolis y Cuervito (Dell Pro)",         unidad:"Unidad",cantidad:1,monto:0},
@@ -152,7 +170,7 @@ function plantillasSugeridas(tipo){
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 // ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
-const LS_APP_KEY = "geolis_app_state_v2";
+const LS_APP_KEY = "geolis_app_state_v3"; // v3: plantillas con datos reales
 function saveAppState(state){ try{ localStorage.setItem(LS_APP_KEY, JSON.stringify(state)); }catch(e){} }
 function loadAppState(){ try{ const s=localStorage.getItem(LS_APP_KEY); return s?JSON.parse(s):null; }catch(e){return null;} }
 
@@ -763,26 +781,34 @@ export default function App(){
 
   function confirmarAreas(){
     const c={};
+    // Obtener la plantilla activa con sus datos completos
+    const plData = plantKey ? PLANTILLAS[plantKey] : null;
     areas.forEach((id,idx)=>{
       const existing=costos[id];
-      if(existing){ c[id]=existing; return; }
-      // Si hay plantilla cargada la distribuimos en el primer area
-      if(idx===0&&(capexPM.length>0||opexPM.length>0)){
-        const nomPL=opexPM
-          .filter(p=>p.cat&&p.cat.toUpperCase().includes("NOMINA"))
-          .map(p=>initN({puesto:p.desc||p.cat,cantidad:1,salario:p.monto||0}));
-        const matPL=opexPM
-          .filter(p=>!p.cat?.toUpperCase().includes("NOMINA"))
-          .map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+      if(existing&&existing.estado!=="pendiente"){ c[id]=existing; return; }
+      if(idx===0 && plData){
+        // Distribuir plantilla completa al primer área con datos reales
+        const capexBase = (plData.capex||[]).map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        // OPEX: separar nómina de materiales
+        const nomBase = (plData.nomina||[]).map(p=>initN({puesto:p.puesto,cantidad:p.cantidad||1,salario:p.salario||0}));
+        // Del opex de la plantilla — los que son NOMINA van a nómina, resto a mat
+        const opexNom = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("NOMINA"));
+        const opexMat = (plData.opex||[]).filter(p=>!p.cat?.toUpperCase().includes("NOMINA")&&!p.cat?.toUpperCase().includes("VIATICO"));
+        const opexVia = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("VIATICO"));
+        const matBase = opexMat.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        const viaBase = opexVia.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        // Si la plantilla tiene nómina propia usarla, si no, convertir las OPEX-NOMINA
+        const nomFinal = nomBase.length>0 ? nomBase
+          : opexNom.map(p=>initN({puesto:p.desc||"Puesto",cantidad:1,salario:p.monto||0}));
         c[id]={
-          capex:capexPM.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto})),
-          mat:matPL,
-          nomina:nomPL,
-          via:[],
+          capex:capexBase,
+          mat:matBase,
+          nomina:nomFinal,
+          via:viaBase,
           estado:"pendiente",
         };
       } else {
-        c[id]={capex:[],mat:[],nomina:[],via:[],estado:"pendiente"};
+        c[id]=existing||{capex:[],mat:[],nomina:[],via:[],estado:"pendiente"};
       }
     });
     setCostos(c); setStep(3); setActiva(areas[0]||null);
@@ -1016,10 +1042,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",       desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
@@ -1059,7 +1085,7 @@ export default function App(){
             <div style={{padding:"14px 20px",borderBottom:`1px solid ${C.line}`,
               borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}> Plantilla de partidas</div>
+                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>📋 Plantilla de partidas</div>
                 <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                   {sug.length>0?"Estructura base para este tipo · editable después.":"Próxima versión."}
                 </div>
