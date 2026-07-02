@@ -1,613 +1,448 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // ─── PALETA GEOLIS ────────────────────────────────────────────────────────────
 const C = {
-  yellow:      "#DDAC00",
-  yellowLight: "#FFF8E1",
-  yellowBorder:"#F0C800",
-  yellowDark:  "#B08900",
-  grayDark:    "#2C2C2C",
-  grayMid:     "#6B6B6B",
-  grayLight:   "#F5F5F5",
-  grayBorder:  "#DEDEDE",
-  white:       "#FFFFFF",
-  // semánticos
-  danger:      "#C0392B",
-  dangerLight: "#FDECEA",
-  success:     "#1E7E34",
-  successLight:"#EAF7ED",
-  info:        "#1A6FA8",
-  infoLight:   "#E8F4FD",
+  yellow:"#DDAC00", yellowLight:"#FFF8E1", yellowBorder:"#F0C800", yellowDark:"#B08900",
+  grayDark:"#2C2C2C", grayMid:"#6B6B6B", grayLight:"#F5F5F5", grayBorder:"#DEDEDE",
+  white:"#FFFFFF", danger:"#C0392B", dangerLight:"#FDECEA",
+  success:"#1E7E34", successLight:"#EAF7ED",
 };
 
-// Colores para gráficas (líneas por categoría, igual que los Excels de Geolis)
-const CHART_COLORS = {
-  equipos:    "#DDAC00",
-  materiales: "#6B6B6B",
-  mano_obra:  "#2C2C2C",
-  viaticos:   "#B08900",
-  ingresos:   "#1E7E34",
-  capex:      "#DDAC00",
-  opex:       "#6B6B6B",
-};
-
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const TIPOS_PROYECTO = [
-  { id: "instalacion",  label: "Instalación",  icon: "🏗️", desc: "Proyecto de instalación o construcción con ingresos por facturación" },
-  { id: "servicio",     label: "Servicio",     icon: "⚙️", desc: "Contrato de servicio recurrente con facturación mensual" },
-  { id: "departamento", label: "Departamento", icon: "🏢", desc: "Presupuesto interno de área. Sin ingresos externos." },
-  { id: "suministro",   label: "Suministro",   icon: "📦", desc: "Compra o entrega de materiales y equipos. Sin ingresos." },
-];
-
-// Tipos que generan ingresos (controla visibilidad de sección Ingresos)
-const TIPOS_CON_INGRESOS = ["instalacion", "servicio"];
-
+// ─── ÁREAS (confirmadas del audio) ───────────────────────────────────────────
 const AREAS_CATALOGO = [
-  { id: "operaciones",    label: "Operaciones",    icon: "🔧" },
-  { id: "ingenieria",     label: "Ingeniería",      icon: "📐" },
-  { id: "sspa",           label: "SSPA",            icon: "🦺" },
-  { id: "logistica",      label: "Logística",       icon: "🚛" },
-  { id: "administracion", label: "Administración",  icon: "📋" },
-  { id: "ti",             label: "Tecnología (TI)", icon: "💻" },
-  { id: "compras",        label: "Compras",         icon: "🛒" },
-];
-
-const CATS_AREA = {
-  materiales: { label: "Materiales",   color: "#7c3aed", bg: "#f5f3ff", border: "#ddd6fe" },
-  mano_obra:  { label: "Mano de Obra", color: "#0891b2", bg: "#f0f9ff", border: "#bae6fd" },
-  equipos:    { label: "Equipos",      color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
-  viaticos:   { label: "Viáticos",     color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" },
-};
-
-const CAPEX_CATS = [
-  "EQUIPO DE TRANSPORTE","MAQUINARIA Y EQUIPO","EQUIPO DE MOBILIARIO",
-  "EQUIPO DE COMPUTO","OTROS ACTIVOS","SOFTWARE Y LICENCIAS",
-  "GABINETE Y ENERGÍA","TRANSMISIÓN","CENTRO DE MONITOREO",
-];
-const OPEX_CATS = [
-  "NÓMINA Y ADICIONALES","ARRENDA DE INMUEBLES Y SERV","ARTÍCULOS DE SEGURIDAD",
-  "INSUMOS OPERATIVOS","INSUMOS DE OFICINA","MATERIALES","MATERIALES DE SALUD",
-  "SERV TELEFONÍA CELULAR Y RADIO","SERVICIOS","SERVICIOS DE CAPACITACIÓN",
-  "VEHÍCULOS Y COMBUSTIBLE","VIÁTICOS","MARKETING","EQUIPOS Y ENSERES",
-  "RENTA DE MAQUINARIA Y EQUIPO","HERRAMIENTAS","SEGUROS","FLETES NACIONALES",
-  "AGUA Y ALCANTARILLADO","ENERGÍA ELÉCTRICA","TELEFONÍA FIJA",
+  { id:"operaciones",  label:"Operaciones",  icon:"🔧" },
+  { id:"construccion", label:"Construcción", icon:"🏗️" },
+  { id:"electricidad", label:"Electricidad", icon:"⚡" },
+  { id:"generacion",   label:"Generación",   icon:"⚙️" },
+  { id:"calidad",      label:"Calidad",      icon:"✅" },
+  { id:"sspa",         label:"SSPA",         icon:"🦺" },
+  { id:"hps",          label:"HPS",          icon:"🔩" },
+  { id:"mantenimiento",label:"Mantenimiento",icon:"🛠️" },
+  { id:"logistica",    label:"Logística",    icon:"🚛" },
 ];
 
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-const UNIDADES = ["Unidad","Día","Semana","Mes","Año","Servicio","Viaje","Pieza","Kg","Metro","Litro","Hora"];
+const UNIDADES_BASE = ["Unidad","Día","Semana","Mes","Año","Servicio","Viaje","Pieza","Kg","Metro","Litro","Hora","Servicio","Global"];
 
-// RF-05: Catálogo de puestos para nómina
-const PUESTOS_NOMINA = [
-  "Director de Proyecto","Gerente de Área","Supervisor","Ingeniero de Campo",
-  "Técnico Especialista","Técnico","Operador","Ayudante General","Otro",
-];
-const FACTOR_IMSS_DEFAULT         = 0.32; // IMSS + Previsión social
-const FACTOR_PRESTACIONES_DEFAULT = 0.40; // Vacaciones, aguinaldo, prima
-const FACTOR_ISR_DEFAULT          = 0.05; // ISR estimado promedio
-
-const ESTADOS = {
-  BORRADOR:    { label: "Borrador",     color: C.grayMid,  bg: C.grayLight  },
-  EN_CAPTURA:  { label: "En captura",   color: C.yellowDark, bg: C.yellowLight },
-  EN_REVISION: { label: "En revisión",  color: C.info,     bg: C.infoLight  },
-  CONSOLIDADO: { label: "Consolidado",  color: C.success,  bg: C.successLight},
+// ─── PLANTILLAS PRECARGADAS ───────────────────────────────────────────────────
+// Extraídas del Excel Presupuesto_Geolis_2026_v4.1_FormatoCuervito
+const PLANTILLAS = {
+  cuervito: {
+    nombre: "Monitoreo Cuervito",
+    descripcion: "Basada en 01022026 Presupuesto Monitoreo Cuervito",
+    icon: "📋",
+    capex: [
+      { cat:"EQUIPO DE COMPUTO",  desc:"Laptops / Equipos de cómputo", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"ACCESORIOS",         desc:"Monitores, teclados, periféricos", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"EQUIPO DE TRANSPORTE",desc:"Vehículos / Camionetas de campo", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"MAQUINARIA Y EQUIPO", desc:"Maquinaria especializada", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"INFRAESTRUCTURA DE RED",desc:"Switches, access points, cableado", unidad:"Global", cantidad:1, monto:0 },
+      { cat:"GABINETE Y ENERGÍA",  desc:"Gabinetes, UPS, instalación eléctrica", unidad:"Global", cantidad:1, monto:0 },
+    ],
+    opex: [
+      { cat:"NÓMINA Y ADICIONALES",     desc:"Nómina mensual del proyecto", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Software mensual (Office, Adobe, etc.)", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"LICENCIAMIENTO MXN ANUAL", desc:"Software anual (AutoCAD, etc.)", unidad:"Año", cantidad:1, monto:0 },
+      { cat:"TELECOMUNICACIONES",       desc:"Internet, radio, telefonía (Starlink, etc.)", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"VEHÍCULOS Y COMBUSTIBLE",  desc:"Combustible y operación de vehículos", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"VIÁTICOS",                 desc:"Viáticos y gastos de campo", unidad:"Día", cantidad:1, monto:0 },
+      { cat:"ARTÍCULOS DE SEGURIDAD",   desc:"EPP y uniformes", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"MATERIALES",               desc:"Materiales de instalación y operación", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"SERVICIOS",                desc:"Servicios externos y contratistas", unidad:"Servicio", cantidad:1, monto:0 },
+    ],
+  },
+  departamento: {
+    nombre: "Presupuesto Departamental",
+    descripcion: "Plantilla para áreas internas (TI, RRHH, Administración)",
+    icon: "🏢",
+    capex: [
+      { cat:"EQUIPO DE COMPUTO",  desc:"Laptops y equipos de cómputo", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"EQUIPO DE MOBILIARIO",desc:"Mobiliario y enseres de oficina", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"SOFTWARE Y LICENCIAS",desc:"Software de uso interno", unidad:"Unidad", cantidad:1, monto:0 },
+    ],
+    opex: [
+      { cat:"NÓMINA Y ADICIONALES",   desc:"Nómina del departamento", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"INSUMOS DE OFICINA",     desc:"Papelería y consumibles", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"TELECOMUNICACIONES",     desc:"Internet y telefonía", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"SERVICIOS",              desc:"Servicios de mantenimiento y limpieza", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Licencias de software", unidad:"Mes", cantidad:1, monto:0 },
+    ],
+  },
+  instalacion: {
+    nombre: "Proyecto de Instalación",
+    descripcion: "Plantilla para proyectos de campo con mano de obra",
+    icon: "🏗️",
+    capex: [
+      { cat:"EQUIPO DE TRANSPORTE",  desc:"Camionetas de campo", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"MAQUINARIA Y EQUIPO",   desc:"Equipo especializado de instalación", unidad:"Unidad", cantidad:1, monto:0 },
+      { cat:"GABINETE Y ENERGÍA",    desc:"Gabinetes y sistema de energía", unidad:"Global", cantidad:1, monto:0 },
+      { cat:"TRANSMISIÓN",           desc:"Equipos de transmisión y comunicación", unidad:"Global", cantidad:1, monto:0 },
+    ],
+    opex: [
+      { cat:"NÓMINA Y ADICIONALES",  desc:"Nómina mensual del proyecto", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"ARTÍCULOS DE SEGURIDAD",desc:"EPP, uniformes y seguridad industrial", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"VEHÍCULOS Y COMBUSTIBLE",desc:"Combustible mensual de campo", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"VIÁTICOS",              desc:"Viáticos del equipo en campo", unidad:"Día", cantidad:1, monto:0 },
+      { cat:"MATERIALES",            desc:"Materiales de instalación", unidad:"Global", cantidad:1, monto:0 },
+      { cat:"TELECOMUNICACIONES",    desc:"Radio y comunicaciones de campo", unidad:"Mes", cantidad:1, monto:0 },
+      { cat:"SERVICIOS DE CAPACITACIÓN",desc:"Capacitaciones requeridas", unidad:"Servicio", cantidad:1, monto:0 },
+    ],
+  },
 };
 
-let _id = 100;
+// Factores nómina (RF-05)
+const F_IMSS = 0.32, F_PREST = 0.40, F_ISR = 0.05;
+const PUESTOS = ["Director de Proyecto","Gerente de Área","Supervisor","Ingeniero de Campo","Técnico Especialista","Técnico","Operador","Ayudante General","Otro"];
+
+let _id = 1;
 const uid = () => ++_id;
+const fmt = n => isNaN(n)||n==null ? "$0.00" : "$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const LS_KEY_CATS = "geolis_categorias_custom";
 
-const fmt = (n) => isNaN(n) || n == null ? "$0.00"
-  : "$" + Number(n).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-function initPartida(o = {}) {
-  return { id: uid(), desc: "", unidad: "Unidad", cantidad: 1, monto: 0, ...o };
+function getCatsCustom() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY_CATS)||"[]"); } catch { return []; }
 }
-function initPartidaLibre(o = {}) {
-  return { id: uid(), cat: "", desc: "", unidad: "Mes", cantidad: 1, monto: 0, distribucion: "uniforme", meses: Array(12).fill(0), ...o };
-}
-
-// Distribución mensual uniforme (CAPEX cae en M0, OPEX ÷ 12)
-function distribuirMeses(total, tipo = "opex") {
-  if (tipo === "capex") {
-    const m = Array(12).fill(0);
-    m[0] = total;
-    return m;
+function saveCatCustom(cat) {
+  const existing = getCatsCustom();
+  if (!existing.includes(cat)) {
+    localStorage.setItem(LS_KEY_CATS, JSON.stringify([...existing, cat]));
   }
-  const v = parseFloat((total / 12).toFixed(2));
-  return Array(12).fill(v);
 }
 
-// ─── SHARED UI ────────────────────────────────────────────────────────────────
-function Badge({ estado }) {
-  const e = ESTADOS[estado] || ESTADOS.BORRADOR;
-  return (
-    <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700,
-      background: e.bg, color: e.color, border: `1px solid ${e.color}44` }}>
-      {e.label}
-    </span>
-  );
+function initPartida(o={}) { return { id:uid(), cat:"", desc:"", unidad:"Unidad", cantidad:1, monto:0, ...o }; }
+function initNomina(o={}) { return { id:uid(), puesto:"Técnico", puestoCustom:"", cantidad:1, salario:0, imss:F_IMSS, prestaciones:F_PREST, isr:F_ISR, ...o }; }
+function distribuirMeses(total, tipo="opex") {
+  if (tipo==="capex") { const m=Array(12).fill(0); m[0]=total; return m; }
+  return Array(12).fill(parseFloat((total/12).toFixed(2)));
 }
 
-function StepBar({ current }) {
-  const steps = ["Info general","Áreas","Captura","Revisión PM","Consolidar"];
-  return (
-    <div style={{ display: "flex", gap: 0, marginBottom: 28, borderBottom: `2px solid ${C.grayBorder}` }}>
-      {steps.map((s, i) => (
-        <div key={i} style={{
-          padding: "10px 18px", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-          color: current === i ? C.yellowDark : current > i ? C.success : C.grayMid,
-          borderBottom: current === i ? `2px solid ${C.yellow}` : "2px solid transparent",
-          marginBottom: -2,
-        }}>
-          {current > i ? "✓ " : ""}{s}
-        </div>
-      ))}
-    </div>
-  );
+// ─── BADGE ────────────────────────────────────────────────────────────────────
+function Badge({ label, color, bg }) {
+  return <span style={{ padding:"3px 10px", borderRadius:20, fontSize:12, fontWeight:700, background:bg||C.grayLight, color:color||C.grayMid, border:`1px solid ${color||C.grayMid}44` }}>{label}</span>;
 }
 
-function SectionCard({ title, subtitle, color, children, total }) {
-  const bg = color || C.grayDark;
-  return (
-    <div style={{ border: `1px solid ${C.grayBorder}`, borderRadius: 10, marginBottom: 16, overflow: "hidden" }}>
-      <div style={{ background: bg, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 15, color: C.white }}>{title}</div>
-          {subtitle && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>{subtitle}</div>}
-        </div>
-        {total !== undefined && <div style={{ fontSize: 18, fontWeight: 800, color: C.white }}>{fmt(total)}</div>}
-      </div>
-      <div style={{ padding: 16 }}>{children}</div>
-    </div>
-  );
-}
+// ─── CATEGORY INPUT (editable con localStorage) ───────────────────────────────
+function CatInput({ value, onChange, placeholder="Categoría" }) {
+  const [open, setOpen] = useState(false);
+  const [texto, setTexto] = useState(value||"");
+  const baseCats = [...new Set([
+    "NÓMINA Y ADICIONALES","EQUIPO DE COMPUTO","EQUIPO DE TRANSPORTE","MAQUINARIA Y EQUIPO",
+    "ACCESORIOS","MATERIALES","VIÁTICOS","TELECOMUNICACIONES","VEHÍCULOS Y COMBUSTIBLE",
+    "ARTÍCULOS DE SEGURIDAD","SERVICIOS","LICENCIAMIENTO MXN MENSUAL","LICENCIAMIENTO MXN ANUAL",
+    "INFRAESTRUCTURA DE RED","GABINETE Y ENERGÍA","TRANSMISIÓN","INSUMOS DE OFICINA",
+    "INSUMOS OPERATIVOS","HERRAMIENTAS","EQUIPOS Y ENSERES","SEGUROS","FLETES NACIONALES",
+    "SERVICIOS DE CAPACITACIÓN","RENTA DE MAQUINARIA","SOFTWARE Y LICENCIAS","EQUIPO DE MOBILIARIO",
+    ...getCatsCustom(),
+  ])];
+  const filtradas = baseCats.filter(c => c.toLowerCase().includes(texto.toLowerCase()));
+  const ref = useRef();
 
-function PartidaRow({ p, onUpdate, onRemove, catLabel }) {
-  const total = (p.cantidad || 0) * (p.monto || 0);
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 90px auto", gap: 8, alignItems: "center", marginBottom: 6 }}>
-      <input value={p.desc} onChange={e => onUpdate({ ...p, desc: e.target.value })}
-        placeholder={`Descripción${catLabel ? " — " + catLabel : ""}`}
-        style={{ padding: "7px 10px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13 }} />
-      <select value={p.unidad} onChange={e => onUpdate({ ...p, unidad: e.target.value })}
-        style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 12 }}>
-        {UNIDADES.map(u => <option key={u}>{u}</option>)}
-      </select>
-      <input type="number" min="0" step="1" value={p.cantidad}
-        onChange={e => onUpdate({ ...p, cantidad: parseFloat(e.target.value) || 0 })}
-        style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "right" }} />
-      <input type="number" min="0" step="0.01" value={p.monto}
-        onChange={e => onUpdate({ ...p, monto: parseFloat(e.target.value) || 0 })}
-        style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "right" }} />
-      <span style={{ fontSize: 13, fontWeight: 600, textAlign: "right", color: C.yellowDark }}>{fmt(total)}</span>
-      <button onClick={onRemove} style={{ background: C.dangerLight, color: C.danger, border: "none",
-        borderRadius: 5, padding: "5px 9px", cursor: "pointer", fontSize: 13 }}>✕</button>
-    </div>
-  );
-}
+  useEffect(() => { setTexto(value||""); }, [value]);
+  useEffect(() => {
+    function handler(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-function PartidaLibreRow({ p, onUpdate, onRemove, cats }) {
-  const total = (p.cantidad || 0) * (p.monto || 0);
-  function handle(field, val) {
-    const updated = { ...p, [field]: val };
-    if (field === "cantidad" || field === "monto") {
-      updated.meses = distribuirMeses((updated.cantidad || 0) * (updated.monto || 0),
-        cats === CAPEX_CATS ? "capex" : "opex");
+  function select(cat) { setTexto(cat); onChange(cat); setOpen(false); }
+  function handleKey(e) {
+    if (e.key==="Enter" && texto.trim()) {
+      saveCatCustom(texto.trim().toUpperCase());
+      select(texto.trim().toUpperCase());
     }
-    onUpdate(updated);
   }
-  return (
-    <div style={{ background: C.grayLight, border: `1px solid ${C.grayBorder}`, borderRadius: 8, padding: 12, marginBottom: 8 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr auto", gap: 8, alignItems: "center" }}>
-        <select value={p.cat} onChange={e => handle("cat", e.target.value)}
-          style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 12 }}>
-          <option value="">— Categoría —</option>
-          {cats.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <input value={p.desc} onChange={e => handle("desc", e.target.value)}
-          placeholder="Descripción" style={{ padding: "7px 10px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13 }} />
-        <select value={p.unidad} onChange={e => handle("unidad", e.target.value)}
-          style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 12 }}>
-          {UNIDADES.map(u => <option key={u}>{u}</option>)}
-        </select>
-        <input type="number" min="0" step="1" value={p.cantidad} onChange={e => handle("cantidad", parseFloat(e.target.value) || 0)}
-          style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "right" }} />
-        <input type="number" min="0" step="0.01" value={p.monto} onChange={e => handle("monto", parseFloat(e.target.value) || 0)}
-          style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "right" }} />
-        <button onClick={onRemove} style={{ background: C.dangerLight, color: C.danger, border: "none",
-          borderRadius: 5, padding: "5px 9px", cursor: "pointer", fontSize: 13 }}>✕</button>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 12, color: C.grayMid }}>
-        <span>Total: <strong style={{ color: C.yellowDark }}>{fmt(total)}</strong></span>
-        <span>Distribución: {cats === CAPEX_CATS ? "M0 (inversión única)" : "Uniforme ÷12 meses"}</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── CHART COMPONENTS ─────────────────────────────────────────────────────────
-
-// Gráfica de líneas SVG pura — mes a mes por categoría
-function LineChart({ series, height = 220 }) {
-  if (!series || series.length === 0) return null;
-  const W = 660, H = height, padL = 70, padR = 20, padT = 20, padB = 40;
-  const cW = W - padL - padR;
-  const cH = H - padT - padB;
-
-  const allVals = series.flatMap(s => s.data);
-  const maxVal = Math.max(...allVals, 1);
-  const minVal = 0;
-
-  function xPos(i) { return padL + (i / 11) * cW; }
-  function yPos(v) { return padT + cH - ((v - minVal) / (maxVal - minVal)) * cH; }
-
-  const gridLines = 4;
-  const step = maxVal / gridLines;
 
   return (
-    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: "block" }}>
-      {/* Grid lines */}
-      {Array.from({ length: gridLines + 1 }, (_, i) => {
-        const v = i * step;
-        const y = yPos(v);
-        return (
-          <g key={i}>
-            <line x1={padL} y1={y} x2={W - padR} y2={y} stroke={C.grayBorder} strokeWidth="0.8" strokeDasharray="4 4" />
-            <text x={padL - 6} y={y + 4} textAnchor="end" fontSize="10" fill={C.grayMid}>
-              {v >= 1000000 ? `$${(v/1000000).toFixed(1)}M` : v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v.toFixed(0)}`}
-            </text>
-          </g>
-        );
-      })}
-      {/* X axis labels */}
-      {MESES.map((m, i) => (
-        <text key={m} x={xPos(i)} y={H - 8} textAnchor="middle" fontSize="10" fill={C.grayMid}>{m}</text>
-      ))}
-      {/* Lines */}
-      {series.map(s => {
-        const pts = s.data.map((v, i) => `${xPos(i)},${yPos(v)}`).join(" ");
-        return (
-          <g key={s.label}>
-            <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            {s.data.map((v, i) => v > 0 && (
-              <circle key={i} cx={xPos(i)} cy={yPos(v)} r="3.5" fill={s.color} stroke={C.white} strokeWidth="1.5" />
-            ))}
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-// Gráfica de barras agrupadas SVG
-function BarChart({ items, height = 200 }) {
-  if (!items || items.length === 0) return null;
-  const W = 660, H = height, padL = 70, padR = 20, padT = 20, padB = 50;
-  const cW = W - padL - padR;
-  const cH = H - padT - padB;
-
-  const maxVal = Math.max(...items.map(i => i.value), 1);
-  const barW = Math.min(60, (cW / items.length) - 16);
-
-  return (
-    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: "block" }}>
-      {/* Grid */}
-      {[0, 0.25, 0.5, 0.75, 1].map(p => {
-        const y = padT + cH * (1 - p);
-        const v = maxVal * p;
-        return (
-          <g key={p}>
-            <line x1={padL} y1={y} x2={W - padR} y2={y} stroke={C.grayBorder} strokeWidth="0.8" strokeDasharray="4 4" />
-            <text x={padL - 6} y={y + 4} textAnchor="end" fontSize="10" fill={C.grayMid}>
-              {v >= 1000000 ? `$${(v/1000000).toFixed(1)}M` : v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v.toFixed(0)}`}
-            </text>
-          </g>
-        );
-      })}
-      {/* Bars */}
-      {items.map((item, i) => {
-        const x = padL + (i / items.length) * cW + (cW / items.length - barW) / 2;
-        const barH = (item.value / maxVal) * cH;
-        const y = padT + cH - barH;
-        return (
-          <g key={item.label}>
-            <rect x={x} y={y} width={barW} height={barH} rx="4" fill={item.color} opacity="0.9" />
-            <text x={x + barW / 2} y={H - padB + 14} textAnchor="middle" fontSize="10" fill={C.grayMid}>{item.label}</text>
-            <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="9" fill={item.color} fontWeight="600">
-              {item.value >= 1000000 ? `${(item.value/1000000).toFixed(1)}M` : item.value >= 1000 ? `${(item.value/1000).toFixed(0)}K` : item.value.toFixed(0)}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-// Leyenda de gráfica
-function ChartLegend({ items }) {
-  return (
-    <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 12 }}>
-      {items.map(item => (
-        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 12, height: 12, borderRadius: 2, background: item.color }} />
-          <span style={{ fontSize: 12, color: C.grayMid }}>{item.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Tabla mensual con totales
-function TablaMensual({ filas, showTotal = true }) {
-  const totalesMes = MESES.map((_, i) => filas.reduce((s, f) => s + (f.meses[i] || 0), 0));
-  const totalGeneral = totalesMes.reduce((s, v) => s + v, 0);
-
-  return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-        <thead>
-          <tr style={{ background: C.grayDark, color: C.white }}>
-            <td style={{ padding: "8px 12px", fontWeight: 700, minWidth: 160 }}>Concepto</td>
-            {MESES.map(m => <td key={m} style={{ padding: "6px 4px", textAlign: "right", fontWeight: 600, minWidth: 60 }}>{m}</td>)}
-            <td style={{ padding: "6px 12px", textAlign: "right", fontWeight: 700 }}>Total</td>
-          </tr>
-        </thead>
-        <tbody>
-          {filas.map((f, i) => {
-            const total = f.meses.reduce((s, v) => s + v, 0);
-            return (
-              <tr key={f.label} style={{ background: i % 2 === 0 ? C.white : C.grayLight, borderBottom: `1px solid ${C.grayBorder}` }}>
-                <td style={{ padding: "7px 12px", display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 2, background: f.color, flexShrink: 0 }} />
-                  <span style={{ fontWeight: 600, color: C.grayDark }}>{f.label}</span>
-                </td>
-                {f.meses.map((v, mi) => (
-                  <td key={mi} style={{ padding: "6px 4px", textAlign: "right", color: v > 0 ? C.grayDark : C.grayMid }}>
-                    {v > 0 ? (v >= 1000 ? `$${(v/1000).toFixed(1)}K` : fmt(v)) : "—"}
-                  </td>
-                ))}
-                <td style={{ padding: "6px 12px", textAlign: "right", fontWeight: 700, color: f.color }}>{fmt(total)}</td>
-              </tr>
-            );
-          })}
-          {showTotal && (
-            <tr style={{ background: C.yellowLight, borderTop: `2px solid ${C.yellow}` }}>
-              <td style={{ padding: "8px 12px", fontWeight: 800, color: C.grayDark }}>TOTAL</td>
-              {totalesMes.map((v, i) => (
-                <td key={i} style={{ padding: "6px 4px", textAlign: "right", fontWeight: 700, color: C.grayDark }}>
-                  {v > 0 ? (v >= 1000 ? `$${(v/1000).toFixed(1)}K` : fmt(v)) : "—"}
-                </td>
-              ))}
-              <td style={{ padding: "6px 12px", textAlign: "right", fontWeight: 800, color: C.yellowDark }}>{fmt(totalGeneral)}</td>
-            </tr>
+    <div ref={ref} style={{ position:"relative" }}>
+      <input value={texto} onChange={e => { setTexto(e.target.value); onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)} onKeyDown={handleKey} placeholder={placeholder}
+        style={{ width:"100%", padding:"7px 10px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12 }} />
+      {open && filtradas.length > 0 && (
+        <div style={{ position:"absolute", top:"100%", left:0, right:0, zIndex:100, background:C.white,
+          border:`1px solid ${C.grayBorder}`, borderRadius:6, maxHeight:180, overflowY:"auto", boxShadow:"0 4px 12px rgba(0,0,0,0.1)" }}>
+          {texto && !baseCats.includes(texto.toUpperCase()) && (
+            <div onClick={() => { saveCatCustom(texto.toUpperCase()); select(texto.toUpperCase()); }}
+              style={{ padding:"8px 12px", fontSize:12, color:C.yellowDark, cursor:"pointer", borderBottom:`1px solid ${C.grayLight}`, fontWeight:700 }}>
+              + Agregar "{texto.toUpperCase()}"
+            </div>
           )}
-        </tbody>
-      </table>
+          {filtradas.map(c => (
+            <div key={c} onClick={() => select(c)} style={{ padding:"7px 12px", fontSize:12, cursor:"pointer", background:value===c?C.yellowLight:"transparent" }}
+              onMouseEnter={e => e.currentTarget.style.background=C.yellowLight}
+              onMouseLeave={e => e.currentTarget.style.background=value===c?C.yellowLight:"transparent"}>
+              {c}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
+// ─── PARTIDA ROW ──────────────────────────────────────────────────────────────
+function PartidaRow({ p, onUpdate, onRemove }) {
+  const total = (p.cantidad||0)*(p.monto||0);
+  const unidades = [...new Set([...UNIDADES_BASE])];
+  return (
+    <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, alignItems:"center", marginBottom:5 }}>
+      <CatInput value={p.cat} onChange={v => onUpdate({...p,cat:v})} />
+      <input value={p.desc} onChange={e => onUpdate({...p,desc:e.target.value})} placeholder="Descripción"
+        style={{ padding:"7px 8px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12 }} />
+      <select value={p.unidad} onChange={e => onUpdate({...p,unidad:e.target.value})}
+        style={{ padding:"7px 6px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:11 }}>
+        {unidades.map(u=><option key={u}>{u}</option>)}
+      </select>
+      <input type="number" min="0" step="1" value={p.cantidad} onChange={e => onUpdate({...p,cantidad:parseFloat(e.target.value)||0})}
+        style={{ padding:"7px 6px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12, textAlign:"right" }} />
+      <input type="number" min="0" step="0.01" value={p.monto} onChange={e => onUpdate({...p,monto:parseFloat(e.target.value)||0})}
+        style={{ padding:"7px 6px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12, textAlign:"right" }} />
+      <span style={{ fontSize:12, fontWeight:700, color:C.yellowDark, textAlign:"right" }}>{fmt(total)}</span>
+      <button onClick={onRemove} style={{ background:C.dangerLight, color:C.danger, border:"none", borderRadius:4, padding:"4px 7px", cursor:"pointer", fontSize:12 }}>✕</button>
+    </div>
+  );
+}
 
-// ─── RF-05: NOMINA ROW COMPONENT ─────────────────────────────────────────────
+// ─── NOMINA ROW ───────────────────────────────────────────────────────────────
 function NominaRow({ p, onUpdate, onRemove }) {
-  const costoMensual = (() => {
-    const base = p.salario || 0;
-    const factor = 1 + (p.imss || FACTOR_IMSS_DEFAULT) + (p.prestaciones || FACTOR_PRESTACIONES_DEFAULT) + (p.isr || FACTOR_ISR_DEFAULT);
-    return base * factor * (p.cantidad || 1);
-  })();
-  const factor = 1 + (p.imss || FACTOR_IMSS_DEFAULT) + (p.prestaciones || FACTOR_PRESTACIONES_DEFAULT) + (p.isr || FACTOR_ISR_DEFAULT);
-
+  const factor = 1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);
+  const costoMensual = (p.salario||0)*factor*(p.cantidad||1);
   return (
-    <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: 12, marginBottom: 8 }}>
-      {/* Fila principal */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 60px 1fr 90px 90px 90px auto", gap: 8, alignItems: "center" }}>
-        {/* Puesto */}
+    <div style={{ background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:8, padding:10, marginBottom:8 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"2fr 50px 1fr 80px 80px 1fr 28px", gap:6, alignItems:"center" }}>
         <div>
-          <select value={p.puesto} onChange={e => onUpdate({ ...p, puesto: e.target.value })}
-            style={{ width: "100%", padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13 }}>
-            {PUESTOS_NOMINA.map(pu => <option key={pu} value={pu}>{pu}</option>)}
+          <select value={p.puesto} onChange={e => onUpdate({...p,puesto:e.target.value})}
+            style={{ width:"100%", padding:"6px 8px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12 }}>
+            {PUESTOS.map(pu=><option key={pu}>{pu}</option>)}
           </select>
-          {p.puesto === "Otro" && (
-            <input value={p.puestoCustom || ""} onChange={e => onUpdate({ ...p, puestoCustom: e.target.value })}
-              placeholder="Nombre del puesto" style={{ width: "100%", marginTop: 4, padding: "6px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13 }} />
-          )}
+          {p.puesto==="Otro" && <input value={p.puestoCustom||""} onChange={e => onUpdate({...p,puestoCustom:e.target.value})} placeholder="Nombre del puesto"
+            style={{ width:"100%", marginTop:3, padding:"5px 8px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12 }} />}
         </div>
-        {/* Cantidad */}
-        <input type="number" min="1" step="1" value={p.cantidad}
-          onChange={e => onUpdate({ ...p, cantidad: parseInt(e.target.value) || 1 })}
-          style={{ padding: "7px 6px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "center" }} />
-        {/* Salario base */}
-        <input type="number" min="0" step="0.01" value={p.salario}
-          onChange={e => onUpdate({ ...p, salario: parseFloat(e.target.value) || 0 })}
-          placeholder="Salario/mes"
-          style={{ padding: "7px 8px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 13, textAlign: "right" }} />
-        {/* IMSS */}
-        <div style={{ textAlign: "center" }}>
-          <input type="number" min="0" max="1" step="0.01" value={p.imss}
-            onChange={e => onUpdate({ ...p, imss: parseFloat(e.target.value) || 0 })}
-            style={{ width: "100%", padding: "5px 4px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 12, textAlign: "center" }} />
-          <div style={{ fontSize: 9, color: C.grayMid, marginTop: 2 }}>IMSS+PT</div>
+        <input type="number" min="1" value={p.cantidad} onChange={e => onUpdate({...p,cantidad:parseInt(e.target.value)||1})}
+          style={{ padding:"6px 4px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12, textAlign:"center" }} />
+        <input type="number" min="0" step="0.01" value={p.salario} onChange={e => onUpdate({...p,salario:parseFloat(e.target.value)||0})}
+          placeholder="Salario/mes" style={{ padding:"6px 6px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:12, textAlign:"right" }} />
+        <div style={{ textAlign:"center" }}>
+          <input type="number" min="0" max="1" step="0.01" value={p.imss} onChange={e => onUpdate({...p,imss:parseFloat(e.target.value)||0})}
+            style={{ width:"100%", padding:"4px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:11, textAlign:"center" }} />
+          <div style={{ fontSize:9, color:C.grayMid }}>IMSS+PT</div>
         </div>
-        {/* Prestaciones */}
-        <div style={{ textAlign: "center" }}>
-          <input type="number" min="0" max="2" step="0.01" value={p.prestaciones}
-            onChange={e => onUpdate({ ...p, prestaciones: parseFloat(e.target.value) || 0 })}
-            style={{ width: "100%", padding: "5px 4px", border: `1px solid ${C.grayBorder}`, borderRadius: 6, fontSize: 12, textAlign: "center" }} />
-          <div style={{ fontSize: 9, color: C.grayMid, marginTop: 2 }}>Prestac.</div>
+        <div style={{ textAlign:"center" }}>
+          <input type="number" min="0" max="2" step="0.01" value={p.prestaciones} onChange={e => onUpdate({...p,prestaciones:parseFloat(e.target.value)||0})}
+            style={{ width:"100%", padding:"4px", border:`1px solid ${C.grayBorder}`, borderRadius:6, fontSize:11, textAlign:"center" }} />
+          <div style={{ fontSize:9, color:C.grayMid }}>Prestac.</div>
         </div>
-        {/* Costo real */}
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: C.success }}>{fmt(costoMensual)}</div>
-          <div style={{ fontSize: 9, color: C.grayMid, marginTop: 2 }}>Costo real/mes</div>
+        <div style={{ textAlign:"right" }}>
+          <div style={{ fontSize:13, fontWeight:800, color:C.success }}>{fmt(costoMensual)}</div>
+          <div style={{ fontSize:9, color:C.grayMid }}>Costo real/mes</div>
         </div>
-        {/* Eliminar */}
-        <button onClick={onRemove} style={{ background: C.dangerLight, color: C.danger, border: "none",
-          borderRadius: 5, padding: "5px 9px", cursor: "pointer", fontSize: 13 }}>✕</button>
+        <button onClick={onRemove} style={{ background:C.dangerLight, color:C.danger, border:"none", borderRadius:4, padding:"4px 7px", cursor:"pointer", fontSize:12 }}>✕</button>
       </div>
-      {/* Fórmula visible */}
-      <div style={{ marginTop: 8, padding: "6px 10px", background: "#dcfce7", borderRadius: 6, fontSize: 11, color: "#15803d" }}>
-        <strong>Fórmula:</strong> {fmt(p.salario)} × (1 + {p.imss} IMSS + {p.prestaciones} Prest. + {p.isr || FACTOR_ISR_DEFAULT} ISR) × {p.cantidad} puesto(s) = <strong>{fmt(costoMensual)}/mes</strong> · Anual: <strong>{fmt(costoMensual * 12)}</strong>
+      <div style={{ marginTop:6, padding:"4px 8px", background:"#dcfce7", borderRadius:4, fontSize:10, color:"#15803d" }}>
+        {fmt(p.salario)} × (1+{p.imss} IMSS+{p.prestaciones} Prest.+{p.isr||F_ISR} ISR) × {p.cantidad} = <strong>{fmt(costoMensual)}/mes</strong> · Anual: <strong>{fmt(costoMensual*12)}</strong>
       </div>
     </div>
   );
 }
 
-function initNomina(overrides = {}) {
-  return {
-    id: uid(), puesto: "Técnico", puestoCustom: "", cantidad: 1, salario: 0,
-    imss: FACTOR_IMSS_DEFAULT, prestaciones: FACTOR_PRESTACIONES_DEFAULT, isr: FACTOR_ISR_DEFAULT,
-    ...overrides,
-  };
+// ─── CHARTS SVG ───────────────────────────────────────────────────────────────
+function LineChart({ series, height=200 }) {
+  if (!series||series.length===0) return null;
+  const W=660,H=height,pL=60,pR=16,pT=16,pB=36;
+  const cW=W-pL-pR, cH=H-pT-pB;
+  const allV=series.flatMap(s=>s.data);
+  const maxV=Math.max(...allV,1);
+  const xP=i=>pL+(i/11)*cW, yP=v=>pT+cH-(v/maxV)*cH;
+  const gridLines=4;
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      {Array.from({length:gridLines+1},(_,i)=>{
+        const v=maxV*(i/gridLines), y=yP(v);
+        return <g key={i}><line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.grayBorder} strokeWidth="0.8" strokeDasharray="4 3"/>
+          <text x={pL-4} y={y+4} textAnchor="end" fontSize="10" fill={C.grayMid}>{v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:v.toFixed(0)}</text></g>;
+      })}
+      {MESES.map((m,i)=><text key={m} x={xP(i)} y={H-6} textAnchor="middle" fontSize="10" fill={C.grayMid}>{m}</text>)}
+      {series.map(s=>{
+        const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+        return <g key={s.label}>
+          <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+          {s.data.map((v,i)=>v>0&&<circle key={i} cx={xP(i)} cy={yP(v)} r="3.5" fill={s.color} stroke={C.white} strokeWidth="1.5"/>)}
+        </g>;
+      })}
+    </svg>
+  );
+}
+
+function BarChart({ items, height=180 }) {
+  if (!items||items.length===0) return null;
+  const W=660,H=height,pL=60,pR=16,pT=16,pB=44;
+  const cW=W-pL-pR, cH=H-pT-pB;
+  const maxV=Math.max(...items.map(i=>i.value),1);
+  const barW=Math.min(55,(cW/items.length)-12);
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      {[0,.25,.5,.75,1].map(p=>{const v=maxV*p,y=pT+cH*(1-p);return <g key={p}><line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.grayBorder} strokeWidth="0.8" strokeDasharray="4 3"/>
+        <text x={pL-4} y={y+4} textAnchor="end" fontSize="10" fill={C.grayMid}>{v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:v.toFixed(0)}</text></g>;})}
+      {items.map((item,i)=>{const x=pL+(i/items.length)*cW+(cW/items.length-barW)/2,bH=(item.value/maxV)*cH,y=pT+cH-bH;
+        return <g key={item.label}><rect x={x} y={y} width={barW} height={bH} rx="3" fill={item.color} opacity="0.9"/>
+          <text x={x+barW/2} y={H-pB+14} textAnchor="middle" fontSize="9" fill={C.grayMid}>{item.label.length>10?item.label.slice(0,10)+"…":item.label}</text>
+          {bH>12&&<text x={x+barW/2} y={y-4} textAnchor="middle" fontSize="9" fill={item.color} fontWeight="600">
+            {item.value>=1000000?`${(item.value/1000000).toFixed(1)}M`:item.value>=1000?`${(item.value/1000).toFixed(0)}K`:item.value.toFixed(0)}</text>}
+        </g>;
+      })}
+    </svg>
+  );
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [vista, setVista]           = useState("lista");
-  const [step, setStep]             = useState(0);
-  const [presupuesto, setPresupuesto] = useState(null);
+  // step: 0=lista 1=crear 2=areas 3=captura 4=resumen
+  const [step, setStep]     = useState(0);
+  const [presupuesto, setPres] = useState(null);
   const [areasSeleccionadas, setAreasSel] = useState([]);
   const [costosAreas, setCostosAreas]     = useState({});
-  const [areaActiva, setAreaActiva]       = useState(null);
-  const [capexPM, setCapexPM]             = useState([]);
-  const [opexPM,  setOpexPM]              = useState([]);
-  const [ingresos, setIngresos]           = useState({ totalAnual: 0, distribucion: "uniforme", facturacion: Array(12).fill(0) });
-  const [listaBorradores] = useState([
-    { id: 1, nombre: "Monitoreo Cuervito", cliente: "PEMEX", tipo: "servicio",    estado: "CONSOLIDADO", fecha: "2026-02-01" },
-    { id: 2, nombre: "BEH Jujo F218358",   cliente: "PEMEX", tipo: "instalacion", estado: "EN_REVISION",  fecha: "2026-01-15" },
+  const [capexPM, setCapexPM] = useState([]);
+  const [opexPM,  setOpexPM]  = useState([]);
+  const [areaActiva, setAreaActiva] = useState(null);
+  const [lista, setLista]   = useState([
+    { id:1, nombre:"Monitoreo Cuervito", tipo:"servicio",     estado:"Borrador", fecha:"2026-02-01" },
+    { id:2, nombre:"BEH Jujo F218358",   tipo:"instalacion",  estado:"En revisión", fecha:"2026-01-15" },
   ]);
-  const [nuevoForm, setNuevoForm] = useState({ cliente:"", nombre:"", tipo:"", fechaInicio:"", fechaFin:"", moneda:"MXN" });
+  const [nuevoForm, setNuevoForm] = useState({ nombre:"", tipo:"", empresa:"GEOLIS SA DE CV", fechaInicio:"", fechaFin:"" });
+  const [plantillaModal, setPlantillaModal] = useState(false);
 
-  // ── Helpers de totales ────────────────────────────────────────────────────
+  // ── Totales ─────────────────────────────────────────────────────────────────
   function totalCat(areaId, cat) {
-    return (costosAreas[areaId]?.[cat] || []).reduce((s, p) => s + (p.cantidad||0)*(p.monto||0), 0);
+    return (costosAreas[areaId]?.[cat]||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
   }
-  function totalArea(areaId) {
-    return Object.keys(CATS_AREA).reduce((s, cat) => s + totalCat(areaId, cat), 0);
-  }
-
-  // Meses distribuidos por categoría (uniforme para OPEX, M0 para CAPEX)
-  function mesesCat(areaId, cat) {
-    const total = totalCat(areaId, cat);
-    return distribuirMeses(total, cat === "equipos" ? "capex" : "opex");
-  }
-
-  const capexDesdeAreas  = areasSeleccionadas.reduce((s, id) => s + totalCat(id,"equipos"), 0);
-  // RF-05: nomina reemplaza mano_obra — costo real desde NominaRow
   function totalNominaArea(areaId) {
-    return (costosAreas[areaId]?.nomina || []).reduce((s, p) => {
-      const factor = 1 + (p.imss || FACTOR_IMSS_DEFAULT) + (p.prestaciones || FACTOR_PRESTACIONES_DEFAULT) + (p.isr || FACTOR_ISR_DEFAULT);
-      return s + (p.salario || 0) * factor * (p.cantidad || 1);
-    }, 0);
+    return (costosAreas[areaId]?.nomina||[]).reduce((s,p)=>{
+      const f=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);
+      return s+(p.salario||0)*f*(p.cantidad||1);
+    },0);
   }
+  const capexAreas = areasSeleccionadas.reduce((s,id)=>s+totalCat(id,"capex"),0);
+  const opexAreas  = areasSeleccionadas.reduce((s,id)=>s+totalCat(id,"materiales")+totalNominaArea(id)*12+totalCat(id,"viaticos"),0);
+  const capexPMTotal = capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+  const opexPMTotal  = opexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+  const totalCAPEX   = capexAreas + capexPMTotal;
+  const totalOPEX    = opexAreas  + opexPMTotal;
+  const totalEgresos = totalCAPEX + totalOPEX;
 
-  const opexDesdeAreas   = areasSeleccionadas.reduce((s, id) =>
-    s + totalCat(id,"materiales") + totalNominaArea(id) * 12 + totalCat(id,"viaticos"), 0);
-  const capexPMTotal     = capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
-  const opexPMTotal      = opexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
-  const totalCAPEX       = capexDesdeAreas + capexPMTotal;
-  const totalOPEX        = opexDesdeAreas  + opexPMTotal;
-  const totalEgresos     = totalCAPEX + totalOPEX;
-  const totalIngresos    = ingresos.facturacion.reduce((s,v)=>s+v,0);
-  const utilidad         = totalIngresos - totalEgresos;
-  const margen           = totalIngresos > 0 ? (utilidad/totalIngresos*100) : 0;
-
-  // RF-01: campo rector — solo Instalación y Servicio tienen ingresos
-  const hasIngresos = TIPOS_CON_INGRESOS.includes(presupuesto?.tipo);
-
-  const todasCapturadas  = areasSeleccionadas.length > 0 &&
-    areasSeleccionadas.every(id => ["capturado","revisado"].includes(costosAreas[id]?.estado));
-
-  // ── CU-001 ────────────────────────────────────────────────────────────────
+  // ── Acciones ────────────────────────────────────────────────────────────────
   function crearPresupuesto() {
-    setPresupuesto({ id: uid(), ...nuevoForm, estado: "BORRADOR", fecha: new Date().toISOString().slice(0,10) });
+    const p = { id:uid(), ...nuevoForm, estado:"Borrador", fecha:new Date().toISOString().slice(0,10) };
+    setLista(prev=>[p,...prev]);
+    setPres(p);
     setAreasSel([]); setCostosAreas({}); setCapexPM([]); setOpexPM([]);
-    setIngresos({ totalAnual:0, distribucion:"uniforme", facturacion: Array(12).fill(0) });
-    setVista("crear"); setStep(1);
+    setStep(2);
   }
 
-  // ── CU-002 ────────────────────────────────────────────────────────────────
+  function cargarPlantilla(key) {
+    const pl = PLANTILLAS[key];
+    if (!pl) return;
+    setCapexPM(pl.capex.map(p=>initPartida(p)));
+    setOpexPM(pl.opex.map(p=>initPartida(p)));
+    setPlantillaModal(false);
+  }
+
   function confirmarAreas() {
     const costos = {};
-    areasSeleccionadas.forEach(id => {
-      costos[id] = { materiales:[], nomina:[], equipos:[], viaticos:[], estado:"pendiente", comentario:"" }; // mano_obra reemplazado por nomina (RF-05)
+    areasSeleccionadas.forEach(id=>{
+      costos[id] = { capex:[], materiales:[], nomina:[], viaticos:[], estado:"pendiente", comentario:"" };
     });
     setCostosAreas(costos);
-    setPresupuesto(p => ({ ...p, estado: "EN_CAPTURA" }));
-    setVista("pm_revision");
+    setStep(3);
+    setAreaActiva(areasSeleccionadas[0]||null);
   }
 
-  // ── CU-003 ────────────────────────────────────────────────────────────────
-  function updatePartidaArea(areaId, cat, id, updated) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], [cat]: prev[areaId][cat].map(p => p.id===id ? updated : p) } }));
+  function updatePartida(areaId, cat, id, updated) {
+    setCostosAreas(prev=>({...prev,[areaId]:{...prev[areaId],[cat]:prev[areaId][cat].map(p=>p.id===id?updated:p)}}));
   }
-  function addPartidaArea(areaId, cat) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], [cat]: [...prev[areaId][cat], initPartida()] } }));
+  function addPartida(areaId, cat) {
+    setCostosAreas(prev=>({...prev,[areaId]:{...prev[areaId],[cat]:[...(prev[areaId][cat]||[]),initPartida()]}}));
   }
-  function removePartidaArea(areaId, cat, id) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], [cat]: prev[areaId][cat].filter(p => p.id!==id) } }));
+  function removePartida(areaId, cat, id) {
+    setCostosAreas(prev=>({...prev,[areaId]:{...prev[areaId],[cat]:prev[areaId][cat].filter(p=>p.id!==id)}}));
   }
-  function marcarAreaCapturada(areaId) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], estado:"capturado" } }));
-    setVista("pm_revision");
+  function addNomina(areaId) {
+    setCostosAreas(prev=>({...prev,[areaId]:{...prev[areaId],nomina:[...(prev[areaId].nomina||[]),initNomina()]}}));
   }
 
-  // ── CU-004 ────────────────────────────────────────────────────────────────
-  function solicitarCorreccion(areaId, comentario) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], estado:"correccion", comentario } }));
-  }
-  function aprobarArea(areaId) {
-    setCostosAreas(prev => ({ ...prev, [areaId]: { ...prev[areaId], estado:"revisado" } }));
-  }
-
-  // ── CU-005 ────────────────────────────────────────────────────────────────
-  function consolidar() {
-    setPresupuesto(p => ({ ...p, estado:"CONSOLIDADO" }));
-    setVista("consolidado");
-  }
-
-  const btn = (label, onClick, variant="primary", disabled=false) => (
+  const btn = (label, onClick, variant="primary", disabled=false, extra={}) => (
     <button onClick={onClick} disabled={disabled} style={{
-      padding: "10px 22px", borderRadius: 8, border: "none",
-      cursor: disabled ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 14,
-      background: disabled ? C.grayBorder
-        : variant==="primary" ? C.yellow
-        : variant==="success" ? C.success
-        : variant==="danger"  ? C.danger
-        : C.grayLight,
-      color: disabled ? C.grayMid
-        : variant==="primary" ? C.grayDark
-        : variant==="success" || variant==="danger" ? C.white
-        : C.grayDark,
+      padding:"9px 20px", borderRadius:8, border:"none", cursor:disabled?"not-allowed":"pointer",
+      fontWeight:700, fontSize:13,
+      background:disabled?C.grayBorder:variant==="primary"?C.yellow:variant==="success"?C.success:variant==="danger"?C.danger:C.grayLight,
+      color:disabled?C.grayMid:["primary","success","danger"].includes(variant)?variant==="primary"?C.grayDark:C.white:C.grayDark,
+      ...extra,
     }}>{label}</button>
   );
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // LISTA
-  // ══════════════════════════════════════════════════════════════════════════
-  if (vista === "lista") return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, letterSpacing: -0.5 }}>
-            <span style={{ color: C.yellow }}>GEOLIS</span> · Módulo de Presupuestos
+  // ── TABS NAV ──────────────────────────────────────────────────────────────
+  const tabs = [
+    { i:1, label:"Info general" },
+    { i:2, label:"Áreas" },
+    { i:3, label:"Capturar costos" },
+    { i:4, label:"Resumen mensual" },
+  ];
+
+  function TabBar() {
+    if (step===0) return null;
+    return (
+      <div style={{ display:"flex", borderBottom:`2px solid ${C.grayBorder}`, marginBottom:24 }}>
+        {tabs.map(t=>(
+          <button key={t.i} onClick={()=>t.i<step?setStep(t.i):null}
+            disabled={t.i>step}
+            style={{ padding:"10px 20px", border:"none", background:"none", cursor:t.i<=step?"pointer":"not-allowed",
+              fontWeight:600, fontSize:13,
+              color:step===t.i?C.yellowDark:step>t.i?C.success:C.grayMid,
+              borderBottom:step===t.i?`2px solid ${C.yellow}`:"2px solid transparent",
+              marginBottom:-2 }}>
+            {step>t.i?"✓ ":""}{t.label}
+          </button>
+        ))}
+        {presupuesto && (
+          <div style={{ marginLeft:"auto", padding:"8px 16px", display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ fontSize:12, color:C.grayMid }}>Presupuesto activo:</span>
+            <span style={{ fontSize:13, fontWeight:700, color:C.grayDark }}>{presupuesto.nombre}</span>
+            <button onClick={()=>{setPres(null);setStep(0);}} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:C.grayMid }}>← Cambiar</button>
           </div>
-          <div style={{ fontSize: 13, color: C.grayMid, marginTop: 2 }}>Project Manager — Vista principal</div>
-        </div>
-        {btn("+ Nuevo presupuesto", () => { setVista("nuevo"); setNuevoForm({ cliente:"", nombre:"", tipo:"", fechaInicio:"", fechaFin:"", moneda:"MXN" }); })}
+        )}
       </div>
-      <div style={{ border: `1px solid ${C.grayBorder}`, borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ background: C.grayLight, padding: "10px 16px", borderBottom: `1px solid ${C.grayBorder}`, display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", gap: 8 }}>
-          {["Proyecto","Cliente","Tipo","Estado","Acciones"].map(h =>
-            <div key={h} style={{ fontSize: 11, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>{h}</div>
-          )}
+    );
+  }
+
+  const wrap = (children) => (
+    <div style={{ maxWidth:1050, margin:"0 auto", padding:"20px 24px", fontFamily:"Inter,system-ui,sans-serif" }}>
+      <div style={{ marginBottom:20 }}>
+        <span style={{ fontSize:20, fontWeight:800, color:C.grayDark }}>
+          <span style={{ color:C.yellow }}>GEOLIS</span> · Módulo de Presupuestos
+        </span>
+      </div>
+      <TabBar/>
+      {children}
+    </div>
+  );
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // STEP 0: LISTA
+  // ══════════════════════════════════════════════════════════════════════════
+  if (step===0) return wrap(
+    <div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+        <h2 style={{ margin:0, fontSize:18, color:C.grayDark }}>Presupuestos</h2>
+        {btn("+ Nuevo presupuesto", ()=>{ setNuevoForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:""}); setStep(1); })}
+      </div>
+      <div style={{ border:`1px solid ${C.grayBorder}`, borderRadius:10, overflow:"hidden" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr", gap:8, padding:"10px 16px", background:C.grayLight, borderBottom:`1px solid ${C.grayBorder}` }}>
+          {["Proyecto","Tipo","Estado","Acciones"].map(h=><div key={h} style={{ fontSize:11, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>)}
         </div>
-        {listaBorradores.map((p, i) => (
-          <div key={p.id} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", gap: 8, alignItems: "center", padding: "12px 16px", borderBottom: i < listaBorradores.length-1 ? `1px solid ${C.grayLight}` : "none", background: i%2===0 ? C.white : C.grayLight }}>
-            <div><div style={{ fontWeight: 600, fontSize: 14, color: C.grayDark }}>{p.nombre}</div><div style={{ fontSize: 12, color: C.grayMid }}>{p.fecha}</div></div>
-            <div style={{ fontSize: 13 }}>{p.cliente}</div>
-            <div style={{ fontSize: 13, textTransform: "capitalize" }}>{p.tipo}</div>
-            <Badge estado={p.estado} />
-            <button onClick={() => alert("En producción: abriría el presupuesto " + p.id)}
-              style={{ padding: "6px 14px", background: C.yellowLight, border: `1px solid ${C.yellowBorder}`, borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, color: C.yellowDark }}>Ver →</button>
+        {lista.map((p,i)=>(
+          <div key={p.id} style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr", gap:8, alignItems:"center", padding:"12px 16px", background:i%2===0?C.white:C.grayLight, borderBottom:i<lista.length-1?`1px solid ${C.grayLight}`:"none" }}>
+            <div><div style={{ fontWeight:600, fontSize:14 }}>{p.nombre}</div><div style={{ fontSize:11, color:C.grayMid }}>{p.fecha}</div></div>
+            <div style={{ fontSize:13, textTransform:"capitalize" }}>{p.tipo}</div>
+            <Badge label={p.estado} color={p.estado==="Borrador"?C.grayMid:p.estado==="CONSOLIDADO"?C.success:C.yellowDark} bg={p.estado==="CONSOLIDADO"?C.successLight:C.yellowLight} />
+            <button onClick={()=>{setPres(p);setStep(3);}} style={{ padding:"6px 14px", background:C.yellowLight, border:`1px solid ${C.yellowBorder}`, borderRadius:6, cursor:"pointer", fontSize:13, fontWeight:600, color:C.yellowDark }}>Abrir →</button>
           </div>
         ))}
       </div>
@@ -615,778 +450,546 @@ export default function App() {
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CU-001 NUEVO
+  // STEP 1: CREAR PRESUPUESTO
   // ══════════════════════════════════════════════════════════════════════════
-  if (vista === "nuevo") return (
-    <div style={{ maxWidth: 680, margin: "0 auto", padding: 24, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-        <button onClick={() => setVista("lista")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: C.grayMid }}>←</button>
-        <div><h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: C.grayDark }}>Nuevo presupuesto</h2><div style={{ fontSize: 13, color: C.grayMid }}>CU-001</div></div>
-      </div>
-      <SectionCard title="Datos del proyecto" color={C.grayDark}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          {[["Cliente","cliente"],["Nombre del proyecto","nombre"]].map(([label, key]) => (
-            <div key={key}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: C.grayDark, display: "block", marginBottom: 5 }}>{label} *</label>
-              <input value={nuevoForm[key]} onChange={e => setNuevoForm({ ...nuevoForm, [key]: e.target.value })}
-                style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.grayBorder}`, borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
+  if (step===1) return wrap(
+    <div style={{ maxWidth:700 }}>
+      <h2 style={{ fontSize:18, fontWeight:800, color:C.grayDark, marginBottom:20 }}>Nuevo presupuesto</h2>
+      <div style={{ border:`1px solid ${C.grayBorder}`, borderRadius:10, overflow:"hidden", marginBottom:20 }}>
+        <div style={{ background:C.grayDark, padding:"12px 16px" }}>
+          <div style={{ fontWeight:700, fontSize:15, color:C.white }}>Datos generales</div>
+        </div>
+        <div style={{ padding:20 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            {[["Nombre del proyecto *","nombre"],["Empresa","empresa"]].map(([label,key])=>(
+              <div key={key}>
+                <label style={{ fontSize:13, fontWeight:600, color:C.grayDark, display:"block", marginBottom:5 }}>{label}</label>
+                <input value={nuevoForm[key]} onChange={e=>setNuevoForm({...nuevoForm,[key]:e.target.value})}
+                  style={{ width:"100%", padding:"9px 12px", border:`1px solid ${C.grayBorder}`, borderRadius:8, fontSize:14, boxSizing:"border-box" }} />
+              </div>
+            ))}
+            <div>
+              <label style={{ fontSize:13, fontWeight:600, color:C.grayDark, display:"block", marginBottom:5 }}>Fecha inicio</label>
+              <input type="date" value={nuevoForm.fechaInicio} onChange={e=>setNuevoForm({...nuevoForm,fechaInicio:e.target.value})}
+                style={{ width:"100%", padding:"9px 12px", border:`1px solid ${C.grayBorder}`, borderRadius:8, fontSize:14, boxSizing:"border-box" }} />
             </div>
-          ))}
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: C.grayDark, display: "block", marginBottom: 8 }}>Tipo de proyecto *</label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {TIPOS_PROYECTO.map(t => (
-                <div key={t.id} onClick={() => setNuevoForm({ ...nuevoForm, tipo: t.id })} style={{
-                  border: `2px solid`, borderColor: nuevoForm.tipo===t.id ? C.yellow : C.grayBorder,
-                  borderRadius: 10, padding: 16, cursor: "pointer",
-                  background: nuevoForm.tipo===t.id ? C.yellowLight : C.white,
-                }}>
-                  <div style={{ fontSize: 26, marginBottom: 6 }}>{t.icon}</div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: C.grayDark }}>{t.label}</div>
-                  <div style={{ fontSize: 12, color: C.grayMid, marginTop: 4 }}>{t.desc}</div>
+            <div>
+              <label style={{ fontSize:13, fontWeight:600, color:C.grayDark, display:"block", marginBottom:5 }}>Fecha fin</label>
+              <input type="date" value={nuevoForm.fechaFin} onChange={e=>setNuevoForm({...nuevoForm,fechaFin:e.target.value})}
+                style={{ width:"100%", padding:"9px 12px", border:`1px solid ${C.grayBorder}`, borderRadius:8, fontSize:14, boxSizing:"border-box" }} />
+            </div>
+            <div style={{ gridColumn:"1 / -1" }}>
+              <label style={{ fontSize:13, fontWeight:600, color:C.grayDark, display:"block", marginBottom:8 }}>Tipo de presupuesto *</label>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
+                {[
+                  {id:"instalacion",label:"Instalación",icon:"🏗️"},
+                  {id:"servicio",label:"Servicio",icon:"⚙️"},
+                  {id:"departamento",label:"Departamento",icon:"🏢"},
+                  {id:"suministro",label:"Suministro",icon:"📦"},
+                ].map(t=>(
+                  <div key={t.id} onClick={()=>setNuevoForm({...nuevoForm,tipo:t.id})} style={{
+                    border:`2px solid`, borderColor:nuevoForm.tipo===t.id?C.yellow:C.grayBorder,
+                    borderRadius:10, padding:14, cursor:"pointer", textAlign:"center",
+                    background:nuevoForm.tipo===t.id?C.yellowLight:C.white,
+                  }}>
+                    <div style={{ fontSize:24, marginBottom:4 }}>{t.icon}</div>
+                    <div style={{ fontWeight:700, fontSize:13, color:C.grayDark }}>{t.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Plantillas */}
+      <div style={{ border:`1px solid ${C.yellowBorder}`, borderRadius:10, overflow:"hidden", marginBottom:20 }}>
+        <div style={{ background:C.yellowLight, padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14, color:C.yellowDark }}>📋 Cargar plantilla (opcional)</div>
+            <div style={{ fontSize:12, color:C.grayMid }}>Precarga partidas desde una estructura existente. Puedes editarlas después.</div>
+          </div>
+          <button onClick={()=>setPlantillaModal(true)} style={{ padding:"8px 16px", background:C.yellow, border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:13, color:C.grayDark }}>
+            Ver plantillas
+          </button>
+        </div>
+        {capexPM.length>0||opexPM.length>0 ? (
+          <div style={{ padding:"10px 16px", fontSize:13, color:C.success }}>
+            ✓ Plantilla cargada: {capexPM.length} CAPEX + {opexPM.length} OPEX partidas precargadas
+          </div>
+        ) : null}
+      </div>
+
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        {btn("← Cancelar", ()=>setStep(0), "secondary")}
+        {btn("Guardar y continuar →", crearPresupuesto, "primary", !nuevoForm.nombre||!nuevoForm.tipo)}
+      </div>
+
+      {/* Modal plantillas */}
+      {plantillaModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:C.white, borderRadius:12, padding:28, maxWidth:560, width:"90%", boxShadow:"0 8px 32px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ margin:"0 0 16px", fontSize:17, color:C.grayDark }}>Selecciona una plantilla base</h3>
+            <p style={{ margin:"0 0 20px", fontSize:13, color:C.grayMid }}>La estructura se cargará como punto de partida. Puedes editar, agregar o eliminar cualquier partida.</p>
+            <div style={{ display:"grid", gap:12 }}>
+              {Object.entries(PLANTILLAS).map(([key,pl])=>(
+                <div key={key} style={{ border:`2px solid ${C.grayBorder}`, borderRadius:10, padding:16, cursor:"pointer" }}
+                  onClick={()=>cargarPlantilla(key)}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor=C.yellow}
+                  onMouseLeave={e=>e.currentTarget.style.borderColor=C.grayBorder}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <div>
+                      <div style={{ fontWeight:700, fontSize:14, color:C.grayDark }}>{pl.icon} {pl.nombre}</div>
+                      <div style={{ fontSize:12, color:C.grayMid, marginTop:3 }}>{pl.descripcion}</div>
+                      <div style={{ fontSize:11, color:C.yellowDark, marginTop:4 }}>{pl.capex.length} CAPEX · {pl.opex.length} OPEX</div>
+                    </div>
+                    <span style={{ fontSize:20, color:C.yellow }}>→</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: C.grayDark, display: "block", marginBottom: 5 }}>Fecha inicio</label>
-            <input type="date" value={nuevoForm.fechaInicio} onChange={e => setNuevoForm({ ...nuevoForm, fechaInicio: e.target.value })}
-              style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.grayBorder}`, borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
-          </div>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: C.grayDark, display: "block", marginBottom: 5 }}>Fecha fin</label>
-            <input type="date" value={nuevoForm.fechaFin} onChange={e => setNuevoForm({ ...nuevoForm, fechaFin: e.target.value })}
-              style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.grayBorder}`, borderRadius: 8, fontSize: 14, boxSizing: "border-box" }} />
-          </div>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: C.grayDark, display: "block", marginBottom: 5 }}>Moneda</label>
-            <select value={nuevoForm.moneda} onChange={e => setNuevoForm({ ...nuevoForm, moneda: e.target.value })}
-              style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.grayBorder}`, borderRadius: 8, fontSize: 14 }}>
-              <option>MXN</option><option>USD</option>
-            </select>
+            <div style={{ marginTop:16, display:"flex", justifyContent:"flex-end", gap:10 }}>
+              <button onClick={()=>setPlantillaModal(false)} style={{ padding:"8px 16px", background:C.grayLight, border:"none", borderRadius:8, cursor:"pointer", fontSize:13 }}>
+                Continuar sin plantilla
+              </button>
+            </div>
           </div>
         </div>
-      </SectionCard>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {btn("Cancelar", () => setVista("lista"), "secondary")}
-        {btn("Guardar como Borrador →", crearPresupuesto, "primary", !nuevoForm.cliente || !nuevoForm.nombre || !nuevoForm.tipo)}
-      </div>
+      )}
     </div>
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CU-002 ÁREAS
+  // STEP 2: ÁREAS
   // ══════════════════════════════════════════════════════════════════════════
-  if (vista==="crear" && step===1) return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: 24, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <StepBar current={1} />
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: C.grayDark }}>Áreas participantes</h2>
-        <Badge estado={presupuesto?.estado} />
+  if (step===2) return wrap(
+    <div style={{ maxWidth:700 }}>
+      <h2 style={{ fontSize:18, fontWeight:800, color:C.grayDark, marginBottom:6 }}>Áreas participantes</h2>
+      <p style={{ color:C.grayMid, fontSize:14, marginBottom:20 }}>Selecciona las áreas que capturarán costos en este presupuesto.</p>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:20 }}>
+        {AREAS_CATALOGO.map(a=>{
+          const sel=areasSeleccionadas.includes(a.id);
+          return (
+            <div key={a.id} onClick={()=>setAreasSel(prev=>sel?prev.filter(x=>x!==a.id):[...prev,a.id])} style={{
+              display:"flex", alignItems:"center", gap:10, padding:"12px 14px",
+              border:`2px solid`, borderColor:sel?C.yellow:C.grayBorder,
+              borderRadius:10, cursor:"pointer", background:sel?C.yellowLight:C.white,
+            }}>
+              <span style={{ fontSize:20 }}>{a.icon}</span>
+              <span style={{ fontWeight:600, fontSize:13, color:C.grayDark }}>{a.label}</span>
+              {sel && <span style={{ marginLeft:"auto", color:C.yellowDark, fontWeight:800 }}>✓</span>}
+            </div>
+          );
+        })}
       </div>
-      <p style={{ color: C.grayMid, fontSize: 14, marginBottom: 20 }}><strong>{presupuesto?.nombre}</strong> · {presupuesto?.cliente} · CU-002</p>
-      <SectionCard title="Selecciona las áreas que capturarán costos" color={C.grayDark}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {AREAS_CATALOGO.map(a => {
-            const sel = areasSeleccionadas.includes(a.id);
-            return (
-              <div key={a.id} onClick={() => setAreasSel(prev => sel ? prev.filter(x=>x!==a.id) : [...prev,a.id])} style={{
-                display: "flex", alignItems: "center", gap: 10, padding: "12px 16px",
-                border: `2px solid`, borderColor: sel ? C.yellow : C.grayBorder,
-                borderRadius: 10, cursor: "pointer", background: sel ? C.yellowLight : C.white,
-              }}>
-                <span style={{ fontSize: 22 }}>{a.icon}</span>
-                <span style={{ fontWeight: 600, fontSize: 14, color: C.grayDark }}>{a.label}</span>
-                {sel && <span style={{ marginLeft: "auto", color: C.yellowDark, fontWeight: 800 }}>✓</span>}
-              </div>
-            );
-          })}
+      {areasSeleccionadas.length>0 && (
+        <div style={{ padding:"10px 14px", background:C.yellowLight, border:`1px solid ${C.yellowBorder}`, borderRadius:8, fontSize:13, color:C.yellowDark, marginBottom:20 }}>
+          {areasSeleccionadas.length} área(s): {areasSeleccionadas.map(id=>AREAS_CATALOGO.find(a=>a.id===id)?.label).join(", ")}
         </div>
-        {areasSeleccionadas.length > 0 && (
-          <div style={{ marginTop: 14, padding: 10, background: C.yellowLight, borderRadius: 8, fontSize: 13, color: C.yellowDark, border: `1px solid ${C.yellowBorder}` }}>
-            {areasSeleccionadas.length} área(s) seleccionada(s): {areasSeleccionadas.map(id => AREAS_CATALOGO.find(a=>a.id===id)?.label).join(", ")}
-          </div>
-        )}
-      </SectionCard>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {btn("← Volver", () => setVista("nuevo"), "secondary")}
+      )}
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        {btn("← Volver", ()=>setStep(1), "secondary")}
         {btn("Confirmar áreas →", confirmarAreas, "primary", areasSeleccionadas.length===0)}
       </div>
     </div>
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CU-003 CAPTURA POR ÁREA — igual que antes, sin cambios funcionales
+  // STEP 3: CAPTURA DE COSTOS
   // ══════════════════════════════════════════════════════════════════════════
-  if (vista==="area_captura" && areaActiva) {
-    const area   = AREAS_CATALOGO.find(a => a.id===areaActiva);
-    const costos = costosAreas[areaActiva];
-    const capexA = totalCat(areaActiva,"equipos");
-    const nominaMensual = totalNominaArea(areaActiva);
-    const opexA  = totalCat(areaActiva,"materiales") + (nominaMensual * 12) + totalCat(areaActiva,"viaticos");
-    const totalA = capexA + opexA;
+  if (step===3) {
+    const costos = areaActiva ? costosAreas[areaActiva] : null;
+    const area   = AREAS_CATALOGO.find(a=>a.id===areaActiva);
+    const capexA = areaActiva ? totalCat(areaActiva,"capex") : 0;
+    const nomMens= areaActiva ? totalNominaArea(areaActiva) : 0;
+    const opexA  = areaActiva ? totalCat(areaActiva,"materiales")+(nomMens*12)+totalCat(areaActiva,"viaticos") : 0;
 
-    return (
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: 24, fontFamily: "Inter, system-ui, sans-serif" }}>
-        <StepBar current={2} />
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-          <button onClick={() => setVista("pm_revision")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: C.grayMid }}>←</button>
-          <span style={{ fontSize: 22 }}>{area?.icon}</span>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: C.grayDark }}>Área: {area?.label}</h2>
-          <Badge estado={presupuesto?.estado} />
-        </div>
-        <p style={{ color: C.grayMid, fontSize: 13, marginBottom: 16, marginLeft: 42 }}>{presupuesto?.nombre} · CU-003: Solo ves tu sección.</p>
+    return wrap(
+      <div>
+        <div style={{ display:"grid", gridTemplateColumns:"220px 1fr", gap:16 }}>
+          {/* Sidebar áreas */}
+          <div>
+            <div style={{ fontSize:11, fontWeight:700, color:C.grayMid, textTransform:"uppercase", marginBottom:10 }}>Áreas del proyecto</div>
+            {areasSeleccionadas.map(id=>{
+              const a=AREAS_CATALOGO.find(x=>x.id===id);
+              const est=costosAreas[id]?.estado||"pendiente";
+              const isActive=areaActiva===id;
+              return (
+                <div key={id} onClick={()=>setAreaActiva(id)} style={{
+                  display:"flex", alignItems:"center", gap:8, padding:"10px 12px", marginBottom:4,
+                  borderRadius:8, cursor:"pointer",
+                  background:isActive?C.yellowLight:C.white,
+                  border:`1px solid`, borderColor:isActive?C.yellowBorder:C.grayBorder,
+                }}>
+                  <span style={{ fontSize:16 }}>{a?.icon}</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:C.grayDark }}>{a?.label}</div>
+                    <div style={{ fontSize:10, color:est==="capturado"?C.success:C.grayMid }}>
+                      {est==="capturado"?"✓ Capturado":"En captura"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
 
-        {costos?.comentario && (
-          <div style={{ background: C.yellowLight, border: `1px solid ${C.yellowBorder}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: C.yellowDark }}>
-            ⚠️ <strong>Corrección solicitada por PM:</strong> {costos.comentario}
-          </div>
-        )}
-
-        {/* KPIs CAPEX/OPEX/Total */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-          <div style={{ background: C.yellowLight, border: `1px solid ${C.yellowBorder}`, borderRadius: 10, padding: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: C.yellowDark, textTransform: "uppercase" }}>CAPEX del área</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.yellowDark, marginTop: 6 }}>{fmt(capexA)}</div>
-            <div style={{ fontSize: 11, color: C.grayMid, marginTop: 2 }}>Equipos (inversión única)</div>
-          </div>
-          <div style={{ background: C.grayLight, border: `1px solid ${C.grayBorder}`, borderRadius: 10, padding: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>OPEX del área</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, marginTop: 6 }}>{fmt(opexA)}</div>
-            <div style={{ fontSize: 11, color: C.grayMid, marginTop: 2 }}>Mat. + Nómina (anual) + Viáticos</div>
-          </div>
-          <div style={{ background: C.grayLight, border: `1px solid ${C.grayBorder}`, borderRadius: 10, padding: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>Total área</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, marginTop: 6 }}>{fmt(totalA)}</div>
-            <div style={{ fontSize: 11, color: C.grayMid, marginTop: 2 }}>CAPEX + OPEX</div>
-          </div>
-        </div>
-
-        {/* CAPEX · Equipos */}
-        <SectionCard title="CAPEX · Equipos" subtitle="Inversiones únicas: maquinaria, herramientas, vehículos asignados" color="#7c3aed" total={capexA}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 90px auto", gap: 8, marginBottom: 4 }}>
-            {["Descripción","Unidad","Cantidad","Monto unit.","Total",""].map((h,i) =>
-              <div key={i} style={{ fontSize: 11, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>{h}</div>
-            )}
-          </div>
-          {(costos?.equipos||[]).map(p => (
-            <PartidaRow key={p.id} p={p} catLabel="Equipo"
-              onUpdate={u => updatePartidaArea(areaActiva,"equipos",p.id,u)}
-              onRemove={() => removePartidaArea(areaActiva,"equipos",p.id)} />
-          ))}
-          <button onClick={() => addPartidaArea(areaActiva,"equipos")} style={{ width:"100%",padding:"8px",border:"2px dashed #ddd6fe",borderRadius:6,background:"transparent",cursor:"pointer",color:"#7c3aed",fontSize:13,marginTop:4 }}>+ Agregar equipo (CAPEX)</button>
-        </SectionCard>
-
-        {/* RF-05: OPEX · Nómina y Mano de Obra — reemplaza mano_obra */}
-        <SectionCard
-          title="OPEX · Nómina y Mano de Obra"
-          subtitle="Costo real por puesto: salario + IMSS + prestaciones + ISR. Se distribuye mensualmente."
-          color="#059669"
-          total={nominaMensual}
-        >
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 60px 1fr 90px 90px 90px auto", gap: 8, marginBottom: 6 }}>
-            {["Puesto","Cant.","Salario base/mes","IMSS+PT","Prestac.","Costo real/mes",""].map((h,i) =>
-              <div key={i} style={{ fontSize: 10, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>{h}</div>
-            )}
-          </div>
-          {(costos?.nomina||[]).map(p => (
-            <NominaRow key={p.id} p={p}
-              onUpdate={updated => updatePartidaArea(areaActiva,"nomina",p.id,updated)}
-              onRemove={() => removePartidaArea(areaActiva,"nomina",p.id)} />
-          ))}
-          <button onClick={() => {
-            setCostosAreas(prev => ({
-              ...prev, [areaActiva]: { ...prev[areaActiva], nomina: [...(prev[areaActiva].nomina||[]), initNomina()] }
-            }));
-          }} style={{ width:"100%",padding:"8px",border:"2px dashed #bbf7d0",borderRadius:6,background:"transparent",cursor:"pointer",color:"#059669",fontSize:13,marginTop:4 }}>
-            + Agregar puesto (Nómina / OPEX)
-          </button>
-          <div style={{ marginTop: 10, padding: "8px 12px", background: "#f0fdf4", borderRadius: 6, fontSize: 11, color: "#15803d" }}>
-            <strong>Nota:</strong> El costo mensual mostrado es por puesto. El total anual (×12) se suma al OPEX del presupuesto.
-          </div>
-        </SectionCard>
-
-        {/* OPEX · Materiales y Viáticos */}
-        {["materiales","viaticos"].map(catKey => {
-          const catDef = CATS_AREA[catKey];
-          return (
-            <SectionCard key={catKey} title={`OPEX · ${catDef.label}`} subtitle={`Gasto recurrente — ${catDef.label}`} color={catDef.color} total={totalCat(areaActiva,catKey)}>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 90px auto", gap: 8, marginBottom: 4 }}>
-                {["Descripción","Unidad","Cantidad","Monto unit.","Total",""].map((h,i) =>
-                  <div key={i} style={{ fontSize: 11, fontWeight: 700, color: C.grayMid, textTransform: "uppercase" }}>{h}</div>
-                )}
+            <div style={{ marginTop:16, padding:12, background:C.grayLight, borderRadius:8 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:C.grayMid, marginBottom:8 }}>TOTALES GENERALES</div>
+              <div style={{ marginBottom:4 }}>
+                <div style={{ fontSize:10, color:C.grayMid }}>CAPEX</div>
+                <div style={{ fontSize:14, fontWeight:800, color:C.yellowDark }}>{fmt(totalCAPEX)}</div>
               </div>
-              {(costos?.[catKey]||[]).map(p => (
-                <PartidaRow key={p.id} p={p} catLabel={catDef.label}
-                  onUpdate={u => updatePartidaArea(areaActiva,catKey,p.id,u)}
-                  onRemove={() => removePartidaArea(areaActiva,catKey,p.id)} />
-              ))}
-              <button onClick={() => addPartidaArea(areaActiva,catKey)} style={{ width:"100%",padding:"8px",border:`2px dashed ${catDef.border}`,borderRadius:6,background:"transparent",cursor:"pointer",color:catDef.color,fontSize:13,marginTop:4 }}>+ Agregar {catDef.label} (OPEX)</button>
-            </SectionCard>
-          );
-        })}
+              <div style={{ marginBottom:4 }}>
+                <div style={{ fontSize:10, color:C.grayMid }}>OPEX</div>
+                <div style={{ fontSize:14, fontWeight:800, color:C.grayDark }}>{fmt(totalOPEX)}</div>
+              </div>
+              <div style={{ paddingTop:8, borderTop:`1px solid ${C.grayBorder}` }}>
+                <div style={{ fontSize:10, color:C.grayMid }}>Total egresos</div>
+                <div style={{ fontSize:15, fontWeight:800, color:C.grayDark }}>{fmt(totalEgresos)}</div>
+              </div>
+            </div>
+          </div>
 
-        <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
-          {btn("Guardar borrador", () => setVista("pm_revision"), "secondary")}
-          {btn("✓ Marcar como capturado", () => marcarAreaCapturada(areaActiva), "success")}
+          {/* Panel de captura */}
+          <div>
+            {!areaActiva ? (
+              <div style={{ padding:40, textAlign:"center", color:C.grayMid, background:C.grayLight, borderRadius:10 }}>
+                Selecciona un área del panel izquierdo para capturar sus costos.
+              </div>
+            ) : (
+              <div>
+                {/* Header área */}
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                  <span style={{ fontSize:22 }}>{area?.icon}</span>
+                  <h3 style={{ margin:0, fontSize:17, fontWeight:800, color:C.grayDark }}>{area?.label}</h3>
+                  <Badge label={costos?.estado==="capturado"?"✓ Capturado":"En captura"} color={costos?.estado==="capturado"?C.success:C.yellowDark} bg={costos?.estado==="capturado"?C.successLight:C.yellowLight} />
+                </div>
+
+                {/* KPIs del área */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:16 }}>
+                  {[
+                    {label:"CAPEX del área", val:capexA, color:C.yellowDark, bg:C.yellowLight, sub:"Equipos e inversiones"},
+                    {label:"OPEX del área", val:opexA, color:C.grayDark, bg:C.grayLight, sub:"Nómina + Mat. + Viáticos"},
+                    {label:"Total área", val:capexA+opexA, color:C.grayDark, bg:C.grayLight, sub:"CAPEX + OPEX"},
+                  ].map(k=>(
+                    <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.color}33`, borderRadius:8, padding:12 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:k.color, textTransform:"uppercase" }}>{k.label}</div>
+                      <div style={{ fontSize:16, fontWeight:800, color:k.color, marginTop:4 }}>{fmt(k.val)}</div>
+                      <div style={{ fontSize:10, color:C.grayMid }}>{k.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Headers columnas partida */}
+                <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, marginBottom:4 }}>
+                  {["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""].map((h,i)=>
+                    <div key={i} style={{ fontSize:10, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
+                  )}
+                </div>
+
+                {/* CAPEX */}
+                <div style={{ border:`1px solid #ddd6fe`, borderRadius:8, overflow:"hidden", marginBottom:12 }}>
+                  <div style={{ background:"#7c3aed", padding:"10px 14px", display:"flex", justifyContent:"space-between" }}>
+                    <div style={{ fontWeight:700, fontSize:14, color:C.white }}>CAPEX · Equipos e inversiones</div>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.white }}>{fmt(capexA)}</div>
+                  </div>
+                  <div style={{ padding:12 }}>
+                    {(costos?.capex||[]).map(p=>(
+                      <PartidaRow key={p.id} p={p}
+                        onUpdate={u=>updatePartida(areaActiva,"capex",p.id,u)}
+                        onRemove={()=>removePartida(areaActiva,"capex",p.id)} />
+                    ))}
+                    <button onClick={()=>addPartida(areaActiva,"capex")} style={{ width:"100%",padding:"7px",border:"2px dashed #ddd6fe",borderRadius:6,background:"transparent",cursor:"pointer",color:"#7c3aed",fontSize:12 }}>
+                      + Agregar equipo / inversión (CAPEX)
+                    </button>
+                  </div>
+                </div>
+
+                {/* OPEX Nómina */}
+                <div style={{ border:"1px solid #bbf7d0", borderRadius:8, overflow:"hidden", marginBottom:12 }}>
+                  <div style={{ background:"#059669", padding:"10px 14px", display:"flex", justifyContent:"space-between" }}>
+                    <div style={{ fontWeight:700, fontSize:14, color:C.white }}>OPEX · Nómina y Mano de Obra</div>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.white }}>{fmt(nomMens)}/mes</div>
+                  </div>
+                  <div style={{ padding:12 }}>
+                    {nomMens>0 && (
+                      <div style={{ display:"grid", gridTemplateColumns:"2fr 50px 1fr 80px 80px 1fr 28px", gap:6, marginBottom:6 }}>
+                        {["Puesto","Cant.","Salario base/mes","IMSS+PT","Prestac.","Costo real/mes",""].map((h,i)=>
+                          <div key={i} style={{ fontSize:10, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
+                        )}
+                      </div>
+                    )}
+                    {(costos?.nomina||[]).map(p=>(
+                      <NominaRow key={p.id} p={p}
+                        onUpdate={u=>updatePartida(areaActiva,"nomina",p.id,u)}
+                        onRemove={()=>removePartida(areaActiva,"nomina",p.id)} />
+                    ))}
+                    <button onClick={()=>addNomina(areaActiva)} style={{ width:"100%",padding:"7px",border:"2px dashed #bbf7d0",borderRadius:6,background:"transparent",cursor:"pointer",color:"#059669",fontSize:12 }}>
+                      + Agregar puesto (Nómina)
+                    </button>
+                  </div>
+                </div>
+
+                {/* OPEX Materiales y Viáticos */}
+                {[
+                  {cat:"materiales",label:"OPEX · Materiales",color:"#0891b2",border:"#bae6fd"},
+                  {cat:"viaticos",  label:"OPEX · Viáticos",  color:"#d97706",border:"#fde68a"},
+                ].map(({cat,label,color,border})=>(
+                  <div key={cat} style={{ border:`1px solid ${border}`, borderRadius:8, overflow:"hidden", marginBottom:12 }}>
+                    <div style={{ background:color, padding:"10px 14px", display:"flex", justifyContent:"space-between" }}>
+                      <div style={{ fontWeight:700, fontSize:14, color:C.white }}>{label}</div>
+                      <div style={{ fontSize:14, fontWeight:800, color:C.white }}>{fmt(totalCat(areaActiva,cat))}</div>
+                    </div>
+                    <div style={{ padding:12 }}>
+                      {(costos?.[cat]||[]).map(p=>(
+                        <PartidaRow key={p.id} p={p}
+                          onUpdate={u=>updatePartida(areaActiva,cat,p.id,u)}
+                          onRemove={()=>removePartida(areaActiva,cat,p.id)} />
+                      ))}
+                      <button onClick={()=>addPartida(areaActiva,cat)} style={{ width:"100%",padding:"7px",border:`2px dashed ${border}`,borderRadius:6,background:"transparent",cursor:"pointer",color,fontSize:12 }}>
+                        + Agregar {cat==="materiales"?"material":"viático"} (OPEX)
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
+                  {btn("Guardar área", ()=>setCostosAreas(prev=>({...prev,[areaActiva]:{...prev[areaActiva],estado:"capturado"}})), "success")}
+                </div>
+              </div>
+            )}
+
+            {/* CAPEX/OPEX adicional del PM */}
+            <div style={{ marginTop:24, borderTop:`2px solid ${C.grayBorder}`, paddingTop:20 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:C.grayMid, marginBottom:12 }}>CAPEX / OPEX adicional (PM)</div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:700, color:C.yellowDark, marginBottom:8 }}>CAPEX adicional · {fmt(capexPMTotal)}</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, marginBottom:4 }}>
+                    {["Cat","Desc","Unidad","Cant","Monto","Total",""].map((h,i)=>
+                      <div key={i} style={{ fontSize:9, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
+                    )}
+                  </div>
+                  {capexPM.map(p=>(
+                    <PartidaRow key={p.id} p={p} onUpdate={u=>setCapexPM(capexPM.map(x=>x.id===p.id?u:x))} onRemove={()=>setCapexPM(capexPM.filter(x=>x.id!==p.id))} />
+                  ))}
+                  <button onClick={()=>setCapexPM([...capexPM,initPartida()])} style={{ width:"100%",padding:"7px",border:`2px dashed ${C.yellowBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.yellowDark,fontSize:12 }}>+ CAPEX</button>
+                </div>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:700, color:C.grayMid, marginBottom:8 }}>OPEX adicional · {fmt(opexPMTotal)}</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 80px 1fr 1fr 80px 28px", gap:6, marginBottom:4 }}>
+                    {["Cat","Desc","Unidad","Cant","Monto","Total",""].map((h,i)=>
+                      <div key={i} style={{ fontSize:9, fontWeight:700, color:C.grayMid, textTransform:"uppercase" }}>{h}</div>
+                    )}
+                  </div>
+                  {opexPM.map(p=>(
+                    <PartidaRow key={p.id} p={p} onUpdate={u=>setOpexPM(opexPM.map(x=>x.id===p.id?u:x))} onRemove={()=>setOpexPM(opexPM.filter(x=>x.id!==p.id))} />
+                  ))}
+                  <button onClick={()=>setOpexPM([...opexPM,initPartida()])} style={{ width:"100%",padding:"7px",border:`2px dashed ${C.grayBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.grayMid,fontSize:12 }}>+ OPEX</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display:"flex", justifyContent:"flex-end", marginTop:20 }}>
+          {btn("Ver Resumen Mensual →", ()=>setStep(4), "primary")}
         </div>
       </div>
     );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CU-004 REVISIÓN PM
+  // STEP 4: RESUMEN MENSUAL + PDF
   // ══════════════════════════════════════════════════════════════════════════
-  if (vista==="pm_revision") return (
-    <PMRevision
-      presupuesto={presupuesto}
-      areasSeleccionadas={areasSeleccionadas}
-      costosAreas={costosAreas}
-      totalArea={totalArea} totalCat={totalCat}
-      totalCAPEX={totalCAPEX} totalOPEX={totalOPEX}
-      totalEgresos={totalEgresos} totalIngresos={totalIngresos}
-      utilidad={utilidad} margen={margen}
-      capexPM={capexPM} setCapexPM={setCapexPM}
-      opexPM={opexPM} setOpexPM={setOpexPM}
-      ingresos={ingresos} setIngresos={setIngresos}
-      todasCapturadas={todasCapturadas}
-      onAbrirArea={id => { setAreaActiva(id); setVista("area_captura"); }}
-      onSolicitarCorreccion={solicitarCorreccion}
-      onAprobarArea={aprobarArea}
-      onConsolidar={consolidar}
-      btn={btn}
-      mesesCat={mesesCat}
-    />
-  );
+  if (step===4) {
+    // Distribución mensual
+    const mesesCAPEX = MESES.map((_,i)=>{
+      const desdeAreas = areasSeleccionadas.reduce((s,id)=>s+(distribuirMeses(totalCat(id,"capex"),"capex")[i]||0),0);
+      const desdePM    = capexPM.reduce((s,p)=>s+(distribuirMeses((p.cantidad||0)*(p.monto||0),"capex")[i]||0),0);
+      return desdeAreas + desdePM;
+    });
+    const mesesOPEX = MESES.map((_,i)=>{
+      const mat = areasSeleccionadas.reduce((s,id)=>s+(distribuirMeses(totalCat(id,"materiales"),"opex")[i]||0),0);
+      const via = areasSeleccionadas.reduce((s,id)=>s+(distribuirMeses(totalCat(id,"viaticos"),"opex")[i]||0),0);
+      const nom = areasSeleccionadas.reduce((s,id)=>s+totalNominaArea(id),0); // ya mensual
+      const pm  = opexPM.reduce((s,p)=>s+(distribuirMeses((p.cantidad||0)*(p.monto||0),"opex")[i]||0),0);
+      return mat+via+nom+pm;
+    });
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // CU-005 CONSOLIDADO
-  // ══════════════════════════════════════════════════════════════════════════
-  if (vista==="consolidado") return (
-    <Consolidado
-      presupuesto={presupuesto}
-      areasSeleccionadas={areasSeleccionadas}
-      costosAreas={costosAreas}
-      capexPM={capexPM} opexPM={opexPM}
-      ingresos={ingresos}
-      totalArea={totalArea} totalCat={totalCat}
-      totalCAPEX={totalCAPEX} totalOPEX={totalOPEX}
-      totalEgresos={totalEgresos} totalIngresos={totalIngresos}
-      utilidad={utilidad} margen={margen}
-      mesesCat={mesesCat}
-      btn={btn}
-      onVolver={() => setVista("pm_revision")}
-      onNuevo={() => setVista("lista")}
-    />
-  );
+    const seriesCats = [
+      { label:"CAPEX", color:C.yellowDark, data:mesesCAPEX },
+      { label:"OPEX",  color:C.grayMid,   data:mesesOPEX  },
+    ].filter(s=>s.data.some(v=>v>0));
+
+    const barrasAreas = areasSeleccionadas.map((id,idx)=>({
+      label:AREAS_CATALOGO.find(a=>a.id===id)?.label||id,
+      value:totalCat(id,"capex")+(totalCat(id,"materiales")+totalNominaArea(id)*12+totalCat(id,"viaticos")),
+      color:idx%2===0?C.yellow:C.grayMid,
+    })).filter(b=>b.value>0);
+
+    const totalesMes = MESES.map((_,i)=>mesesCAPEX[i]+mesesOPEX[i]);
+
+    return wrap(
+      <div>
+        <style>{`
+          @media print {
+            body * { visibility: hidden; }
+            #resumen-pdf, #resumen-pdf * { visibility: visible; }
+            #resumen-pdf { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+          }
+        `}</style>
+
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div>
+            <h2 style={{ margin:0, fontSize:18, fontWeight:800, color:C.grayDark }}>Resumen mensual</h2>
+            <div style={{ fontSize:13, color:C.grayMid }}>{presupuesto?.nombre} · {presupuesto?.empresa}</div>
+          </div>
+          <div style={{ display:"flex", gap:10 }} className="no-print">
+            {btn("← Regresar a captura", ()=>setStep(3), "secondary")}
+            {btn("⬇ Exportar PDF", ()=>window.print(), "primary")}
+          </div>
+        </div>
+
+        <div id="resumen-pdf">
+          {/* KPIs */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:24 }}>
+            {[
+              {label:"CAPEX total",  val:totalCAPEX,   color:C.yellowDark, bg:C.yellowLight},
+              {label:"OPEX total",   val:totalOPEX,    color:C.grayDark,  bg:C.grayLight},
+              {label:"Total egresos",val:totalEgresos,  color:C.danger,    bg:C.dangerLight},
+              {label:"Nómina anual", val:areasSeleccionadas.reduce((s,id)=>s+totalNominaArea(id)*12,0), color:C.success, bg:C.successLight},
+            ].map(k=>(
+              <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.color}33`, borderRadius:10, padding:14 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:k.color, textTransform:"uppercase" }}>{k.label}</div>
+                <div style={{ fontSize:18, fontWeight:800, color:k.color, marginTop:6 }}>{fmt(k.val)}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Gráfica 1: CAPEX vs OPEX mensual */}
+          {seriesCats.length>0 && (
+            <div style={{ background:C.white, border:`1px solid ${C.grayBorder}`, borderRadius:10, padding:20, marginBottom:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+                <div style={{ width:4, height:18, background:C.yellow, borderRadius:2 }}/>
+                <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:C.grayDark }}>CAPEX y OPEX por mes (M0–M12)</h3>
+              </div>
+              <div style={{ display:"flex", gap:16, marginBottom:10 }}>
+                {seriesCats.map(s=><div key={s.label} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ width:12, height:12, borderRadius:2, background:s.color }}/><span style={{ fontSize:12, color:C.grayMid }}>{s.label}</span>
+                </div>)}
+              </div>
+              <LineChart series={seriesCats} height={220}/>
+              <div style={{ fontSize:11, color:C.grayMid, textAlign:"center", marginTop:6 }}>CAPEX concentrado en M0 · OPEX distribuido uniformemente</div>
+            </div>
+          )}
+
+          {/* Gráfica 2: por área */}
+          {barrasAreas.length>0 && (
+            <div style={{ background:C.white, border:`1px solid ${C.grayBorder}`, borderRadius:10, padding:20, marginBottom:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+                <div style={{ width:4, height:18, background:C.yellow, borderRadius:2 }}/>
+                <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:C.grayDark }}>Costo total por área</h3>
+              </div>
+              <BarChart items={barrasAreas} height={200}/>
+            </div>
+          )}
+
+          {/* Tabla mensual M0–M12 */}
+          <div style={{ background:C.white, border:`1px solid ${C.grayBorder}`, borderRadius:10, padding:20, marginBottom:20 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+              <div style={{ width:4, height:18, background:C.yellow, borderRadius:2 }}/>
+              <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:C.grayDark }}>Tabla de egresos mensual</h3>
+            </div>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11 }}>
+                <thead>
+                  <tr style={{ background:C.grayDark, color:C.white }}>
+                    <td style={{ padding:"8px 12px", fontWeight:700, minWidth:120 }}>Concepto</td>
+                    {MESES.map(m=><td key={m} style={{ padding:"6px 4px", textAlign:"right", fontWeight:600, minWidth:52 }}>{m}</td>)}
+                    <td style={{ padding:"6px 12px", textAlign:"right", fontWeight:700 }}>Total</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    {label:"CAPEX", color:C.yellowDark, meses:mesesCAPEX, total:totalCAPEX, bg:C.yellowLight},
+                    {label:"OPEX",  color:C.grayMid,   meses:mesesOPEX,  total:totalOPEX,  bg:C.grayLight},
+                  ].map((f,fi)=>(
+                    <tr key={f.label} style={{ background:fi%2===0?C.white:C.grayLight, borderBottom:`1px solid ${C.grayBorder}` }}>
+                      <td style={{ padding:"7px 12px", fontWeight:700, color:f.color, display:"flex", alignItems:"center", gap:6 }}>
+                        <div style={{ width:8, height:8, borderRadius:2, background:f.color, flexShrink:0 }}/>{f.label}
+                      </td>
+                      {f.meses.map((v,i)=>(
+                        <td key={i} style={{ padding:"6px 4px", textAlign:"right", color:v>0?C.grayDark:C.grayMid }}>
+                          {v>0?(v>=1000?`$${(v/1000).toFixed(0)}K`:fmt(v)):"—"}
+                        </td>
+                      ))}
+                      <td style={{ padding:"6px 12px", textAlign:"right", fontWeight:700, color:f.color }}>{fmt(f.total)}</td>
+                    </tr>
+                  ))}
+                  <tr style={{ background:C.yellowLight, borderTop:`2px solid ${C.yellow}` }}>
+                    <td style={{ padding:"8px 12px", fontWeight:800, color:C.grayDark }}>TOTAL</td>
+                    {totalesMes.map((v,i)=>(
+                      <td key={i} style={{ padding:"6px 4px", textAlign:"right", fontWeight:700, color:C.grayDark }}>
+                        {v>0?(v>=1000?`$${(v/1000).toFixed(0)}K`:fmt(v)):"—"}
+                      </td>
+                    ))}
+                    <td style={{ padding:"6px 12px", textAlign:"right", fontWeight:800, color:C.yellowDark }}>{fmt(totalEgresos)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Detalle por área */}
+          {areasSeleccionadas.length>0 && (
+            <div style={{ background:C.white, border:`1px solid ${C.grayBorder}`, borderRadius:10, padding:20, marginBottom:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+                <div style={{ width:4, height:18, background:C.yellow, borderRadius:2 }}/>
+                <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:C.grayDark }}>Resumen por área</h3>
+              </div>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+                <thead>
+                  <tr style={{ background:C.grayLight }}>
+                    <td style={{ padding:"8px 12px", fontWeight:700, fontSize:11, color:C.grayMid }}>Área</td>
+                    <td style={{ padding:"8px 8px", fontWeight:700, fontSize:11, color:C.yellowDark, textAlign:"right" }}>CAPEX</td>
+                    <td style={{ padding:"8px 8px", fontWeight:700, fontSize:11, color:C.grayMid, textAlign:"right" }}>OPEX</td>
+                    <td style={{ padding:"8px 12px", fontWeight:700, fontSize:11, color:C.grayDark, textAlign:"right" }}>Total</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {areasSeleccionadas.map((id,i)=>{
+                    const a=AREAS_CATALOGO.find(x=>x.id===id);
+                    const cx=totalCat(id,"capex");
+                    const ox=totalCat(id,"materiales")+totalNominaArea(id)*12+totalCat(id,"viaticos");
+                    return (
+                      <tr key={id} style={{ background:i%2===0?C.white:C.grayLight, borderTop:`1px solid ${C.grayBorder}` }}>
+                        <td style={{ padding:"9px 12px", fontWeight:600 }}>{a?.icon} {a?.label}</td>
+                        <td style={{ padding:"9px 8px", textAlign:"right", color:C.yellowDark }}>{fmt(cx)}</td>
+                        <td style={{ padding:"9px 8px", textAlign:"right", color:C.grayMid }}>{fmt(ox)}</td>
+                        <td style={{ padding:"9px 12px", textAlign:"right", fontWeight:700 }}>{fmt(cx+ox)}</td>
+                      </tr>
+                    );
+                  })}
+                  <tr style={{ background:C.grayDark }}>
+                    <td style={{ padding:"10px 12px", fontWeight:700, color:C.white }}>TOTAL</td>
+                    <td style={{ padding:"10px 8px", textAlign:"right", fontWeight:700, color:C.yellow }}>{fmt(totalCAPEX)}</td>
+                    <td style={{ padding:"10px 8px", textAlign:"right", fontWeight:700, color:"#aaa" }}>{fmt(totalOPEX)}</td>
+                    <td style={{ padding:"10px 12px", textAlign:"right", fontWeight:800, color:C.white, fontSize:13 }}>{fmt(totalEgresos)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Footer PDF */}
+          <div style={{ textAlign:"center", fontSize:11, color:C.grayMid, paddingTop:16, borderTop:`1px solid ${C.grayBorder}` }}>
+            GEOLIS SA DE CV · {presupuesto?.nombre} · Generado el {new Date().toLocaleDateString("es-MX")}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return null;
-}
-
-// ─── PM REVISION ──────────────────────────────────────────────────────────────
-function PMRevision({ presupuesto, areasSeleccionadas, costosAreas, totalArea, totalCat,
-  totalCAPEX, totalOPEX, totalEgresos, totalIngresos, utilidad, margen,
-  capexPM, setCapexPM, opexPM, setOpexPM, ingresos, setIngresos,
-  todasCapturadas, onAbrirArea, onSolicitarCorreccion, onAprobarArea, onConsolidar, btn, mesesCat }) {
-
-  const [comentarios, setComentarios] = useState({});
-  const [mostrarForm, setMostrarForm] = useState({});
-  const [tabActiva, setTabActiva]     = useState("areas");
-
-  const estadoLabel = { pendiente:"Pendiente", capturado:"Listo para revisar", revisado:"Aprobado", correccion:"Corrección solicitada" };
-  const estadoColor = { pendiente:C.grayMid, capturado:C.yellowDark, revisado:C.success, correccion:C.danger };
-
-  const tabStyle = (t) => ({
-    padding: "10px 20px", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14,
-    borderBottom: tabActiva===t ? `3px solid ${C.yellow}` : "3px solid transparent",
-    background: "none", color: tabActiva===t ? C.yellowDark : C.grayMid,
-  });
-
-  return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", padding: 24, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <StepBar current={3} />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-        <div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: C.grayDark }}>Revisión de costos</h2>
-            <Badge estado={presupuesto?.estado} />
-          </div>
-          <div style={{ fontSize: 13, color: C.grayMid, marginTop: 4 }}>CU-004 · {presupuesto?.nombre} · {presupuesto?.cliente}</div>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: C.yellowDark }}>{fmt(totalEgresos)}</div>
-          <div style={{ fontSize: 12, color: C.grayMid }}>Total egresos</div>
-        </div>
-      </div>
-
-      {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
-        {[
-          { label:"CAPEX total",   val:totalCAPEX,   sub:"Equipos + activos",       color:C.yellowDark, bg:C.yellowLight, border:C.yellowBorder },
-          { label:"OPEX total",    val:totalOPEX,    sub:"Mat. + nómina + viáticos", color:C.grayDark,  bg:C.grayLight,  border:C.grayBorder   },
-          { label:"Ingresos",      val:totalIngresos,sub:"Facturación anual",        color:C.success,   bg:C.successLight,border:C.success+"44" },
-          { label:`Utilidad ${margen.toFixed(1)}%`, val:utilidad, sub:"Ingresos − egresos",
-            color: utilidad>=0?C.success:C.danger, bg: utilidad>=0?C.successLight:C.dangerLight, border:(utilidad>=0?C.success:C.danger)+"44" },
-        ].map(k => (
-          <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius:10, padding:14 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:k.color, textTransform:"uppercase" }}>{k.label}</div>
-            <div style={{ fontSize:18, fontWeight:800, color:k.color, marginTop:6 }}>{fmt(k.val)}</div>
-            <div style={{ fontSize:11, color:C.grayMid, marginTop:2 }}>{k.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display:"flex", borderBottom:`1px solid ${C.grayBorder}`, marginBottom:20 }}>
-        <button style={tabStyle("areas")} onClick={() => setTabActiva("areas")}>📋 Costos por área</button>
-        <button style={tabStyle("capex_opex")} onClick={() => setTabActiva("capex_opex")}>📊 CAPEX / OPEX</button>
-        <button style={tabStyle("ingresos")} onClick={() => setTabActiva("ingresos")}>💰 Ingresos</button>
-      </div>
-
-      {/* TAB ÁREAS */}
-      {tabActiva==="areas" && areasSeleccionadas.map(id => {
-        const area   = AREAS_CATALOGO.find(a => a.id===id);
-        const costos = costosAreas[id];
-        const est    = costos?.estado || "pendiente";
-        const capexA = totalCat(id,"equipos");
-        const nominaMens = (costosAreas[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s+(p.salario||0)*f*(p.cantidad||1);},0);
-        const opexA  = totalCat(id,"materiales") + (nominaMens * 12) + totalCat(id,"viaticos");
-        return (
-          <div key={id} style={{ border:`1px solid ${C.grayBorder}`, borderRadius:10, marginBottom:14, overflow:"hidden" }}>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 16px", background:C.grayLight, borderBottom:`1px solid ${C.grayBorder}` }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <span style={{ fontSize:20 }}>{area?.icon}</span>
-                <div>
-                  <div style={{ fontWeight:700, fontSize:15, color:C.grayDark }}>{area?.label}</div>
-                  <div style={{ fontSize:12, color:estadoColor[est] }}>
-                    {est==="pendiente"?"⏳":est==="capturado"?"📋":est==="revisado"?"✅":"⚠️"} {estadoLabel[est]}
-                    {costos?.comentario && <span> · "{costos.comentario}"</span>}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                <span style={{ fontSize:16, fontWeight:700, color:C.yellowDark }}>{fmt(totalArea(id))}</span>
-                <button onClick={() => onAbrirArea(id)} style={{ padding:"6px 12px", background:C.yellowLight, border:`1px solid ${C.yellowBorder}`, borderRadius:6, cursor:"pointer", fontSize:13, fontWeight:600, color:C.yellowDark }}>Editar</button>
-              </div>
-            </div>
-            {est !== "pendiente" && (
-              <div style={{ padding:"10px 16px", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
-                <div style={{ background:C.yellowLight, border:`1px solid ${C.yellowBorder}`, borderRadius:8, padding:10 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:C.yellowDark }}>CAPEX</div>
-                  <div style={{ fontSize:15, fontWeight:700, marginTop:4, color:C.yellowDark }}>{fmt(capexA)}</div>
-                </div>
-                {["materiales","viaticos"].map(cat => (
-                  <div key={cat} style={{ background:CATS_AREA[cat].bg, border:`1px solid ${CATS_AREA[cat].border}`, borderRadius:8, padding:10 }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:CATS_AREA[cat].color }}>OPEX · {CATS_AREA[cat].label}</div>
-                    <div style={{ fontSize:15, fontWeight:700, marginTop:4 }}>{fmt(totalCat(id,cat))}</div>
-                  </div>
-                ))}
-                <div style={{ background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:8, padding:10 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:"#059669" }}>OPEX · Nómina</div>
-                  <div style={{ fontSize:15, fontWeight:700, marginTop:4 }}>{fmt(nominaMens * 12)}</div>
-                  <div style={{ fontSize:10, color:C.grayMid }}>{fmt(nominaMens)}/mes × 12</div>
-                </div>
-              </div>
-            )}
-            {est==="capturado" && (
-              <div style={{ padding:"10px 16px", borderTop:`1px solid ${C.grayLight}`, display:"flex", gap:10, alignItems:"center" }}>
-                {mostrarForm[id] ? (
-                  <>
-                    <input value={comentarios[id]||""} onChange={e => setComentarios({...comentarios,[id]:e.target.value})}
-                      placeholder="Describe la corrección..." style={{ flex:1, padding:"7px 10px", border:`1px solid ${C.yellowBorder}`, borderRadius:6, fontSize:13 }} />
-                    <button onClick={() => { onSolicitarCorreccion(id,comentarios[id]||"Favor de revisar"); setMostrarForm({...mostrarForm,[id]:false}); }}
-                      style={{ padding:"7px 14px", background:C.yellowLight, color:C.yellowDark, border:`1px solid ${C.yellowBorder}`, borderRadius:6, cursor:"pointer", fontWeight:700, fontSize:13 }}>Enviar</button>
-                    <button onClick={() => setMostrarForm({...mostrarForm,[id]:false})}
-                      style={{ padding:"7px 12px", background:C.grayLight, border:"none", borderRadius:6, cursor:"pointer", fontSize:13 }}>Cancelar</button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => setMostrarForm({...mostrarForm,[id]:true})} style={{ padding:"7px 14px", background:C.yellowLight, color:C.yellowDark, border:`1px solid ${C.yellowBorder}`, borderRadius:6, cursor:"pointer", fontWeight:700, fontSize:13 }}>⚠ Solicitar corrección</button>
-                    <button onClick={() => onAprobarArea(id)} style={{ padding:"7px 14px", background:C.successLight, color:C.success, border:`1px solid ${C.success}44`, borderRadius:6, cursor:"pointer", fontWeight:700, fontSize:13 }}>✓ Aprobar área</button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* TAB CAPEX/OPEX */}
-      {tabActiva==="capex_opex" && (
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-          <div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <h3 style={{ fontSize:16, fontWeight:800, color:C.yellowDark, margin:0 }}>CAPEX · Inversiones</h3>
-              <span style={{ fontSize:16, fontWeight:800, color:C.yellowDark }}>{fmt(totalCAPEX)}</span>
-            </div>
-            <div style={{ background:C.yellowLight, border:`1px solid ${C.yellowBorder}`, borderRadius:8, padding:12, marginBottom:12 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:C.yellowDark, marginBottom:8 }}>DESDE ÁREAS (Equipos)</div>
-              {areasSeleccionadas.map(id => {
-                const v = totalCat(id,"equipos"); if(v===0) return null;
-                const area = AREAS_CATALOGO.find(a=>a.id===id);
-                return <div key={id} style={{ display:"flex", justifyContent:"space-between", fontSize:13, marginBottom:4 }}><span>{area?.icon} {area?.label}</span><span style={{ fontWeight:600 }}>{fmt(v)}</span></div>;
-              })}
-              {areasSeleccionadas.every(id=>totalCat(id,"equipos")===0) && <div style={{ fontSize:13, color:C.grayMid }}>Sin equipos capturados aún</div>}
-            </div>
-            <SectionCard title="CAPEX adicional (PM)" color={C.yellowDark}>
-              {capexPM.map(p => (
-                <PartidaLibreRow key={p.id} p={p} cats={CAPEX_CATS}
-                  onUpdate={u => setCapexPM(capexPM.map(x=>x.id===p.id?u:x))}
-                  onRemove={() => setCapexPM(capexPM.filter(x=>x.id!==p.id))} />
-              ))}
-              <button onClick={() => setCapexPM([...capexPM, initPartidaLibre({ cat:CAPEX_CATS[0] })])} style={{ width:"100%",padding:"8px",border:`2px dashed ${C.yellowBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.yellowDark,fontSize:13 }}>+ Agregar CAPEX</button>
-            </SectionCard>
-          </div>
-          <div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <h3 style={{ fontSize:16, fontWeight:800, color:C.grayDark, margin:0 }}>OPEX · Recurrentes</h3>
-              <span style={{ fontSize:16, fontWeight:800, color:C.grayDark }}>{fmt(totalOPEX)}</span>
-            </div>
-            <div style={{ background:C.grayLight, border:`1px solid ${C.grayBorder}`, borderRadius:8, padding:12, marginBottom:12 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:C.grayMid, marginBottom:8 }}>DESDE ÁREAS (Mat. + M.O. + Viáticos)</div>
-              {areasSeleccionadas.map(id => {
-                const nomMes=(costosAreas[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s+(p.salario||0)*f*(p.cantidad||1);},0); const v = totalCat(id,"materiales")+(nomMes*12)+totalCat(id,"viaticos"); if(v===0) return null;
-                const area = AREAS_CATALOGO.find(a=>a.id===id);
-                return <div key={id} style={{ display:"flex", justifyContent:"space-between", fontSize:13, marginBottom:4 }}><span>{area?.icon} {area?.label}</span><span style={{ fontWeight:600 }}>{fmt(v)}</span></div>;
-              })}
-              {areasSeleccionadas.every(id=>{const nm=(costosAreas[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s+(p.salario||0)*f*(p.cantidad||1);},0);return (totalCat(id,"materiales")+(nm*12)+totalCat(id,"viaticos"))===0;}) && <div style={{ fontSize:13, color:C.grayMid }}>Sin OPEX capturado aún</div>}
-            </div>
-            <SectionCard title="OPEX adicional (PM)" color={C.grayDark}>
-              {opexPM.map(p => (
-                <PartidaLibreRow key={p.id} p={p} cats={OPEX_CATS}
-                  onUpdate={u => setOpexPM(opexPM.map(x=>x.id===p.id?u:x))}
-                  onRemove={() => setOpexPM(opexPM.filter(x=>x.id!==p.id))} />
-              ))}
-              <button onClick={() => setOpexPM([...opexPM, initPartidaLibre({ cat:OPEX_CATS[0] })])} style={{ width:"100%",padding:"8px",border:`2px dashed ${C.grayBorder}`,borderRadius:6,background:"transparent",cursor:"pointer",color:C.grayMid,fontSize:13 }}>+ Agregar OPEX</button>
-            </SectionCard>
-          </div>
-        </div>
-      )}
-
-      {/* TAB INGRESOS */}
-      {tabActiva==="ingresos" && (
-        <div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
-            <div>
-              <label style={{ fontSize:13, fontWeight:600, display:"block", marginBottom:6, color:C.grayDark }}>Total anual a facturar</label>
-              <input type="number" min="0" step="0.01" value={ingresos.totalAnual}
-                onChange={e => {
-                  const total = parseFloat(e.target.value)||0;
-                  const fac = ingresos.distribucion==="uniforme" ? Array(12).fill(parseFloat((total/12).toFixed(2))) : ingresos.facturacion;
-                  setIngresos({ ...ingresos, totalAnual:total, facturacion:fac });
-                }}
-                style={{ width:"100%", padding:"10px 12px", border:`2px solid ${C.yellow}`, borderRadius:8, fontSize:16, fontWeight:600, boxSizing:"border-box" }} />
-            </div>
-            <div>
-              <label style={{ fontSize:13, fontWeight:600, display:"block", marginBottom:6, color:C.grayDark }}>Distribución mensual</label>
-              <select value={ingresos.distribucion}
-                onChange={e => {
-                  const dist = e.target.value;
-                  const fac = dist==="uniforme" ? Array(12).fill(parseFloat((ingresos.totalAnual/12).toFixed(2))) : ingresos.facturacion;
-                  setIngresos({ ...ingresos, distribucion:dist, facturacion:fac });
-                }}
-                style={{ width:"100%", padding:"10px 12px", border:`1px solid ${C.grayBorder}`, borderRadius:8, fontSize:14 }}>
-                <option value="uniforme">Uniforme (mismo monto cada mes)</option>
-                <option value="manual">Personalizada por mes</option>
-              </select>
-            </div>
-          </div>
-          <TablaMensual filas={[{ label:"FACTURACIÓN", color:C.success, meses:ingresos.facturacion }]} showTotal={false} />
-        </div>
-      )}
-
-      <div style={{ display:"flex", justifyContent:"flex-end", marginTop:24, gap:10 }}>
-        {btn("Consolidar presupuesto →", onConsolidar, "success", !todasCapturadas)}
-      </div>
-      {!todasCapturadas && <div style={{ textAlign:"right", fontSize:12, color:C.grayMid, marginTop:6 }}>Todas las áreas deben estar aprobadas para consolidar.</div>}
-    </div>
-  );
-}
-
-// ─── CONSOLIDADO CON GRÁFICAS ─────────────────────────────────────────────────
-function Consolidado({ presupuesto, areasSeleccionadas, costosAreas, capexPM, opexPM,
-  ingresos, totalArea, totalCat, totalCAPEX, totalOPEX, totalEgresos, totalIngresos,
-  utilidad, margen, mesesCat, btn, onVolver, onNuevo }) {
-
-  // Distribución mensual por categoría (uniforme automático — opción C)
-  const seriesMeses = [
-    {
-      label: "Equipos (CAPEX)",
-      color: CHART_COLORS.equipos,
-      data: MESES.map((_, i) => areasSeleccionadas.reduce((s, id) => s + (mesesCat(id,"equipos")[i]||0), 0)
-        + capexPM.reduce((s,p) => { const m=p.meses||[]; return s+(m[i]||0); }, 0)),
-    },
-    {
-      label: "Materiales",
-      color: CHART_COLORS.materiales,
-      data: MESES.map((_, i) => areasSeleccionadas.reduce((s, id) => s + (mesesCat(id,"materiales")[i]||0), 0)
-        + opexPM.filter(p=>p.cat&&p.cat.toLowerCase().includes("material")).reduce((s,p)=>{const m=p.meses||[];return s+(m[i]||0);},0)),
-    },
-    {
-      label: "Nómina / M.O.",
-      color: CHART_COLORS.mano_obra,
-      data: MESES.map((_, i) => {
-        // Nómina distribuida uniformemente en 12 meses
-        const nomMensual = areasSeleccionadas.reduce((s, id) =>
-          s + (costosAreas[id]?.nomina||[]).reduce((s2,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s2+(p.salario||0)*f*(p.cantidad||1);},0), 0);
-        return nomMensual + opexPM.filter(p=>p.cat&&p.cat.toLowerCase().includes("nómina")).reduce((s,p)=>{const m=p.meses||[];return s+(m[i]||0);},0);
-      }),
-    },
-    {
-      label: "Viáticos",
-      color: CHART_COLORS.viaticos,
-      data: MESES.map((_, i) => areasSeleccionadas.reduce((s, id) => s + (mesesCat(id,"viaticos")[i]||0), 0)
-        + opexPM.filter(p=>p.cat&&p.cat.toLowerCase().includes("viático")).reduce((s,p)=>{const m=p.meses||[];return s+(m[i]||0);},0)),
-    },
-  ].filter(s => s.data.some(v => v > 0));
-
-  // Serie ingresos
-  const serieIngreso = { label:"Ingresos", color:CHART_COLORS.ingresos, data:ingresos.facturacion };
-
-  // Totales mensuales CAPEX + OPEX
-  const mesesCapex = MESES.map((_, i) =>
-    areasSeleccionadas.reduce((s, id) => s + (mesesCat(id,"equipos")[i]||0), 0)
-    + capexPM.reduce((s,p)=>{const m=p.meses||[];return s+(m[i]||0);},0)
-  );
-  const mesesOpex = MESES.map((_, i) => {
-    const nomMensual = areasSeleccionadas.reduce((s, id) =>
-      s + (costosAreas[id]?.nomina||[]).reduce((s2,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s2+(p.salario||0)*f*(p.cantidad||1);},0), 0);
-    return areasSeleccionadas.reduce((s, id) =>
-      s + (mesesCat(id,"materiales")[i]||0) + (mesesCat(id,"viaticos")[i]||0), 0)
-    + nomMensual
-    + opexPM.reduce((s,p)=>{const m=p.meses||[];return s+(m[i]||0);},0);
-  });
-
-  // Barras por área
-  const barrasAreas = areasSeleccionadas.map((id, idx) => ({
-    label: AREAS_CATALOGO.find(a=>a.id===id)?.label || id,
-    value: totalArea(id),
-    color: idx % 2 === 0 ? C.yellow : C.grayMid,
-  }));
-
-  // Filas tabla mensual
-  const filasTabla = [
-    ...(totalIngresos > 0 ? [{ label:"Ingresos", color:C.success, meses:ingresos.facturacion }] : []),
-    { label:"CAPEX (Equipos)", color:C.yellowDark, meses:mesesCapex },
-    { label:"OPEX",            color:C.grayMid,    meses:mesesOpex },
-  ];
-
-  const cardStyle = { background:C.white, border:`1px solid ${C.grayBorder}`, borderRadius:10, padding:20, marginBottom:20 };
-  const sectionTitle = (t) => (
-    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
-      <div style={{ width:4, height:20, background:C.yellow, borderRadius:2 }} />
-      <h3 style={{ fontSize:16, fontWeight:800, color:C.grayDark, margin:0 }}>{t}</h3>
-    </div>
-  );
-
-  return (
-    <div style={{ maxWidth:1100, margin:"0 auto", padding:24, fontFamily:"Inter, system-ui, sans-serif" }}>
-      <StepBar current={4} />
-
-      {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 }}>
-        <div>
-          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-            <h2 style={{ fontSize:22, fontWeight:800, margin:0, color:C.grayDark }}>Presupuesto consolidado</h2>
-            <Badge estado="CONSOLIDADO" />
-          </div>
-          <div style={{ fontSize:13, color:C.grayMid, marginTop:4 }}>
-            CU-005 · {presupuesto?.nombre} · {presupuesto?.cliente} · {presupuesto?.tipo} · {presupuesto?.moneda}
-          </div>
-        </div>
-        <button onClick={() => window.print()} style={{ padding:"10px 18px", background:C.yellow, color:C.grayDark, border:"none", borderRadius:8, cursor:"pointer", fontWeight:700 }}>
-          ⬇ Exportar
-        </button>
-      </div>
-
-      {/* KPIs */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:24 }}>
-        {[
-          { label:"Ingresos",      val:totalIngresos, color:C.success,   bg:C.successLight },
-          { label:"CAPEX",         val:totalCAPEX,    color:C.yellowDark,bg:C.yellowLight  },
-          { label:"OPEX",          val:totalOPEX,     color:C.grayDark,  bg:C.grayLight    },
-          { label:"Total egresos", val:totalEgresos,  color:C.danger,    bg:C.dangerLight  },
-          { label:`Utilidad ${margen.toFixed(1)}%`, val:utilidad,
-            color:utilidad>=0?C.success:C.danger, bg:utilidad>=0?C.successLight:C.dangerLight },
-        ].map(k => (
-          <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.color}33`, borderRadius:10, padding:14 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:k.color, textTransform:"uppercase" }}>{k.label}</div>
-            <div style={{ fontSize:18, fontWeight:800, color:k.color, marginTop:6 }}>{fmt(k.val)}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* GRÁFICA 1: Líneas por categoría mes a mes */}
-      <div style={cardStyle}>
-        {sectionTitle("Distribución mensual por categoría (M0–M12)")}
-        <ChartLegend items={seriesMeses} />
-        <LineChart series={seriesMeses} height={240} />
-        <div style={{ fontSize:11, color:C.grayMid, marginTop:8, textAlign:"center" }}>
-          CAPEX concentrado en M0 (instalación) · OPEX distribuido uniformemente en 12 meses
-        </div>
-      </div>
-
-      {/* GRÁFICA 2: Ingresos vs Egresos mes a mes */}
-      {totalIngresos > 0 && (
-        <div style={cardStyle}>
-          {sectionTitle("Ingresos vs Egresos — toma de decisión")}
-          <ChartLegend items={[
-            { label:"Ingresos",       color:CHART_COLORS.ingresos },
-            { label:"CAPEX",          color:CHART_COLORS.capex    },
-            { label:"OPEX",           color:CHART_COLORS.opex     },
-          ]} />
-          <LineChart series={[
-            serieIngreso,
-            { label:"CAPEX", color:CHART_COLORS.capex, data:mesesCapex },
-            { label:"OPEX",  color:CHART_COLORS.opex,  data:mesesOpex  },
-          ]} height={240} />
-          <div style={{ fontSize:11, color:C.grayMid, marginTop:8, textAlign:"center" }}>
-            Meses donde los egresos superan los ingresos requieren revisión
-          </div>
-        </div>
-      )}
-
-      {/* GRÁFICA 3: Barras por área */}
-      {barrasAreas.length > 0 && (
-        <div style={cardStyle}>
-          {sectionTitle("Costo total por área")}
-          <BarChart items={barrasAreas} height={200} />
-          <div style={{ fontSize:11, color:C.grayMid, marginTop:8, textAlign:"center" }}>
-            Áreas con mayor peso presupuestal — candidatas a ajuste
-          </div>
-        </div>
-      )}
-
-      {/* GRÁFICA 4: CAPEX vs OPEX donut simple */}
-      {(totalCAPEX > 0 || totalOPEX > 0) && (
-        <div style={cardStyle}>
-          {sectionTitle("Composición CAPEX vs OPEX")}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, alignItems:"center" }}>
-            <div>
-              {/* Donut SVG */}
-              <svg width="100%" viewBox="0 0 200 200" style={{ maxWidth:200, margin:"0 auto", display:"block" }}>
-                {(() => {
-                  const total = totalCAPEX + totalOPEX;
-                  if (total === 0) return null;
-                  const capexPct = totalCAPEX / total;
-                  const r = 70, cx = 100, cy = 100;
-                  const circumference = 2 * Math.PI * r;
-                  const capexDash = circumference * capexPct;
-                  const opexDash  = circumference * (1 - capexPct);
-                  return (
-                    <>
-                      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.grayBorder} strokeWidth="28" />
-                      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.yellow} strokeWidth="28"
-                        strokeDasharray={`${capexDash} ${opexDash}`}
-                        strokeDashoffset={circumference * 0.25}
-                        strokeLinecap="butt" />
-                      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.grayMid} strokeWidth="28"
-                        strokeDasharray={`${opexDash} ${capexDash}`}
-                        strokeDashoffset={circumference * 0.25 - capexDash}
-                        strokeLinecap="butt" />
-                      <text x={cx} y={cy-8} textAnchor="middle" fontSize="22" fontWeight="800" fill={C.grayDark}>{(capexPct*100).toFixed(0)}%</text>
-                      <text x={cx} y={cy+14} textAnchor="middle" fontSize="11" fill={C.grayMid}>CAPEX</text>
-                    </>
-                  );
-                })()}
-              </svg>
-            </div>
-            <div>
-              <div style={{ marginBottom:16 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                  <span style={{ display:"flex", alignItems:"center", gap:8, fontSize:14, fontWeight:600, color:C.grayDark }}>
-                    <div style={{ width:12, height:12, borderRadius:2, background:C.yellow }} /> CAPEX
-                  </span>
-                  <span style={{ fontWeight:800, color:C.yellowDark }}>{fmt(totalCAPEX)}</span>
-                </div>
-                <div style={{ height:6, background:C.grayBorder, borderRadius:3 }}>
-                  <div style={{ height:6, background:C.yellow, borderRadius:3, width:`${totalEgresos>0?(totalCAPEX/totalEgresos*100):0}%` }} />
-                </div>
-                <div style={{ fontSize:11, color:C.grayMid, marginTop:2 }}>{totalEgresos>0?(totalCAPEX/totalEgresos*100).toFixed(1):0}% del total</div>
-              </div>
-              <div>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                  <span style={{ display:"flex", alignItems:"center", gap:8, fontSize:14, fontWeight:600, color:C.grayDark }}>
-                    <div style={{ width:12, height:12, borderRadius:2, background:C.grayMid }} /> OPEX
-                  </span>
-                  <span style={{ fontWeight:800, color:C.grayDark }}>{fmt(totalOPEX)}</span>
-                </div>
-                <div style={{ height:6, background:C.grayBorder, borderRadius:3 }}>
-                  <div style={{ height:6, background:C.grayMid, borderRadius:3, width:`${totalEgresos>0?(totalOPEX/totalEgresos*100):0}%` }} />
-                </div>
-                <div style={{ fontSize:11, color:C.grayMid, marginTop:2 }}>{totalEgresos>0?(totalOPEX/totalEgresos*100).toFixed(1):0}% del total</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TABLA MENSUAL */}
-      <div style={cardStyle}>
-        {sectionTitle("Tabla mensual de egresos (M0–M12)")}
-        <TablaMensual filas={filasTabla} showTotal={true} />
-      </div>
-
-      {/* RESUMEN POR ÁREA */}
-      <div style={{ border:`1px solid ${C.grayBorder}`, borderRadius:10, overflow:"hidden", marginBottom:24 }}>
-        <div style={{ background:C.grayDark, color:C.white, padding:"12px 16px", fontWeight:700, fontSize:15 }}>Resumen por área</div>
-        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
-          <thead>
-            <tr style={{ background:C.grayLight }}>
-              <td style={{ padding:"10px 16px", fontWeight:700, fontSize:12, color:C.grayMid }}>Área</td>
-              <td style={{ padding:"10px 8px", fontWeight:700, fontSize:12, color:C.yellowDark, textAlign:"right" }}>CAPEX</td>
-              <td style={{ padding:"10px 8px", fontWeight:700, fontSize:12, color:C.grayMid, textAlign:"right" }}>OPEX</td>
-              <td style={{ padding:"10px 16px", fontWeight:700, fontSize:12, color:C.grayDark, textAlign:"right" }}>Total</td>
-            </tr>
-          </thead>
-          <tbody>
-            {areasSeleccionadas.map((id, i) => {
-              const area = AREAS_CATALOGO.find(a=>a.id===id);
-              const cx   = totalCat(id,"equipos");
-              const nomA = (costosAreas[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||FACTOR_IMSS_DEFAULT)+(p.prestaciones||FACTOR_PRESTACIONES_DEFAULT)+(p.isr||FACTOR_ISR_DEFAULT);return s+(p.salario||0)*f*(p.cantidad||1);},0);
-              const ox   = totalCat(id,"materiales") + (nomA*12) + totalCat(id,"viaticos");
-              return (
-                <tr key={id} style={{ background:i%2===0?C.white:C.grayLight, borderTop:`1px solid ${C.grayBorder}` }}>
-                  <td style={{ padding:"10px 16px", fontWeight:600, color:C.grayDark }}>{area?.icon} {area?.label}</td>
-                  <td style={{ padding:"10px 8px", textAlign:"right", color:C.yellowDark }}>{fmt(cx)}</td>
-                  <td style={{ padding:"10px 8px", textAlign:"right", color:C.grayMid }}>{fmt(ox)}</td>
-                  <td style={{ padding:"10px 16px", textAlign:"right", fontWeight:700, color:C.grayDark }}>{fmt(cx+ox)}</td>
-                </tr>
-              );
-            })}
-            {capexPM.length>0 && <tr style={{ background:C.yellowLight, borderTop:`1px solid ${C.grayBorder}` }}>
-              <td style={{ padding:"10px 16px", color:C.yellowDark }}>➕ CAPEX adicional (PM)</td>
-              <td style={{ padding:"10px 8px", textAlign:"right", color:C.yellowDark }}>{fmt(capexPMTotal)}</td>
-              <td style={{ padding:"10px 8px", textAlign:"right" }}>—</td>
-              <td style={{ padding:"10px 16px", textAlign:"right", fontWeight:700 }}>{fmt(capexPMTotal)}</td>
-            </tr>}
-            {opexPM.length>0 && <tr style={{ background:C.grayLight, borderTop:`1px solid ${C.grayBorder}` }}>
-              <td style={{ padding:"10px 16px", color:C.grayMid }}>➕ OPEX adicional (PM)</td>
-              <td style={{ padding:"10px 8px", textAlign:"right" }}>—</td>
-              <td style={{ padding:"10px 8px", textAlign:"right", color:C.grayMid }}>{fmt(opexPMTotal)}</td>
-              <td style={{ padding:"10px 16px", textAlign:"right", fontWeight:700 }}>{fmt(opexPMTotal)}</td>
-            </tr>}
-            <tr style={{ background:C.grayDark, color:C.white, fontWeight:700 }}>
-              <td style={{ padding:"12px 16px" }}>TOTAL CONSOLIDADO</td>
-              <td style={{ padding:"12px 8px", textAlign:"right" }}>{fmt(totalCAPEX)}</td>
-              <td style={{ padding:"12px 8px", textAlign:"right" }}>{fmt(totalOPEX)}</td>
-              <td style={{ padding:"12px 16px", textAlign:"right", fontSize:15 }}>{fmt(totalEgresos)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ display:"flex", justifyContent:"space-between" }}>
-        {btn("← Volver a revisión", onVolver, "secondary")}
-        <div style={{ display:"flex", gap:10 }}>
-          {btn("🔄 Nuevo presupuesto", onNuevo, "secondary")}
-          {btn("✅ Enviar a aprobación →", () => alert("CU-007: En producción esto notificaría a Dirección."), "success")}
-        </div>
-      </div>
-    </div>
-  );
-
-  // helper local para capexPMTotal / opexPMTotal
-  var capexPMTotal = (capexPM||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
-  var opexPMTotal  = (opexPM||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
 }
