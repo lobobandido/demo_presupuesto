@@ -60,18 +60,71 @@ const HISTORIAL_NOMINA = {
   "cuervito": [{"puesto": "Especialista telemetría", "cantidad": 1, "salario": 25000.0}, {"puesto": "Técnico instrumentista", "cantidad": 1, "salario": 20000.0}],
 };
 
-// Buscar partidas históricas por categoría (para autocompletar)
-function buscarHistorial(cat, tipo="capex") {
-  const hist = tipo==="capex" ? HISTORIAL_CAPEX : {};
-  const results = [];
-  Object.values(hist).forEach(pres => {
-    pres.forEach(p => {
-      if(p.cat.toUpperCase().includes(cat.toUpperCase()) || cat.toUpperCase().includes(p.cat.toUpperCase())) {
-        if(!results.find(r => r.desc===p.desc)) results.push(p);
-      }
+// ── PUNTO 8: Autocompletar con histórico real ────────────────────────────────
+// Busca en: 1) presupuestos guardados en localStorage 2) datos de Excel
+
+// OPEX histórico de Cuervito (pestaña SERVICIO)
+const HISTORIAL_OPEX_BASE = [
+  {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Mes",    cantidad:12,  monto:13000},
+  {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad", cantidad:1,   monto:40000},
+  {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad", cantidad:1,   monto:84000},
+  {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Mes",    cantidad:12,  monto:2700},
+  {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Mes",    cantidad:12,  monto:2700},
+  {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global", cantidad:1,   monto:810000},
+  {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Mes",    cantidad:12,  monto:73490.13},
+  {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Mes",    cantidad:12,  monto:66000},
+  {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global", cantidad:1,   monto:1294000},
+  {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Mes",    cantidad:12,  monto:26216.67},
+  {cat:"VIATICOS",                     desc:"Alimentación y hospedaje",              unidad:"Día",    cantidad:30,  monto:800},
+  {cat:"VIATICOS",                     desc:"Casetas, puentes y peajes",             unidad:"Mes",    cantidad:12,  monto:500},
+  {cat:"SERVICIOS DE CAPACITACION",    desc:"Capacitación técnica especializada",    unidad:"Servicio",cantidad:1,  monto:15000},
+  {cat:"UNIFORMES",                    desc:"Uniformes y ropa de trabajo",           unidad:"Unidad", cantidad:10,  monto:1200},
+  {cat:"MARKETING",                    desc:"Materiales de marketing y publicidad",  unidad:"Mes",    cantidad:1,   monto:5000},
+];
+
+function getHistorialLS(){
+  // Leer presupuestos guardados del localStorage para autocompletar
+  try {
+    const estado = JSON.parse(localStorage.getItem("geolis_app_state_v3")||"{}");
+    const lista = estado.lista || [];
+    const partidas = [];
+    lista.forEach(p => {
+      const costos = p._costos || {};
+      Object.values(costos).forEach(area => {
+        ["capex","mat","via"].forEach(cat => {
+          (area[cat]||[]).forEach(p => {
+            if(p.desc && p.monto > 0) partidas.push({...p, _fuente:"historial"});
+          });
+        });
+      });
+      (p._capexPM||[]).forEach(p=>{ if(p.desc&&p.monto>0) partidas.push({...p,_fuente:"historial"});});
+      (p._opexPM||[]).forEach(p=>{ if(p.desc&&p.monto>0) partidas.push({...p,_fuente:"historial"});});
     });
+    return partidas;
+  } catch(e){ return []; }
+}
+
+function buscarHistorial(cat, tipo="capex") {
+  // Buscar en datos fijos del Excel
+  const histFijo = tipo==="capex"
+    ? Object.values(HISTORIAL_CAPEX).flat()
+    : HISTORIAL_OPEX_BASE;
+  // Buscar también en localStorage
+  const histLS = getHistorialLS().filter(p => tipo==="capex"
+    ? !["mat","via"].includes(p._origen)
+    : true);
+  const todos = [...histFijo, ...histLS];
+  const results = [];
+  const catUp = cat.toUpperCase();
+  todos.forEach(p => {
+    if(!p.cat||!p.desc) return;
+    const match = p.cat.toUpperCase().includes(catUp) || catUp.includes(p.cat.toUpperCase())
+      || p.desc.toUpperCase().includes(catUp);
+    if(match && !results.find(r=>r.desc===p.desc && r.monto===p.monto)) {
+      results.push(p);
+    }
   });
-  return results.slice(0,6);
+  return results.slice(0,8);
 }
 
 const UNIDADES=["Unidad","Día","Semana","Mes","Año","Servicio","Viaje","Pieza","Kg","Metro","Litro","Hora","Global"];
@@ -436,8 +489,32 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             gridTemplateColumns:"2fr 2fr 90px 80px 1fr 90px 32px",
             gap:8,alignItems:"center",padding:"6px 0",
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
-            <CatalogInput value={p.cat} onChange={v=>onUpdate({...p,cat:v})}
-              options={catOptions} placeholder="Categoría"/>
+            <div>
+              <CatalogInput value={p.cat} onChange={v=>{
+                onUpdate({...p,cat:v});
+                // El dropdown de sugerencias se activa cuando hay historial
+              }} options={catOptions} placeholder="Categoría"
+                onPartidaSelect={hist=>{
+                  if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto});
+                }}/>
+              {/* Sugerencias históricas al escribir categoría */}
+              {p.cat&&buscarHistorial(p.cat,catOptions===CAT_CAPEX?"capex":"opex").length>0&&!p.desc&&(
+                <div style={{marginTop:4}}>
+                  <div style={{fontSize:9,color:C.grayMid,marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Sugerencias del historial:</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                    {buscarHistorial(p.cat,catOptions===CAT_CAPEX?"capex":"opex").map((h,hi)=>(
+                      <button key={hi} onClick={()=>onUpdate({...p,cat:h.cat,desc:h.desc,unidad:h.unidad,cantidad:h.cantidad,monto:h.monto})}
+                        style={{padding:"3px 8px",background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,
+                          borderRadius:4,cursor:"pointer",fontSize:10,color:C.yellowDark,fontWeight:600,
+                          maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
+                        title={`${h.desc} — ${h.unidad} × ${h.cantidad} @ $${h.monto}`}>
+                        {h.desc}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <input value={p.desc} onChange={e=>onUpdate({...p,desc:e.target.value})}
               placeholder="Descripción"
               style={{padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
@@ -645,6 +722,138 @@ function BarChart({items,height=200}){
       })}
     </svg>
   );
+}
+
+
+// ─── EXPORTAR EXCEL (SheetJS) ────────────────────────────────────────────────
+async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
+  mFlujo, mFlujoAcum, mIngresos, totalCAPEX, totalOPEX, totalEgr,
+  totalIngresosAnual, MESES13, NMESES, totalNom, totalCat}) {
+  // Cargar SheetJS dinámicamente
+  if(!window.XLSX){
+    await new Promise((res,rej)=>{
+      const s=document.createElement("script");
+      s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  const XLSX=window.XLSX;
+  const wb=XLSX.utils.book_new();
+
+  // ── Hoja 1: SERVICIO ──────────────────────────────────────────────────────
+  const hdrS=["Descripción","Total Presupuestado",...MESES13];
+  const rowsS=[
+    hdrS,
+    ["INGRESOS año MXN",""],
+    ["FACTURACIÓN",totalIngresosAnual,...mIngresos],
+    ["EGRESOS año",""],
+    ["CAPEX (Activos)",totalCAPEX,...mCapex],
+    ["OPEX",totalOPEX,...mOpex],
+    ["TOTAL",totalEgr,...mEgresos],
+    ["OPEX",totalOPEX,...mOpex],
+    ["ACUMULADO","",...mFlujoAcum],
+  ];
+  // Agregar detalle por categoría OPEX
+  const catMap={};
+  areas.forEach(id=>{
+    ["mat","via"].forEach(c=>{
+      (costos[id]?.[c]||[]).forEach(p=>{
+        const k=p.cat||"SIN CAT";
+        catMap[k]=(catMap[k]||0)+(p.cantidad||0)*(p.monto||0);
+      });
+    });
+    const nom=totalNom(id);
+    if(nom>0) catMap["NOMINA Y ADICIONALES"]=(catMap["NOMINA Y ADICIONALES"]||0)+nom*12;
+  });
+  Object.entries(catMap).sort().forEach(([cat,total])=>{
+    const mens=parseFloat((total/12).toFixed(2));
+    rowsS.push([cat,total,0,...Array(12).fill(mens)]);
+  });
+  const wsS=XLSX.utils.aoa_to_sheet(rowsS);
+  wsS["!cols"]=[{wch:32},{wch:18},...Array(NMESES).fill({wch:12})];
+  XLSX.utils.book_append_sheet(wb,wsS,"SERVICIO");
+
+  // ── Hoja 2: FLUJO ─────────────────────────────────────────────────────────
+  const rowsF=[
+    ["","","","","Mes 0","Mes 0",...Array(11).fill("").map((_,i)=>`Mes ${i+1}`)],
+    ["","","","","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","FEB"],
+    ["Ingresos (MN)","","","",""],
+    ["INGRESOS","","","","",...mIngresos],
+    ["Ingresos Totales (MN)","","","","",...mIngresos],
+    [""],
+    ["Egresos (MX)","","","",""],
+    ["OPEX","","","","",...mOpex],
+    ["CAPEX","","","","",...mCapex],
+    [""],
+    ["Egresos Totales (MN)","","","","",...mEgresos],
+    [""],
+    ["FLUJO EFECTIVO","","","","",...mFlujo],
+    [""],
+    ["FLUJO ACUMULADO","","","","",...mFlujoAcum],
+    [""],
+    ["OPEX Promedio",(totalOPEX/12).toFixed(2)],
+  ];
+  const wsF=XLSX.utils.aoa_to_sheet(rowsF);
+  wsF["!cols"]=[{wch:24},{wch:8},{wch:8},{wch:8},...Array(NMESES).fill({wch:14})];
+  XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
+
+  // ── Hoja 3: EGRESOS detallado ─────────────────────────────────────────────
+  const hdrE=["#","Categoría","Descripción","Unidad","Cantidad","Monto Unit.","Total","Tipo"];
+  const rowsE=[hdrE];
+  let row=1;
+  // CAPEX por área
+  areas.forEach(id=>{
+    const aLabel=id.toUpperCase();
+    (costos[id]?.capex||[]).forEach(p=>{
+      rowsE.push([row++,p.cat,p.desc,p.unidad,p.cantidad,p.monto,(p.cantidad||0)*(p.monto||0),"CAPEX"]);
+    });
+  });
+  // OPEX por área
+  areas.forEach(id=>{
+    (costos[id]?.nomina||[]).forEach(p=>{
+      const f=1+(p.imss||0.32)+(p.prestaciones||0.40)+(p.isr||0.05);
+      const costo=(p.salario||0)*f*(p.cantidad||1);
+      rowsE.push([row++,"NOMINA Y ADICIONALES",p.puesto||"Puesto","Mes",p.cantidad||1,p.salario||0,costo,"OPEX-NOM"]);
+    });
+    ["mat","via"].forEach(c=>{
+      (costos[id]?.[c]||[]).forEach(p=>{
+        rowsE.push([row++,p.cat,p.desc,p.unidad,p.cantidad,p.monto,(p.cantidad||0)*(p.monto||0),c==="mat"?"OPEX-MAT":"OPEX-VIA"]);
+      });
+    });
+  });
+  rowsE.push(["","","","","","TOTAL CAPEX",totalCAPEX,""]);
+  rowsE.push(["","","","","","TOTAL OPEX",totalOPEX,""]);
+  rowsE.push(["","","","","","TOTAL EGRESOS",totalEgr,""]);
+  const wsE=XLSX.utils.aoa_to_sheet(rowsE);
+  wsE["!cols"]=[{wch:5},{wch:28},{wch:36},{wch:10},{wch:10},{wch:14},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
+
+  // ── Hoja 4: INFO ──────────────────────────────────────────────────────────
+  const wsI=XLSX.utils.aoa_to_sheet([
+    ["GEOLIS SA DE CV — Módulo de Presupuestos"],
+    ["Presupuesto:",pres?.nombre||""],
+    ["Tipo:",pres?.tipo||""],
+    ["Empresa:",pres?.empresa||"GEOLIS SA DE CV"],
+    ["Fecha elaboración:",pres?.fechaElaboracion||""],
+    ["Fecha inicio:",pres?.fechaInicio||""],
+    ["Fecha fin:",pres?.fechaFin||""],
+    ["Generado:",new Date().toLocaleDateString("es-MX",{year:"numeric",month:"long",day:"numeric"})],
+    [""],
+    ["RESUMEN FINANCIERO"],
+    ["Ingresos totales:",totalIngresosAnual],
+    ["CAPEX total:",totalCAPEX],
+    ["OPEX total:",totalOPEX],
+    ["Total egresos:",totalEgr],
+    ["Utilidad:",totalIngresosAnual-totalEgr],
+    ["Margen %:",totalIngresosAnual>0?((totalIngresosAnual-totalEgr)/totalIngresosAnual*100).toFixed(2)+"%":"N/A"],
+  ]);
+  wsI["!cols"]=[{wch:24},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,wsI,"INFO");
+
+  // Guardar
+  const fileName=`Presupuesto_${(pres?.nombre||"GEOLIS").replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb,fileName);
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
@@ -1638,7 +1847,12 @@ export default function App(){
           </div>
           <div style={{display:"flex",gap:10}} className="noprint">
             {btn("← Captura",()=>setStep(3),"secondary")}
-            {btn("⬇ Exportar PDF",()=>window.print(),"primary")}
+            {btn("⬇ Excel",()=>exportarExcel({
+              pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
+              mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
+              totalIngresosAnual,MESES13,NMESES,totalNom,totalCat
+            }),"secondary")}
+            {btn("⬇ PDF",()=>window.print(),"primary")}
           </div>
         </div>
 
