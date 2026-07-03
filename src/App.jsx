@@ -729,7 +729,7 @@ function BarChart({items,height=200}){
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
   mFlujo, mFlujoAcum, mIngresos, totalCAPEX, totalOPEX, totalEgr,
   totalIngresosAnual, MESES13, NMESES, totalNom, totalCat}) {
-  // Cargar SheetJS dinámicamente
+  // Cargar SheetJS con soporte de estilos
   if(!window.XLSX){
     await new Promise((res,rej)=>{
       const s=document.createElement("script");
@@ -740,6 +740,33 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   }
   const XLSX=window.XLSX;
   const wb=XLSX.utils.book_new();
+
+  // Formato de moneda MXN para celdas numéricas
+  const FMT_MONEY = '"$"#,##0.00';
+  const FMT_INT   = '#,##0';
+
+  // Helper: aplicar formato de moneda a un rango de celdas en una hoja
+  function applyMoneyFmt(ws, startRow, startCol, endRow, endCol, fmt=FMT_MONEY){
+    for(let r=startRow;r<=endRow;r++){
+      for(let c=startCol;c<=endCol;c++){
+        const addr=XLSX.utils.encode_cell({r,c});
+        if(ws[addr]&&typeof ws[addr].v==="number"){
+          ws[addr].t="n";
+          ws[addr].z=fmt;
+        }
+      }
+    }
+  }
+
+  // Helper: crear celda con estilo de header
+  function hCell(v, color="1a1a1a", bg="DDAC00", bold=true){
+    return {v, t:"s", s:{
+      font:{bold, color:{rgb:color}, sz:11},
+      fill:{fgColor:{rgb:bg}},
+      alignment:{horizontal:"center",vertical:"center"},
+      border:{bottom:{style:"medium",color:{rgb:"B08900"}}}
+    }};
+  }
 
   // ── Hoja 1: SERVICIO ──────────────────────────────────────────────────────
   const hdrS=["Descripción","Total Presupuestado",...MESES13];
@@ -771,7 +798,21 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
     rowsS.push([cat,total,0,...Array(12).fill(mens)]);
   });
   const wsS=XLSX.utils.aoa_to_sheet(rowsS);
-  wsS["!cols"]=[{wch:32},{wch:18},...Array(NMESES).fill({wch:12})];
+  wsS["!cols"]=[{wch:32},{wch:18},...Array(NMESES).fill({wch:14})];
+  // Formato moneda en todas las columnas numéricas
+  applyMoneyFmt(wsS, 2, 1, rowsS.length-1, NMESES+1);
+  // Fila 0 (header) en negrita
+  for(let c=0;c<=NMESES+1;c++){
+    const a=XLSX.utils.encode_cell({r:0,c});
+    if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1a1a1a"}},alignment:{horizontal:"center"}};
+  }
+  // Filas de sección (INGRESOS, EGRESOS) en color
+  [1,3].forEach(ri=>{
+    for(let c=0;c<=NMESES+1;c++){
+      const a=XLSX.utils.encode_cell({r:ri,c});
+      if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"374151"}}};
+    }
+  });
   XLSX.utils.book_append_sheet(wb,wsS,"SERVICIO");
 
   // ── Hoja 2: FLUJO ─────────────────────────────────────────────────────────
@@ -796,6 +837,19 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   ];
   const wsF=XLSX.utils.aoa_to_sheet(rowsF);
   wsF["!cols"]=[{wch:24},{wch:8},{wch:8},{wch:8},...Array(NMESES).fill({wch:14})];
+  applyMoneyFmt(wsF, 3, 4, rowsF.length-1, 4+NMESES);
+  // Header principal oscuro
+  for(let c=0;c<4+NMESES;c++){
+    const a=XLSX.utils.encode_cell({r:0,c});
+    if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"DDAC00"}},fill:{fgColor:{rgb:"1a1a1a"}}};
+  }
+  // Filas FLUJO EFECTIVO y ACUMULADO en color
+  [12,14].forEach(ri=>{
+    for(let c=0;c<4+NMESES;c++){
+      const a=XLSX.utils.encode_cell({r:ri,c});
+      if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"7c3aed"}},fill:{fgColor:{rgb:"F5F3FF"}}};
+    }
+  });
   XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
 
   // ── Hoja 3: EGRESOS detallado ─────────────────────────────────────────────
@@ -826,7 +880,32 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   rowsE.push(["","","","","","TOTAL OPEX",totalOPEX,""]);
   rowsE.push(["","","","","","TOTAL EGRESOS",totalEgr,""]);
   const wsE=XLSX.utils.aoa_to_sheet(rowsE);
-  wsE["!cols"]=[{wch:5},{wch:28},{wch:36},{wch:10},{wch:10},{wch:14},{wch:14},{wch:12}];
+  wsE["!cols"]=[{wch:5},{wch:30},{wch:38},{wch:10},{wch:10},{wch:16},{wch:16},{wch:12}];
+  // Formato moneda en columnas Monto Unit. (col 5), Total (col 6)
+  applyMoneyFmt(wsE, 1, 5, rowsE.length-1, 6);
+  // Header row
+  for(let c=0;c<8;c++){
+    const a=XLSX.utils.encode_cell({r:0,c});
+    if(wsE[a]) wsE[a].s={font:{bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1a1a1a"}},alignment:{horizontal:"center"}};
+  }
+  // Filas totales al final en negrita
+  [rowsE.length-3,rowsE.length-2,rowsE.length-1].forEach(ri=>{
+    for(let c=0;c<8;c++){
+      const a=XLSX.utils.encode_cell({r:ri,c});
+      if(wsE[a]) wsE[a].s={font:{bold:true,color:{rgb:"B08900"}},fill:{fgColor:{rgb:"FFF8E1"}}};
+    }
+  });
+  // Filas alternadas CAPEX/OPEX con color de tipo
+  for(let ri=1;ri<rowsE.length-3;ri++){
+    const tipoCell=wsE[XLSX.utils.encode_cell({r:ri,c:7})];
+    if(tipoCell){
+      const bg=tipoCell.v==="CAPEX"?"FFF8E1":tipoCell.v?.includes("NOM")?"F0FDF4":"F0F9FF";
+      for(let c=0;c<8;c++){
+        const a=XLSX.utils.encode_cell({r:ri,c});
+        if(wsE[a]&&!wsE[a].s) wsE[a].s={fill:{fgColor:{rgb:bg}}};
+      }
+    }
+  }
   XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
 
   // ── Hoja 4: INFO ──────────────────────────────────────────────────────────
@@ -849,6 +928,14 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
     ["Margen %:",totalIngresosAnual>0?((totalIngresosAnual-totalEgr)/totalIngresosAnual*100).toFixed(2)+"%":"N/A"],
   ]);
   wsI["!cols"]=[{wch:24},{wch:30}];
+  applyMoneyFmt(wsI, 10, 1, 16, 1);
+  // Título grande
+  const t=wsI["A1"]; if(t) t.s={font:{bold:true,sz:14,color:{rgb:"B08900"}}};
+  // Labels en negrita
+  for(let r=1;r<17;r++){
+    const a=XLSX.utils.encode_cell({r,c:0});
+    if(wsI[a]) wsI[a].s={font:{bold:true}};
+  }
   XLSX.utils.book_append_sheet(wb,wsI,"INFO");
 
   // Guardar
@@ -1874,26 +1961,16 @@ export default function App(){
                   <tr style={{background:C.successLight}}>
                     <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
                     {mIngresos.map((v,i)=>(
-                      <td key={i} style={{padding:"4px 2px"}}>
-                        <div style={{display:"flex",alignItems:"center",border:`1px solid ${i===0?"#ccc":C.grayBorder}`,
-                          borderRadius:4,overflow:"hidden",background:i===0?"#f5f5f5":C.white,opacity:i===0?0.5:1}}>
-                          <span style={{padding:"0 5px",fontSize:10,color:C.grayMid,background:"#FAFAFA",
-                            borderRight:`1px solid ${C.grayBorder}`,userSelect:"none",flexShrink:0}}>$</span>
-                          <input type="number" min="0" step="0.01"
-                            value={v===0?"":v}
-                            disabled={i===0}
-                            onChange={e=>{
-                              const n=parseFloat(e.target.value)||0;
+                      <td key={i} style={{padding:"4px 2px",opacity:i===0?0.4:1}}>
+                        {i===0
+                          ? <div style={{padding:"6px 8px",fontSize:11,color:C.grayMid,textAlign:"right",
+                              background:"#f5f5f5",borderRadius:4,border:`1px solid #ddd`}}>—</div>
+                          : <MoneyInput value={v} onChange={n=>{
                               const nuevo=[...ingresos];
                               nuevo[i]=n;
                               setIngresos(nuevo);
-                            }}
-                            onFocus={e=>e.target.select()}
-                            placeholder="0"
-                            style={{flex:1,padding:"5px 4px",border:"none",outline:"none",
-                              fontSize:11,textAlign:"right",background:"transparent",
-                              width:52,minWidth:0}}/>
-                        </div>
+                            }} style={{fontSize:11,minWidth:80}}/>
+                        }
                       </td>
                     ))}
                     <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.success}}>
