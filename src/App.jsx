@@ -666,6 +666,8 @@ export default function App(){
   const [modoEdit,setModoEdit]     = useState(false);
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
+  // Ingresos mes a mes (13 meses: M0..M12)
+  const [ingresos,setIngresos]     = useState(Array(13).fill(0));
 
   // ── PUNTO 5: Persistir estado en localStorage ─────────────────────────────
   // Restaurar al montar
@@ -673,7 +675,7 @@ export default function App(){
     const saved=loadAppState();
     if(saved&&saved.pres){
       setPres(saved.pres); setAreas(saved.areas||[]); setCostos(saved.costos||{});
-      setCapexPM(saved.capexPM||[]); setOpexPM(saved.opexPM||[]);
+      setCapexPM(saved.capexPM||[]); setOpexPM(saved.opexPM||[]); if(saved.ingresos) setIngresos(saved.ingresos);
       setLista(prev=>{
         const ids=prev.map(x=>x.id);
         const extra=(saved.lista||[]).filter(x=>!ids.includes(x.id));
@@ -685,8 +687,8 @@ export default function App(){
   },[]);
   // Guardar ante cualquier cambio relevante
   useEffect(()=>{
-    if(pres) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step});
-  },[pres,areas,costos,capexPM,opexPM,areaSaved,step]);
+    if(pres) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos});
+  },[pres,areas,costos,capexPM,opexPM,areaSaved,step,ingresos]);
 
   function showToast(msg){setToast(msg);}
 
@@ -704,7 +706,7 @@ export default function App(){
   // ── Acciones ────────────────────────────────────────────────────────────────
   function abrirNuevo(){
     setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:""});
-    setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]);
+    setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0));
     setPlantKey(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setStep(1);
   }
@@ -892,6 +894,19 @@ export default function App(){
             <div style={{fontSize:10,color:"#444",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Activo</div>
             <div style={{fontSize:12,fontWeight:700,color:C.yellow,lineHeight:1.3,wordBreak:"break-word"}}>{pres.nombre}</div>
             <div style={{fontSize:10,color:"#555",marginTop:3,textTransform:"capitalize"}}>{pres.tipo}</div>
+            {pres.fechaElaboracion&&(
+              <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #1E1E1E"}}>
+                <div style={{fontSize:9,color:"#444",textTransform:"uppercase",letterSpacing:0.8,marginBottom:3}}>Elaboración</div>
+                <div style={{fontSize:11,color:C.yellow,fontWeight:600}}>{pres.fechaElaboracion}</div>
+              </div>
+            )}
+            {(pres.fechaInicio||pres.fechaFin)&&(
+              <div style={{marginTop:6}}>
+                <div style={{fontSize:9,color:"#444",textTransform:"uppercase",letterSpacing:0.8,marginBottom:3}}>Vigencia</div>
+                <div style={{fontSize:10,color:"#888"}}>{pres.fechaInicio||'—'}</div>
+                <div style={{fontSize:9,color:"#555"}}>→ {pres.fechaFin||'—'}</div>
+              </div>
+            )}
           </div>
         )}
       </aside>
@@ -1387,140 +1402,394 @@ export default function App(){
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // STEP 4 — RESUMEN MENSUAL
+  // STEP 4 — RESUMEN MENSUAL COMPLETO
   // ══════════════════════════════════════════════════════════════════════════
   if(step===4){
     const cats=getAreasCat(pres?.tipo||"instalacion");
-    const mC=MESES.map((_,i)=>areas.reduce((s,id)=>s+(distMeses(totalCat(id,"capex"),"capex")[i]||0),0)
-      +capexPM.reduce((s,p)=>s+(distMeses((p.cantidad||0)*(p.monto||0),"capex")[i]||0),0));
-    const mO=MESES.map((_,i)=>{
-      const mat=areas.reduce((s,id)=>s+(distMeses(totalCat(id,"mat"),"opex")[i]||0),0);
-      const via=areas.reduce((s,id)=>s+(distMeses(totalCat(id,"via"),"opex")[i]||0),0);
-      const nom=areas.reduce((s,id)=>s+totalNom(id),0);
-      const pm =opexPM.reduce((s,p)=>s+(distMeses((p.cantidad||0)*(p.monto||0),"opex")[i]||0),0);
-      return mat+via+nom+pm;
+    const NMESES=13; // M0..M12
+    const MESES13=["M0 (Inst.)","M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"];
+
+    // ── Cálculos mensuales ─────────────────────────────────────────────────
+    // CAPEX: todo en M0
+    const mCapex=Array(NMESES).fill(0);
+    mCapex[0]=areas.reduce((s,id)=>s+totalCat(id,"capex"),0)+capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+
+    // OPEX: distribuido uniforme M1..M12 (M0 es instalación sin OPEX)
+    const totalOpexAnual=areas.reduce((s,id)=>s+totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via"),0)
+      +opexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+    const opexMens=parseFloat((totalOpexAnual/12).toFixed(2));
+    const mOpex=Array(NMESES).fill(0).map((_,i)=>i===0?0:opexMens);
+
+    // Egresos totales por mes
+    const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
+
+    // Ingresos (estado editable)
+    const mIngresos=ingresos.slice(0,NMESES);
+    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
+
+    // Flujo efectivo mensual = Ingresos - Egresos
+    const mFlujo=Array(NMESES).fill(0).map((_,i)=>mIngresos[i]-mEgresos[i]);
+
+    // Flujo acumulado
+    const mFlujoAcum=Array(NMESES).fill(0);
+    mFlujoAcum[0]=mFlujo[0];
+    for(let i=1;i<NMESES;i++) mFlujoAcum[i]=mFlujoAcum[i-1]+mFlujo[i];
+
+    // OPEX por categoría para Gráfica II
+    const catOpexData={};
+    areas.forEach(id=>{
+      ["mat","via"].forEach(cat=>{
+        (costos[id]?.[cat]||[]).forEach(p=>{
+          const key=p.cat||"SIN CATEGORÍA";
+          const v=(p.cantidad||0)*(p.monto||0)/12;
+          catOpexData[key]=(catOpexData[key]||0)+v;
+        });
+      });
+      // Nómina mensual por área
+      const nomMes=totalNom(id);
+      if(nomMes>0) catOpexData["NOMINA Y ADICIONALES"]=(catOpexData["NOMINA Y ADICIONALES"]||0)+nomMes;
     });
-    const series=[
-      {label:"CAPEX",color:C.yellowDark,data:mC},
-      {label:"OPEX", color:"#374151",   data:mO},
-    ].filter(s=>s.data.some(v=>v>0));
-    const barras=areas.map((id,i)=>({
-      label:cats.find(a=>a.id===id)?.label||id,
-      value:totalCat(id,"capex")+totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via"),
-      color:i%2===0?C.yellow:"#9CA3AF",
-    })).filter(b=>b.value>0);
-    const totMes=MESES.map((_,i)=>mC[i]+mO[i]);
-    const crd=(children,mb=16)=>(
+    const catOpexSeries=Object.entries(catOpexData)
+      .filter(([,v])=>v>0)
+      .map(([label,mensual],i)=>({
+        label,
+        color:["#DDAC00","#374151","#7c3aed","#0891b2","#059669","#d97706","#dc2626","#6366f1"][i%8],
+        data:Array(NMESES).fill(0).map((_,mi)=>mi===0?0:mensual),
+      }));
+
+    // Totales
+    const totalCAPEX=mCapex[0];
+    const totalOPEX=totalOpexAnual;
+    const totalEgr=totalCAPEX+totalOPEX;
+    const utilidad=totalIngresosAnual-totalEgr;
+    const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
+
+    // ── Helpers de render ──────────────────────────────────────────────────
+    const card=(children,mb=16)=>(
       <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-        padding:24,marginBottom:mb,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>{children}</div>
+        padding:24,marginBottom:mb,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>{children}</div>
     );
-    const sT=t=>(
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
-        <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-        <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>{t}</h3>
+    const sTitle=(t,sub)=>(
+      <div style={{marginBottom:16}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+          <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>{t}</h3>
+        </div>
+        {sub&&<div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>{sub}</div>}
       </div>
     );
+    const fmtK=v=>{
+      if(v===0)return "—";
+      const abs=Math.abs(v);
+      const str=abs>=1000000?`$${(abs/1000000).toFixed(2)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:fmt(abs);
+      return v<0?`-${str}`:str;
+    };
+
+    // ── Gráfica barras+línea para flujo ────────────────────────────────────
+    function FlowChart({barData,lineData,height=220}){
+      const W=760,H=height,pL=72,pR=20,pT=24,pB=36;
+      const cW=W-pL-pR,cH=H-pT-pB;
+      const allV=[...barData,...lineData];
+      const maxV=Math.max(...allV.map(Math.abs),1);
+      const yZero=pT+cH*(maxV/(maxV*2+maxV*0.1+1));
+      const xP=i=>pL+((i+0.5)/NMESES)*cW;
+      const yP=v=>pT+cH-(v+maxV)/(maxV*2)*cH;
+      const bW=(cW/NMESES)*0.6;
+      return(
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
+          {/* Zero line */}
+          <line x1={pL} y1={yZero} x2={W-pR} y2={yZero} stroke="#999" strokeWidth="1.5" strokeDasharray="4 2"/>
+          {/* Grid */}
+          {[-1,-0.5,0,0.5,1].map(p=>{
+            const v=maxV*p,y=yP(v);
+            return <g key={p}>
+              {p!==0&&<line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="0.8" strokeDasharray="3 3"/>}
+              <text x={pL-6} y={y+4} textAnchor="end" fontSize="9" fill={C.grayMid}>{fmtK(v)}</text>
+            </g>;
+          })}
+          {/* Bars */}
+          {barData.map((v,i)=>{
+            const x=xP(i)-bW/2;
+            const barH=Math.abs(v)/maxV*cH/2;
+            const y=v>=0?yZero-barH:yZero;
+            return <rect key={i} x={x} y={y} width={bW} height={barH} rx="2"
+              fill={v>=0?"#DDAC00":"#C0392B"} opacity="0.85"/>;
+          })}
+          {/* Line acumulado */}
+          {lineData.length>0&&(()=>{
+            const pts=lineData.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+            return <g>
+              <polyline points={pts} fill="none" stroke="#374151" strokeWidth="2"
+                strokeLinejoin="round" strokeLinecap="round"/>
+              {lineData.map((v,i)=>(
+                <circle key={i} cx={xP(i)} cy={yP(v)} r="3.5"
+                  fill={v>=0?C.success:C.danger} stroke={C.white} strokeWidth="1.5"/>
+              ))}
+            </g>;
+          })()}
+          {/* X labels */}
+          {MESES13.map((m,i)=>(
+            <text key={m} x={xP(i)} y={H-6} textAnchor="middle" fontSize="9" fill={C.grayMid}>{m}</text>
+          ))}
+        </svg>
+      );
+    }
+
+    // ── Gráfica líneas por categoría OPEX ──────────────────────────────────
+    function CatLinesChart({series,height=220}){
+      if(!series||series.length===0) return <div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Sin datos OPEX capturados</div>;
+      const W=760,H=height,pL=72,pR=20,pT=20,pB=36;
+      const cW=W-pL-pR,cH=H-pT-pB;
+      const allV=series.flatMap(s=>s.data).filter(v=>v>0);
+      const maxV=Math.max(...allV,1);
+      const xP=i=>pL+(i/(NMESES-1))*cW;
+      const yP=v=>pT+cH-(v/maxV)*cH;
+      return(
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
+          {[0,.25,.5,.75,1].map(p=>{const v=maxV*p,y=yP(v);return <g key={p}>
+            <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="0.8" strokeDasharray="3 3"/>
+            <text x={pL-6} y={y+4} textAnchor="end" fontSize="9" fill={C.grayMid}>{fmtK(v)}</text>
+          </g>;})}
+          {MESES13.map((m,i)=>(
+            <text key={m} x={xP(i)} y={H-6} textAnchor="middle" fontSize="9" fill={C.grayMid}>{m}</text>
+          ))}
+          {series.map(s=>{
+            const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+            return <g key={s.label}>
+              <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2"
+                strokeLinejoin="round" strokeLinecap="round"/>
+              {s.data.map((v,i)=>v>0&&(
+                <circle key={i} cx={xP(i)} cy={yP(v)} r="3"
+                  fill={s.color} stroke={C.white} strokeWidth="1.5"/>
+              ))}
+            </g>;
+          })}
+        </svg>
+      );
+    }
+
+    // ── Tabla mensual genérica ──────────────────────────────────────────────
+    function TablaM({filas,showTotal=true,title}){
+      const totMes=Array(NMESES).fill(0).map((_,i)=>filas.reduce((s,f)=>s+(f.datos[i]||0),0));
+      const totGen=filas.reduce((s,f)=>s+f.datos.reduce((a,b)=>a+b,0),0);
+      return(
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:11,minWidth:900}}>
+            <thead>
+              <tr style={{background:C.grayDark}}>
+                <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:160,position:"sticky",left:0,background:C.grayDark}}>Concepto</td>
+                {MESES13.map(m=><td key={m} style={{padding:"7px 4px",textAlign:"right",fontWeight:600,color:"#aaa",minWidth:60}}>{m}</td>)}
+                <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map((f,fi)=>(
+                <tr key={f.label} style={{background:fi%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
+                  <td style={{padding:"8px 14px",display:"flex",alignItems:"center",gap:8,position:"sticky",left:0,background:fi%2===0?C.white:"#FAFAFA"}}>
+                    <div style={{width:8,height:8,borderRadius:2,background:f.color,flexShrink:0}}/>
+                    <span style={{fontWeight:600,color:f.color,fontSize:11}}>{f.label}</span>
+                  </td>
+                  {f.datos.map((v,i)=>(
+                    <td key={i} style={{padding:"7px 4px",textAlign:"right",
+                      color:v>0?C.grayDark:v<0?C.danger:C.grayBorder,fontWeight:v!==0?600:400}}>
+                      {v!==0?fmtK(v):"—"}
+                    </td>
+                  ))}
+                  <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:f.color}}>
+                    {fmtK(f.datos.reduce((s,v)=>s+v,0))}
+                  </td>
+                </tr>
+              ))}
+              {showTotal&&(
+                <tr style={{background:C.yellowLight,borderTop:`2px solid ${C.yellow}`}}>
+                  <td style={{padding:"9px 14px",fontWeight:800,color:C.grayDark,position:"sticky",left:0,background:C.yellowLight}}>TOTAL</td>
+                  {totMes.map((v,i)=>(
+                    <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:700,
+                      color:v>0?C.grayDark:v<0?C.danger:C.grayBorder}}>
+                      {v!==0?fmtK(v):"—"}
+                    </td>
+                  ))}
+                  <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.yellowDark}}>{fmtK(totGen)}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     return wrap(
       <div>
         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
+
+        {/* Header */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
           <div>
             <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
-          {pres?.fechaElaboracion&&<div style={{fontSize:11,color:C.grayMid}}>Elaborado: {pres.fechaElaboracion} · Vigente: {pres?.fechaInicio||'—'} → {pres?.fechaFin||'—'}</div>}
+            {pres?.fechaElaboracion&&(
+              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                Elaborado: <strong>{pres.fechaElaboracion}</strong>
+                {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
+              </div>
+            )}
           </div>
           <div style={{display:"flex",gap:10}} className="noprint">
             {btn("← Captura",()=>setStep(3),"secondary")}
             {btn("⬇ Exportar PDF",()=>window.print(),"primary")}
           </div>
         </div>
+
         <div id="rpdf">
-          {/* KPIs */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:24}}>
-            {[
-              {l:"CAPEX total",  v:totalCAPEX,  c:C.yellowDark, b:C.yellowLight},
-              {l:"OPEX total",   v:totalOPEX,   c:"#374151",    b:C.grayLight},
-              {l:"Total egresos",v:totalEgr,    c:C.danger,     b:C.dangerLight},
-              {l:"Nómina anual", v:areas.reduce((s,id)=>s+totalNom(id)*12,0),c:C.success,b:C.successLight},
-            ].map(k=>(
-              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
-                borderRadius:10,padding:"16px 20px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-                <div style={{fontSize:10,fontWeight:700,color:k.c,
-                  textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
-                <div style={{fontSize:21,fontWeight:800,color:k.c,marginTop:8}}>{fmt(k.v)}</div>
-              </div>
-            ))}
-          </div>
 
-          {series.length>0&&crd(<>
-            {sT("CAPEX y OPEX por mes")}
-            <div style={{display:"flex",gap:20,marginBottom:14}}>
-              {series.map(s=>(
-                <div key={s.label} style={{display:"flex",alignItems:"center",gap:7}}>
-                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
-                  <span style={{fontSize:12,color:C.grayMid,fontWeight:600}}>{s.label}</span>
-                </div>
-              ))}
-            </div>
-            <LineChart series={series} height={230}/>
-          </>)}
-
-          {barras.length>0&&crd(<>
-            {sT("Costo total por área")}
-            <BarChart items={barras} height={200}/>
-          </>)}
-
-          {crd(<>
-            {sT("Tabla de egresos mensual")}
+          {/* ── SECCIÓN: Captura de ingresos ────────────────────────────── */}
+          {card(<>
+            {sTitle("Ingresos — Facturación proyectada","Captura el monto a facturar por mes. M0 = instalación (sin facturación). Editable.")}
             <div style={{overflowX:"auto"}}>
-              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <table style={{borderCollapse:"collapse",fontSize:11,minWidth:900,width:"100%"}}>
                 <thead>
-                  <tr style={{background:C.grayDark}}>
-                    <td style={{padding:"10px 14px",fontWeight:700,color:C.white,minWidth:110}}>Concepto</td>
-                    {MESES.map(m=><td key={m} style={{padding:"8px 5px",textAlign:"right",
-                      fontWeight:600,color:"#aaa",minWidth:50}}>{m}</td>)}
-                    <td style={{padding:"8px 14px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
+                  <tr style={{background:"#059669"}}>
+                    <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:160}}>Concepto</td>
+                    {MESES13.map(m=><td key={m} style={{padding:"7px 4px",textAlign:"right",fontWeight:600,color:"rgba(255,255,255,0.8)",minWidth:60}}>{m}</td>)}
+                    <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total anual</td>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    {l:"CAPEX",c:C.yellowDark,m:mC,t:totalCAPEX,bg:"#FFFDF0"},
-                    {l:"OPEX", c:"#374151",   m:mO,t:totalOPEX, bg:C.white},
-                  ].map((f,fi)=>(
-                    <tr key={f.l} style={{background:f.bg,borderBottom:`1px solid ${C.line}`}}>
-                      <td style={{padding:"9px 14px",display:"flex",alignItems:"center",gap:8}}>
-                        <div style={{width:8,height:8,borderRadius:2,background:f.c,flexShrink:0}}/>
-                        <span style={{fontWeight:700,color:f.c}}>{f.l}</span>
-                      </td>
-                      {f.m.map((v,i)=>(
-                        <td key={i} style={{padding:"8px 5px",textAlign:"right",
-                          color:v>0?C.grayDark:C.grayBorder}}>
-                          {v>0?(v>=1000?`$${(v/1000).toFixed(0)}K`:fmt(v)):"—"}
-                        </td>
-                      ))}
-                      <td style={{padding:"8px 14px",textAlign:"right",fontWeight:700,color:f.c}}>{fmt(f.t)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{background:C.yellowLight,borderTop:`2px solid ${C.yellow}`}}>
-                    <td style={{padding:"10px 14px",fontWeight:800,color:C.grayDark}}>TOTAL</td>
-                    {totMes.map((v,i)=>(
-                      <td key={i} style={{padding:"8px 5px",textAlign:"right",fontWeight:700,color:C.grayDark}}>
-                        {v>0?(v>=1000?`$${(v/1000).toFixed(0)}K`:fmt(v)):"—"}
+                  <tr style={{background:C.successLight}}>
+                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
+                    {mIngresos.map((v,i)=>(
+                      <td key={i} style={{padding:"4px 2px"}}>
+                        <div style={{display:"flex",alignItems:"center",border:`1px solid ${i===0?"#ccc":C.grayBorder}`,
+                          borderRadius:4,overflow:"hidden",background:i===0?"#f5f5f5":C.white,opacity:i===0?0.5:1}}>
+                          <span style={{padding:"0 5px",fontSize:10,color:C.grayMid,background:"#FAFAFA",
+                            borderRight:`1px solid ${C.grayBorder}`,userSelect:"none",flexShrink:0}}>$</span>
+                          <input type="number" min="0" step="0.01"
+                            value={v===0?"":v}
+                            disabled={i===0}
+                            onChange={e=>{
+                              const n=parseFloat(e.target.value)||0;
+                              const nuevo=[...ingresos];
+                              nuevo[i]=n;
+                              setIngresos(nuevo);
+                            }}
+                            onFocus={e=>e.target.select()}
+                            placeholder="0"
+                            style={{flex:1,padding:"5px 4px",border:"none",outline:"none",
+                              fontSize:11,textAlign:"right",background:"transparent",
+                              width:52,minWidth:0}}/>
+                        </div>
                       </td>
                     ))}
-                    <td style={{padding:"8px 14px",textAlign:"right",fontWeight:800,color:C.yellowDark}}>{fmt(totalEgr)}</td>
+                    <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.success}}>
+                      {fmt(totalIngresosAnual)}
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <div style={{marginTop:10,display:"flex",gap:8,flexWrap:"wrap"}}>
+              <button onClick={()=>{
+                const mensual=parseFloat(prompt("Monto mensual a facturar (M1 a M12):","669600")||"0");
+                if(mensual>0){const n=[0,...Array(12).fill(mensual)];setIngresos(n);}
+              }} style={{padding:"6px 14px",background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,
+                borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:600,color:C.yellowDark}}>
+                Distribuir uniforme →
+              </button>
+              <button onClick={()=>setIngresos(Array(13).fill(0))}
+                style={{padding:"6px 14px",background:C.grayLight,border:`1px solid ${C.grayBorder}`,
+                  borderRadius:6,cursor:"pointer",fontSize:12,color:C.grayMid}}>
+                Limpiar
+              </button>
+            </div>
           </>)}
 
-          {areas.length>0&&crd(<>
-            {sT("Resumen por área")}
+          {/* ── KPIs ────────────────────────────────────────────────────── */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+            {[
+              {l:"Ingresos",    v:totalIngresosAnual,c:C.success,   b:C.successLight},
+              {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
+              {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
+              {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
+              {l:`Utilidad ${margen.toFixed(1)}%`,v:utilidad,
+                c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
+            ].map(k=>(
+              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
+                borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+                <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
+                <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── TABLA 1: SERVICIO (Ingresos vs Egresos) ─────────────────── */}
+          {card(<>
+            {sTitle("Tabla SERVICIO — Ingresos vs Egresos por mes","Equivalente a la pestaña SERVICIO del archivo Excel de Geolis")}
+            <TablaM filas={[
+              {label:"INGRESOS (Facturación)",color:C.success,   datos:mIngresos},
+              {label:"CAPEX (Activos)",        color:C.yellowDark,datos:mCapex},
+              {label:"OPEX",                   color:"#374151",   datos:mOpex},
+              {label:"EGRESOS TOTALES",         color:C.danger,    datos:mEgresos},
+            ]} showTotal={false}/>
+          </>)}
+
+          {/* ── TABLA 2: FLUJO ───────────────────────────────────────────── */}
+          {card(<>
+            {sTitle("Tabla FLUJO — Flujo de efectivo","Equivalente a la pestaña FLUJO del archivo Excel de Geolis")}
+            <TablaM filas={[
+              {label:"OPEX",              color:"#374151",   datos:mOpex},
+              {label:"CAPEX",             color:C.yellowDark,datos:mCapex},
+              {label:"EGRESOS TOTALES",   color:C.danger,    datos:mEgresos},
+              {label:"INGRESOS",          color:C.success,   datos:mIngresos},
+              {label:"FLUJO EFECTIVO",    color:"#7c3aed",   datos:mFlujo},
+              {label:"FLUJO ACUMULADO",   color:"#0891b2",   datos:mFlujoAcum},
+            ]} showTotal={false}/>
+          </>)}
+
+          {/* ── GRÁFICA I: Flujo de efectivo (barras + línea acumulada) ── */}
+          {card(<>
+            {sTitle("Gráfica I — Flujo de efectivo","Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado")}
+            <div style={{display:"flex",gap:20,marginBottom:12}}>
+              {[
+                {label:"Flujo mensual positivo",color:C.yellow},
+                {label:"Flujo mensual negativo",color:C.danger},
+                {label:"Flujo acumulado",       color:"#374151"},
+              ].map(s=>(
+                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
+                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240}/>
+          </>)}
+
+          {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
+          {card(<>
+            {sTitle("Gráfica II — OPEX por categoría","Líneas por categoría contable mes a mes · Equivalente a pestaña GRÁFICA II del Excel")}
+            {catOpexSeries.length>0?(
+              <>
+                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
+                  {catOpexSeries.map(s=>(
+                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
+                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <CatLinesChart series={catOpexSeries} height={240}/>
+              </>
+            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
+          </>)}
+
+          {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
+          {areas.length>0&&card(<>
+            {sTitle("Resumen por área")}
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
               <thead>
                 <tr style={{background:"#FAFAFA",borderBottom:`2px solid ${C.line}`}}>
-                  {["Área","CAPEX","OPEX","Total"].map((h,i)=>(
+                  {["Área","CAPEX","OPEX anual","Total"].map((h,i)=>(
                     <td key={h} style={{padding:"10px 14px",fontWeight:700,fontSize:11,
                       color:i===1?C.yellowDark:i===2?"#374151":C.grayMid,
                       textAlign:i>0?"right":"left",textTransform:"uppercase",letterSpacing:0.4}}>{h}</td>
@@ -1533,8 +1802,7 @@ export default function App(){
                   const cx=totalCat(id,"capex");
                   const ox=totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via");
                   return(
-                    <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",
-                      borderBottom:`1px solid ${C.line}`}}>
+                    <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
                       <td style={{padding:"10px 14px",fontWeight:600}}>{a?.icon} {a?.label}</td>
                       <td style={{padding:"10px 14px",textAlign:"right",color:C.yellowDark,fontWeight:600}}>{fmt(cx)}</td>
                       <td style={{padding:"10px 14px",textAlign:"right",color:"#374151"}}>{fmt(ox)}</td>
@@ -1554,7 +1822,7 @@ export default function App(){
 
           <div style={{textAlign:"center",fontSize:11,color:C.grayMid,paddingTop:20,marginTop:20,
             borderTop:`1px solid ${C.line}`}}>
-            GEOLIS SA DE CV · {pres?.nombre} · {new Date().toLocaleDateString("es-MX",{year:"numeric",month:"long",day:"numeric"})}
+            GEOLIS SA DE CV · {pres?.nombre} · Elaborado: {pres?.fechaElaboracion||new Date().toLocaleDateString("es-MX")}
           </div>
         </div>
       </div>
