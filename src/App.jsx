@@ -13,28 +13,28 @@ const C = {
 
 // ─── ÁREAS ───────────────────────────────────────────────────────────────────
 const AREAS_CAMPO = [
-  {id:"operaciones",   label:"Operaciones",           icon:"🔧"},
-  {id:"construccion",  label:"Construcción",          icon:"🏗️"},
-  {id:"electricidad",  label:"Electricidad",          icon:"⚡"},
-  {id:"generacion",    label:"Generación",            icon:"⚙️"},
-  {id:"calidad",       label:"Calidad",               icon:"✅"},
-  {id:"sspa",          label:"SSPA",                  icon:"🦺"},
-  {id:"hps",           label:"HPS",                   icon:"🔩"},
-  {id:"mantenimiento", label:"Mantenimiento",         icon:"🛠️"},
-  {id:"logistica",     label:"Logística",             icon:"🚛"},
+  {id:"operaciones",   label:"Operaciones"},
+  {id:"construccion",  label:"Construcción"},
+  {id:"electricidad",  label:"Electricidad"},
+  {id:"generacion",    label:"Generación"},
+  {id:"calidad",       label:"Calidad"},
+  {id:"sspa",          label:"SSPA"},
+  {id:"hps",           label:"HPS"},
+  {id:"mantenimiento", label:"Mantenimiento"},
+  {id:"logistica",     label:"Logística"},
 ];
 const AREAS_DEPTO = [
-  {id:"ti",        label:"Tecnología (TI)",        icon:"💻"},
-  {id:"innovacion",label:"Innovación y Tecnología", icon:"🚀"},
-  {id:"finanzas",  label:"Finanzas",               icon:"💰"},
+  {id:"ti",        label:"Tecnología (TI)"},
+  {id:"innovacion",label:"Innovación y Tecnología"},
+  {id:"finanzas",  label:"Finanzas"},
 ];
 const AREAS_SUMINISTRO = [
-  {id:"seguridad",      label:"Seguridad",               icon:"🔒"},
-  {id:"staff_dir",      label:"Staff de Dirección",      icon:"👔"},
-  {id:"dir_general",    label:"Dirección General",       icon:"🏛️"},
-  {id:"comunicacion",   label:"Comunicación",            icon:"📢"},
-  {id:"innov_tec",      label:"Innovación y Tecnología", icon:"🚀"},
-  {id:"almacen",        label:"Almacén",                 icon:"📦"},
+  {id:"seguridad",      label:"Seguridad"},
+  {id:"staff_dir",      label:"Staff de Dirección"},
+  {id:"dir_general",    label:"Dirección General"},
+  {id:"comunicacion",   label:"Comunicación"},
+  {id:"innov_tec",      label:"Innovación y Tecnología"},
+  {id:"almacen",        label:"Almacén"               },
 ];
 function getAreasCat(tipo){
   if(tipo==="departamento") return AREAS_DEPTO;
@@ -138,7 +138,7 @@ const PUESTOS_CAT=[
 // ─── PLANTILLAS ───────────────────────────────────────────────────────────────
 const PLANTILLAS={
   cuervito:{
-    nombre:"Monitoreo Cuervito", icon:"📋", tipos:["servicio","instalacion"],
+    nombre:"Monitoreo Cuervito",  tipos:["servicio","instalacion"],
     desc:"01022026 Presupuesto Monitoreo Cuervito — datos reales del Excel",
     // ── CAPEX real del archivo Excel F00 INVERSIÓN ──────────────────────────
     capex:[
@@ -179,7 +179,7 @@ const PLANTILLAS={
     ],
   },
   instalacion:{
-    nombre:"Proyecto de Instalación",icon:"🏗️",tipos:["instalacion"],
+    nombre:"Proyecto de Instalación",tipos:["instalacion"],
     desc:"Proyectos de campo con mano de obra",
     capex:[
       {cat:"EQUIPO DE TRANSPORTE", desc:"Camionetas de campo",                    unidad:"Unidad",cantidad:1,monto:0},
@@ -1353,10 +1353,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento", desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
@@ -1396,7 +1396,7 @@ export default function App(){
             <div style={{padding:"14px 20px",borderBottom:`1px solid ${C.line}`,
               borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>📋 Plantilla de partidas</div>
+                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Plantilla de partidas</div>
                 <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                   {sug.length>0?"Estructura base para este tipo · editable después.":"Próxima versión."}
                 </div>
