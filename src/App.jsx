@@ -1442,16 +1442,9 @@ export default function App(){
                         setForm({...form,tipo:t.id});
                         setAreas([]);
                         setOpexPM([]);
-                        // PUNTO 6: auto-cargar plantilla Cuervito para instalacion y servicio
-                        if(t.id==="instalacion"||t.id==="servicio"){
-                          const pl=PLANTILLAS["cuervito"];
-                          setCapexPM(pl.capex.map(p=>initP(p)));
-                          setOpexPM(pl.opex.map(p=>initP(p)));
-                          setPlantKey("cuervito");
-                        } else {
-                          setCapexPM([]);
-                          setPlantKey(null);
-                        }
+                        // Usuario decide si cargar base o empezar desde cero
+                        setCapexPM([]);
+                        setPlantKey(null);
                       }}
                       style={{border:"2px solid",borderColor:form.tipo===t.id?C.yellow:C.grayBorder,
                         borderRadius:10,padding:"14px 10px",cursor:"pointer",textAlign:"center",
@@ -1464,65 +1457,62 @@ export default function App(){
                   ))}
                 </div>
               </div>
-              {/* Preview de plantilla al seleccionar tipo — aparece inline */}
-              {form.tipo&&plantillasSugeridas(form.tipo).length>0&&(
-                <div style={{gridColumn:"1 / -1",marginTop:4}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",
-                    background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,borderRadius:8}}>
-                    <span style={{fontSize:16}}>📋</span>
-                    <div style={{flex:1}}>
-                      <span style={{fontSize:12,fontWeight:700,color:C.yellowDark}}>
-                        Presupuesto base disponible:
-                      </span>
-                      <span style={{fontSize:12,color:C.grayMid,marginLeft:6}}>
-                        {plantillasSugeridas(form.tipo)[0]?.nombre} — {plantillasSugeridas(form.tipo)[0]?.capex?.length} CAPEX · {plantillasSugeridas(form.tipo)[0]?.opex?.length} OPEX
-                      </span>
-                    </div>
-                    {!plantKey?(
-                      <button onClick={()=>cargarPlantilla(plantillasSugeridas(form.tipo)[0]?.key||plantillasSugeridas(form.tipo)[0]?.key)}
-                        style={{padding:"6px 14px",background:C.yellow,border:"none",borderRadius:6,
-                          cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
-                        Cargar →
-                      </button>
-                    ):(
-                      <span style={{fontSize:12,color:C.success,fontWeight:700}}>✓ Cargado</span>
-                    )}
-                  </div>
-                </div>
-              )}
+
             </div>
           </div>
         </div>
 
-        {/* Plantilla */}
+        {/* Cargar presupuesto base — solo si hay tipo seleccionado */}
         {form.tipo&&(
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-            <div style={{padding:"14px 20px",borderBottom:`1px solid ${C.line}`,
+            <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
               borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>📋 Plantilla de partidas</div>
-                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                  {sug.length>0?"Selecciona el presupuesto base del que quieres partir. Todos los datos son editables.":"Sin presupuesto base disponible para este tipo todavía."}
+                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>¿Cómo quieres iniciar este presupuesto?</div>
+                <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
+                  Parte de un presupuesto anterior o comienza con secciones vacías.
                 </div>
               </div>
-              {sug.length>0&&(
-                <button onClick={()=>setPlantModal(true)}
-                  style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:8,
-                    cursor:"pointer",fontWeight:700,fontSize:12,color:C.grayDark}}>
-                  {plantKey?"Cambiar base":"Seleccionar base"}
-                </button>
-              )}
             </div>
-            <div style={{padding:"10px 20px",fontSize:13,
-              color:plantKey?C.success:C.grayMid}}>
-              {plantKey
-                ?<span>✓ <strong>{PLANTILLAS[plantKey]?.nombre}</strong> cargada — {capexPM.length} CAPEX · {opexPM.length} OPEX</span>
-                :"Sin base cargada — iniciarás desde cero con secciones vacías."}
+            <div style={{padding:"16px 24px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              {/* Opción A: partir de presupuesto anterior */}
+              <div onClick={()=>setPlantModal(true)}
+                style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
+                  border:`2px solid`,borderColor:plantKey?C.yellow:C.grayBorder,
+                  borderRadius:10,cursor:"pointer",background:plantKey?C.yellowLight:C.white,
+                  transition:"all 0.15s"}}
+                onMouseEnter={e=>{if(!plantKey)e.currentTarget.style.borderColor=C.yellow;}}
+                onMouseLeave={e=>{if(!plantKey)e.currentTarget.style.borderColor=C.grayBorder;}}>
+                <span style={{fontSize:28}}>📋</span>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>
+                    {plantKey?`✓ ${PLANTILLAS[plantKey]?.nombre}`:"Partir de un presupuesto anterior"}
+                  </div>
+                  <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>
+                    {plantKey
+                      ?`${PLANTILLAS[plantKey]?.capex?.length} CAPEX · ${PLANTILLAS[plantKey]?.opex?.length} OPEX cargados — editables`
+                      :"Carga partidas de Cuervito, TI u otro proyecto existente"}
+                  </div>
+                </div>
+              </div>
+              {/* Opción B: desde cero */}
+              <div onClick={()=>{setCapexPM([]);setOpexPM([]);setPlantKey(null);}}
+                style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
+                  border:`2px solid`,borderColor:!plantKey&&form.tipo?C.grayDark:C.grayBorder,
+                  borderRadius:10,cursor:"pointer",background:!plantKey&&form.tipo?"#F8F8F8":C.white,
+                  transition:"all 0.15s"}}
+                onMouseEnter={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayDark;}}
+                onMouseLeave={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayBorder;}}>
+                <span style={{fontSize:28}}>✏️</span>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Iniciar desde cero</div>
+                  <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>Secciones vacías — agregas cada partida manualmente</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
-
         <div style={{display:"flex",justifyContent:"space-between"}}>
           {btn("Cancelar",()=>setStep(0),"secondary")}
           {/* FIX 1b: Mostrar errores de validación inline */}
