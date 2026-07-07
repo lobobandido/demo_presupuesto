@@ -975,6 +975,7 @@ export default function App(){
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
   // Estado para abrir presupuesto después del render (evita race condition)
   const [presToOpen, setPresToOpen] = useState(null);
+  const isOpening = useRef(false); // flag: no guardar en localStorage mientras se abre
   // Ingresos mes a mes (13 meses: M0..M12)
   const [ingresos,setIngresos]     = useState(Array(13).fill(0));
 
@@ -983,15 +984,14 @@ export default function App(){
   useEffect(()=>{
     const saved=loadAppState();
     if(saved&&saved.pres){
-      setPres(saved.pres); setAreas(saved.areas||[]); setCostos(saved.costos||{});
-      setCapexPM(saved.capexPM||[]); setOpexPM(saved.opexPM||[]); if(saved.ingresos) setIngresos(saved.ingresos);
+      // Solo restaurar la lista de presupuestos al inicio, no el step activo
+      // El usuario debe abrir manualmente para ver el contenido
       setLista(prev=>{
         const ids=prev.map(x=>x.id);
         const extra=(saved.lista||[]).filter(x=>!ids.includes(x.id));
         return [...prev,...extra];
       });
-      setAreaSaved(saved.areaSaved||false);
-      if(saved.step>0) setStep(saved.step);
+      // No restaurar step ni estado activo — evita conflictos con abrirPresupuesto
     }
   },[]);
   // FIX 6 v3: procesar apertura de presupuesto en useEffect separado
@@ -1020,12 +1020,14 @@ export default function App(){
     setActiva(primera);
     setStep(3);
     setPresToOpen(null); // limpiar para no re-ejecutar
+    // Pequeño delay para que React termine el render antes de reanudar guardado
+    setTimeout(()=>{ isOpening.current = false; }, 100);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[presToOpen]);
 
-  // Guardar ante cualquier cambio relevante
+  // Guardar ante cualquier cambio relevante (no guardar mientras se abre)
   useEffect(()=>{
-    if(pres) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos});
+    if(pres && !isOpening.current) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos});
   },[pres,areas,costos,capexPM,opexPM,areaSaved,step,ingresos]);
 
   function showToast(msg){setToast(msg);}
@@ -1058,8 +1060,9 @@ export default function App(){
     setStep(1);
   }
 
-  // FIX 6 v3: Abrir presupuesto — setPresToOpen dispara useEffect limpio
+  // FIX 6 v4: Abrir presupuesto — flag pausa el guardado en localStorage
   function abrirPresupuesto(p){
+    isOpening.current = true;
     setPresToOpen(p);
   }
 
@@ -1409,10 +1412,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
