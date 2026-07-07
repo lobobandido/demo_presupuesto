@@ -233,6 +233,53 @@ function plantillasSugeridas(tipo){
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
+// ─── HELPERS PERIODICIDAD ────────────────────────────────────────────────────
+const PERIODICIDADES = [
+  {id:"mensual",      label:"Mensual",      factor:1},
+  {id:"bimestral",    label:"Bimestral",    factor:0.5},
+  {id:"trimestral",   label:"Trimestral",   factor:1/3},
+  {id:"semestral",    label:"Semestral",    factor:1/6},
+  {id:"anual",        label:"Anual",        factor:1/12},
+];
+
+// Calcula cuántas veces ocurre el gasto durante N meses del proyecto
+function vecesEnProyecto(periodicidad, numMeses=12){
+  const pm = {mensual:1, bimestral:2, trimestral:3, semestral:6, anual:12};
+  const intervalo = pm[periodicidad]||1;
+  return Math.ceil(numMeses / intervalo);
+}
+
+// Total OPEX de una partida = monto × veces en el proyecto
+function totalOpexPartida(p, numMeses=12){
+  return (p.monto||0) * (p.cantidad||1) * vecesEnProyecto(p.periodicidad||"mensual", numMeses);
+}
+
+// Distribuye el OPEX en los meses correctos según periodicidad
+function distribuirOpex(p, numMeses=12){
+  const pm = {mensual:1, bimestral:2, trimestral:3, semestral:6, anual:12};
+  const intervalo = pm[p.periodicidad||"mensual"]||1;
+  const montoMes = (p.monto||0)*(p.cantidad||1);
+  return Array(numMeses+1).fill(0).map((_,i)=>{
+    if(i===0) return 0; // M0 sin OPEX
+    return (i-1) % intervalo === 0 ? montoMes : 0;
+  });
+}
+
+// Meses activos de un puesto de nómina
+function mesesNomina(puesto, numMeses=12){
+  if(puesto.tipoPersonal==="fijo") return numMeses;
+  if(puesto.tipoPersonal==="contrato"||puesto.tipoPersonal==="outsourcing")
+    return Math.min(puesto.mesesContrato||12, numMeses);
+  return numMeses;
+}
+
+// Costo total nómina de un puesto en el proyecto
+function costoTotalNomina(puesto, numMeses=12){
+  const f=1+(puesto.imss||F_IMSS)+(puesto.prestaciones||F_PREST)+(puesto.isr||F_ISR);
+  const costoMes=(puesto.salario||0)*f*(puesto.cantidad||1);
+  return costoMes * mesesNomina(puesto, numMeses);
+}
+
 // ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
 const LS_APP_KEY = "geolis_app_state_v4"; // v4: fix abrir + TI real + validaciones
 function saveAppState(state){ try{ localStorage.setItem(LS_APP_KEY, JSON.stringify(state)); }catch(e){} }
@@ -248,8 +295,16 @@ const LS_CATS="geolis_cats_v3";
 function getCats(){try{return JSON.parse(localStorage.getItem(LS_CATS)||"[]");}catch{return[];}}
 function saveCat(c){const e=getCats();if(!e.includes(c))localStorage.setItem(LS_CATS,JSON.stringify([...e,c]));}
 
-function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,...o};}
-function initN(o={}){return{id:uid(),puesto:"Técnico",puestoCustom:"",cantidad:1,salario:0,imss:F_IMSS,prestaciones:F_PREST,isr:F_ISR,...o};}
+function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
+  mesGasto:0,        // CAPEX: mes en que se compra (0=M0, 1=M1...)
+  periodicidad:"mensual", // OPEX: mensual/bimestral/trimestral/semestral/anual
+  ...o};}
+function initN(o={}){return{id:uid(),puesto:"Técnico",puestoCustom:"",cantidad:1,salario:0,
+  imss:F_IMSS,prestaciones:F_PREST,isr:F_ISR,
+  tipoPersonal:"fijo",   // fijo / contrato / outsourcing
+  mesesContrato:12,      // solo aplica si tipoPersonal=contrato
+  mesInicio:1,           // mes en que inicia (para contrato)
+  ...o};}
 function distMeses(total,tipo="opex"){
   if(tipo==="capex"){const m=Array(12).fill(0);m[0]=total;return m;}
   return Array(12).fill(parseFloat((total/12).toFixed(2)));
@@ -477,15 +532,18 @@ function FL({children,required}){
 
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
-function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor}){
+function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false}){
   return(
     <div>
       {/* Headers internos */}
       {partidas.length>0&&(
-        <div style={{display:"grid",gridTemplateColumns:"2fr 2fr 90px 80px 1fr 90px 32px",
+        <div style={{display:"grid",gridTemplateColumns:showMes?"2fr 2fr 80px 70px 70px 1fr 90px 32px":"2fr 2fr 80px 70px 1fr 90px 32px",
           gap:8,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
-          {["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""].map((h,i)=>(
+          {(showMes
+            ?["Categoría","Descripción","Unidad","Cant.","Mes gasto","Monto unit.","Total",""]
+            :["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""]
+          ).map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
               textAlign:i>=3?"right":"left"}}>{h}</div>
@@ -497,7 +555,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
         const total=(p.cantidad||0)*(p.monto||0);
         return(
           <div key={p.id} style={{display:"grid",
-            gridTemplateColumns:"2fr 2fr 90px 80px 1fr 90px 32px",
+            gridTemplateColumns:showMes?"2fr 2fr 80px 70px 70px 1fr 90px 32px":"2fr 2fr 80px 70px 1fr 90px 32px",
             gap:8,alignItems:"center",padding:"6px 0",
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
@@ -542,6 +600,24 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               placeholder="0"
               style={{padding:"7px 8px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
+            {showMes&&(
+              <select value={p.mesGasto??0} onChange={e=>onUpdate({...p,mesGasto:parseInt(e.target.value)})}
+                title="Mes en que se realiza este gasto"
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
+                {Array.from({length:13},(_,i)=>
+                  <option key={i} value={i}>M{i}{i===0?" (Inst.)":""}</option>
+                )}
+              </select>
+            )}
+            {showPeriod&&(
+              <select value={p.periodicidad||"mensual"} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
+                title="¿Con qué frecuencia se repite este gasto?"
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  fontSize:11,width:"100%",background:C.white}}>
+                {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
+              </select>
+            )}
             <MoneyInput value={p.monto} onChange={v=>onUpdate({...p,monto:v})}/>
             <div style={{textAlign:"right",fontSize:13,fontWeight:700,
               color:total>0?headerColor:C.grayMid}}>{fmt(total)}</div>
@@ -575,51 +651,62 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
     <div>
       {nomina.length>0&&(
         <div style={{display:"grid",
-          gridTemplateColumns:"2fr 60px 1fr 80px 80px 110px 32px",
+          gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
           gap:8,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
-          {["Puesto","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo real/mes",""].map((h,i)=>(
+          {["Puesto","Tipo","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo total",""].map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
-              textAlign:i>=1?"right":"left"}}>{h}</div>
+              textAlign:i>=2?"right":"left"}}>{h}</div>
           ))}
         </div>
       )}
       {nomina.map((p,idx)=>{
         const factor=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);
         const costo=(p.salario||0)*factor*(p.cantidad||1);
+        const meses = mesesNomina(p, 12);
+        const costoTotal = costoTotalNomina(p, 12);
         return(
           <div key={p.id} style={{marginBottom:8}}>
             <div style={{display:"grid",
-              gridTemplateColumns:"2fr 60px 1fr 80px 80px 110px 32px",
+              gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
               gap:8,alignItems:"center",padding:"6px 0",
               borderBottom:idx<nomina.length-1?`1px solid ${C.line}`:"none"}}>
-              {/* Puesto — mismo patrón que CatInput */}
+              {/* Puesto */}
               <CatalogInput value={p.puesto==="Otro"?p.puestoCustom||"":p.puesto}
                 onChange={v=>{
                   if(PUESTOS_CAT.includes(v)) onUpdate({...p,puesto:v,puestoCustom:""});
                   else onUpdate({...p,puesto:"Otro",puestoCustom:v});
                 }}
                 options={PUESTOS_CAT} placeholder="Puesto" allowCustom={true}/>
+              {/* Tipo de personal */}
+              <select value={p.tipoPersonal||"fijo"}
+                onChange={e=>onUpdate({...p,tipoPersonal:e.target.value})}
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  fontSize:11,width:"100%",background:C.white}}>
+                <option value="fijo">Fijo</option>
+                <option value="contrato">Contrato</option>
+                <option value="outsourcing">Outsourcing</option>
+              </select>
               <input type="number" min="1" value={p.cantidad===0?"":p.cantidad}
                 onChange={e=>onUpdate({...p,cantidad:parseInt(e.target.value)||1})}
                 onFocus={e=>e.target.select()}
-                style={{padding:"7px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
               <MoneyInput value={p.salario} onChange={v=>onUpdate({...p,salario:v})}/>
               <input type="number" min="0" max="1" step="0.01" value={p.imss}
                 onChange={e=>onUpdate({...p,imss:parseFloat(e.target.value)||0})}
                 onFocus={e=>e.target.select()}
-                style={{padding:"7px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
               <input type="number" min="0" max="2" step="0.01" value={p.prestaciones}
                 onChange={e=>onUpdate({...p,prestaciones:parseFloat(e.target.value)||0})}
                 onFocus={e=>e.target.select()}
-                style={{padding:"7px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
               <div style={{textAlign:"right"}}>
-                <div style={{fontSize:13,fontWeight:700,color:C.success}}>{fmt(costo)}</div>
-                <div style={{fontSize:9,color:C.grayMid}}>por mes</div>
+                <div style={{fontSize:13,fontWeight:700,color:C.success}}>{fmt(costoTotal)}</div>
+                <div style={{fontSize:9,color:C.grayMid}}>{meses} mes(es)</div>
               </div>
               <button onClick={()=>onRemove(p.id)}
                 style={{background:"transparent",border:"none",cursor:"pointer",
@@ -627,10 +714,26 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
                 onMouseEnter={e=>e.currentTarget.style.color=C.danger}
                 onMouseLeave={e=>e.currentTarget.style.color=C.grayMid}>×</button>
             </div>
-            {/* Fórmula inline */}
-            <div style={{padding:"4px 0 4px 4px",fontSize:10,color:"#16a34a",
-              background:"#f0fdf4",borderRadius:4,marginTop:2,paddingLeft:8}}>
-              {fmt(p.salario)} × (1+{p.imss}+{p.prestaciones}+{p.isr||F_ISR}) × {p.cantidad} = <strong>{fmt(costo)}/mes</strong> · Anual: <strong>{fmt(costo*12)}</strong>
+            {/* Fórmula + meses de contrato si aplica */}
+            <div style={{padding:"5px 8px",fontSize:10,color:"#16a34a",
+              background:"#f0fdf4",borderRadius:4,marginTop:2,
+              display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+              <span>
+                {fmt(p.salario)} × (1+{p.imss}+{p.prestaciones}+{p.isr||F_ISR}) × {p.cantidad} = <strong>{fmt(costo)}/mes</strong>
+              </span>
+              {(p.tipoPersonal==="contrato"||p.tipoPersonal==="outsourcing")&&(
+                <span style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{color:C.grayMid}}>Meses de contrato:</span>
+                  <input type="number" min="1" max="240" value={p.mesesContrato||12}
+                    onChange={e=>onUpdate({...p,mesesContrato:parseInt(e.target.value)||1})}
+                    style={{width:48,padding:"2px 5px",border:`1px solid #bbf7d0`,
+                      borderRadius:4,fontSize:11,textAlign:"center"}}/>
+                  <span style={{color:"#059669",fontWeight:700}}>× Total: {fmt(costoTotal)}</span>
+                </span>
+              )}
+              {p.tipoPersonal==="fijo"&&(
+                <span style={{color:"#059669",fontWeight:700}}>× 12 meses = {fmt(costoTotal)}</span>
+              )}
             </div>
           </div>
         );
@@ -1780,7 +1883,8 @@ export default function App(){
                     onAdd={()=>addP(areaActiva,"capex")}
                     catOptions={CAT_CAPEX}
                     addLabel="Agregar equipo / inversión"
-                    headerColor="#7c3aed"/>
+                    headerColor="#7c3aed"
+                    showMes={true}/>
                 </SCard>
 
                 {/* Nómina */}
@@ -1808,7 +1912,8 @@ export default function App(){
                     onAdd={()=>addP(areaActiva,"mat")}
                     catOptions={CAT_OPEX}
                     addLabel="Agregar material"
-                    headerColor="#0891b2"/>
+                    headerColor="#0891b2"
+                    showPeriod={true}/>
                 </SCard>
 
                 {/* Viáticos */}
@@ -1822,7 +1927,8 @@ export default function App(){
                     onAdd={()=>addP(areaActiva,"via")}
                     catOptions={CAT_OPEX}
                     addLabel="Agregar viático"
-                    headerColor="#d97706"/>
+                    headerColor="#d97706"
+                    showPeriod={true}/>
                 </SCard>
 
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
@@ -2182,37 +2288,37 @@ export default function App(){
                 </div>
               )}
               {ingAdicionales.map((ing,idx)=>(
-                <div key={ing.id} style={{display:"grid",gridTemplateColumns:"80px 80px 1fr 1fr 36px",
-                  gap:8,alignItems:"center",padding:"8px 0",
+                <div key={ing.id} style={{display:"grid",gridTemplateColumns:"110px 90px 1fr 160px 32px",
+                  gap:10,alignItems:"end",padding:"10px 0",
                   borderBottom:idx<ingAdicionales.length-1?`1px solid ${C.line}`:"none"}}>
                   <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Mes *</div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Mes *</div>
                     <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
-                      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}>
+                      style={{width:"100%",padding:"7px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
                       {Array.from({length:12},(_,i)=>i+1).map(m=>(
-                        <option key={m} value={m}>M{m} — {MESES[m-1]}</option>
+                        <option key={m} value={m}>M{m} · {MESES[m-1]}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Año *</div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Año *</div>
                     <input type="number" value={ing.anio} min={2024} max={2045}
                       onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)||2026}:x))}
-                      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                      style={{width:"100%",padding:"7px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
                   </div>
                   <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Descripción</div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Descripción</div>
                     <input value={ing.desc} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,desc:e.target.value}:x))}
                       placeholder="Ej. Renovación de contrato"
-                      style={{width:"100%",padding:"6px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                      style={{width:"100%",padding:"7px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
                   </div>
                   <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Monto</div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Monto</div>
                     <MoneyInput value={ing.monto} onChange={v=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,monto:v}:x))}/>
                   </div>
                   <button onClick={()=>setIngAd(prev=>prev.filter(x=>x.id!==ing.id))}
                     style={{background:C.dangerLight,color:C.danger,border:"none",borderRadius:6,
-                      padding:"6px 8px",cursor:"pointer",fontSize:14,marginTop:14}}>×</button>
+                      padding:"6px 8px",cursor:"pointer",fontSize:16,height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
                 </div>
               ))}
               {ingAdicionales.length>0&&(
