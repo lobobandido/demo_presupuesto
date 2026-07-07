@@ -1409,10 +1409,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
