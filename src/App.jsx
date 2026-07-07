@@ -1220,6 +1220,33 @@ export default function App(){
 
   const wrap=(children,bc="")=>(
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"Inter,-apple-system,sans-serif",background:C.contentBg}}>
+      <style>{`
+        @media (max-width: 900px) {
+          .sidebar-nav { width: 60px !important; }
+          .sidebar-nav .nav-label { display: none !important; }
+          .sidebar-nav .sidebar-logo-text { display: none !important; }
+          .main-content { margin-left: 60px !important; }
+        }
+        @media (max-width: 768px) {
+          .sidebar-nav { display: none !important; }
+          .main-content { margin-left: 0 !important; }
+          .capture-grid { grid-template-columns: 1fr !important; }
+          .kpi-grid { grid-template-columns: 1fr 1fr !important; }
+          .tipo-grid { grid-template-columns: 1fr 1fr !important; }
+          .dates-grid { grid-template-columns: 1fr !important; }
+          .areas-grid { grid-template-columns: 1fr 1fr !important; }
+          .resumen-kpi { grid-template-columns: 1fr 1fr !important; }
+          .base-opciones { grid-template-columns: 1fr !important; }
+        }
+        @media print {
+          .sidebar-nav { display: none !important; }
+          .main-content { margin-left: 0 !important; }
+          .noprint { display: none !important; }
+          #rpdf, #rpdf * { visibility: visible; }
+          body * { visibility: hidden; }
+          #rpdf { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+      `}</style>
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       {/* Sidebar */}
       <aside style={{width:220,background:C.sidebar,flexShrink:0,
@@ -1227,8 +1254,8 @@ export default function App(){
         top:0,left:0,bottom:0,zIndex:50}}>
         <div style={{padding:"22px 20px 18px",borderBottom:"1px solid #222"}}>
           <div style={{fontSize:10,color:"#444",letterSpacing:2.5,textTransform:"uppercase",marginBottom:6}}>Corporativo</div>
-          <div style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5}}>GEOLIS</div>
-          <div style={{fontSize:11,color:"#555",marginTop:3}}>Módulo de Presupuestos</div>
+          <div className="sidebar-logo-text" style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5}}>GEOLIS</div>
+          <div className="sidebar-logo-text" style={{fontSize:11,color:"#555",marginTop:3}}>Módulo de Presupuestos</div>
         </div>
         <nav style={{padding:"8px 0",flex:1}}>
           {NAV.map(t=>{
@@ -1249,7 +1276,7 @@ export default function App(){
                   display:"flex",alignItems:"center",justifyContent:"center"}}>
                   {done&&<span style={{fontSize:9,color:"#aaa"}}>✓</span>}
                 </div>
-                <span style={{fontSize:13,fontWeight:active?700:400,
+                <span className="nav-label" style={{fontSize:13,fontWeight:active?700:400,
                   color:active?C.yellow:done?"#888":"#444"}}>{t.label}</span>
               </div>
             );
@@ -1277,7 +1304,7 @@ export default function App(){
         )}
       </aside>
       {/* Main */}
-      <div style={{flex:1,marginLeft:220,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
+      <div className="main-content" style={{flex:1,marginLeft:220,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
         <header style={{background:C.white,borderBottom:`1px solid ${C.line}`,
           padding:"0 32px",height:52,display:"flex",alignItems:"center",
           justifyContent:"space-between",position:"sticky",top:0,zIndex:40,
@@ -1390,7 +1417,7 @@ export default function App(){
             <span style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Datos generales</span>
           </div>
           <div style={{padding:24}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
+            <div className="dates-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
               <div>
                 <FL required>Nombre del proyecto</FL>
                 <input value={form.nombre} onChange={e=>setForm({...form,nombre:e.target.value})}
@@ -1430,7 +1457,7 @@ export default function App(){
               </div>
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
+                <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
                     {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
                     {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
@@ -1475,7 +1502,7 @@ export default function App(){
                 </div>
               </div>
             </div>
-            <div style={{padding:"16px 24px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            <div className="base-opciones" style={{padding:"16px 24px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               {/* Opción A: partir de presupuesto anterior */}
               <div onClick={()=>setPlantModal(true)}
                 style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
@@ -1594,7 +1621,7 @@ export default function App(){
         </div>
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
           padding:24,marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          <div className="areas-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
             {cats.map(a=>{
               const sel=areas.includes(a.id);
               return(
@@ -1646,7 +1673,7 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
-        <div style={{display:"grid",gridTemplateColumns:"224px 1fr",gap:20}}>
+        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"224px 1fr",gap:20}}>
 
           {/* Sidebar áreas */}
           <div style={{minWidth:0}}>
@@ -1725,7 +1752,7 @@ export default function App(){
                 </div>
 
                 {/* KPIs área */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
+                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
                   {[
                     {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
                     {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
@@ -2146,7 +2173,7 @@ export default function App(){
           </>)}
 
           {/* ── KPIs ────────────────────────────────────────────────────── */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+          <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
             {[
               {l:"Ingresos",    v:totalIngresosAnual,c:C.success,   b:C.successLight},
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
