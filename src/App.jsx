@@ -671,30 +671,43 @@ function SCard({title,subtitle,total,accentColor,children}){
 }
 
 // ─── CHARTS ──────────────────────────────────────────────────────────────────
-function LineChart({series,height=220}){
+function LineChart({series,height=260}){
   if(!series||series.length===0)return null;
-  const W=720,H=height,pL=68,pR=20,pT=20,pB=36;
+  const W=900,H=height,pL=80,pR=24,pT=24,pB=44;
   const cW=W-pL-pR,cH=H-pT-pB;
-  const allV=series.flatMap(s=>s.data);
+  const allV=series.flatMap(s=>s.data).filter(v=>v>0);
   const maxV=Math.max(...allV,1);
-  const xP=i=>pL+(i/11)*cW, yP=v=>pT+cH-(v/maxV)*cH;
+  const n=series[0]?.data?.length||12;
+  const xP=i=>pL+(i/(n-1))*cW;
+  const yP=v=>pT+cH-Math.max(0,Math.min(1,v/maxV))*cH;
+  const fmtY=v=>v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`;
+  const gridVals=[0,.2,.4,.6,.8,1];
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
-      {[0,.25,.5,.75,1].map(p=>{const v=maxV*p,y=yP(v);return <g key={p}>
-        <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="1"/>
-        <text x={pL-8} y={y+4} textAnchor="end" fontSize="10" fill={C.grayMid}>
-          {v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`}
-        </text></g>;})}
-      {MESES.map((m,i)=><text key={m} x={xP(i)} y={H-8} textAnchor="middle" fontSize="10" fill={C.grayMid}>{m}</text>)}
-      {series.map(s=>{
+      {/* Fondo área gráfica */}
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      {/* Grid horizontal */}
+      {gridVals.map(p=>{
+        const v=maxV*p, y=yP(v);
+        return <g key={p}>
+          <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={p===0?"#ccc":C.line} strokeWidth={p===0?"1.5":"0.8"} strokeDasharray={p===0?"none":"4 3"}/>
+          <text x={pL-10} y={y+4} textAnchor="end" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
+        </g>;
+      })}
+      {/* Etiquetas X */}
+      {Array.from({length:n},(_,i)=>{
+        const lbl=MESES[i%12]||`M${i}`;
+        return <text key={i} x={xP(i)} y={H-12} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{lbl}</text>;
+      })}
+      {/* Líneas de datos */}
+      {series.map((s,si)=>{
         const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
         return <g key={s.label}>
           <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2.5"
             strokeLinejoin="round" strokeLinecap="round"/>
-          {s.data.map((v,i)=>v>0&&(
-            <circle key={i} cx={xP(i)} cy={yP(v)} r="4.5"
-              fill={s.color} stroke={C.white} strokeWidth="2"/>
+          {s.data.map((v,i)=>(
+            <circle key={i} cx={xP(i)} cy={yP(v)} r="5"
+              fill={s.color} stroke={C.white} strokeWidth="2.5"/>
           ))}
         </g>;
       })}
@@ -702,33 +715,40 @@ function LineChart({series,height=220}){
   );
 }
 
-function BarChart({items,height=200}){
+function BarChart({items,height=260}){
   if(!items||items.length===0)return null;
-  const W=720,H=height,pL=68,pR=20,pT=20,pB=48;
+  const W=900,H=height,pL=80,pR=24,pT=24,pB=56;
   const cW=W-pL-pR,cH=H-pT-pB;
   const maxV=Math.max(...items.map(i=>i.value),1);
-  const barW=Math.min(64,(cW/items.length)-16);
+  const slot=cW/items.length;
+  const barW=Math.min(80,slot*0.55);
+  const fmtY=v=>v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`;
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
-      {[0,.25,.5,.75,1].map(p=>{const v=maxV*p,y=pT+cH*(1-p);return <g key={p}>
-        <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="1"/>
-        <text x={pL-8} y={y+4} textAnchor="end" fontSize="10" fill={C.grayMid}>
-          {v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`}
-        </text></g>;})}
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      {[0,.25,.5,.75,1].map(p=>{
+        const v=maxV*p, y=pT+cH*(1-p);
+        return <g key={p}>
+          <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={p===0?"#ccc":C.line} strokeWidth={p===0?"1.5":"0.8"} strokeDasharray={p===0?"none":"4 3"}/>
+          <text x={pL-10} y={y+4} textAnchor="end" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
+        </g>;
+      })}
       {items.map((item,i)=>{
-        const x=pL+(i/items.length)*cW+(cW/items.length-barW)/2;
-        const bH=(item.value/maxV)*cH,y=pT+cH-bH;
+        const cx=pL+slot*i+slot/2;
+        const x=cx-barW/2;
+        const bH=Math.max(2,(item.value/maxV)*cH);
+        const y=pT+cH-bH;
+        const lbl=item.label.length>14?item.label.slice(0,14)+"…":item.label;
         return <g key={item.label}>
-          <rect x={x} y={y} width={barW} height={bH} rx="4" fill={item.color} opacity="0.85"/>
-          <text x={x+barW/2} y={H-pB+16} textAnchor="middle" fontSize="10" fill={C.grayMid}>
-            {item.label.length>12?item.label.slice(0,12)+"…":item.label}
+          {/* Barra con gradiente visual */}
+          <rect x={x} y={y} width={barW} height={bH} rx="4" fill={item.color} opacity="0.88"/>
+          {/* Etiqueta valor encima */}
+          <text x={cx} y={Math.max(y-8,pT+14)} textAnchor="middle" fontSize="11"
+            fill={item.color} fontWeight="700" fontFamily="Inter,sans-serif">
+            {fmtY(item.value)}
           </text>
-          {bH>18&&<text x={x+barW/2} y={y-6} textAnchor="middle" fontSize="10"
-            fill={item.color} fontWeight="700">
-            {item.value>=1000000?`${(item.value/1000000).toFixed(1)}M`:
-              item.value>=1000?`${(item.value/1000).toFixed(0)}K`:item.value.toFixed(0)}
-          </text>}
+          {/* Etiqueta área debajo */}
+          <text x={cx} y={H-16} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{lbl}</text>
         </g>;
       })}
     </svg>
@@ -1444,6 +1464,32 @@ export default function App(){
                   ))}
                 </div>
               </div>
+              {/* Preview de plantilla al seleccionar tipo — aparece inline */}
+              {form.tipo&&plantillasSugeridas(form.tipo).length>0&&(
+                <div style={{gridColumn:"1 / -1",marginTop:4}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",
+                    background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,borderRadius:8}}>
+                    <span style={{fontSize:16}}>📋</span>
+                    <div style={{flex:1}}>
+                      <span style={{fontSize:12,fontWeight:700,color:C.yellowDark}}>
+                        Presupuesto base disponible:
+                      </span>
+                      <span style={{fontSize:12,color:C.grayMid,marginLeft:6}}>
+                        {plantillasSugeridas(form.tipo)[0]?.nombre} — {plantillasSugeridas(form.tipo)[0]?.capex?.length} CAPEX · {plantillasSugeridas(form.tipo)[0]?.opex?.length} OPEX
+                      </span>
+                    </div>
+                    {!plantKey?(
+                      <button onClick={()=>cargarPlantilla(plantillasSugeridas(form.tipo)[0]?.key||plantillasSugeridas(form.tipo)[0]?.key)}
+                        style={{padding:"6px 14px",background:C.yellow,border:"none",borderRadius:6,
+                          cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
+                        Cargar →
+                      </button>
+                    ):(
+                      <span style={{fontSize:12,color:C.success,fontWeight:700}}>✓ Cargado</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1856,84 +1902,123 @@ export default function App(){
     };
 
     // ── Gráfica barras+línea para flujo ────────────────────────────────────
-    function FlowChart({barData,lineData,height=220}){
-      const W=760,H=height,pL=72,pR=20,pT=24,pB=36;
-      const cW=W-pL-pR,cH=H-pT-pB;
-      const allV=[...barData,...lineData];
-      const maxV=Math.max(...allV.map(Math.abs),1);
-      const yZero=pT+cH*(maxV/(maxV*2+maxV*0.1+1));
+    function FlowChart({barData,lineData,height=300}){
+      const W=960,H=height,pL=90,pR=24,pT=28,pB=44;
+      const cW=W-pL-pR, cH=H-pT-pB;
+      const absMax=Math.max(...[...barData,...lineData].map(Math.abs),1);
+      // Eje Y: de -absMax a +absMax, cero en el centro
+      const yZero=pT+cH/2;
+      const yP=v=>yZero-(v/absMax)*(cH/2);
       const xP=i=>pL+((i+0.5)/NMESES)*cW;
-      const yP=v=>pT+cH-(v+maxV)/(maxV*2)*cH;
-      const bW=(cW/NMESES)*0.6;
+      const bW=Math.max(18,(cW/NMESES)*0.55);
+      const fmtA=v=>{
+        if(v===0)return "$0";
+        const abs=Math.abs(v);
+        const s=abs>=1000000?`$${(abs/1000000).toFixed(1)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:`$${abs.toFixed(0)}`;
+        return v<0?`-${s}`:s;
+      };
       return(
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
-          {/* Zero line */}
-          <line x1={pL} y1={yZero} x2={W-pR} y2={yZero} stroke="#999" strokeWidth="1.5" strokeDasharray="4 2"/>
-          {/* Grid */}
+          {/* Fondo */}
+          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+          {/* Fondo zona positiva */}
+          <rect x={pL} y={pT} width={cW} height={cH/2} fill="#f0fdf4" rx="3" opacity="0.5"/>
+          {/* Grid lines */}
           {[-1,-0.5,0,0.5,1].map(p=>{
-            const v=maxV*p,y=yP(v);
+            const y=yZero-(p*cH/2);
             return <g key={p}>
-              {p!==0&&<line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="0.8" strokeDasharray="3 3"/>}
-              <text x={pL-6} y={y+4} textAnchor="end" fontSize="9" fill={C.grayMid}>{fmtK(v)}</text>
+              <line x1={pL} y1={y} x2={W-pR} y2={y}
+                stroke={p===0?"#888":"#E5E7EB"}
+                strokeWidth={p===0?2:0.8}
+                strokeDasharray={p===0?"none":"4 3"}/>
+              <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
+                fill={p===0?C.grayDark:C.grayMid} fontWeight={p===0?"700":"400"}
+                fontFamily="Inter,sans-serif">
+                {fmtA(absMax*p)}
+              </text>
             </g>;
           })}
-          {/* Bars */}
+          {/* Barras flujo mensual */}
           {barData.map((v,i)=>{
             const x=xP(i)-bW/2;
-            const barH=Math.abs(v)/maxV*cH/2;
+            const barH=Math.max(1,Math.abs(v)/absMax*(cH/2));
             const y=v>=0?yZero-barH:yZero;
-            return <rect key={i} x={x} y={y} width={bW} height={barH} rx="2"
-              fill={v>=0?"#DDAC00":"#C0392B"} opacity="0.85"/>;
+            return <g key={i}>
+              <rect x={x} y={y} width={bW} height={barH} rx="3"
+                fill={v>=0?"#DDAC00":"#EF4444"} opacity="0.9"/>
+            </g>;
           })}
-          {/* Line acumulado */}
+          {/* Línea flujo acumulado */}
           {lineData.length>0&&(()=>{
             const pts=lineData.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
             return <g>
-              <polyline points={pts} fill="none" stroke="#374151" strokeWidth="2"
+              <polyline points={pts} fill="none" stroke="#1E40AF" strokeWidth="2.5"
                 strokeLinejoin="round" strokeLinecap="round"/>
               {lineData.map((v,i)=>(
-                <circle key={i} cx={xP(i)} cy={yP(v)} r="3.5"
-                  fill={v>=0?C.success:C.danger} stroke={C.white} strokeWidth="1.5"/>
+                <circle key={i} cx={xP(i)} cy={yP(v)} r="4.5"
+                  fill={v>=0?"#059669":"#EF4444"} stroke={C.white} strokeWidth="2"/>
               ))}
             </g>;
           })()}
-          {/* X labels */}
+          {/* Etiquetas X */}
           {MESES13.map((m,i)=>(
-            <text key={m} x={xP(i)} y={H-6} textAnchor="middle" fontSize="9" fill={C.grayMid}>{m}</text>
+            <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
+              fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
           ))}
         </svg>
       );
     }
 
-    // ── Gráfica líneas por categoría OPEX ──────────────────────────────────
-    function CatLinesChart({series,height=220}){
-      if(!series||series.length===0) return <div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Sin datos OPEX capturados</div>;
-      const W=760,H=height,pL=72,pR=20,pT=20,pB=36;
-      const cW=W-pL-pR,cH=H-pT-pB;
+    // ── Gráfica II: líneas por categoría OPEX ──────────────────────────────────
+    function CatLinesChart({series,height=300}){
+      if(!series||series.length===0) return(
+        <div style={{padding:"32px 20px",color:C.grayMid,fontSize:13,textAlign:"center",
+          background:"#FAFAFA",borderRadius:8,border:`1px dashed ${C.grayBorder}`}}>
+          Captura partidas OPEX en las áreas para ver esta gráfica.
+        </div>
+      );
+      const W=960,H=height,pL=90,pR=130,pT=24,pB=44;
+      const cW=W-pL-pR, cH=H-pT-pB;
       const allV=series.flatMap(s=>s.data).filter(v=>v>0);
       const maxV=Math.max(...allV,1);
       const xP=i=>pL+(i/(NMESES-1))*cW;
-      const yP=v=>pT+cH-(v/maxV)*cH;
+      const yP=v=>pT+cH-Math.max(0,Math.min(1,v/maxV))*cH;
+      const fmtY=v=>v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`;
       return(
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="4"/>
-          {[0,.25,.5,.75,1].map(p=>{const v=maxV*p,y=yP(v);return <g key={p}>
-            <line x1={pL} y1={y} x2={W-pR} y2={y} stroke={C.line} strokeWidth="0.8" strokeDasharray="3 3"/>
-            <text x={pL-6} y={y+4} textAnchor="end" fontSize="9" fill={C.grayMid}>{fmtK(v)}</text>
-          </g>;})}
+          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+          {/* Grid */}
+          {[0,.25,.5,.75,1].map(p=>{
+            const v=maxV*p, y=yP(v);
+            return <g key={p}>
+              <line x1={pL} y1={y} x2={pL+cW} y2={y}
+                stroke={p===0?"#ccc":C.line} strokeWidth={p===0?"1.5":"0.8"} strokeDasharray={p===0?"none":"4 3"}/>
+              <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
+                fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
+            </g>;
+          })}
+          {/* Etiquetas X */}
           {MESES13.map((m,i)=>(
-            <text key={m} x={xP(i)} y={H-6} textAnchor="middle" fontSize="9" fill={C.grayMid}>{m}</text>
+            <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
+              fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
           ))}
-          {series.map(s=>{
+          {/* Líneas por categoría */}
+          {series.map((s,si)=>{
             const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+            const lastV=s.data[s.data.length-1];
+            const lastY=yP(lastV);
             return <g key={s.label}>
-              <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2"
+              <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2.5"
                 strokeLinejoin="round" strokeLinecap="round"/>
-              {s.data.map((v,i)=>v>0&&(
-                <circle key={i} cx={xP(i)} cy={yP(v)} r="3"
-                  fill={s.color} stroke={C.white} strokeWidth="1.5"/>
+              {s.data.map((v,i)=>(
+                <circle key={i} cx={xP(i)} cy={yP(v)} r="4"
+                  fill={s.color} stroke={C.white} strokeWidth="2"/>
               ))}
+              {/* Label inline al final de la línea */}
+              <text x={pL+cW+8} y={Math.max(pT+10,Math.min(H-pB-4,lastY+4))}
+                fontSize="10" fill={s.color} fontWeight="600" fontFamily="Inter,sans-serif">
+                {s.label.length>16?s.label.slice(0,16)+"…":s.label}
+              </text>
             </g>;
           })}
         </svg>
