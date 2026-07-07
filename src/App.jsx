@@ -13,28 +13,28 @@ const C = {
 
 // ─── ÁREAS ───────────────────────────────────────────────────────────────────
 const AREAS_CAMPO = [
-  {id:"operaciones",   label:"Operaciones"},
-  {id:"construccion",  label:"Construcción"},
-  {id:"electricidad",  label:"Electricidad"},
-  {id:"generacion",    label:"Generación"},
-  {id:"calidad",       label:"Calidad"},
-  {id:"sspa",          label:"SSPA"},
-  {id:"hps",           label:"HPS"},
-  {id:"mantenimiento", label:"Mantenimiento"},
-  {id:"logistica",     label:"Logística"},
+  {id:"operaciones",   label:"Operaciones",           icon:"🔧"},
+  {id:"construccion",  label:"Construcción",          icon:"🏗️"},
+  {id:"electricidad",  label:"Electricidad",          icon:"⚡"},
+  {id:"generacion",    label:"Generación",            icon:"⚙️"},
+  {id:"calidad",       label:"Calidad",               icon:"✅"},
+  {id:"sspa",          label:"SSPA",                  icon:"🦺"},
+  {id:"hps",           label:"HPS",                   icon:"🔩"},
+  {id:"mantenimiento", label:"Mantenimiento",         icon:"🛠️"},
+  {id:"logistica",     label:"Logística",             icon:"🚛"},
 ];
 const AREAS_DEPTO = [
-  {id:"ti",        label:"Tecnología (TI)"},
-  {id:"innovacion",label:"Innovación y Tecnología"},
-  {id:"finanzas",  label:"Finanzas"},
+  {id:"ti",        label:"Tecnología (TI)",        icon:"💻"},
+  {id:"innovacion",label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"finanzas",  label:"Finanzas",               icon:"💰"},
 ];
 const AREAS_SUMINISTRO = [
-  {id:"seguridad",      label:"Seguridad"},
-  {id:"staff_dir",      label:"Staff de Dirección"},
-  {id:"dir_general",    label:"Dirección General"},
-  {id:"comunicacion",   label:"Comunicación"},
-  {id:"innov_tec",      label:"Innovación y Tecnología"},
-  {id:"almacen",        label:"Almacén"               },
+  {id:"seguridad",      label:"Seguridad",               icon:"🔒"},
+  {id:"staff_dir",      label:"Staff de Dirección",      icon:"👔"},
+  {id:"dir_general",    label:"Dirección General",       icon:"🏛️"},
+  {id:"comunicacion",   label:"Comunicación",            icon:"📢"},
+  {id:"innov_tec",      label:"Innovación y Tecnología", icon:"🚀"},
+  {id:"almacen",        label:"Almacén",                 icon:"📦"},
 ];
 function getAreasCat(tipo){
   if(tipo==="departamento") return AREAS_DEPTO;
@@ -138,7 +138,7 @@ const PUESTOS_CAT=[
 // ─── PLANTILLAS ───────────────────────────────────────────────────────────────
 const PLANTILLAS={
   cuervito:{
-    nombre:"Monitoreo Cuervito",  tipos:["servicio","instalacion"],
+    nombre:"Monitoreo Cuervito", icon:"📋", tipos:["servicio","instalacion"],
     desc:"01022026 Presupuesto Monitoreo Cuervito — datos reales del Excel",
     // ── CAPEX real del archivo Excel F00 INVERSIÓN ──────────────────────────
     capex:[
@@ -179,7 +179,7 @@ const PLANTILLAS={
     ],
   },
   instalacion:{
-    nombre:"Proyecto de Instalación",tipos:["instalacion"],
+    nombre:"Proyecto de Instalación",icon:"🏗️",tipos:["instalacion"],
     desc:"Proyectos de campo con mano de obra",
     capex:[
       {cat:"EQUIPO DE TRANSPORTE", desc:"Camionetas de campo",                    unidad:"Unidad",cantidad:1,monto:0},
@@ -198,20 +198,31 @@ const PLANTILLAS={
     ],
   },
   depto_ti:{
-    nombre:"Departamento TI 2026",icon:"💻",tipos:["departamento"],
-    desc:"Basada en Presupuesto_Geolis_2026_v4.1 · Área TI",
+    nombre:"Depto. TI 2026 — Geolis",icon:"💻",tipos:["departamento"],
+    desc:"Presupuesto_Geolis_2026_v4.1 — 1er semestre Innovación y Tecnología",
     capex:[
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptops Geolis y Cuervito (Dell Pro)",         unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"ACCESORIOS",            desc:"Monitores, teclados, docking stations",        unidad:"Unidad",cantidad:1,monto:0},
-      {cat:"INFRAESTRUCTURA DE RED",desc:"Access Points, cableado, switches",            unidad:"Global",cantidad:1,monto:0},
+      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro",         unidad:"Unidad",cantidad:52, monto:25209},
+      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro Plus",     unidad:"Unidad",cantidad:16, monto:33861},
+      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro Max",      unidad:"Unidad",cantidad:4,  monto:50331},
+      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Cuervito — Dell Pro",        unidad:"Unidad",cantidad:16, monto:25209},
+      {cat:"ACCESORIOS",            desc:"Kit Teclado/Mouse Dell KM3322W",    unidad:"Unidad",cantidad:56, monto:408},
+      {cat:"ACCESORIOS",            desc:"Monitor Dell SE2425HM",             unidad:"Unidad",cantidad:20, monto:2000},
+      {cat:"ACCESORIOS",            desc:"Monitor Dell SE2725HM",             unidad:"Unidad",cantidad:20, monto:2549},
+      {cat:"ACCESORIOS",            desc:"Docking Station WD25",              unidad:"Unidad",cantidad:20, monto:3239},
     ],
     opex:[
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"MS Office 365, Adobe, Antivirus",          unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"LICENCIAMIENTO MXN ANUAL",  desc:"Autodesk AutoCAD, AutoCAD LT",             unidad:"Año",     cantidad:1,monto:0},
-      {cat:"LICENCIAMIENTO USD",        desc:"ChatGPT Business, Claude Pro, ClickUp",    unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"TELECOMUNICACIONES",        desc:"Internet satelital Starlink, líneas tel.",  unidad:"Mes",     cantidad:1,monto:0},
-      {cat:"NÓMINA Y ADICIONALES",      desc:"Nómina del equipo de TI",                  unidad:"Mes",     cantidad:1,monto:0},
+      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"MS Office 365 Negocios x25",    unidad:"Mes",   cantidad:6, monto:4575},
+      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Adobe Acrobat Standard x16",    unidad:"Mes",   cantidad:6, monto:4784},
+      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Adobe Creative Cloud x3",       unidad:"Mes",   cantidad:6, monto:4500},
+      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Correos .mx POP x324",          unidad:"Mes",   cantidad:6, monto:38880},
+      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Antivirus Cortex x26",          unidad:"Mes",   cantidad:6, monto:3328},
+      {cat:"LICENCIAMIENTO MXN ANUAL",  desc:"Autodesk AutoCAD x5",           unidad:"Año",   cantidad:1, monto:130750},
+      {cat:"LICENCIAMIENTO MXN ANUAL",  desc:"Autodesk AutoCAD LT",           unidad:"Año",   cantidad:1, monto:6335},
+      {cat:"LICENCIAMIENTO USD",        desc:"ChatGPT Business x15 /mes",     unidad:"Mes",   cantidad:6, monto:450},
+      {cat:"LICENCIAMIENTO USD",        desc:"Claude Pro Team x4 /mes",       unidad:"Mes",   cantidad:6, monto:100},
+      {cat:"LICENCIAMIENTO USD",        desc:"ClickUp Business x7 /año",      unidad:"Año",   cantidad:1, monto:1008},
     ],
+    nomina:[],
   },
 };
 
@@ -223,7 +234,7 @@ function plantillasSugeridas(tipo){
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 // ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
-const LS_APP_KEY = "geolis_app_state_v3"; // v3: plantillas con datos reales
+const LS_APP_KEY = "geolis_app_state_v4"; // v4: fix abrir + TI real + validaciones
 function saveAppState(state){ try{ localStorage.setItem(LS_APP_KEY, JSON.stringify(state)); }catch(e){} }
 function loadAppState(){ try{ const s=localStorage.getItem(LS_APP_KEY); return s?JSON.parse(s):null; }catch(e){return null;} }
 
@@ -962,6 +973,8 @@ export default function App(){
   const [modoEdit,setModoEdit]     = useState(false);
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
+  // Estado para abrir presupuesto después del render (evita race condition)
+  const [presToOpen, setPresToOpen] = React.useState(null);
   // Ingresos mes a mes (13 meses: M0..M12)
   const [ingresos,setIngresos]     = useState(Array(13).fill(0));
 
@@ -981,6 +994,34 @@ export default function App(){
       if(saved.step>0) setStep(saved.step);
     }
   },[]);
+  // FIX 6 v3: procesar apertura de presupuesto en useEffect separado
+  // Esto garantiza que todos los setState se aplicaron antes de setActiva
+  useEffect(()=>{
+    if(!presToOpen) return;
+    const p = presToOpen;
+    const areasP    = p._areas||[];
+    const costosP   = p._costos||{};
+    const capexPMP  = p._capexPM||[];
+    const opexPMP   = p._opexPM||[];
+    const ingresosP = p._ingresos||Array(13).fill(0);
+    const saved     = areasP.some(id=>costosP[id]?.estado==="guardado");
+    const primera   = areasP.find(id=>{
+      const c=costosP[id];
+      return c&&(c.capex?.length>0||c.mat?.length>0||c.nomina?.length>0||c.via?.length>0);
+    })||areasP[0]||null;
+    // Aplicar todo el estado de una vez
+    setPres(p);
+    setAreas(areasP);
+    setCostos(costosP);
+    setCapexPM(capexPMP);
+    setOpexPM(opexPMP);
+    setIngresos(ingresosP);
+    setAreaSaved(saved);
+    setActiva(primera);
+    setStep(3);
+    setPresToOpen(null); // limpiar para no re-ejecutar
+  },[presToOpen]);
+
   // Guardar ante cualquier cambio relevante
   useEffect(()=>{
     if(pres) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos});
@@ -1014,6 +1055,11 @@ export default function App(){
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setStep(1);
+  }
+
+  // FIX 6 v3: Abrir presupuesto — setPresToOpen dispara useEffect limpio
+  function abrirPresupuesto(p){
+    setPresToOpen(p);
   }
 
   // PUNTO 9: Clonar presupuesto como base de uno nuevo
@@ -1054,7 +1100,7 @@ export default function App(){
 
   function guardarPres(){
     const snap={...form,estado:"Borrador",fecha:new Date().toISOString().slice(0,10),
-      _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM};
+      _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos};
     if(modoEdit&&pres){
       const u={...pres,...snap};
       setLista(prev=>prev.map(x=>x.id===pres.id?u:x));
@@ -1272,7 +1318,10 @@ export default function App(){
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
             <div><EstadoBadge estado={p.estado}/></div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button onClick={()=>{setPres(p);setStep(3);setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));}}
+              <button onClick={()=>{
+                // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
+                abrirPresupuesto(p);
+              }}
                 style={{padding:"6px 14px",background:C.yellow,border:"none",
                   borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
                   boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Abrir</button>
@@ -1322,8 +1371,10 @@ export default function App(){
                 <FL required>Nombre del proyecto</FL>
                 <input value={form.nombre} onChange={e=>setForm({...form,nombre:e.target.value})}
                   placeholder="Ej. BECH-PERDIZ-2026"
-                  style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
-                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
+                  style={{width:"100%",padding:"9px 12px",
+                    border:`1px solid ${!form.nombre?"#C0392B":C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
+                    background:!form.nombre?"#FFF5F5":C.white}}/>
               </div>
               <div>
                 <FL>Empresa</FL>
@@ -1332,16 +1383,20 @@ export default function App(){
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
               <div>
-                <FL>Fecha inicio</FL>
+                <FL required>Fecha inicio</FL>
                 <input type="date" value={form.fechaInicio} onChange={e=>setForm({...form,fechaInicio:e.target.value})}
-                  style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
-                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
+                  style={{width:"100%",padding:"9px 12px",
+                    border:`1px solid ${!form.fechaInicio?"#C0392B":C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
+                    background:!form.fechaInicio?"#FFF5F5":C.white}}/>
               </div>
               <div>
-                <FL>Fecha fin</FL>
+                <FL required>Fecha fin</FL>
                 <input type="date" value={form.fechaFin} onChange={e=>setForm({...form,fechaFin:e.target.value})}
-                  style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
-                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
+                  style={{width:"100%",padding:"9px 12px",
+                    border:`1px solid ${!form.fechaFin?"#C0392B":C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
+                    background:!form.fechaFin?"#FFF5F5":C.white}}/>
               </div>
               <div>
                 <FL>Fecha de elaboración</FL>
@@ -1350,13 +1405,13 @@ export default function App(){
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
               <div style={{gridColumn:"1 / -1"}}>
-                <FL required>Tipo de presupuesto</FL>
+                <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento", desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
@@ -1396,16 +1451,16 @@ export default function App(){
             <div style={{padding:"14px 20px",borderBottom:`1px solid ${C.line}`,
               borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Plantilla de partidas</div>
+                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>📋 Plantilla de partidas</div>
                 <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                  {sug.length>0?"Estructura base para este tipo · editable después.":"Próxima versión."}
+                  {sug.length>0?"Selecciona el presupuesto base del que quieres partir. Todos los datos son editables.":"Sin presupuesto base disponible para este tipo todavía."}
                 </div>
               </div>
               {sug.length>0&&(
                 <button onClick={()=>setPlantModal(true)}
                   style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:8,
                     cursor:"pointer",fontWeight:700,fontSize:12,color:C.grayDark}}>
-                  {plantKey?"Cambiar plantilla":"Seleccionar"}
+                  {plantKey?"Cambiar base":"Seleccionar base"}
                 </button>
               )}
             </div>
@@ -1413,14 +1468,23 @@ export default function App(){
               color:plantKey?C.success:C.grayMid}}>
               {plantKey
                 ?<span>✓ <strong>{PLANTILLAS[plantKey]?.nombre}</strong> cargada — {capexPM.length} CAPEX · {opexPM.length} OPEX</span>
-                :"Sin plantilla — las secciones iniciarán vacías."}
+                :"Sin base cargada — iniciarás desde cero con secciones vacías."}
             </div>
           </div>
         )}
 
         <div style={{display:"flex",justifyContent:"space-between"}}>
           {btn("Cancelar",()=>setStep(0),"secondary")}
-          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary",!form.nombre||!form.tipo)}
+          {/* FIX 1b: Mostrar errores de validación inline */}
+          {(!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)&&(
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+              {!form.nombre&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Nombre del proyecto requerido</span>}
+              {!form.tipo&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Selecciona el tipo de presupuesto</span>}
+              {!form.fechaInicio&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Fecha inicio requerida</span>}
+              {!form.fechaFin&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Fecha fin requerida</span>}
+            </div>
+          )}
+          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary",!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)}
         </div>
 
         {/* Modal plantillas */}
@@ -1454,11 +1518,17 @@ export default function App(){
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:20,display:"flex",justifyContent:"flex-end"}}>
-                <button onClick={()=>setPlantModal(false)}
-                  style={{padding:"9px 20px",background:C.grayLight,border:"none",
-                    borderRadius:8,cursor:"pointer",fontSize:13,color:C.grayDark}}>
-                  Continuar sin plantilla
+              <div style={{marginTop:16,padding:"12px 16px",background:"#F8F8F8",borderRadius:8,border:`1px solid ${C.grayBorder}`}}>
+                <div style={{fontSize:12,fontWeight:700,color:C.grayDark,marginBottom:6}}>¿Prefieres empezar desde cero?</div>
+                <div style={{fontSize:11,color:C.grayMid,marginBottom:10}}>Las secciones de captura iniciarán vacías. Tú agregas cada partida manualmente.</div>
+                <button onClick={()=>{
+                  // LIMPIAR todo al iniciar desde cero
+                  setCapexPM([]); setOpexPM([]); setPlantKey(null);
+                  setPlantModal(false);
+                }}
+                  style={{padding:"9px 20px",background:C.white,border:`1px solid ${C.grayBorder}`,
+                    borderRadius:8,cursor:"pointer",fontSize:13,color:C.grayDark,fontWeight:600}}>
+                  Iniciar desde cero — secciones vacías
                 </button>
               </div>
             </div>
