@@ -974,7 +974,7 @@ export default function App(){
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
   // Estado para abrir presupuesto después del render (evita race condition)
-  const [presToOpen, setPresToOpen] = React.useState(null);
+  const [presToOpen, setPresToOpen] = useState(null);
   // Ingresos mes a mes (13 meses: M0..M12)
   const [ingresos,setIngresos]     = useState(Array(13).fill(0));
 
@@ -1020,6 +1020,7 @@ export default function App(){
     setActiva(primera);
     setStep(3);
     setPresToOpen(null); // limpiar para no re-ejecutar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[presToOpen]);
 
   // Guardar ante cualquier cambio relevante
