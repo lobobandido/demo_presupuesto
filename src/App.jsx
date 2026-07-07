@@ -998,6 +998,8 @@ export default function App(){
   const isOpening = useRef(false); // flag: no guardar en localStorage mientras se abre
   // Ingresos mes a mes (13 meses: M0..M12)
   const [ingresos,setIngresos]     = useState(Array(13).fill(0));
+  const [precioFijo,setPrecioFijo]  = useState(0);   // precio mensual fijo del servicio
+  const [ingAdicionales,setIngAd]   = useState([]);  // [{id,mes,anio,monto,desc}]
 
   // ── PUNTO 5: Persistir estado en localStorage ─────────────────────────────
   // Restaurar al montar
@@ -1047,7 +1049,7 @@ export default function App(){
 
   // Guardar ante cualquier cambio relevante (no guardar mientras se abre)
   useEffect(()=>{
-    if(pres && !isOpening.current) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos});
+    if(pres && !isOpening.current) saveAppState({pres,areas,costos,capexPM,opexPM,lista,areaSaved,step,ingresos,precioFijo,ingAdicionales});
   },[pres,areas,costos,capexPM,opexPM,areaSaved,step,ingresos]);
 
   function showToast(msg){setToast(msg);}
@@ -1066,7 +1068,7 @@ export default function App(){
   // ── Acciones ────────────────────────────────────────────────────────────────
   function abrirNuevo(){
     setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:""});
-    setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0));
+    setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setStep(1);
   }
@@ -1858,7 +1860,8 @@ export default function App(){
 
     // Ingresos (estado editable)
     const mIngresos=ingresos.slice(0,NMESES);
-    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
+    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0)
+      + ingAdicionales.reduce((s,x)=>s+x.monto,0);
 
     // Flujo efectivo mensual = Ingresos - Egresos
     const mFlujo=Array(NMESES).fill(0).map((_,i)=>mIngresos[i]-mEgresos[i]);
@@ -2123,52 +2126,140 @@ export default function App(){
 
           {/* ── SECCIÓN: Captura de ingresos ────────────────────────────── */}
           {card(<>
-            {sTitle("Ingresos — Facturación proyectada","Captura el monto a facturar por mes. M0 = instalación (sin facturación). Editable.")}
+            {sTitle("Ingresos — Facturación proyectada","Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.")}
+
+            {/* Precio fijo mensual */}
+            <div style={{background:C.successLight,border:`1px solid #bbf7d0`,borderRadius:10,padding:18,marginBottom:16}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.success,marginBottom:12}}>
+                Precio fijo del servicio (mensual)
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+                <div style={{flex:1,minWidth:200}}>
+                  <div style={{fontSize:11,color:C.grayMid,marginBottom:6}}>Monto a facturar por mes</div>
+                  <MoneyInput value={precioFijo} onChange={v=>{
+                    setPrecioFijo(v);
+                    // Distribuir automáticamente en M1..M12
+                    const meses=pres?.fechaInicio&&pres?.fechaFin
+                      ? Math.max(1,Math.round((new Date(pres.fechaFin)-new Date(pres.fechaInicio))/(1000*60*60*24*30)))
+                      : 12;
+                    const n=Array(13).fill(0);
+                    for(let i=1;i<=Math.min(12,meses);i++) n[i]=v;
+                    setIngresos(n);
+                  }}/>
+                </div>
+                <div style={{textAlign:"center",padding:"10px 20px",background:C.white,borderRadius:8,border:`1px solid #bbf7d0`}}>
+                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4}}>Total proyectado</div>
+                  <div style={{fontSize:18,fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</div>
+                  <div style={{fontSize:10,color:C.grayMid,marginTop:2}}>
+                    {fmt(precioFijo)} × {mIngresos.filter(v=>v>0).length} meses
+                  </div>
+                </div>
+                <button onClick={()=>{setPrecioFijo(0);setIngresos(Array(13).fill(0));}}
+                  style={{padding:"8px 16px",background:C.white,border:`1px solid ${C.grayBorder}`,
+                    borderRadius:6,cursor:"pointer",fontSize:12,color:C.grayMid}}>
+                  Limpiar
+                </button>
+              </div>
+            </div>
+
+            {/* Ingresos adicionales */}
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingresos adicionales</div>
+                  <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc. Se suman al precio fijo.</div>
+                </div>
+                <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
+                  style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
+                    cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
+                  + Agregar ingreso
+                </button>
+              </div>
+              {ingAdicionales.length===0&&(
+                <div style={{padding:"14px 16px",background:"#F8F8F8",borderRadius:8,
+                  border:`1px dashed ${C.grayBorder}`,fontSize:12,color:C.grayMid,textAlign:"center"}}>
+                  Sin ingresos adicionales — solo el precio fijo mensual
+                </div>
+              )}
+              {ingAdicionales.map((ing,idx)=>(
+                <div key={ing.id} style={{display:"grid",gridTemplateColumns:"80px 80px 1fr 1fr 36px",
+                  gap:8,alignItems:"center",padding:"8px 0",
+                  borderBottom:idx<ingAdicionales.length-1?`1px solid ${C.line}`:"none"}}>
+                  <div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Mes *</div>
+                    <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
+                      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}>
+                      {Array.from({length:12},(_,i)=>i+1).map(m=>(
+                        <option key={m} value={m}>M{m} — {MESES[m-1]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Año *</div>
+                    <input type="number" value={ing.anio} min={2024} max={2045}
+                      onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)||2026}:x))}
+                      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Descripción</div>
+                    <input value={ing.desc} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,desc:e.target.value}:x))}
+                      placeholder="Ej. Renovación de contrato"
+                      style={{width:"100%",padding:"6px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:10,color:C.grayMid,marginBottom:3}}>Monto</div>
+                    <MoneyInput value={ing.monto} onChange={v=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,monto:v}:x))}/>
+                  </div>
+                  <button onClick={()=>setIngAd(prev=>prev.filter(x=>x.id!==ing.id))}
+                    style={{background:C.dangerLight,color:C.danger,border:"none",borderRadius:6,
+                      padding:"6px 8px",cursor:"pointer",fontSize:14,marginTop:14}}>×</button>
+                </div>
+              ))}
+              {ingAdicionales.length>0&&(
+                <div style={{marginTop:8,textAlign:"right",fontSize:12,color:C.grayMid}}>
+                  Total adicionales: <strong style={{color:C.success}}>{fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}</strong>
+                </div>
+              )}
+            </div>
+
+            {/* Tabla resumen M0-M12 */}
             <div style={{overflowX:"auto"}}>
-              <table style={{borderCollapse:"collapse",fontSize:11,minWidth:900,width:"100%"}}>
+              <table style={{borderCollapse:"collapse",fontSize:11,minWidth:800,width:"100%"}}>
                 <thead>
                   <tr style={{background:"#059669"}}>
-                    <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:160}}>Concepto</td>
-                    {MESES13.map(m=><td key={m} style={{padding:"7px 4px",textAlign:"right",fontWeight:600,color:"rgba(255,255,255,0.8)",minWidth:60}}>{m}</td>)}
-                    <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total anual</td>
+                    <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
+                    {MESES13.map(m=><td key={m} style={{padding:"6px 4px",textAlign:"right",fontWeight:600,color:"rgba(255,255,255,0.8)",minWidth:55}}>{m}</td>)}
+                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr style={{background:C.successLight}}>
                     <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
                     {mIngresos.map((v,i)=>(
-                      <td key={i} style={{padding:"4px 2px",opacity:i===0?0.4:1}}>
-                        {i===0
-                          ? <div style={{padding:"6px 8px",fontSize:11,color:C.grayMid,textAlign:"right",
-                              background:"#f5f5f5",borderRadius:4,border:`1px solid #ddd`}}>—</div>
-                          : <MoneyInput value={v} onChange={n=>{
-                              const nuevo=[...ingresos];
-                              nuevo[i]=n;
-                              setIngresos(nuevo);
-                            }} style={{fontSize:11,minWidth:80}}/>
-                        }
+                      <td key={i} style={{padding:"5px 4px",textAlign:"right",
+                        color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
+                        {v>0?fmtK(v):"—"}
                       </td>
                     ))}
-                    <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.success}}>
-                      {fmt(totalIngresosAnual)}
-                    </td>
+                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
                   </tr>
+                  {ingAdicionales.length>0&&(
+                    <tr style={{background:"#F0FFF4"}}>
+                      <td style={{padding:"8px 14px",fontWeight:600,color:"#065F46"}}>+ Adicionales</td>
+                      {MESES13.map((_,i)=>{
+                        const suma=ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0);
+                        return <td key={i} style={{padding:"5px 4px",textAlign:"right",
+                          color:suma>0?"#065F46":C.grayBorder,fontWeight:suma>0?600:400}}>
+                          {suma>0?fmtK(suma):"—"}
+                        </td>;
+                      })}
+                      <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:"#065F46"}}>
+                        {fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
-            </div>
-            <div style={{marginTop:10,display:"flex",gap:8,flexWrap:"wrap"}}>
-              <button onClick={()=>{
-                const mensual=parseFloat(prompt("Monto mensual a facturar (M1 a M12):","669600")||"0");
-                if(mensual>0){const n=[0,...Array(12).fill(mensual)];setIngresos(n);}
-              }} style={{padding:"6px 14px",background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,
-                borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:600,color:C.yellowDark}}>
-                Distribuir uniforme →
-              </button>
-              <button onClick={()=>setIngresos(Array(13).fill(0))}
-                style={{padding:"6px 14px",background:C.grayLight,border:`1px solid ${C.grayBorder}`,
-                  borderRadius:6,cursor:"pointer",fontSize:12,color:C.grayMid}}>
-                Limpiar
-              </button>
             </div>
           </>)}
 
@@ -2229,7 +2320,7 @@ export default function App(){
                 </div>
               ))}
             </div>
-            <FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240}/>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240}/></div>
           </>)}
 
           {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
@@ -2245,7 +2336,7 @@ export default function App(){
                     </div>
                   ))}
                 </div>
-                <CatLinesChart series={catOpexSeries} height={240}/>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240}/></div>
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
           </>)}
