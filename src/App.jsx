@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube } from "./supabaseApi";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -426,9 +426,20 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   const [txt,setTxt]=useState(value||"");
   const [macroModal,setMacroModal]=useState(false);
   const [newCatPending,setNewCatPending]=useState("");
+  const [pos,setPos]=useState({top:0,left:0,width:0});
   const ref=useRef();
   const allOpts=[...new Set([...options,...getCats()])];
   const filtered=allOpts.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
+
+  // El menú se renderiza con position:fixed (ver abajo) para no ser recortado
+  // por contenedores con overflow:hidden/auto (ej. el scroll horizontal de las
+  // tablas de partidas) — por eso necesita su posición calculada explícitamente.
+  function updatePos(){
+    if(!ref.current) return;
+    const r=ref.current.getBoundingClientRect();
+    setPos({top:r.bottom+4, left:r.left, width:r.width});
+  }
+  function openMenu(){ updatePos(); setOpen(true); }
 
   useEffect(()=>{setTxt(value||"");},[value]);
   useEffect(()=>{
@@ -436,6 +447,16 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
     document.addEventListener("mousedown",h);
     return()=>document.removeEventListener("mousedown",h);
   },[]);
+  useEffect(()=>{
+    if(!open) return;
+    function onScrollOrResize(){ updatePos(); }
+    window.addEventListener("scroll",onScrollOrResize,true);
+    window.addEventListener("resize",onScrollOrResize);
+    return()=>{
+      window.removeEventListener("scroll",onScrollOrResize,true);
+      window.removeEventListener("resize",onScrollOrResize);
+    };
+  },[open]);
 
   function pick(v){
     setTxt(v);onChange(v);setOpen(false);
@@ -478,8 +499,8 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   return(
     <div ref={ref} style={{position:"relative"}}>
       <input value={txt}
-        onChange={e=>{setTxt(e.target.value);onChange(e.target.value);setOpen(true);}}
-        onFocus={()=>setOpen(true)}
+        onChange={e=>{setTxt(e.target.value);onChange(e.target.value);openMenu();}}
+        onFocus={openMenu}
         onKeyDown={e=>{if(e.key==="Enter"&&txt.trim())handleNewCat(txt);}}
         placeholder={placeholder}
         style={{width:"100%",padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
@@ -489,7 +510,7 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
         onBlurCapture={e=>e.target.style.borderColor=C.grayBorder}
       />
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:1000,
+        <div style={{position:"fixed",top:pos.top,left:pos.left,width:pos.width,zIndex:1000,
           background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:8,
           maxHeight:340,overflowY:"auto",boxShadow:"0 8px 28px rgba(0,0,0,0.15)"}}>
           {allowCustom&&txt&&!allOpts.map(o=>o.toUpperCase()).includes(txt.toUpperCase())&&(
@@ -575,16 +596,16 @@ function FL({children,required}){
 
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
-function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false}){
+function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto}){
   const cols = showMes
     ? "1.8fr 1.6fr 84px 64px 150px 114px 108px 34px"
     : showPeriod
-      ? "1.8fr 1.6fr 84px 64px 136px 114px 108px 34px"
+      ? "1.8fr 1.6fr 84px 64px 150px 114px 108px 34px"
       : "2fr 2fr 90px 76px 1fr 100px 34px";
   const headers = showMes
     ? ["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
     : showPeriod
-      ? ["Categoría","Descripción","Unidad","Cant.","Periodicidad","Monto unit.","Total",""]
+      ? ["Categoría","Descripción","Unidad","Cant.","Periodicidad / Inicio","Monto unit.","Total",""]
       : ["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""];
   return(
     <div>
@@ -690,15 +711,37 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     fontSize:10,width:"100%",background:C.white}}>
                   {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
                 </select>
-                <select value={p.mesInicioOpex||1} onChange={e=>onUpdate({...p,mesInicioOpex:parseInt(e.target.value)})}
-                  className="sel-brand"
-                  title="¿En qué mes del proyecto inicia este gasto? M1 = primer mes de operación (después de M0, instalación)"
-                  style={{padding:"6px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                    fontSize:10,width:"100%",background:C.white,color:C.grayMid}}>
-                  {Array.from({length:12},(_,i)=>i+1).map(m=>(
-                    <option key={m} value={m}>Inicia M{m}</option>
-                  ))}
-                </select>
+                <div style={{display:"flex",gap:3}}>
+                  <select value={p.mesGastoMes||""}
+                    onChange={e=>{
+                      const mesGastoMes=e.target.value;
+                      const idx=mesIndexCapex({...p,mesGastoMes},fechaInicioProyecto,12);
+                      onUpdate({...p,mesGastoMes,mesInicioOpex:mesGastoMes&&p.mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
+                    }}
+                    className="sel-brand"
+                    title="¿En qué mes del calendario inicia este gasto? Se convierte automáticamente al mes del proyecto."
+                    style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                      fontSize:10,width:"50%",background:C.white,color:C.grayDark}}>
+                    <option value="">Mes</option>
+                    {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
+                      <option key={i} value={i+1}>{m}</option>
+                    ))}
+                  </select>
+                  <input type="number" min="2024" max="2045"
+                    value={p.mesGastoAnio||""}
+                    onChange={e=>{
+                      const mesGastoAnio=e.target.value;
+                      const idx=mesIndexCapex({...p,mesGastoAnio},fechaInicioProyecto,12);
+                      onUpdate({...p,mesGastoAnio,mesInicioOpex:p.mesGastoMes&&mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
+                    }}
+                    placeholder="Año"
+                    title="Año en que inicia este gasto"
+                    style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                      fontSize:10,width:"50%",textAlign:"center",background:C.white}}/>
+                </div>
+                {p.mesInicioOpex&&!p.mesGastoMes&&(
+                  <div style={{fontSize:9,color:C.grayMid}}>Inicia M{p.mesInicioOpex} (sin fecha)</div>
+                )}
               </div>
             )}
             <MoneyInput value={p.monto} onChange={v=>onUpdate({...p,monto:v})}/>
@@ -1360,6 +1403,27 @@ export default function App(){
     setPresToOpen(p);
   }
 
+  // Eliminar presupuesto — acción destructiva, requiere confirmación explícita
+  async function eliminarPresupuesto(p){
+    const ok = window.confirm(`¿Eliminar el presupuesto "${p.nombre}"? Esta acción no se puede deshacer.`);
+    if(!ok) return;
+    const nuevaLista = lista.filter(x=>x.id!==p.id);
+    setLista(nuevaLista);
+    const presRestante = pres?.id===p.id ? null : pres;
+    if(pres?.id===p.id) setPres(null);
+    // Guardar explícito: el autoguardado normal no corre si no hay presupuesto
+    // activo (ej. borrando desde la lista sin haber abierto nada) — sin esto,
+    // el ítem borrado podría "resucitar" desde localStorage tras un refresh.
+    saveAppState({pres:presRestante,areas,costos,capexPM,opexPM,lista:nuevaLista,areaSaved,step,ingresos,precioFijo,ingAdicionales});
+    if(supabase && typeof p.id === "string"){
+      const res = await eliminarPresupuestoDeNube(p.id);
+      if(!res.ok) showToast("No se pudo eliminar de la nube — revisa tu conexión");
+      else showToast("Presupuesto eliminado");
+    } else {
+      showToast("Presupuesto eliminado");
+    }
+  }
+
   // PUNTO 9: Clonar presupuesto como base de uno nuevo
   function clonarPresupuesto(p){
     const hoy = new Date().toISOString().slice(0,10);
@@ -1722,6 +1786,19 @@ export default function App(){
                 Ver Resumen mensual →
               </button>
             )}
+            {pres&&(step===3||step===4)&&(
+              <button onClick={async()=>{ await eliminarPresupuesto(pres); setStep(0); }}
+                title="Eliminar este presupuesto (no se puede deshacer)"
+                style={{width:30,height:30,padding:0,background:"transparent",
+                  border:`1px solid ${C.grayBorder}`,borderRadius:7,
+                  cursor:"pointer",fontSize:13,color:C.grayMid,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  transition:"all 0.15s"}}
+                onMouseEnter={e=>{e.currentTarget.style.background=C.dangerLight;e.currentTarget.style.borderColor=C.danger;e.currentTarget.style.color=C.danger;}}
+                onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=C.grayBorder;e.currentTarget.style.color=C.grayMid;}}>
+                🗑
+              </button>
+            )}
             <span style={{fontSize:12,color:C.grayMid}}>{form.empresa||pres?.empresa||"GEOLIS SA DE CV"}</span>
           </div>
         </header>
@@ -1745,7 +1822,7 @@ export default function App(){
       <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
         overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
         {/* Header tabla */}
-        <div style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 160px",gap:0,
+        <div style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",gap:0,
           padding:"10px 20px",background:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
           {["Proyecto","Tipo","Estado","Acciones"].map((h,i)=>(
             <div key={h} style={{fontSize:11,fontWeight:700,color:C.grayMid,
@@ -1754,7 +1831,7 @@ export default function App(){
           ))}
         </div>
         {lista.map((p,i)=>(
-          <div key={p.id} style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 160px",
+          <div key={p.id} style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",
             gap:0,alignItems:"center",padding:"14px 20px",
             background:i%2===0?C.white:"#FAFAFA",
             borderBottom:i<lista.length-1?`1px solid ${C.line}`:"none",
@@ -1785,6 +1862,17 @@ export default function App(){
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>
                 Clonar
+              </button>
+              <button onClick={()=>eliminarPresupuesto(p)}
+                title="Eliminar presupuesto (no se puede deshacer)"
+                style={{width:30,height:30,padding:0,background:C.white,
+                  border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  cursor:"pointer",fontSize:14,color:C.grayMid,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  transition:"all 0.15s"}}
+                onMouseEnter={e=>{e.currentTarget.style.background=C.dangerLight;e.currentTarget.style.borderColor=C.danger;e.currentTarget.style.color=C.danger;}}
+                onMouseLeave={e=>{e.currentTarget.style.background=C.white;e.currentTarget.style.borderColor=C.grayBorder;e.currentTarget.style.color=C.grayMid;}}>
+                🗑
               </button>
             </div>
           </div>
@@ -2259,7 +2347,7 @@ export default function App(){
                     catOptions={CAT_OPEX}
                     addLabel="Agregar material"
                     headerColor="#0891b2"
-                    showPeriod={true}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio}/>
                 </SCard>
 
                 {/* Viáticos */}
@@ -2274,7 +2362,7 @@ export default function App(){
                     catOptions={CAT_OPEX}
                     addLabel="Agregar viático"
                     headerColor="#d97706"
-                    showPeriod={true}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio}/>
                 </SCard>
 
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
@@ -2610,7 +2698,7 @@ export default function App(){
                 Precio fijo del servicio (mensual)
               </div>
               <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
-                <div style={{flex:1,minWidth:200}}>
+                <div style={{width:220,maxWidth:220,flexShrink:0}}>
                   <div style={{fontSize:11,color:C.grayMid,marginBottom:6}}>Monto a facturar por mes</div>
                   <MoneyInput value={precioFijo} onChange={v=>{
                     setPrecioFijo(v);

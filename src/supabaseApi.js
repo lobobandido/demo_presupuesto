@@ -57,6 +57,15 @@ export async function listarPresupuestos(){
   }));
 }
 
+// ─── ELIMINAR (borra el presupuesto y, por cascada, sus áreas/partidas) ─────
+export async function eliminarPresupuestoDeNube(id){
+  if(!supabase) return {ok:false, error:"Supabase no configurado"};
+  const {error} = await supabase.from("presupuestos").delete().eq("id", id);
+  if(error){ console.error("[supabase] eliminarPresupuesto:", error.message); return {ok:false, error:error.message}; }
+  console.log("[supabase] presupuesto eliminado:", id);
+  return {ok:true};
+}
+
 // ─── GUARDAR (crea o reemplaza por completo el presupuesto en la nube) ──────
 export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAdicionales, precioFijo}){
   if(!supabase) return null;
