@@ -568,8 +568,8 @@ const CAT_OPEX=[
 // ─── FIELD LABEL ─────────────────────────────────────────────────────────────
 function FL({children,required}){
   return <label style={{fontSize:11,fontWeight:700,color:C.grayMid,
-    textTransform:"uppercase",letterSpacing:0.4,display:"block",marginBottom:5}}>
-    {children}{required&&<span style={{color:C.danger,marginLeft:2}}>*</span>}
+    textTransform:"uppercase",letterSpacing:0.4,display:"block",marginBottom:6}}>
+    {children}{required&&<span style={{color:C.danger,marginLeft:3,fontSize:13,fontWeight:800}}>*</span>}
   </label>;
 }
 
@@ -588,6 +588,10 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
       : ["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""];
   return(
     <div>
+    {/* Scroll horizontal de seguridad: en pantallas angostas (tablet) evita que
+        las columnas de la tabla se encimen — no cambia el layout en desktop */}
+    <div style={{overflowX:"auto"}}>
+    <div style={{minWidth:640}}>
       {/* Headers internos */}
       {partidas.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:cols,
@@ -705,9 +709,18 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
           </div>
         );
       })}
+    </div>
+    </div>
+      {/* Estado vacío */}
+      {partidas.length===0&&(
+        <div style={{padding:"18px 12px",textAlign:"center",color:C.grayMid,fontSize:12,
+          background:"#FAFAFA",borderRadius:8,marginBottom:10}}>
+          Aún no hay partidas capturadas en esta sección.
+        </div>
+      )}
       {/* Add row */}
       <button onClick={onAdd}
-        style={{width:"100%",marginTop:10,padding:"9px",
+        style={{width:"100%",marginTop:partidas.length===0?0:10,padding:"9px",
           border:`1.5px dashed ${C.grayBorder}`,borderRadius:6,
           background:"transparent",cursor:"pointer",color:C.grayMid,
           fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6,
@@ -724,12 +737,14 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
 function NominaTable({nomina,onUpdate,onRemove,onAdd}){
   return(
     <div>
+    <div style={{overflowX:"auto"}}>
+    <div style={{minWidth:640}}>
       {nomina.length>0&&(
         <div style={{display:"grid",
           gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
           gap:8,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
-          {["Puesto","Tipo","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo total",""].map((h,i)=>(
+          {["Puesto","Tipo","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo anual",""].map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
               textAlign:i>=2?"right":"left"}}>{h}</div>
@@ -813,8 +828,16 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
           </div>
         );
       })}
+    </div>
+    </div>
+      {nomina.length===0&&(
+        <div style={{padding:"18px 12px",textAlign:"center",color:C.grayMid,fontSize:12,
+          background:"#FAFAFA",borderRadius:8,marginBottom:10}}>
+          Aún no hay puestos de nómina capturados en esta área.
+        </div>
+      )}
       <button onClick={onAdd}
-        style={{width:"100%",marginTop:10,padding:"9px",
+        style={{width:"100%",marginTop:nomina.length===0?0:10,padding:"9px",
           border:"1.5px dashed #bbf7d0",borderRadius:6,
           background:"transparent",cursor:"pointer",color:"#059669",
           fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
@@ -830,20 +853,23 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
 function SCard({title,subtitle,total,accentColor,children}){
   return(
     <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,
-      borderRadius:10,overflow:"hidden",marginBottom:14,
+      borderRadius:10,overflow:"hidden",marginBottom:16,
       boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
-      <div style={{padding:"12px 18px",display:"flex",justifyContent:"space-between",
+      <div style={{padding:"14px 20px",display:"flex",justifyContent:"space-between",
         alignItems:"center",borderBottom:`1px solid ${C.line}`,
-        borderLeft:`3px solid ${accentColor}`}}>
+        borderLeft:`3px solid ${accentColor}`,background:"#FCFCFC"}}>
         <div>
-          <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>{title}</div>
-          {subtitle&&<div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{subtitle}</div>}
+          <div style={{fontWeight:700,fontSize:15,color:C.grayDark,letterSpacing:0.2}}>{title}</div>
+          {subtitle&&<div style={{fontSize:11.5,color:C.grayMid,marginTop:3,lineHeight:1.4}}>{subtitle}</div>}
         </div>
         {total!==undefined&&(
-          <div style={{fontSize:15,fontWeight:800,color:accentColor}}>{fmt(total)}</div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:9,fontWeight:700,color:C.grayMid,textTransform:"uppercase",letterSpacing:0.5}}>Total anual</div>
+            <div style={{fontSize:16,fontWeight:800,color:accentColor}}>{fmt(total)}</div>
+          </div>
         )}
       </div>
-      <div style={{padding:18}}>{children}</div>
+      <div style={{padding:20}}>{children}</div>
     </div>
   );
 }
@@ -1503,19 +1529,31 @@ export default function App(){
   }
 
   // ── BTN ──────────────────────────────────────────────────────────────────────
-  const btn=(label,onClick,variant="primary",disabled=false)=>(
-    <button onClick={onClick} disabled={disabled} style={{
-      padding:"9px 22px",borderRadius:8,border:"none",
-      cursor:disabled?"not-allowed":"pointer",fontWeight:700,fontSize:13,
-      transition:"opacity 0.15s",opacity:disabled?0.5:1,
-      background:variant==="primary"?C.yellow:variant==="success"?C.success:
-        variant==="danger"?C.danger:C.white,
-      color:variant==="primary"?C.grayDark:variant==="success"||variant==="danger"?C.white:C.grayMid,
-      outline:variant==="secondary"?`1px solid ${C.grayBorder}`:"none",
-      boxShadow:variant==="primary"?"0 2px 8px rgba(221,172,0,0.3)":
-        variant==="success"?"0 2px 8px rgba(30,126,52,0.25)":"none",
-    }}>{label}</button>
-  );
+  // Jerarquía visual: primary/success = acción principal (llenas, con sombra),
+  // secondary = acción secundaria (borde, sin relleno), danger = destructiva.
+  const btn=(label,onClick,variant="primary",disabled=false)=>{
+    const bg=variant==="primary"?C.yellow:variant==="success"?C.success:
+      variant==="danger"?C.danger:C.white;
+    const bgHover=variant==="primary"?C.yellowDark:variant==="success"?"#166430":
+      variant==="danger"?"#a5321f":C.grayLight;
+    const isFilled=variant==="primary"||variant==="success"||variant==="danger";
+    return(
+      <button onClick={onClick} disabled={disabled} style={{
+        padding:isFilled?"10px 24px":"9px 20px",borderRadius:8,
+        border:isFilled?"none":`1.5px solid ${C.grayBorder}`,
+        cursor:disabled?"not-allowed":"pointer",
+        fontWeight:isFilled?700:600,fontSize:13,
+        transition:"all 0.15s",opacity:disabled?0.5:1,
+        background:bg,
+        color:variant==="primary"?C.grayDark:variant==="success"||variant==="danger"?C.white:C.grayMid,
+        boxShadow:variant==="primary"?"0 2px 8px rgba(221,172,0,0.3)":
+          variant==="success"?"0 2px 8px rgba(30,126,52,0.25)":"none",
+      }}
+      onMouseEnter={e=>{if(!disabled)e.currentTarget.style.background=bgHover;}}
+      onMouseLeave={e=>{if(!disabled)e.currentTarget.style.background=bg;}}
+      >{label}</button>
+    );
+  };
 
   // ── LAYOUT ───────────────────────────────────────────────────────────────────
   const NAV=[
@@ -1529,11 +1567,13 @@ export default function App(){
   const wrap=(children,bc="")=>(
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"Inter,-apple-system,sans-serif",background:C.contentBg}}>
       <style>{`
-        @media (max-width: 900px) {
+        @media (max-width: 1024px) {
           .sidebar-nav { width: 60px !important; }
           .sidebar-nav .nav-label { display: none !important; }
           .sidebar-nav .sidebar-logo-text { display: none !important; }
           .main-content { margin-left: 60px !important; }
+          .capture-grid { grid-template-columns: 1fr !important; }
+          .resumen-kpi { grid-template-columns: 1fr 1fr 1fr !important; }
         }
         @media (max-width: 768px) {
           .sidebar-nav { display: none !important; }
@@ -1557,7 +1597,7 @@ export default function App(){
       `}</style>
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       {/* Sidebar */}
-      <aside style={{width:220,background:C.sidebar,flexShrink:0,
+      <aside className="sidebar-nav" style={{width:220,background:C.sidebar,flexShrink:0,
         display:"flex",flexDirection:"column",position:"fixed",
         top:0,left:0,bottom:0,zIndex:50}}>
         <div style={{padding:"22px 20px 18px",borderBottom:"1px solid #222"}}>
@@ -1767,11 +1807,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",   desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
+                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente",   icon:"🔁"},
+                    {id:"departamento",label:"Departamento", desc:"Área interna",          icon:"🏢"},
+                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales",  icon:"📦"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
@@ -1972,7 +2011,7 @@ export default function App(){
         </div>
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
           padding:24,marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-          <div className="areas-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          <div className="areas-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
             {cats.map(a=>{
               const sel=areas.includes(a.id);
               return(
@@ -2646,12 +2685,15 @@ export default function App(){
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
               {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
               {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
-              {l:`Utilidad ${margen.toFixed(1)}%`,v:utilidad,
+              {l:"Utilidad y margen",v:utilidad,badge:`${margen.toFixed(1)}%`,
                 c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
             ].map(k=>(
               <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
                 borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-                <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
+                  {k.badge&&<div style={{fontSize:11,fontWeight:800,color:k.c}}>{k.badge}</div>}
+                </div>
                 <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
               </div>
             ))}
