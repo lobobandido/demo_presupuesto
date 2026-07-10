@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { supabase } from "./supabaseClient";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -65,21 +67,21 @@ const HISTORIAL_NOMINA = {
 
 // OPEX histórico de Cuervito (pestaña SERVICIO)
 const HISTORIAL_OPEX_BASE = [
-  {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Mes",    cantidad:12,  monto:13000},
-  {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad", cantidad:1,   monto:40000},
-  {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad", cantidad:1,   monto:84000},
-  {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Mes",    cantidad:12,  monto:2700},
-  {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Mes",    cantidad:12,  monto:2700},
-  {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global", cantidad:1,   monto:810000},
-  {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Mes",    cantidad:12,  monto:73490.13},
-  {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Mes",    cantidad:12,  monto:66000},
-  {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global", cantidad:1,   monto:1294000},
-  {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Mes",    cantidad:12,  monto:26216.67},
-  {cat:"VIATICOS",                     desc:"Alimentación y hospedaje",              unidad:"Día",    cantidad:30,  monto:800},
-  {cat:"VIATICOS",                     desc:"Casetas, puentes y peajes",             unidad:"Mes",    cantidad:12,  monto:500},
-  {cat:"SERVICIOS DE CAPACITACION",    desc:"Capacitación técnica especializada",    unidad:"Servicio",cantidad:1,  monto:15000},
-  {cat:"UNIFORMES",                    desc:"Uniformes y ropa de trabajo",           unidad:"Unidad", cantidad:10,  monto:1200},
-  {cat:"MARKETING",                    desc:"Materiales de marketing y publicidad",  unidad:"Mes",    cantidad:1,   monto:5000},
+  {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Servicio",cantidad:1, monto:13000, periodicidad:"mensual"},
+  {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad", cantidad:1,   monto:40000, periodicidad:"anual"},
+  {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad", cantidad:1,   monto:84000, periodicidad:"anual"},
+  {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Servicio",cantidad:1, monto:2700,  periodicidad:"mensual"},
+  {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Servicio",cantidad:1, monto:2700,  periodicidad:"mensual"},
+  {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global", cantidad:1,   monto:810000, periodicidad:"anual"},
+  {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Servicio",cantidad:1, monto:73490.13,periodicidad:"mensual"},
+  {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Servicio",cantidad:1, monto:66000, periodicidad:"mensual"},
+  {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global", cantidad:1,   monto:1294000, periodicidad:"anual"},
+  {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Servicio",cantidad:1, monto:26216.67,periodicidad:"mensual"},
+  {cat:"VIATICOS",                     desc:"Alimentación y hospedaje",              unidad:"Día",    cantidad:30,  monto:800,   periodicidad:"mensual"},
+  {cat:"VIATICOS",                     desc:"Casetas, puentes y peajes",             unidad:"Servicio",cantidad:1, monto:500,   periodicidad:"mensual"},
+  {cat:"SERVICIOS DE CAPACITACION",    desc:"Capacitación técnica especializada",    unidad:"Servicio",cantidad:1,  monto:15000, periodicidad:"anual"},
+  {cat:"UNIFORMES",                    desc:"Uniformes y ropa de trabajo",           unidad:"Unidad", cantidad:10,  monto:1200,  periodicidad:"anual"},
+  {cat:"MARKETING",                    desc:"Materiales de marketing y publicidad",  unidad:"Servicio",cantidad:1, monto:5000,  periodicidad:"mensual"},
 ];
 
 function getHistorialLS(){
@@ -174,16 +176,16 @@ const PLANTILLAS={
     ],
     // ── OPEX real del archivo Excel (pestaña SERVICIO/EGRESOS) ───────────────
     opex:[
-      {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Mes",      cantidad:12, monto:13000},
-      {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad",   cantidad:1,  monto:40000},
-      {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad",   cantidad:1,  monto:84000},
-      {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Mes",      cantidad:12, monto:2700},
-      {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Mes",      cantidad:12, monto:2700},
-      {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global",   cantidad:1,  monto:810000},
-      {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Mes",      cantidad:12, monto:73490.13},
-      {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Mes",      cantidad:12, monto:66000},
-      {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global",   cantidad:1,  monto:1294000},
-      {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Mes",      cantidad:12, monto:26216.67},
+      {cat:"ARRENDA DE INMUEBLES Y SERV",  desc:"Arrendamiento de inmuebles y servicios", unidad:"Servicio", cantidad:1,  monto:13000,   periodicidad:"mensual"},
+      {cat:"ARTICULOS DE SEGURIDAD",       desc:"Ropa y artículos de protección EPP",     unidad:"Unidad",   cantidad:1,  monto:40000, periodicidad:"anual"},
+      {cat:"EQUIPO DE COMPUTO",            desc:"Equipo de cómputo adquisición",          unidad:"Unidad",   cantidad:1,  monto:84000, periodicidad:"anual"},
+      {cat:"INSUMOS OPERATIVOS",           desc:"Insumos operativos varios",              unidad:"Servicio", cantidad:1,  monto:2700,    periodicidad:"mensual"},
+      {cat:"INSUMOS DE OFICINA",           desc:"Papelería y útiles de oficina",          unidad:"Servicio", cantidad:1,  monto:2700,    periodicidad:"mensual"},
+      {cat:"MATERIALES",                   desc:"Poste de telemetría y materiales",       unidad:"Global",   cantidad:1,  monto:810000, periodicidad:"anual"},
+      {cat:"NOMINA Y ADICIONALES",         desc:"Nómina y adicionales mensual",           unidad:"Servicio", cantidad:1,  monto:73490.13,periodicidad:"mensual"},
+      {cat:"SERV TELEFONIA CELULAR Y RADIO",desc:"Servicio telefonía celular y radio",    unidad:"Servicio", cantidad:1,  monto:66000,   periodicidad:"mensual"},
+      {cat:"SERVICIOS",                    desc:"Cuadrilla de instalación y herramienta", unidad:"Global",   cantidad:1,  monto:1294000, periodicidad:"anual"},
+      {cat:"VEHICULOS Y COMBUSTIBLE",      desc:"Vehículos y combustible mensual",        unidad:"Servicio", cantidad:1,  monto:26216.67,periodicidad:"mensual"},
     ],
     // ── Nómina real del archivo Excel F01 NÓMINA ─────────────────────────────
     nomina:[
@@ -255,27 +257,38 @@ const PERIODICIDADES = [
   {id:"anual",        label:"Anual",        factor:1/12},
 ];
 
+const PM_INTERVALO = {mensual:1, bimestral:2, trimestral:3, semestral:6, anual:12};
+
 // Calcula cuántas veces ocurre el gasto durante N meses del proyecto
 function vecesEnProyecto(periodicidad, numMeses=12){
-  const pm = {mensual:1, bimestral:2, trimestral:3, semestral:6, anual:12};
-  const intervalo = pm[periodicidad]||1;
+  const intervalo = PM_INTERVALO[periodicidad]||1;
   return Math.ceil(numMeses / intervalo);
 }
 
-// Total OPEX de una partida = monto × veces en el proyecto
-function totalOpexPartida(p, numMeses=12){
-  return (p.monto||0) * (p.cantidad||1) * vecesEnProyecto(p.periodicidad||"mensual", numMeses);
-}
-
-// Distribuye el OPEX en los meses correctos según periodicidad
+// Distribuye el OPEX en los meses correctos según periodicidad y mes de inicio.
+// M0 nunca lleva OPEX (es el mes de instalación) — el mínimo mes de inicio es M1.
 function distribuirOpex(p, numMeses=12){
-  const pm = {mensual:1, bimestral:2, trimestral:3, semestral:6, anual:12};
-  const intervalo = pm[p.periodicidad||"mensual"]||1;
+  const intervalo = PM_INTERVALO[p.periodicidad||"mensual"]||1;
+  const inicio = Math.max(1, p.mesInicioOpex||1);
   const montoMes = (p.monto||0)*(p.cantidad||1);
   return Array(numMeses+1).fill(0).map((_,i)=>{
-    if(i===0) return 0; // M0 sin OPEX
-    return (i-1) % intervalo === 0 ? montoMes : 0;
+    if(i<inicio) return 0;
+    return (i-inicio) % intervalo === 0 ? montoMes : 0;
   });
+}
+
+// Total OPEX de una partida en el proyecto = suma de su distribución mensual real
+function totalOpexPartida(p, numMeses=12){
+  return distribuirOpex(p, numMeses).reduce((s,v)=>s+v, 0);
+}
+
+// Índice de mes (0=M0) en que cae una compra CAPEX, según su fecha real vs. fecha de inicio del proyecto
+function mesIndexCapex(p, fechaInicio, numMeses=12){
+  if(!p.mesGastoMes || !p.mesGastoAnio || !fechaInicio) return 0;
+  const inicio = new Date(fechaInicio+"T00:00:00");
+  const anioIni = inicio.getFullYear(), mesIni = inicio.getMonth()+1;
+  const diff = (parseInt(p.mesGastoAnio)-anioIni)*12 + (parseInt(p.mesGastoMes)-mesIni);
+  return Math.min(Math.max(diff,0), numMeses);
 }
 
 // Meses activos de un puesto de nómina
@@ -286,11 +299,21 @@ function mesesNomina(puesto, numMeses=12){
   return numMeses;
 }
 
-// Costo total nómina de un puesto en el proyecto
-function costoTotalNomina(puesto, numMeses=12){
+// Distribuye el costo de nómina de un puesto en los meses en que está activo
+function distribuirNomina(puesto, numMeses=12){
   const f=1+(puesto.imss||F_IMSS)+(puesto.prestaciones||F_PREST)+(puesto.isr||F_ISR);
   const costoMes=(puesto.salario||0)*f*(puesto.cantidad||1);
-  return costoMes * mesesNomina(puesto, numMeses);
+  const duracion = mesesNomina(puesto, numMeses);
+  const inicio = puesto.tipoPersonal==="fijo" ? 1 : Math.max(1, puesto.mesInicio||1);
+  return Array(numMeses+1).fill(0).map((_,i)=>{
+    if(i<inicio || i>=inicio+duracion) return 0;
+    return costoMes;
+  });
+}
+
+// Costo total nómina de un puesto en el proyecto
+function costoTotalNomina(puesto, numMeses=12){
+  return distribuirNomina(puesto, numMeses).reduce((s,v)=>s+v, 0);
 }
 
 // ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
@@ -553,17 +576,24 @@ function FL({children,required}){
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false}){
+  const cols = showMes
+    ? "1.8fr 1.6fr 75px 55px 132px 100px 95px 28px"
+    : showPeriod
+      ? "1.8fr 1.6fr 75px 55px 118px 100px 95px 28px"
+      : "2fr 2fr 80px 70px 1fr 90px 32px";
+  const headers = showMes
+    ? ["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
+    : showPeriod
+      ? ["Categoría","Descripción","Unidad","Cant.","Periodicidad","Monto unit.","Total",""]
+      : ["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""];
   return(
     <div>
       {/* Headers internos */}
       {partidas.length>0&&(
-        <div style={{display:"grid",gridTemplateColumns:showMes?"2fr 2fr 80px 70px 70px 1fr 90px 32px":"2fr 2fr 80px 70px 1fr 90px 32px",
+        <div style={{display:"grid",gridTemplateColumns:cols,
           gap:8,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
-          {(showMes
-            ?["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
-            :["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""]
-          ).map((h,i)=>(
+          {headers.map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
               textAlign:i>=3?"right":"left"}}>{h}</div>
@@ -575,7 +605,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
         const total=(p.cantidad||0)*(p.monto||0);
         return(
           <div key={p.id} style={{display:"grid",
-            gridTemplateColumns:showMes?"2fr 2fr 80px 70px 70px 1fr 90px 32px":"2fr 2fr 80px 70px 1fr 90px 32px",
+            gridTemplateColumns:cols,
             gap:8,alignItems:"center",padding:"6px 0",
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
@@ -584,7 +614,8 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                 // El dropdown de sugerencias se activa cuando hay historial
               }} options={catOptions} placeholder="Categoría"
                 onPartidaSelect={hist=>{
-                  if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto});
+                  if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
+                    periodicidad:hist.periodicidad||p.periodicidad});
                 }}/>
               {/* Sugerencias históricas al escribir categoría */}
               {p.cat&&buscarHistorial(p.cat,catOptions===CAT_CAPEX?"capex":"opex").length>0&&!p.desc&&(
@@ -592,7 +623,8 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   <div style={{fontSize:9,color:C.grayMid,marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Sugerencias del historial:</div>
                   <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
                     {buscarHistorial(p.cat,catOptions===CAT_CAPEX?"capex":"opex").map((h,hi)=>(
-                      <button key={hi} onClick={()=>onUpdate({...p,cat:h.cat,desc:h.desc,unidad:h.unidad,cantidad:h.cantidad,monto:h.monto})}
+                      <button key={hi} onClick={()=>onUpdate({...p,cat:h.cat,desc:h.desc,unidad:h.unidad,cantidad:h.cantidad,monto:h.monto,
+                        periodicidad:h.periodicidad||p.periodicidad})}
                         style={{padding:"3px 8px",background:C.yellowLight,border:`1px solid ${C.yellowBorder}`,
                           borderRadius:4,cursor:"pointer",fontSize:10,color:C.yellowDark,fontWeight:600,
                           maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
@@ -652,11 +684,11 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
                 </select>
                 <select value={p.mesInicioOpex||1} onChange={e=>onUpdate({...p,mesInicioOpex:parseInt(e.target.value)})}
-                  title="¿En qué mes inicia este gasto?"
+                  title="¿En qué mes del proyecto inicia este gasto? M1 = primer mes de operación (después de M0, instalación)"
                   style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                     fontSize:10,width:"100%",background:C.white,color:C.grayMid}}>
-                  {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
-                    <option key={i} value={i+1}>Inicia {m}</option>
+                  {Array.from({length:12},(_,i)=>i+1).map(m=>(
+                    <option key={m} value={m}>Inicia M{m}</option>
                   ))}
                 </select>
               </div>
@@ -904,8 +936,14 @@ function BarChart({items,height=260}){
 
 // ─── EXPORTAR EXCEL (SheetJS) ────────────────────────────────────────────────
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
-  mFlujo, mFlujoAcum, mIngresos, totalCAPEX, totalOPEX, totalEgr,
-  totalIngresosAnual, MESES13, NMESES, totalNom, totalCat}) {
+  mFlujo: mFlujoBase, mFlujoAcum: mFlujoAcumBase, mIngresos: mIngresosBase, totalCAPEX, totalOPEX, totalEgr,
+  totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[]}) {
+  // Incorporar ingresos adicionales por mes (la tabla de captura ya los suma aparte;
+  // aquí se fusionan en la fila FACTURACIÓN para que el Excel cuadre con el total anual).
+  // Flujo y acumulado se recalculan localmente para que todo el libro quede consistente.
+  const mIngresos = mIngresosBase.map((v,i)=>v+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
+  const mFlujo = mIngresos.map((v,i)=>v-mEgresos[i]);
+  const mFlujoAcum = mFlujo.reduce((acc,v,i)=>{ acc.push(i===0?v:acc[i-1]+v); return acc; },[]);
   // Cargar SheetJS con soporte de estilos
   if(!window.XLSX){
     await new Promise((res,rej)=>{
@@ -958,17 +996,20 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
     ["OPEX",totalOPEX,...mOpex],
     ["ACUMULADO","",...mFlujoAcum],
   ];
-  // Agregar detalle por categoría OPEX
+  // Agregar detalle por categoría OPEX (respeta periodicidad — debe sumar al mismo
+  // totalOPEX que ya se muestra arriba; usar la suma cruda cantidad*monto aquí
+  // subestimaba/sobreestimaba partidas no mensuales)
   const catMap={};
   areas.forEach(id=>{
     ["mat","via"].forEach(c=>{
       (costos[id]?.[c]||[]).forEach(p=>{
         const k=p.cat||"SIN CAT";
-        catMap[k]=(catMap[k]||0)+(p.cantidad||0)*(p.monto||0);
+        catMap[k]=(catMap[k]||0)+totalOpexPartida(p,12);
       });
     });
-    const nom=totalNom(id);
-    if(nom>0) catMap["NOMINA Y ADICIONALES"]=(catMap["NOMINA Y ADICIONALES"]||0)+nom*12;
+    (costos[id]?.nomina||[]).forEach(p=>{
+      catMap["NOMINA Y ADICIONALES"]=(catMap["NOMINA Y ADICIONALES"]||0)+costoTotalNomina(p,12);
+    });
   });
   Object.entries(catMap).sort().forEach(([cat,total])=>{
     const mens=parseFloat((total/12).toFixed(2));
@@ -1136,6 +1177,10 @@ export default function App(){
   const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   const [plantKey,setPlantKey]     = useState(null);
+  // "Partir de un presupuesto anterior" — lista real de Supabase (solo lectura)
+  const [presupuestosGuardados,setPresupuestosGuardados] = useState([]);
+  const [cargandoGuardados,setCargandoGuardados]         = useState(false);
+  const [origenReal,setOrigenReal]                       = useState(null); // {nombre,capex,opex}
   const [modoEdit,setModoEdit]     = useState(false);
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
@@ -1161,7 +1206,34 @@ export default function App(){
       });
       // No restaurar step ni estado activo — evita conflictos con abrirPresupuesto
     }
+    // Presupuestos guardados en Supabase (fuente de verdad cuando está configurado)
+    if(supabase){
+      listarPresupuestos().then(remotos=>{
+        if(remotos.length===0) return;
+        setLista(prev=>{
+          const idsRemotos=remotos.map(x=>x.id);
+          const soloLocales=prev.filter(x=>!idsRemotos.includes(x.id));
+          return [...remotos,...soloLocales];
+        });
+      });
+    }
   },[]);
+
+  // "Partir de un presupuesto anterior" — al abrir el modal, consultar Supabase (SOLO LECTURA)
+  // No modifica el flujo existente de PLANTILLAS (Cuervito/TI), que sigue igual más abajo.
+  useEffect(()=>{
+    if(!plantModal || !supabase) return;
+    setCargandoGuardados(true);
+    console.log("[partir-de] Consultando presupuestos guardados en Supabase (solo lectura)...");
+    listarPresupuestos().then(lista=>{
+      console.log(`[partir-de] ${lista.length} presupuesto(s) encontrados en Supabase.`);
+      setPresupuestosGuardados(lista);
+      setCargandoGuardados(false);
+    }).catch(err=>{
+      console.error("[partir-de] Error consultando Supabase:", err);
+      setCargandoGuardados(false);
+    });
+  },[plantModal]);
   // FIX 6 v3: procesar apertura de presupuesto en useEffect separado
   // Esto garantiza que todos los setState se aplicaron antes de setActiva
   useEffect(()=>{
@@ -1172,6 +1244,8 @@ export default function App(){
     const capexPMP  = p._capexPM||[];
     const opexPMP   = p._opexPM||[];
     const ingresosP = p._ingresos||Array(13).fill(0);
+    const precioFijoP = p._precioFijo||0;
+    const ingAdicionalesP = p._ingAdicionales||[];
     const saved     = areasP.some(id=>costosP[id]?.estado==="guardado");
     const primera   = areasP.find(id=>{
       const c=costosP[id];
@@ -1184,6 +1258,8 @@ export default function App(){
     setCapexPM(capexPMP);
     setOpexPM(opexPMP);
     setIngresos(ingresosP);
+    setPrecioFijo(precioFijoP);
+    setIngAd(ingAdicionalesP);
     setAreaSaved(saved);
     setActiva(primera);
     setStep(3);
@@ -1201,21 +1277,27 @@ export default function App(){
   function showToast(msg){setToast(msg);}
 
   // ── Totales ─────────────────────────────────────────────────────────────────
+  // Nota: totalCat/totalNom son sumas "por ocurrencia" (útiles como vista rápida durante
+  // la captura). El total ANUAL real que respeta periodicidad/tipo de personal vive en
+  // totalOpexAnualCat/totalNomAnual, y es el que alimenta el Resumen mensual (Step 4).
   function totalCat(id,cat){return(costos[id]?.[cat]||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);}
   function totalNom(id){return(costos[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);return s+(p.salario||0)*f*(p.cantidad||1);},0);}
+  function totalOpexAnualCat(id,cat){return(costos[id]?.[cat]||[]).reduce((s,p)=>s+totalOpexPartida(p,12),0);}
+  function totalNomAnual(id){return(costos[id]?.nomina||[]).reduce((s,p)=>s+costoTotalNomina(p,12),0);}
   const capexAreas=areas.reduce((s,id)=>s+totalCat(id,"capex"),0);
-  const opexAreas =areas.reduce((s,id)=>s+totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via"),0);
+  const opexAreas =areas.reduce((s,id)=>s+totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via"),0);
   const capexPMt  =capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
-  const opexPMt   =opexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+  const opexPMt   =opexPM.reduce((s,p)=>s+totalOpexPartida(p,12),0);
   const totalCAPEX=capexAreas+capexPMt;
   const totalOPEX =opexAreas +opexPMt;
   const totalEgr  =totalCAPEX+totalOPEX;
 
   // ── Acciones ────────────────────────────────────────────────────────────────
   function abrirNuevo(){
-    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:""});
+    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",
+      fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
-    setPlantKey(null); setPres(null); setModoEdit(false); setAreaSaved(false);
+    setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setStep(1);
   }
   function abrirEdit(p){
@@ -1229,8 +1311,13 @@ export default function App(){
   }
 
   // FIX 6 v4: Abrir presupuesto — flag pausa el guardado en localStorage
-  function abrirPresupuesto(p){
+  async function abrirPresupuesto(p){
     isOpening.current = true;
+    // Si el presupuesto vive en Supabase (id = UUID), traer siempre la versión más reciente
+    if(supabase && typeof p.id === "string"){
+      const remoto = await cargarPresupuestoDeNube(p.id, {uid, initP, initN});
+      if(remoto){ setPresToOpen(remoto); return; }
+    }
     setPresToOpen(p);
   }
 
@@ -1265,6 +1352,9 @@ export default function App(){
     });
     setAreas(p._areas||[]);
     setCostos(nuevosCostos);
+    setIngresos(p._ingresos||Array(13).fill(0));
+    setPrecioFijo(p._precioFijo||0);
+    setIngAd((p._ingAdicionales||[]).map(x=>({...x,id:uid()})));
     setPres(null); setModoEdit(false);
     setPlantKey(null); setAreaSaved(false);
     setStep(1);
@@ -1272,18 +1362,30 @@ export default function App(){
 
   function guardarPres(){
     const snap={...form,estado:"Borrador",fecha:new Date().toISOString().slice(0,10),
-      _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos};
+      _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos,
+      _precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
+    let p;
     if(modoEdit&&pres){
-      const u={...pres,...snap};
-      setLista(prev=>prev.map(x=>x.id===pres.id?u:x));
-      setPres(u);
+      p={...pres,...snap};
+      setLista(prev=>prev.map(x=>x.id===pres.id?p:x));
     } else {
-      const p={id:uid(),...snap};
+      p={id:uid(),...snap};
       setLista(prev=>[p,...prev]);
-      setPres(p);
     }
+    setPres(p);
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]);
     setStep(2);
+
+    if(supabase){
+      const pFinal=p;
+      guardarPresupuestoEnNube({pres:pFinal, form:pFinal, areas:pFinal._areas, costos:pFinal._costos,
+        ingAdicionales:pFinal._ingAdicionales, precioFijo:pFinal._precioFijo}).then(cloudId=>{
+        if(cloudId && cloudId!==pFinal.id){
+          setPres(prevPres=>prevPres&&prevPres.id===pFinal.id?{...prevPres,id:cloudId}:prevPres);
+          setLista(prevLista=>prevLista.map(x=>x.id===pFinal.id?{...x,id:cloudId}:x));
+        }
+      }).catch(err=>console.error("[supabase] guardarPres:",err));
+    }
   }
 
   function cargarPlantilla(key){
@@ -1292,7 +1394,45 @@ export default function App(){
     setCapexPM(pl.capex.map(p=>initP(p)));
     setOpexPM(pl.opex.map(p=>initP(p)));
     setPlantKey(key);
+    setOrigenReal(null);
     setPlantModal(false);
+  }
+
+  // "Partir de un presupuesto anterior" (real, de Supabase) — SOLO LECTURA.
+  // No escribe nada en Supabase; solo copia a memoria local con ids nuevos.
+  async function partirDePresupuestoAnterior(p){
+    console.log("[partir-de] Cargando presupuesto de referencia (solo lectura):", p.id, p.nombre);
+    const remoto = await cargarPresupuestoDeNube(p.id, {uid, initP, initN});
+    if(!remoto){
+      console.warn("[partir-de] No se pudo cargar el presupuesto", p.id);
+      showToast("No se pudo cargar el presupuesto de referencia");
+      return;
+    }
+    const resumenPartidas = Object.fromEntries(
+      Object.entries(remoto._costos).map(([k,v])=>[k,{capex:v.capex.length,mat:v.mat.length,via:v.via.length,nomina:v.nomina.length}])
+    );
+    console.log("[partir-de] Áreas copiadas:", remoto._areas);
+    console.log("[partir-de] Partidas copiadas por área (todas con ids NUEVOS):", resumenPartidas);
+    console.log("[partir-de] IDs de muestra generados:",
+      Object.values(remoto._costos).flatMap(v=>v.capex.slice(0,2).map(x=>x.id)));
+
+    // Resetear estado a "pendiente" en todas las áreas copiadas — el original queda intacto
+    const costosPendientes={};
+    Object.entries(remoto._costos).forEach(([k,v])=>{ costosPendientes[k]={...v,estado:"pendiente"}; });
+
+    setAreas(remoto._areas);
+    setCostos(costosPendientes);
+    setCapexPM([]); setOpexPM([]);
+    setIngresos(remoto._ingresos);
+    setPrecioFijo(remoto._precioFijo);
+    setIngAd(remoto._ingAdicionales);
+    setPlantKey(null); // no es una plantilla estática — no interfiere con ese flujo
+    setOrigenReal({nombre:remoto.nombre, capex:Object.values(costosPendientes).reduce((s,a)=>s+a.capex.length,0),
+      opex:Object.values(costosPendientes).reduce((s,a)=>s+a.mat.length+a.via.length,0)});
+    setPlantModal(false);
+    console.log("[partir-de] Copia completa en memoria. Ningún dato fue escrito en Supabase todavía — "+
+      "solo se escribirá cuando el usuario guarde este presupuesto nuevo explícitamente.");
+    showToast(`Partiendo de "${remoto.nombre}" — revisa y ajusta antes de guardar`);
   }
 
   function confirmarAreas(){
@@ -1304,15 +1444,15 @@ export default function App(){
       if(existing&&existing.estado!=="pendiente"){ c[id]=existing; return; }
       if(idx===0 && plData){
         // Distribuir plantilla completa al primer área con datos reales
-        const capexBase = (plData.capex||[]).map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        const capexBase = (plData.capex||[]).map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,mesGasto:p.mesGasto||0}));
         // OPEX: separar nómina de materiales
         const nomBase = (plData.nomina||[]).map(p=>initN({puesto:p.puesto,cantidad:p.cantidad||1,salario:p.salario||0}));
         // Del opex de la plantilla — los que son NOMINA van a nómina, resto a mat
         const opexNom = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("NOMINA"));
         const opexMat = (plData.opex||[]).filter(p=>!p.cat?.toUpperCase().includes("NOMINA")&&!p.cat?.toUpperCase().includes("VIATICO"));
         const opexVia = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("VIATICO"));
-        const matBase = opexMat.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
-        const viaBase = opexVia.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto}));
+        const matBase = opexMat.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual"}));
+        const viaBase = opexVia.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual"}));
         // Si la plantilla tiene nómina propia usarla, si no, convertir las OPEX-NOMINA
         const nomFinal = nomBase.length>0 ? nomBase
           : opexNom.map(p=>initN({puesto:p.desc||"Puesto",cantidad:1,salario:p.monto||0}));
@@ -1337,9 +1477,29 @@ export default function App(){
   function rmN(id){return pid=>setCostos(prev=>({...prev,[id]:{...prev[id],nomina:prev[id].nomina.filter(p=>p.id!==pid)}}));}
 
   function guardarArea(id){
-    setCostos(prev=>({...prev,[id]:{...prev[id],estado:"guardado"}}));
+    const nuevoCostos={...costos,[id]:{...costos[id],estado:"guardado"}};
+    setCostos(nuevoCostos);
     setAreaSaved(true);
     showToast("Costos guardados correctamente");
+
+    if(pres){
+      const snap={_areas:areas,_costos:nuevoCostos,_capexPM:capexPM,_opexPM:opexPM,
+        _ingresos:ingresos,_precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
+      const actualizado={...pres,...snap};
+      setPres(actualizado);
+      setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
+
+      if(supabase){
+        guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos:nuevoCostos,
+          ingAdicionales, precioFijo}).then(cloudId=>{
+          if(cloudId && cloudId!==actualizado.id){
+            // Presupuesto local (id numérico) recién promovido a la nube: adoptar el UUID real
+            setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
+            setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+          }
+        }).catch(err=>console.error("[supabase] guardarArea:",err));
+      }
+    }
   }
 
   // ── BTN ──────────────────────────────────────────────────────────────────────
@@ -1607,6 +1767,7 @@ export default function App(){
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
+                    
                     {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
                     {id:"servicio",    label:"Servicio",   desc:"Servicio recurrente"},
                     {id:"departamento",label:"Departamento",desc:"Área interna"},
@@ -1654,25 +1815,28 @@ export default function App(){
               {/* Opción A: partir de presupuesto anterior */}
               <div onClick={()=>setPlantModal(true)}
                 style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
-                  border:`2px solid`,borderColor:plantKey?C.yellow:C.grayBorder,
-                  borderRadius:10,cursor:"pointer",background:plantKey?C.yellowLight:C.white,
+                  border:`2px solid`,borderColor:(plantKey||origenReal)?C.yellow:C.grayBorder,
+                  borderRadius:10,cursor:"pointer",background:(plantKey||origenReal)?C.yellowLight:C.white,
                   transition:"all 0.15s"}}
-                onMouseEnter={e=>{if(!plantKey)e.currentTarget.style.borderColor=C.yellow;}}
-                onMouseLeave={e=>{if(!plantKey)e.currentTarget.style.borderColor=C.grayBorder;}}>
+                onMouseEnter={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.yellow;}}
+                onMouseLeave={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.grayBorder;}}>
                 <span style={{fontSize:28}}>📋</span>
                 <div>
                   <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>
-                    {plantKey?`✓ ${PLANTILLAS[plantKey]?.nombre}`:"Partir de un presupuesto anterior"}
+                    {plantKey?`✓ ${PLANTILLAS[plantKey]?.nombre}`:origenReal?`✓ ${origenReal.nombre}`:"Partir de un presupuesto anterior"}
                   </div>
                   <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>
                     {plantKey
                       ?`${PLANTILLAS[plantKey]?.capex?.length} CAPEX · ${PLANTILLAS[plantKey]?.opex?.length} OPEX cargados — editables`
-                      :"Carga partidas de Cuervito, TI u otro proyecto existente"}
+                      :origenReal
+                        ?`${origenReal.capex} CAPEX · ${origenReal.opex} OPEX copiados — editables`
+                        :"Carga partidas de Cuervito, TI u otro proyecto existente"}
                   </div>
                 </div>
               </div>
               {/* Opción B: desde cero */}
-              <div onClick={()=>{setCapexPM([]);setOpexPM([]);setPlantKey(null);}}
+              <div onClick={()=>{setCapexPM([]);setOpexPM([]);setPlantKey(null);setOrigenReal(null);
+                setAreas([]);setCostos({});setIngresos(Array(13).fill(0));setPrecioFijo(0);setIngAd([]);}}
                 style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
                   border:`2px solid`,borderColor:!plantKey&&form.tipo?C.grayDark:C.grayBorder,
                   borderRadius:10,cursor:"pointer",background:!plantKey&&form.tipo?"#F8F8F8":C.white,
@@ -1733,12 +1897,51 @@ export default function App(){
                   </div>
                 ))}
               </div>
+              {/* Presupuestos guardados reales (Supabase) — solo lectura, no altera plantillas fijas */}
+              {supabase&&(
+                <div style={{marginTop:16}}>
+                  <div style={{fontSize:12,fontWeight:700,color:C.grayDark,marginBottom:8}}>
+                    Presupuestos guardados
+                  </div>
+                  {cargandoGuardados&&(
+                    <div style={{fontSize:12,color:C.grayMid,padding:"8px 0"}}>Cargando…</div>
+                  )}
+                  {!cargandoGuardados&&presupuestosGuardados.length===0&&(
+                    <div style={{fontSize:12,color:C.grayMid,padding:"8px 0"}}>Aún no hay presupuestos guardados en Supabase.</div>
+                  )}
+                  {!cargandoGuardados&&presupuestosGuardados.length>0&&(
+                    <div style={{display:"grid",gap:8,maxHeight:200,overflowY:"auto"}}>
+                      {presupuestosGuardados.map(p=>(
+                        <div key={p.id} onClick={()=>partirDePresupuestoAnterior(p)}
+                          style={{border:"1px solid",borderColor:origenReal?.nombre===p.nombre?C.yellow:C.grayBorder,
+                            borderRadius:8,padding:"10px 14px",cursor:"pointer",
+                            background:origenReal?.nombre===p.nombre?C.yellowLight:C.white,
+                            display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                          <div>
+                            <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{p.nombre}</div>
+                            <div style={{fontSize:11,color:C.grayMid,marginTop:2,textTransform:"capitalize"}}>
+                              {p.tipo} · {p.estado} {p.fechaInicio?`· ${p.fechaInicio}`:""}
+                            </div>
+                          </div>
+                          <span style={{fontSize:18,color:C.yellow}}>→</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {origenReal&&(
+                    <div style={{marginTop:8,fontSize:11,color:C.yellowDark,fontWeight:600}}>
+                      ✓ Partiendo de "{origenReal.nombre}" — {origenReal.capex} CAPEX · {origenReal.opex} OPEX copiados (editables)
+                    </div>
+                  )}
+                </div>
+              )}
               <div style={{marginTop:16,padding:"12px 16px",background:"#F8F8F8",borderRadius:8,border:`1px solid ${C.grayBorder}`}}>
                 <div style={{fontSize:12,fontWeight:700,color:C.grayDark,marginBottom:6}}>¿Prefieres empezar desde cero?</div>
                 <div style={{fontSize:11,color:C.grayMid,marginBottom:10}}>Las secciones de captura iniciarán vacías. Tú agregas cada partida manualmente.</div>
                 <button onClick={()=>{
                   // LIMPIAR todo al iniciar desde cero
-                  setCapexPM([]); setOpexPM([]); setPlantKey(null);
+                  setCapexPM([]); setOpexPM([]); setPlantKey(null); setOrigenReal(null);
+                  setAreas([]); setCostos({}); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
                   setPlantModal(false);
                 }}
                   style={{padding:"9px 20px",background:C.white,border:`1px solid ${C.grayBorder}`,
@@ -1816,7 +2019,7 @@ export default function App(){
     const areaInfo=cats.find(a=>a.id===areaActiva);
     const capexA=areaActiva?totalCat(areaActiva,"capex"):0;
     const nomMes =areaActiva?totalNom(areaActiva):0;
-    const opexA  =areaActiva?totalCat(areaActiva,"mat")+nomMes*12+totalCat(areaActiva,"via"):0;
+    const opexA  =areaActiva?totalOpexAnualCat(areaActiva,"mat")+totalNomAnual(areaActiva)+totalOpexAnualCat(areaActiva,"via"):0;
 
     return wrap(
       <div>
@@ -1933,21 +2136,21 @@ export default function App(){
                 {/* Nómina */}
                 <SCard title="OPEX · Nómina y Mano de Obra"
                   subtitle="Costo real por puesto incluyendo cargas sociales"
-                  total={nomMes} accentColor="#059669">
+                  total={totalNomAnual(areaActiva)} accentColor="#059669">
                   <NominaTable
                     nomina={datos?.nomina||[]}
                     onUpdate={u=>upP(areaActiva,"nomina",u.id,u)}
                     onRemove={rmN(areaActiva)}
                     onAdd={()=>addN(areaActiva)}/>
                   {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
-                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(nomMes*12)}</strong>
+                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(areaActiva))}</strong>
                   </div>}
                 </SCard>
 
                 {/* Materiales */}
                 <SCard title="OPEX · Materiales"
                   subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
-                  total={totalCat(areaActiva,"mat")} accentColor="#0891b2">
+                  total={totalOpexAnualCat(areaActiva,"mat")} accentColor="#0891b2">
                   <PartidaTable
                     partidas={datos?.mat||[]}
                     onUpdate={u=>upP(areaActiva,"mat",u.id,u)}
@@ -1962,7 +2165,7 @@ export default function App(){
                 {/* Viáticos */}
                 <SCard title="OPEX · Viáticos"
                   subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
-                  total={totalCat(areaActiva,"via")} accentColor="#d97706">
+                  total={totalOpexAnualCat(areaActiva,"via")} accentColor="#d97706">
                   <PartidaTable
                     partidas={datos?.via||[]}
                     onUpdate={u=>upP(areaActiva,"via",u.id,u)}
@@ -1994,15 +2197,34 @@ export default function App(){
     const MESES13=["M0 (Inst.)","M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"];
 
     // ── Cálculos mensuales ─────────────────────────────────────────────────
-    // CAPEX: todo en M0
-    const mCapex=Array(NMESES).fill(0);
-    mCapex[0]=areas.reduce((s,id)=>s+totalCat(id,"capex"),0)+capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
+    const NUM_MESES_OP=NMESES-1; // 12 meses operativos después de M0
 
-    // OPEX: distribuido uniforme M1..M12 (M0 es instalación sin OPEX)
-    const totalOpexAnual=areas.reduce((s,id)=>s+totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via"),0)
-      +opexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
-    const opexMens=parseFloat((totalOpexAnual/12).toFixed(2));
-    const mOpex=Array(NMESES).fill(0).map((_,i)=>i===0?0:opexMens);
+    // CAPEX: cada partida cae en el mes real de compra (fecha vs. fecha de inicio del proyecto)
+    const mCapex=Array(NMESES).fill(0);
+    areas.forEach(id=>{
+      (costos[id]?.capex||[]).forEach(p=>{
+        mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+      });
+    });
+    capexPM.forEach(p=>{
+      mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+    });
+
+    // OPEX: cada partida se distribuye según su periodicidad y mes de inicio
+    const mOpex=Array(NMESES).fill(0);
+    areas.forEach(id=>{
+      ["mat","via"].forEach(cat=>{
+        (costos[id]?.[cat]||[]).forEach(p=>{
+          distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+        });
+      });
+      (costos[id]?.nomina||[]).forEach(p=>{
+        distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+      });
+    });
+    opexPM.forEach(p=>{
+      distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+    });
 
     // Egresos totales por mes
     const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
@@ -2020,31 +2242,36 @@ export default function App(){
     mFlujoAcum[0]=mFlujo[0];
     for(let i=1;i<NMESES;i++) mFlujoAcum[i]=mFlujoAcum[i-1]+mFlujo[i];
 
-    // OPEX por categoría para Gráfica II
+    // OPEX por categoría para Gráfica II — misma distribución real, agrupada por categoría
     const catOpexData={};
+    function addACat(label,arr){
+      if(!catOpexData[label]) catOpexData[label]=Array(NMESES).fill(0);
+      arr.forEach((v,i)=>catOpexData[label][i]+=v);
+    }
     areas.forEach(id=>{
       ["mat","via"].forEach(cat=>{
         (costos[id]?.[cat]||[]).forEach(p=>{
-          const key=p.cat||"SIN CATEGORÍA";
-          const v=(p.cantidad||0)*(p.monto||0)/12;
-          catOpexData[key]=(catOpexData[key]||0)+v;
+          addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
         });
       });
-      // Nómina mensual por área
-      const nomMes=totalNom(id);
-      if(nomMes>0) catOpexData["NOMINA Y ADICIONALES"]=(catOpexData["NOMINA Y ADICIONALES"]||0)+nomMes;
+      (costos[id]?.nomina||[]).forEach(p=>{
+        addACat("NOMINA Y ADICIONALES", distribuirNomina(p,NUM_MESES_OP));
+      });
+    });
+    opexPM.forEach(p=>{
+      addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
     });
     const catOpexSeries=Object.entries(catOpexData)
-      .filter(([,v])=>v>0)
-      .map(([label,mensual],i)=>({
+      .filter(([,arr])=>arr.some(v=>v>0))
+      .map(([label,data],i)=>({
         label,
         color:["#DDAC00","#374151","#7c3aed","#0891b2","#059669","#d97706","#dc2626","#6366f1"][i%8],
-        data:Array(NMESES).fill(0).map((_,mi)=>mi===0?0:mensual),
+        data,
       }));
 
     // Totales
-    const totalCAPEX=mCapex[0];
-    const totalOPEX=totalOpexAnual;
+    const totalCAPEX=mCapex.reduce((s,v)=>s+v,0);
+    const totalOPEX=mOpex.reduce((s,v)=>s+v,0);
     const totalEgr=totalCAPEX+totalOPEX;
     const utilidad=totalIngresosAnual-totalEgr;
     const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
@@ -2265,7 +2492,7 @@ export default function App(){
             {btn("⬇ Excel",()=>exportarExcel({
               pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
               mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
-              totalIngresosAnual,MESES13,NMESES,totalNom,totalCat
+              totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales
             }),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"primary")}
           </div>
@@ -2507,7 +2734,7 @@ export default function App(){
                 {areas.map((id,i)=>{
                   const a=cats.find(x=>x.id===id);
                   const cx=totalCat(id,"capex");
-                  const ox=totalCat(id,"mat")+totalNom(id)*12+totalCat(id,"via");
+                  const ox=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
                   return(
                     <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
                       <td style={{padding:"10px 14px",fontWeight:600}}>{a?.icon} {a?.label}</td>
