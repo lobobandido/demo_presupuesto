@@ -577,10 +577,10 @@ function FL({children,required}){
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false}){
   const cols = showMes
-    ? "1.8fr 1.6fr 75px 55px 132px 100px 95px 28px"
+    ? "1.8fr 1.6fr 84px 64px 150px 114px 108px 34px"
     : showPeriod
-      ? "1.8fr 1.6fr 75px 55px 118px 100px 95px 28px"
-      : "2fr 2fr 80px 70px 1fr 90px 32px";
+      ? "1.8fr 1.6fr 84px 64px 136px 114px 108px 34px"
+      : "2fr 2fr 90px 76px 1fr 100px 34px";
   const headers = showMes
     ? ["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
     : showPeriod
@@ -591,14 +591,14 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
     {/* Scroll horizontal de seguridad: en pantallas angostas (tablet) evita que
         las columnas de la tabla se encimen — no cambia el layout en desktop */}
     <div style={{overflowX:"auto"}}>
-    <div style={{minWidth:640}}>
+    <div style={{minWidth:760}}>
       {/* Headers internos */}
       {partidas.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:cols,
-          gap:10,padding:"0 0 6px 0",marginBottom:2,
+          gap:16,padding:"0 0 12px 0",marginBottom:4,
           borderBottom:`1px solid ${C.line}`}}>
           {headers.map((h,i)=>(
-            <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
+            <div key={i} style={{fontSize:11,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
               textAlign:i>=3?"right":"left"}}>{h}</div>
           ))}
@@ -608,9 +608,9 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
       {partidas.map((p,idx)=>{
         const total=(p.cantidad||0)*(p.monto||0);
         return(
-          <div key={p.id} style={{display:"grid",
-            gridTemplateColumns:cols,
-            gap:10,alignItems:"center",padding:"6px 0",
+          <div key={p.id} className="partida-row" style={{display:"grid",
+            gridTemplateColumns:cols,background:idx%2===1?"#FAFBFC":"transparent",
+            gap:16,alignItems:"center",padding:"14px 12px",margin:"0 -12px",
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
               <CatalogInput value={p.cat} onChange={v=>{
@@ -717,21 +717,21 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
     </div>
       {/* Estado vacío */}
       {partidas.length===0&&(
-        <div style={{padding:"18px 12px",textAlign:"center",color:C.grayMid,fontSize:12,
-          background:"#FAFAFA",borderRadius:8,marginBottom:10}}>
+        <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
+          background:"#FAFAFA",borderRadius:10,marginBottom:14}}>
           Aún no hay partidas capturadas en esta sección.
         </div>
       )}
       {/* Add row */}
       <button onClick={onAdd}
-        style={{width:"100%",marginTop:partidas.length===0?0:10,padding:"9px",
-          border:`1.5px dashed ${C.grayBorder}`,borderRadius:6,
-          background:"transparent",cursor:"pointer",color:C.grayMid,
-          fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6,
+        style={{width:"100%",marginTop:partidas.length===0?0:14,padding:"16px 24px",
+          border:`2px dashed ${headerColor}50`,borderRadius:10,
+          background:`${headerColor}0D`,cursor:"pointer",color:headerColor,
+          fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
           transition:"all 0.15s"}}
-        onMouseEnter={e=>{e.currentTarget.style.borderColor=headerColor;e.currentTarget.style.color=headerColor;}}
-        onMouseLeave={e=>{e.currentTarget.style.borderColor=C.grayBorder;e.currentTarget.style.color=C.grayMid;}}>
-        <span style={{fontSize:16}}>+</span> {addLabel}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor=headerColor;e.currentTarget.style.background=`${headerColor}1A`;}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor=`${headerColor}50`;e.currentTarget.style.background=`${headerColor}0D`;}}>
+        <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> {addLabel}
       </button>
     </div>
   );
@@ -742,14 +742,14 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
   return(
     <div>
     <div style={{overflowX:"auto"}}>
-    <div style={{minWidth:640}}>
+    <div style={{minWidth:720}}>
       {nomina.length>0&&(
         <div style={{display:"grid",
-          gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
-          gap:10,padding:"0 0 6px 0",marginBottom:2,
+          gridTemplateColumns:"2fr 110px 60px 1fr 80px 80px 120px 34px",
+          gap:16,padding:"0 0 12px 0",marginBottom:4,
           borderBottom:`1px solid ${C.line}`}}>
           {["Puesto","Tipo","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo anual",""].map((h,i)=>(
-            <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
+            <div key={i} style={{fontSize:11,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
               textAlign:i>=2?"right":"left"}}>{h}</div>
           ))}
@@ -761,10 +761,10 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
         const meses = mesesNomina(p, 12);
         const costoTotal = costoTotalNomina(p, 12);
         return(
-          <div key={p.id} style={{marginBottom:8}}>
-            <div style={{display:"grid",
-              gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
-              gap:10,alignItems:"center",padding:"6px 0",
+          <div key={p.id} style={{marginBottom:14}}>
+            <div className="partida-row" style={{display:"grid",
+              gridTemplateColumns:"2fr 110px 60px 1fr 80px 80px 120px 34px",background:idx%2===1?"#FAFBFC":"transparent",
+              gap:16,alignItems:"center",padding:"14px 12px",margin:"0 -12px",
               borderBottom:idx<nomina.length-1?`1px solid ${C.line}`:"none"}}>
               {/* Puesto */}
               <CatalogInput value={p.puesto==="Otro"?p.puestoCustom||"":p.puesto}
@@ -836,45 +836,53 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
     </div>
     </div>
       {nomina.length===0&&(
-        <div style={{padding:"18px 12px",textAlign:"center",color:C.grayMid,fontSize:12,
-          background:"#FAFAFA",borderRadius:8,marginBottom:10}}>
+        <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
+          background:"#FAFAFA",borderRadius:10,marginBottom:14}}>
           Aún no hay puestos de nómina capturados en esta área.
         </div>
       )}
       <button onClick={onAdd}
-        style={{width:"100%",marginTop:nomina.length===0?0:10,padding:"9px",
-          border:"1.5px dashed #bbf7d0",borderRadius:6,
-          background:"transparent",cursor:"pointer",color:"#059669",
-          fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
-        onMouseEnter={e=>{e.currentTarget.style.borderColor="#059669";}}
-        onMouseLeave={e=>{e.currentTarget.style.borderColor="#bbf7d0";}}>
-        <span style={{fontSize:16}}>+</span> Agregar puesto
+        style={{width:"100%",marginTop:nomina.length===0?0:14,padding:"16px 24px",
+          border:"2px dashed #86e0b8",borderRadius:10,
+          background:"#0596690D",cursor:"pointer",color:"#059669",
+          fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+          transition:"all 0.15s"}}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor="#059669";e.currentTarget.style.background="#0596691A";}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor="#86e0b8";e.currentTarget.style.background="#0596690D";}}>
+        <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> Agregar puesto
       </button>
     </div>
   );
 }
 
 // ─── SECTION CARD ─────────────────────────────────────────────────────────────
-function SCard({title,subtitle,total,accentColor,children}){
+function SCard({title,subtitle,total,accentColor,icon,children}){
   return(
     <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,
-      borderRadius:10,overflow:"hidden",marginBottom:16,
-      boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
-      <div style={{padding:"14px 20px",display:"flex",justifyContent:"space-between",
+      borderRadius:14,overflow:"hidden",marginBottom:26,
+      boxShadow:"0 2px 6px rgba(0,0,0,0.05)"}}>
+      <div style={{padding:"22px 28px",display:"flex",justifyContent:"space-between",
         alignItems:"center",borderBottom:`1px solid ${C.line}`,
-        borderLeft:`3px solid ${accentColor}`,background:"#FCFCFC"}}>
-        <div>
-          <div style={{fontWeight:700,fontSize:15,color:C.grayDark,letterSpacing:0.2}}>{title}</div>
-          {subtitle&&<div style={{fontSize:11.5,color:C.grayMid,marginTop:3,lineHeight:1.4}}>{subtitle}</div>}
+        borderLeft:`4px solid ${accentColor}`,background:"linear-gradient(#FBFBFB,#F7F7F7)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          {icon&&(
+            <div style={{width:38,height:38,borderRadius:10,flexShrink:0,
+              background:`${accentColor}18`,display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:18}}>{icon}</div>
+          )}
+          <div>
+            <div style={{fontWeight:700,fontSize:16,color:C.grayDark,letterSpacing:0.2}}>{title}</div>
+            {subtitle&&<div style={{fontSize:12,color:C.grayMid,marginTop:4,lineHeight:1.5}}>{subtitle}</div>}
+          </div>
         </div>
         {total!==undefined&&(
-          <div style={{textAlign:"right"}}>
+          <div style={{textAlign:"right",flexShrink:0,marginLeft:16}}>
             <div style={{fontSize:9,fontWeight:700,color:C.grayMid,textTransform:"uppercase",letterSpacing:0.5}}>Total anual</div>
-            <div style={{fontSize:16,fontWeight:800,color:accentColor}}>{fmt(total)}</div>
+            <div style={{fontSize:19,fontWeight:800,color:accentColor,marginTop:2}}>{fmt(total)}</div>
           </div>
         )}
       </div>
-      <div style={{padding:20}}>{children}</div>
+      <div style={{padding:28}}>{children}</div>
     </div>
   );
 }
@@ -1599,6 +1607,14 @@ export default function App(){
           cursor: not-allowed;
           opacity: 0.6;
         }
+        /* ── Filas de tabla con hover — estándar en tablas de datos enterprise ── */
+        .partida-row {
+          transition: background-color 0.12s;
+          border-radius: 8px;
+        }
+        .partida-row:hover {
+          background-color: #FAFAFA;
+        }
         @media (max-width: 1024px) {
           .sidebar-nav { width: 60px !important; }
           .sidebar-nav .nav-label { display: none !important; }
@@ -2096,7 +2112,7 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
-        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"224px 1fr",gap:20,maxWidth:1180}}>
+        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"248px 1fr",gap:28,maxWidth:1320}}>
 
           {/* Sidebar áreas */}
           <div style={{minWidth:0}}>
@@ -2113,8 +2129,8 @@ export default function App(){
                 const isAct=areaActiva===id;
                 return(
                   <div key={id} onClick={()=>setActiva(id)}
-                    style={{display:"flex",alignItems:"center",gap:10,
-                      padding:"11px 14px",cursor:"pointer",
+                    style={{display:"flex",alignItems:"center",gap:12,
+                      padding:"14px 16px",cursor:"pointer",
                       background:isAct?"#FFFBEF":"transparent",
                       borderLeft:isAct?`3px solid ${C.yellow}`:"3px solid transparent",
                       borderBottom:i<areas.length-1?`1px solid ${C.line}`:"none",
@@ -2134,21 +2150,21 @@ export default function App(){
             </div>
             {/* Totales sidebar — mismo lenguaje de color que los KPIs de arriba */}
             <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,
-              borderRadius:10,padding:16,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+              borderRadius:12,padding:20,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
               <div style={{fontSize:10,fontWeight:700,color:C.grayMid,
-                textTransform:"uppercase",letterSpacing:0.5,marginBottom:10}}>Totales del presupuesto</div>
+                textTransform:"uppercase",letterSpacing:0.5,marginBottom:14}}>Totales del presupuesto</div>
               {[{l:"CAPEX",v:totalCAPEX,c:C.yellowDark,bg:C.yellowLight},
                 {l:"OPEX",v:totalOPEX,c:"#374151",bg:C.grayLight}].map(r=>(
                 <div key={r.l} style={{background:r.bg,border:`1px solid ${r.c}22`,
-                  borderRadius:8,padding:"9px 12px",marginBottom:8}}>
+                  borderRadius:10,padding:"13px 16px",marginBottom:12}}>
                   <div style={{fontSize:10,fontWeight:700,color:r.c,textTransform:"uppercase",letterSpacing:0.3}}>{r.l}</div>
-                  <div style={{fontSize:15,fontWeight:800,color:r.c,marginTop:3}}>{fmt(r.v)}</div>
+                  <div style={{fontSize:17,fontWeight:800,color:r.c,marginTop:4}}>{fmt(r.v)}</div>
                 </div>
               ))}
               <div style={{background:C.dangerLight,border:`1px solid ${C.danger}22`,
-                borderRadius:8,padding:"9px 12px",marginTop:2}}>
+                borderRadius:10,padding:"13px 16px",marginTop:4}}>
                 <div style={{fontSize:10,fontWeight:700,color:C.danger,textTransform:"uppercase",letterSpacing:0.3}}>Total egresos</div>
-                <div style={{fontSize:16,fontWeight:800,color:C.danger,marginTop:3}}>{fmt(totalEgr)}</div>
+                <div style={{fontSize:18,fontWeight:800,color:C.danger,marginTop:4}}>{fmt(totalEgr)}</div>
               </div>
             </div>
           </div>
@@ -2178,23 +2194,23 @@ export default function App(){
                 </div>
 
                 {/* KPIs área */}
-                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
+                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
                   {[
                     {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
                     {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
                     {l:"Total",           v:capexA+opexA,c:C.grayDark,bg:C.grayLight},
                   ].map(k=>(
                     <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
-                      borderRadius:8,padding:"12px 14px"}}>
-                      <div style={{fontSize:10,fontWeight:700,color:k.c,
+                      borderRadius:10,padding:"16px 18px"}}>
+                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
                         textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
-                      <div style={{fontSize:17,fontWeight:800,color:k.c,marginTop:5}}>{fmt(k.v)}</div>
+                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* CAPEX */}
-                <SCard title="CAPEX · Equipos e inversiones"
+                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
                   subtitle="Inversiones únicas: maquinaria, equipos, activos"
                   total={capexA} accentColor="#7c3aed">
                   {(()=>{
@@ -2218,7 +2234,7 @@ export default function App(){
                 </SCard>
 
                 {/* Nómina */}
-                <SCard title="OPEX · Nómina y Mano de Obra"
+                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
                   subtitle="Costo real por puesto incluyendo cargas sociales"
                   total={totalNomAnual(areaActiva)} accentColor="#059669">
                   <NominaTable
@@ -2232,7 +2248,7 @@ export default function App(){
                 </SCard>
 
                 {/* Materiales */}
-                <SCard title="OPEX · Materiales"
+                <SCard title="OPEX · Materiales" icon="📦"
                   subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
                   total={totalOpexAnualCat(areaActiva,"mat")} accentColor="#0891b2">
                   <PartidaTable
@@ -2247,7 +2263,7 @@ export default function App(){
                 </SCard>
 
                 {/* Viáticos */}
-                <SCard title="OPEX · Viáticos"
+                <SCard title="OPEX · Viáticos" icon="🧳"
                   subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
                   total={totalOpexAnualCat(areaActiva,"via")} accentColor="#d97706">
                   <PartidaTable
