@@ -127,7 +127,20 @@ function buscarHistorial(cat, tipo="capex") {
   return results.slice(0,8);
 }
 
-const UNIDADES=["Unidad","Día","Semana","Mes","Año","Servicio","Viaje","Pieza","Kg","Metro","Litro","Hora","Global"];
+const UNIDADES=[
+  "Unidad",    // equipos, piezas contables
+  "Pieza",     // repuestos, artículos
+  "Servicio",  // contratos de servicio (arrendamiento, telefonía, etc.)
+  "Global",    // partidas de suma alzada
+  "Día",       // viáticos, jornadas
+  "Hora",      // mano de obra por hora
+  "Kg",        // materiales por peso
+  "Metro",     // materiales por longitud
+  "Litro",     // combustibles, insumos líquidos
+  "Viaje",     // fletes, transportes
+];
+// NOTA: "Mes" y "Año" NO son unidades — son periodicidades.
+// Arrendamiento: Unidad=Servicio, Cantidad=1, Periodicidad=Mensual
 
 // Catálogo de puestos nómina
 const PUESTOS_CAT=[
@@ -296,8 +309,11 @@ function getCats(){try{return JSON.parse(localStorage.getItem(LS_CATS)||"[]");}c
 function saveCat(c){const e=getCats();if(!e.includes(c))localStorage.setItem(LS_CATS,JSON.stringify([...e,c]));}
 
 function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
-  mesGasto:0,        // CAPEX: mes en que se compra (0=M0, 1=M1...)
+  mesGasto:0,             // índice M0-M12 para CAPEX
+  mesGastoMes:"",         // mes real (1-12) para mostrar en calendario
+  mesGastoAnio:"",        // año real para mostrar en calendario  
   periodicidad:"mensual", // OPEX: mensual/bimestral/trimestral/semestral/anual
+  mesInicioOpex:1,        // mes en que inicia el OPEX (1=primer mes)
   ...o};}
 function initN(o={}){return{id:uid(),puesto:"Técnico",puestoCustom:"",cantidad:1,salario:0,
   imss:F_IMSS,prestaciones:F_PREST,isr:F_ISR,
@@ -452,20 +468,24 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
       {open&&(
         <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:1000,
           background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:8,
-          maxHeight:220,overflowY:"auto",boxShadow:"0 8px 24px rgba(0,0,0,0.12)"}}>
+          maxHeight:340,overflowY:"auto",boxShadow:"0 8px 28px rgba(0,0,0,0.15)"}}>
           {allowCustom&&txt&&!allOpts.map(o=>o.toUpperCase()).includes(txt.toUpperCase())&&(
             <div onMouseDown={e=>{e.preventDefault();handleNewCat(txt);}}
-              style={{padding:"9px 12px",fontSize:12,color:C.yellowDark,cursor:"pointer",
-                borderBottom:`1px solid ${C.line}`,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
-              <span style={{fontSize:14}}>+</span> Agregar "{txt.toUpperCase()}"
+              style={{padding:"11px 14px",fontSize:12,color:C.yellowDark,cursor:"pointer",
+                borderBottom:`1px solid ${C.line}`,fontWeight:700,display:"flex",alignItems:"center",gap:8,
+                background:"#FFFDF0"}}>
+              <span style={{fontSize:16,background:C.yellow,color:C.grayDark,
+                width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",
+                justifyContent:"center",flexShrink:0}}>+</span>
+              <span>Crear categoría <strong>"{txt.toUpperCase()}"</strong></span>
             </div>
           )}
           {filtered.length===0&&<div style={{padding:"10px 12px",fontSize:12,color:C.grayMid}}>Sin resultados</div>}
           {filtered.map(opt=>(
             <div key={opt} onMouseDown={e=>{e.preventDefault();pick(opt);}}
-              style={{padding:"9px 12px",fontSize:12,cursor:"pointer",
+              style={{padding:"10px 14px",fontSize:12,cursor:"pointer",
                 background:value===opt?"#FFFBF0":"transparent",
-                borderBottom:`1px solid ${C.line}`}}
+                borderBottom:`1px solid ${C.line}`,lineHeight:1.4}}
               onMouseEnter={e=>e.currentTarget.style.background="#FFFBF0"}
               onMouseLeave={e=>e.currentTarget.style.background=value===opt?"#FFFBF0":"transparent"}>
               {opt}
@@ -541,7 +561,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
           gap:8,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
           {(showMes
-            ?["Categoría","Descripción","Unidad","Cant.","Mes gasto","Monto unit.","Total",""]
+            ?["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
             :["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""]
           ).map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
@@ -589,8 +609,9 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               style={{padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:12,outline:"none",boxSizing:"border-box",width:"100%"}}/>
             <select value={p.unidad} onChange={e=>onUpdate({...p,unidad:e.target.value})}
-              style={{padding:"7px 6px",border:`1px solid ${C.grayBorder}`,
-                borderRadius:6,fontSize:12,width:"100%"}}>
+              title="Unidad = naturaleza del bien. Ej: Servicio para arrendamiento, Pieza para EPP, Global para partidas alzadas"
+              style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,
+                borderRadius:6,fontSize:11,width:"100%",background:C.white}}>
               {UNIDADES.map(u=><option key={u}>{u}</option>)}
             </select>
             <input type="number" min="0" step="1" value={p.cantidad===0?"":p.cantidad}
@@ -601,22 +622,44 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               style={{padding:"7px 8px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
             {showMes&&(
-              <select value={p.mesGasto??0} onChange={e=>onUpdate({...p,mesGasto:parseInt(e.target.value)})}
-                title="Mes en que se realiza este gasto"
-                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
-                {Array.from({length:13},(_,i)=>
-                  <option key={i} value={i}>M{i}{i===0?" (Inst.)":""}</option>
-                )}
-              </select>
+              <div style={{display:"flex",gap:3}}>
+                <select value={p.mesGastoMes||""} 
+                  onChange={e=>onUpdate({...p,mesGastoMes:e.target.value})}
+                  title="Mes de compra"
+                  style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoMes?C.danger:C.grayBorder}`,
+                    borderRadius:6,fontSize:11,width:"50%",background:!p.mesGastoMes?"#FFF5F5":C.white,color:C.grayDark}}>
+                  <option value="">Mes*</option>
+                  {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
+                    <option key={i} value={i+1}>{m}</option>
+                  ))}
+                </select>
+                <input type="number" min="2024" max="2045"
+                  value={p.mesGastoAnio||""}
+                  onChange={e=>onUpdate({...p,mesGastoAnio:e.target.value})}
+                  placeholder="Año*"
+                  title="Año de compra"
+                  style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoAnio?C.danger:C.grayBorder}`,
+                    borderRadius:6,fontSize:11,width:"50%",textAlign:"center",
+                    background:!p.mesGastoAnio?"#FFF5F5":C.white}}/>
+              </div>
             )}
             {showPeriod&&(
-              <select value={p.periodicidad||"mensual"} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
-                title="¿Con qué frecuencia se repite este gasto?"
-                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  fontSize:11,width:"100%",background:C.white}}>
-                {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
-              </select>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                <select value={p.periodicidad||"mensual"} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
+                  title="¿Con qué frecuencia se repite este gasto?"
+                  style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                    fontSize:10,width:"100%",background:C.white}}>
+                  {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
+                </select>
+                <select value={p.mesInicioOpex||1} onChange={e=>onUpdate({...p,mesInicioOpex:parseInt(e.target.value)})}
+                  title="¿En qué mes inicia este gasto?"
+                  style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                    fontSize:10,width:"100%",background:C.white,color:C.grayMid}}>
+                  {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
+                    <option key={i} value={i+1}>Inicia {m}</option>
+                  ))}
+                </select>
+              </div>
             )}
             <MoneyInput value={p.monto} onChange={v=>onUpdate({...p,monto:v})}/>
             <div style={{textAlign:"right",fontSize:13,fontWeight:700,
@@ -1564,10 +1607,10 @@ export default function App(){
                 <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
-                    {id:"instalacion", label:"Instalación",  icon:"🏗️",desc:"Proyectos de campo"},
-                    {id:"servicio",    label:"Servicio",      icon:"⚙️", desc:"Servicio recurrente"},
-                    {id:"departamento",label:"Departamento",  icon:"🏢",desc:"Área interna"},
-                    {id:"suministro",  label:"Suministro",    icon:"📦",desc:"Compra de materiales"},
+                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo"},
+                    {id:"servicio",    label:"Servicio",   desc:"Servicio recurrente"},
+                    {id:"departamento",label:"Departamento",desc:"Área interna"},
+                    {id:"suministro",  label:"Suministro",desc:"Compra de materiales"},
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
@@ -1903,7 +1946,7 @@ export default function App(){
 
                 {/* Materiales */}
                 <SCard title="OPEX · Materiales"
-                  subtitle="Materiales e insumos recurrentes"
+                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
                   total={totalCat(areaActiva,"mat")} accentColor="#0891b2">
                   <PartidaTable
                     partidas={datos?.mat||[]}
@@ -1918,7 +1961,7 @@ export default function App(){
 
                 {/* Viáticos */}
                 <SCard title="OPEX · Viáticos"
-                  subtitle="Viáticos, hospedaje y gastos de campo"
+                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
                   total={totalCat(areaActiva,"via")} accentColor="#d97706">
                   <PartidaTable
                     partidas={datos?.via||[]}
