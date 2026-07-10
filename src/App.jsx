@@ -595,7 +595,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
       {/* Headers internos */}
       {partidas.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:cols,
-          gap:8,padding:"0 0 6px 0",marginBottom:2,
+          gap:10,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
           {headers.map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
@@ -610,7 +610,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
         return(
           <div key={p.id} style={{display:"grid",
             gridTemplateColumns:cols,
-            gap:8,alignItems:"center",padding:"6px 0",
+            gap:10,alignItems:"center",padding:"6px 0",
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
               <CatalogInput value={p.cat} onChange={v=>{
@@ -645,8 +645,9 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               style={{padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:12,outline:"none",boxSizing:"border-box",width:"100%"}}/>
             <select value={p.unidad} onChange={e=>onUpdate({...p,unidad:e.target.value})}
+              className="sel-brand"
               title="Unidad = naturaleza del bien. Ej: Servicio para arrendamiento, Pieza para EPP, Global para partidas alzadas"
-              style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,
+              style={{padding:"8px 10px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:11,width:"100%",background:C.white}}>
               {UNIDADES.map(u=><option key={u}>{u}</option>)}
             </select>
@@ -659,10 +660,11 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                 borderRadius:6,fontSize:12,textAlign:"right",width:"100%",boxSizing:"border-box"}}/>
             {showMes&&(
               <div style={{display:"flex",gap:3}}>
-                <select value={p.mesGastoMes||""} 
+                <select value={p.mesGastoMes||""}
                   onChange={e=>onUpdate({...p,mesGastoMes:e.target.value})}
+                  className="sel-brand"
                   title="Mes de compra"
-                  style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoMes?C.danger:C.grayBorder}`,
+                  style={{padding:"7px 6px",border:`1px solid ${!p.mesGastoMes?C.danger:C.grayBorder}`,
                     borderRadius:6,fontSize:11,width:"50%",background:!p.mesGastoMes?"#FFF5F5":C.white,color:C.grayDark}}>
                   <option value="">Mes*</option>
                   {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
@@ -682,14 +684,16 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             {showPeriod&&(
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
                 <select value={p.periodicidad||"mensual"} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
+                  className="sel-brand"
                   title="¿Con qué frecuencia se repite este gasto?"
-                  style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  style={{padding:"6px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                     fontSize:10,width:"100%",background:C.white}}>
                   {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
                 </select>
                 <select value={p.mesInicioOpex||1} onChange={e=>onUpdate({...p,mesInicioOpex:parseInt(e.target.value)})}
+                  className="sel-brand"
                   title="¿En qué mes del proyecto inicia este gasto? M1 = primer mes de operación (después de M0, instalación)"
-                  style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  style={{padding:"6px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                     fontSize:10,width:"100%",background:C.white,color:C.grayMid}}>
                   {Array.from({length:12},(_,i)=>i+1).map(m=>(
                     <option key={m} value={m}>Inicia M{m}</option>
@@ -742,7 +746,7 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
       {nomina.length>0&&(
         <div style={{display:"grid",
           gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
-          gap:8,padding:"0 0 6px 0",marginBottom:2,
+          gap:10,padding:"0 0 6px 0",marginBottom:2,
           borderBottom:`1px solid ${C.line}`}}>
           {["Puesto","Tipo","Cant.","Salario/mes","IMSS+PT","Prestac.","Costo anual",""].map((h,i)=>(
             <div key={i} style={{fontSize:10,fontWeight:700,color:C.grayMid,
@@ -760,7 +764,7 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
           <div key={p.id} style={{marginBottom:8}}>
             <div style={{display:"grid",
               gridTemplateColumns:"2fr 100px 50px 1fr 70px 70px 110px 32px",
-              gap:8,alignItems:"center",padding:"6px 0",
+              gap:10,alignItems:"center",padding:"6px 0",
               borderBottom:idx<nomina.length-1?`1px solid ${C.line}`:"none"}}>
               {/* Puesto */}
               <CatalogInput value={p.puesto==="Otro"?p.puestoCustom||"":p.puesto}
@@ -772,7 +776,8 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
               {/* Tipo de personal */}
               <select value={p.tipoPersonal||"fijo"}
                 onChange={e=>onUpdate({...p,tipoPersonal:e.target.value})}
-                style={{padding:"7px 5px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                className="sel-brand"
+                style={{padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   fontSize:11,width:"100%",background:C.white}}>
                 <option value="fijo">Fijo</option>
                 <option value="contrato">Contrato</option>
@@ -1567,6 +1572,33 @@ export default function App(){
   const wrap=(children,bc="")=>(
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"Inter,-apple-system,sans-serif",background:C.contentBg}}>
       <style>{`
+        /* ── Dropdowns con marca (flecha propia + hover/focus consistentes) ── */
+        .sel-brand {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236B6B6B' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+          background-size: 10px 6px;
+          padding-right: 26px !important;
+          min-height: 36px;
+          cursor: pointer;
+          transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .sel-brand:hover {
+          border-color: #B0B0B0 !important;
+        }
+        .sel-brand:focus {
+          outline: none;
+          border-color: #DDAC00 !important;
+          box-shadow: 0 0 0 3px rgba(221,172,0,0.16);
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23DDAC00' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+        .sel-brand:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
         @media (max-width: 1024px) {
           .sidebar-nav { width: 60px !important; }
           .sidebar-nav .nav-label { display: none !important; }
@@ -1585,6 +1617,7 @@ export default function App(){
           .areas-grid { grid-template-columns: 1fr 1fr !important; }
           .resumen-kpi { grid-template-columns: 1fr 1fr !important; }
           .base-opciones { grid-template-columns: 1fr !important; }
+          .sel-brand { min-height: 42px; font-size: 13px !important; }
         }
         @media print {
           .sidebar-nav { display: none !important; }
@@ -2063,7 +2096,7 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
-        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"224px 1fr",gap:20}}>
+        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"224px 1fr",gap:20,maxWidth:1180}}>
 
           {/* Sidebar áreas */}
           <div style={{minWidth:0}}>
@@ -2099,20 +2132,23 @@ export default function App(){
                 );
               })}
             </div>
-            {/* Totales sidebar */}
+            {/* Totales sidebar — mismo lenguaje de color que los KPIs de arriba */}
             <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,
               borderRadius:10,padding:16,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
               <div style={{fontSize:10,fontWeight:700,color:C.grayMid,
-                textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Totales</div>
-              {[{l:"CAPEX",v:totalCAPEX,c:C.yellowDark},{l:"OPEX",v:totalOPEX,c:C.grayDark}].map(r=>(
-                <div key={r.l} style={{marginBottom:10}}>
-                  <div style={{fontSize:10,color:C.grayMid,marginBottom:2}}>{r.l}</div>
-                  <div style={{fontSize:15,fontWeight:800,color:r.c}}>{fmt(r.v)}</div>
+                textTransform:"uppercase",letterSpacing:0.5,marginBottom:10}}>Totales del presupuesto</div>
+              {[{l:"CAPEX",v:totalCAPEX,c:C.yellowDark,bg:C.yellowLight},
+                {l:"OPEX",v:totalOPEX,c:"#374151",bg:C.grayLight}].map(r=>(
+                <div key={r.l} style={{background:r.bg,border:`1px solid ${r.c}22`,
+                  borderRadius:8,padding:"9px 12px",marginBottom:8}}>
+                  <div style={{fontSize:10,fontWeight:700,color:r.c,textTransform:"uppercase",letterSpacing:0.3}}>{r.l}</div>
+                  <div style={{fontSize:15,fontWeight:800,color:r.c,marginTop:3}}>{fmt(r.v)}</div>
                 </div>
               ))}
-              <div style={{paddingTop:10,borderTop:`1px solid ${C.line}`}}>
-                <div style={{fontSize:10,color:C.grayMid,marginBottom:2}}>Total egresos</div>
-                <div style={{fontSize:16,fontWeight:800,color:C.grayDark}}>{fmt(totalEgr)}</div>
+              <div style={{background:C.dangerLight,border:`1px solid ${C.danger}22`,
+                borderRadius:8,padding:"9px 12px",marginTop:2}}>
+                <div style={{fontSize:10,fontWeight:700,color:C.danger,textTransform:"uppercase",letterSpacing:0.3}}>Total egresos</div>
+                <div style={{fontSize:16,fontWeight:800,color:C.danger,marginTop:3}}>{fmt(totalEgr)}</div>
               </div>
             </div>
           </div>
@@ -2161,6 +2197,15 @@ export default function App(){
                 <SCard title="CAPEX · Equipos e inversiones"
                   subtitle="Inversiones únicas: maquinaria, equipos, activos"
                   total={capexA} accentColor="#7c3aed">
+                  {(()=>{
+                    const sinFecha=(datos?.capex||[]).filter(p=>!p.mesGastoMes||!p.mesGastoAnio).length;
+                    return sinFecha>0&&(
+                      <div style={{marginBottom:12,padding:"9px 14px",background:C.yellowLight,
+                        border:`1px solid ${C.yellowBorder}`,borderRadius:8,fontSize:12,color:C.yellowDark}}>
+                        ⚠ {sinFecha} partida{sinFecha>1?"s":""} sin fecha de compra — no se reflejará{sinFecha>1?"n":""} correctamente en el Resumen mensual.
+                      </div>
+                    );
+                  })()}
                   <PartidaTable
                     partidas={datos?.capex||[]}
                     onUpdate={u=>upP(areaActiva,"capex",u.id,u)}
@@ -2603,7 +2648,8 @@ export default function App(){
                   <div>
                     <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Mes *</div>
                     <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
-                      style={{width:"100%",padding:"7px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
+                      className="sel-brand"
+                      style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
                       {Array.from({length:12},(_,i)=>i+1).map(m=>(
                         <option key={m} value={m}>M{m} · {MESES[m-1]}</option>
                       ))}
