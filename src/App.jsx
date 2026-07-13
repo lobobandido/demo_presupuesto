@@ -394,6 +394,39 @@ function MoneyInput({value, onChange, style={}}){
   );
 }
 
+// ─── SCROLL HINT ──────────────────────────────────────────────────────────────
+// Estándar responsive para TODAS las tablas de varias columnas de la app
+// (ver nota completa junto a PartidaTable). Envuelve el contenido en un
+// contenedor con scroll horizontal y muestra una sombra en el borde derecho
+// SOLO mientras haya contenido oculto por desplazar — desaparece al llegar
+// al final, para no confundir cuando ya no hay nada más que ver.
+function ScrollHint({children, minWidth}){
+  const ref = useRef();
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  function check(){
+    const el = ref.current;
+    if(!el) return;
+    setCanScrollRight(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+  }
+  useEffect(()=>{ check(); });
+  useEffect(()=>{
+    window.addEventListener("resize", check);
+    return ()=>window.removeEventListener("resize", check);
+  },[]);
+  return (
+    <div style={{position:"relative"}}>
+      <div ref={ref} onScroll={check} style={{overflowX:"auto"}}>
+        <div style={minWidth?{minWidth}:undefined}>{children}</div>
+      </div>
+      {canScrollRight && (
+        <div style={{position:"absolute",top:0,right:0,bottom:0,width:28,
+          background:"linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.13))",
+          pointerEvents:"none"}}/>
+      )}
+    </div>
+  );
+}
+
 // ─── TOAST NOTIFICATION ───────────────────────────────────────────────────────
 function Toast({msg,onDone}){
   useEffect(()=>{const t=setTimeout(onDone,2800);return()=>clearTimeout(t);},[]);
@@ -607,12 +640,13 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
     : showPeriod
       ? ["Categoría","Descripción","Unidad","Cant.","Periodicidad / Inicio","Monto unit.","Total",""]
       : ["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""];
+  // ── Estándar responsive de tablas (ver ScrollHint más arriba) ──────────────
+  // Cualquier tabla de varias columnas de la app debe envolverse en <ScrollHint>
+  // en vez de un <div overflowX> manual — centraliza el scroll horizontal +
+  // la sombra indicadora.
   return(
     <div>
-    {/* Scroll horizontal de seguridad: en pantallas angostas (tablet) evita que
-        las columnas de la tabla se encimen — no cambia el layout en desktop */}
-    <div style={{overflowX:"auto"}}>
-    <div style={{minWidth:760}}>
+    <ScrollHint minWidth={760}>
       {/* Headers internos */}
       {partidas.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:cols,
@@ -692,14 +726,18 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     <option key={i} value={i+1}>{m}</option>
                   ))}
                 </select>
-                <input type="number" min="2024" max="2045"
-                  value={p.mesGastoAnio||""}
+                <select value={p.mesGastoAnio||""}
                   onChange={e=>onUpdate({...p,mesGastoAnio:e.target.value})}
-                  placeholder="Año*"
+                  className="sel-brand"
                   title="Año de compra"
                   style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoAnio?C.danger:C.grayBorder}`,
                     borderRadius:6,fontSize:11,width:"50%",textAlign:"center",
-                    background:!p.mesGastoAnio?"#FFF5F5":C.white}}/>
+                    background:!p.mesGastoAnio?"#FFF5F5":C.white,color:C.grayDark}}>
+                  <option value="">Año*</option>
+                  {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
               </div>
             )}
             {showPeriod&&(
@@ -756,8 +794,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
           </div>
         );
       })}
-    </div>
-    </div>
+    </ScrollHint>
       {/* Estado vacío */}
       {partidas.length===0&&(
         <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
@@ -784,8 +821,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
 function NominaTable({nomina,onUpdate,onRemove,onAdd}){
   return(
     <div>
-    <div style={{overflowX:"auto"}}>
-    <div style={{minWidth:720}}>
+    <ScrollHint minWidth={720}>
       {nomina.length>0&&(
         <div style={{display:"grid",
           gridTemplateColumns:"2fr 110px 60px 1fr 80px 80px 120px 34px",
@@ -876,8 +912,7 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
           </div>
         );
       })}
-    </div>
-    </div>
+    </ScrollHint>
       {nomina.length===0&&(
         <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
           background:"#FAFAFA",borderRadius:10,marginBottom:14}}>
@@ -1264,6 +1299,7 @@ export default function App(){
   const [cargandoGuardados,setCargandoGuardados]         = useState(false);
   const [origenReal,setOrigenReal]                       = useState(null); // {nombre,capex,opex}
   const [modoEdit,setModoEdit]     = useState(false);
+  const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
   // Estado para abrir presupuesto después del render (evita race condition)
@@ -1380,6 +1416,7 @@ export default function App(){
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
+    setIntentoGuardar(false);
     setStep(1);
   }
   function abrirEdit(p){
@@ -1389,6 +1426,7 @@ export default function App(){
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
+    setIntentoGuardar(false);
     setStep(1);
   }
 
@@ -1460,10 +1498,13 @@ export default function App(){
     setIngAd((p._ingAdicionales||[]).map(x=>({...x,id:uid()})));
     setPres(null); setModoEdit(false);
     setPlantKey(null); setAreaSaved(false);
+    setIntentoGuardar(false);
     setStep(1);
   }
 
   function guardarPres(){
+    const invalido = !form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin;
+    if(invalido){ setIntentoGuardar(true); return; }
     const snap={...form,estado:"Borrador",fecha:new Date().toISOString().slice(0,10),
       _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos,
       _precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
@@ -1699,6 +1740,19 @@ export default function App(){
           .base-opciones { grid-template-columns: 1fr !important; }
           .sel-brand { min-height: 42px; font-size: 13px !important; }
         }
+        /* ── Móvil (≤480px, ej. iPhone SE) ──────────────────────────────────
+           Estándar para listados con acciones: la fila-grid se convierte en
+           card apilada (datos arriba, botones de acción abajo en fila que
+           envuelve). Las tablas de captura/meses usan <ScrollHint> en vez de
+           esto — ver componente ScrollHint arriba. */
+        @media (max-width: 480px) {
+          .lista-header { display: none !important; }
+          .lista-row { grid-template-columns: 1fr !important; gap: 10px !important; }
+          .lista-acciones { justify-content: flex-start !important; flex-wrap: wrap; }
+          .areas-grid { grid-template-columns: 1fr !important; }
+          .kpi-grid { grid-template-columns: 1fr !important; }
+          .resumen-kpi { grid-template-columns: 1fr 1fr !important; }
+        }
         @media print {
           .sidebar-nav { display: none !important; }
           .main-content { margin-left: 0 !important; }
@@ -1765,7 +1819,7 @@ export default function App(){
         )}
       </aside>
       {/* Main */}
-      <div className="main-content" style={{flex:1,marginLeft:220,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
+      <div className="main-content" style={{flex:1,minWidth:0,marginLeft:220,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
         <header style={{background:C.white,borderBottom:`1px solid ${C.line}`,
           padding:"0 32px",height:52,display:"flex",alignItems:"center",
           justifyContent:"space-between",position:"sticky",top:0,zIndex:40,
@@ -1802,7 +1856,7 @@ export default function App(){
             <span style={{fontSize:12,color:C.grayMid}}>{form.empresa||pres?.empresa||"GEOLIS SA DE CV"}</span>
           </div>
         </header>
-        <main style={{padding:"28px 32px",flex:1}}>{children}</main>
+        <main style={{padding:"28px 32px",flex:1,minWidth:0}}>{children}</main>
       </div>
     </div>
   );
@@ -1821,8 +1875,8 @@ export default function App(){
       </div>
       <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
         overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-        {/* Header tabla */}
-        <div style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",gap:0,
+        {/* Header tabla — oculto en móvil, donde cada fila se muestra como card apilada */}
+        <div className="lista-header" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",gap:0,
           padding:"10px 20px",background:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
           {["Proyecto","Tipo","Estado","Acciones"].map((h,i)=>(
             <div key={h} style={{fontSize:11,fontWeight:700,color:C.grayMid,
@@ -1831,7 +1885,7 @@ export default function App(){
           ))}
         </div>
         {lista.map((p,i)=>(
-          <div key={p.id} style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",
+          <div key={p.id} className="lista-row" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",
             gap:0,alignItems:"center",padding:"14px 20px",
             background:i%2===0?C.white:"#FAFAFA",
             borderBottom:i<lista.length-1?`1px solid ${C.line}`:"none",
@@ -1842,7 +1896,7 @@ export default function App(){
             </div>
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
             <div><EstadoBadge estado={p.estado}/></div>
-            <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+            <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
                 abrirPresupuesto(p);
@@ -1908,9 +1962,9 @@ export default function App(){
                 <input value={form.nombre} onChange={e=>setForm({...form,nombre:e.target.value})}
                   placeholder="Ej. BECH-PERDIZ-2026"
                   style={{width:"100%",padding:"9px 12px",
-                    border:`1px solid ${!form.nombre?"#C0392B":C.grayBorder}`,
+                    border:`1px solid ${intentoGuardar&&!form.nombre?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
-                    background:!form.nombre?"#FFF5F5":C.white}}/>
+                    background:intentoGuardar&&!form.nombre?"#FFF5F5":C.white}}/>
               </div>
               <div>
                 <FL>Empresa</FL>
@@ -1922,17 +1976,17 @@ export default function App(){
                 <FL required>Fecha inicio</FL>
                 <input type="date" value={form.fechaInicio} onChange={e=>setForm({...form,fechaInicio:e.target.value})}
                   style={{width:"100%",padding:"9px 12px",
-                    border:`1px solid ${!form.fechaInicio?"#C0392B":C.grayBorder}`,
+                    border:`1px solid ${intentoGuardar&&!form.fechaInicio?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
-                    background:!form.fechaInicio?"#FFF5F5":C.white}}/>
+                    background:intentoGuardar&&!form.fechaInicio?"#FFF5F5":C.white}}/>
               </div>
               <div>
                 <FL required>Fecha fin</FL>
                 <input type="date" value={form.fechaFin} onChange={e=>setForm({...form,fechaFin:e.target.value})}
                   style={{width:"100%",padding:"9px 12px",
-                    border:`1px solid ${!form.fechaFin?"#C0392B":C.grayBorder}`,
+                    border:`1px solid ${intentoGuardar&&!form.fechaFin?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
-                    background:!form.fechaFin?"#FFF5F5":C.white}}/>
+                    background:intentoGuardar&&!form.fechaFin?"#FFF5F5":C.white}}/>
               </div>
               <div>
                 <FL>Fecha de elaboración</FL>
@@ -1941,7 +1995,7 @@ export default function App(){
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
               <div style={{gridColumn:"1 / -1"}}>
-                <FL required>Tipo de presupuesto {!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
+                <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
                     {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
@@ -2030,8 +2084,9 @@ export default function App(){
         )}
         <div style={{display:"flex",justifyContent:"space-between"}}>
           {btn("Cancelar",()=>setStep(0),"secondary")}
-          {/* FIX 1b: Mostrar errores de validación inline */}
-          {(!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)&&(
+          {/* Los avisos de campos faltantes solo aparecen tras un intento fallido de
+              Continuar/Guardar — no desde que se carga la pantalla (ver guardarPres) */}
+          {intentoGuardar&&(!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)&&(
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
               {!form.nombre&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Nombre del proyecto requerido</span>}
               {!form.tipo&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Selecciona el tipo de presupuesto</span>}
@@ -2039,7 +2094,7 @@ export default function App(){
               {!form.fechaFin&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Fecha fin requerida</span>}
             </div>
           )}
-          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary",!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)}
+          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
         </div>
 
         {/* Modal plantillas */}
@@ -2073,21 +2128,29 @@ export default function App(){
                   </div>
                 ))}
               </div>
-              {/* Presupuestos guardados reales (Supabase) — solo lectura, no altera plantillas fijas */}
-              {supabase&&(
+              {/* Presupuestos guardados reales (Supabase) — solo lectura, no altera plantillas fijas.
+                  Se filtran por el mismo tipo del presupuesto que se está creando: partir de un
+                  presupuesto de Servicio no tiene sentido para uno de Departamento. */}
+              {supabase&&(()=>{
+                const guardadosDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo);
+                return (
                 <div style={{marginTop:16}}>
                   <div style={{fontSize:12,fontWeight:700,color:C.grayDark,marginBottom:8}}>
-                    Presupuestos guardados
+                    Presupuestos guardados de tipo <span style={{textTransform:"capitalize"}}>{form.tipo}</span>
                   </div>
                   {cargandoGuardados&&(
                     <div style={{fontSize:12,color:C.grayMid,padding:"8px 0"}}>Cargando…</div>
                   )}
-                  {!cargandoGuardados&&presupuestosGuardados.length===0&&(
-                    <div style={{fontSize:12,color:C.grayMid,padding:"8px 0"}}>Aún no hay presupuestos guardados en Supabase.</div>
+                  {!cargandoGuardados&&guardadosDelTipo.length===0&&(
+                    <div style={{fontSize:12,color:C.grayMid,padding:"8px 0"}}>
+                      {presupuestosGuardados.length===0
+                        ?"Aún no hay presupuestos guardados en Supabase."
+                        :<>No hay presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — puedes iniciar desde cero.</>}
+                    </div>
                   )}
-                  {!cargandoGuardados&&presupuestosGuardados.length>0&&(
+                  {!cargandoGuardados&&guardadosDelTipo.length>0&&(
                     <div style={{display:"grid",gap:8,maxHeight:200,overflowY:"auto"}}>
-                      {presupuestosGuardados.map(p=>(
+                      {guardadosDelTipo.map(p=>(
                         <div key={p.id} onClick={()=>partirDePresupuestoAnterior(p)}
                           style={{border:"1px solid",borderColor:origenReal?.nombre===p.nombre?C.yellow:C.grayBorder,
                             borderRadius:8,padding:"10px 14px",cursor:"pointer",
@@ -2110,7 +2173,8 @@ export default function App(){
                     </div>
                   )}
                 </div>
-              )}
+                );
+              })()}
               <div style={{marginTop:16,padding:"12px 16px",background:"#F8F8F8",borderRadius:8,border:`1px solid ${C.grayBorder}`}}>
                 <div style={{fontSize:12,fontWeight:700,color:C.grayDark,marginBottom:6}}>¿Prefieres empezar desde cero?</div>
                 <div style={{fontSize:11,color:C.grayMid,marginBottom:10}}>Las secciones de captura iniciarán vacías. Tú agregas cada partida manualmente.</div>
@@ -2200,7 +2264,7 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
-        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"248px 1fr",gap:28,maxWidth:1320}}>
+        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"248px minmax(0,1fr)",gap:28,maxWidth:1320}}>
 
           {/* Sidebar áreas */}
           <div style={{minWidth:0}}>
@@ -2614,7 +2678,7 @@ export default function App(){
       const totMes=Array(NMESES).fill(0).map((_,i)=>filas.reduce((s,f)=>s+(f.datos[i]||0),0));
       const totGen=filas.reduce((s,f)=>s+f.datos.reduce((a,b)=>a+b,0),0);
       return(
-        <div style={{overflowX:"auto"}}>
+        <ScrollHint>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:11,minWidth:900}}>
             <thead>
               <tr style={{background:C.grayDark}}>
@@ -2655,7 +2719,7 @@ export default function App(){
               )}
             </tbody>
           </table>
-        </div>
+        </ScrollHint>
       );
     }
 
@@ -2788,8 +2852,8 @@ export default function App(){
             </div>
 
             {/* Tabla resumen M0-M12 */}
-            <div style={{overflowX:"auto"}}>
-              <table style={{borderCollapse:"collapse",fontSize:11,minWidth:800,width:"100%"}}>
+            <ScrollHint minWidth={800}>
+              <table style={{borderCollapse:"collapse",fontSize:11,width:"100%"}}>
                 <thead>
                   <tr style={{background:"#059669"}}>
                     <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
@@ -2825,7 +2889,7 @@ export default function App(){
                   )}
                 </tbody>
               </table>
-            </div>
+            </ScrollHint>
           </>)}
 
           {/* ── KPIs ────────────────────────────────────────────────────── */}
@@ -2912,6 +2976,7 @@ export default function App(){
           {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
           {areas.length>0&&card(<>
             {sTitle("Resumen por área")}
+            <ScrollHint minWidth={480}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
               <thead>
                 <tr style={{background:"#FAFAFA",borderBottom:`2px solid ${C.line}`}}>
@@ -2944,6 +3009,7 @@ export default function App(){
                 </tr>
               </tbody>
             </table>
+            </ScrollHint>
           </>,0)}
 
           <div style={{textAlign:"center",fontSize:11,color:C.grayMid,paddingTop:20,marginTop:20,

@@ -274,4 +274,42 @@ geolis-presupuestos/
 
 ---
 
+## Estándar responsive para tablas (móvil)
+
+Al auditar la app en viewport de 375px (iPhone SE) se encontraron tablas que se
+desbordaban horizontalmente sin indicación clara de scroll. Se definió un
+estándar único, aplicado a **todas** las tablas de la app:
+
+1. **Listados con acciones** (pocas columnas + botones, ej. lista de
+   "Presupuestos"): la fila-grid se convierte en card apilada en móvil
+   (`className="lista-row"` + regla `@media (max-width:480px)` que fuerza
+   `grid-template-columns:1fr`). El header de la tabla (`lista-header`) se
+   oculta; los botones de acción envuelven en fila (`flex-wrap`).
+
+2. **Tablas de captura/datos con muchas columnas** (partidas CAPEX/OPEX,
+   nómina, tablas de meses M0–M12 del Resumen): se envuelven en el componente
+   compartido `<ScrollHint>` (definido junto a `MoneyInput`/`Toast` en
+   `src/App.jsx`) — scroll horizontal contenido (no rompe el layout de la
+   página) + sombra en el borde derecho que **solo aparece si hay contenido
+   real por desplazar** (se oculta al llegar al final del scroll).
+
+3. **Texto descriptivo largo**: word-wrap normal (comportamiento por defecto
+   de los `<div>`); nunca `white-space:nowrap` combinado con `overflow:hidden`
+   salvo en chips/etiquetas cortas con `title` de respaldo.
+
+**Bug raíz encontrado durante la auditoría:** `<main>` y `.main-content` eran
+hijos flex sin `min-width:0`. Por default, un hijo flex no se encoge por
+debajo del ancho mínimo de su contenido (`min-width:auto`), así que cualquier
+tabla ancha en cualquier parte de la página — aunque estuviera envuelta en su
+propio scroll — empujaba a **toda la página** a desbordarse horizontalmente.
+Se corrigió agregando `minWidth:0` a ambos, y `minmax(0,1fr)` en las columnas
+de grid con `1fr` (mismo problema existe en CSS Grid). Cualquier nuevo layout
+flex/grid de columna ancha en esta app debe seguir este mismo patrón.
+
+**Para nuevas tablas:** usar siempre `<ScrollHint minWidth={N}>` en vez de un
+`<div style={{overflowX:"auto"}}>` manual, y verificar que ningún ancestro
+flex/grid en la cadena hacia `<main>` carezca de `min-width:0`.
+
+---
+
 *GEOLIS SA DE CV — Bitácora técnica interna — Módulo de Presupuestos v1.0 MVP*
