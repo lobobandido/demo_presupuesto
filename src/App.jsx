@@ -765,17 +765,21 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                       <option key={i} value={i+1}>{m}</option>
                     ))}
                   </select>
-                  <input type="number" min="2024" max="2045"
-                    value={p.mesGastoAnio||""}
+                  <select value={p.mesGastoAnio||""}
                     onChange={e=>{
                       const mesGastoAnio=e.target.value;
                       const idx=mesIndexCapex({...p,mesGastoAnio},fechaInicioProyecto,12);
                       onUpdate({...p,mesGastoAnio,mesInicioOpex:p.mesGastoMes&&mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
                     }}
-                    placeholder="Año"
+                    className="sel-brand"
                     title="Año en que inicia este gasto"
                     style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                      fontSize:10,width:"50%",textAlign:"center",background:C.white}}/>
+                      fontSize:10,width:"50%",textAlign:"center",background:C.white,color:C.grayDark}}>
+                    <option value="">Año</option>
+                    {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
                 </div>
                 {p.mesInicioOpex&&!p.mesGastoMes&&(
                   <div style={{fontSize:9,color:C.grayMid}}>Inicia M{p.mesInicioOpex} (sin fecha)</div>
@@ -2825,9 +2829,14 @@ export default function App(){
                   </div>
                   <div>
                     <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Año *</div>
-                    <input type="number" value={ing.anio} min={2024} max={2045}
-                      onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)||2026}:x))}
-                      style={{width:"100%",padding:"7px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                    <select value={ing.anio}
+                      onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)}:x))}
+                      className="sel-brand"
+                      style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
+                      {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Descripción</div>
