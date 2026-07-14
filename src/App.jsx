@@ -87,7 +87,7 @@ const HISTORIAL_OPEX_BASE = [
 function getHistorialLS(){
   // Leer presupuestos guardados del localStorage para autocompletar
   try {
-    const estado = JSON.parse(localStorage.getItem("geolis_app_state_v3")||"{}");
+    const estado = JSON.parse(localStorage.getItem(LS_APP_KEY)||"{}");
     const lista = estado.lista || [];
     const partidas = [];
     lista.forEach(p => {
@@ -2482,6 +2482,25 @@ export default function App(){
       distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
     });
 
+    // Partidas sin categoría contable macro asignada (para revisión posterior) —
+    // una categoría "tiene macro" si es ella misma una de las 27 CATS_MACRO_CONTABLE,
+    // o si aparece en SUBCAT_MAPPING (fijo) o geolis_subcat_map (elegido por el usuario).
+    const subcatMapLS=(()=>{ try{ return JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}"); }catch(e){ return {}; } })();
+    function tieneCategoriaMacro(cat){
+      const catUp=(cat||"").trim().toUpperCase();
+      if(!catUp) return false;
+      if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return true;
+      if(SUBCAT_MAPPING[catUp]) return true;
+      if(subcatMapLS[catUp]) return true;
+      return false;
+    }
+    let sinCategoriaMacro=0;
+    areas.forEach(id=>{
+      ["capex","mat","via"].forEach(cat=>{
+        (costos[id]?.[cat]||[]).forEach(p=>{ if(!tieneCategoriaMacro(p.cat)) sinCategoriaMacro++; });
+      });
+    });
+
     // Egresos totales por mes
     const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
 
@@ -2900,6 +2919,14 @@ export default function App(){
               </table>
             </ScrollHint>
           </>)}
+
+          {/* Aviso: partidas sin categoría contable macro asignada */}
+          {sinCategoriaMacro>0&&(
+            <div style={{marginBottom:16,padding:"10px 16px",background:C.grayLight,
+              border:`1px solid ${C.grayBorder}`,borderRadius:8,fontSize:12,color:C.grayDark}}>
+              ⚠ {sinCategoriaMacro} partida{sinCategoriaMacro>1?"s":""} sin categoría contable asignada — revísala{sinCategoriaMacro>1?"s":""} antes de cerrar el presupuesto.
+            </div>
+          )}
 
           {/* ── KPIs ────────────────────────────────────────────────────── */}
           <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
