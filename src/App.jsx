@@ -631,9 +631,9 @@ function FL({children,required}){
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto}){
   const cols = showMes
-    ? "1.8fr 1.6fr 84px 64px 150px 114px 108px 34px"
+    ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
-      ? "1.8fr 1.6fr 84px 64px 150px 114px 108px 34px"
+      ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
       : "2fr 2fr 90px 76px 1fr 100px 34px";
   const headers = showMes
     ? ["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
@@ -644,9 +644,13 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   // Cualquier tabla de varias columnas de la app debe envolverse en <ScrollHint>
   // en vez de un <div overflowX> manual — centraliza el scroll horizontal +
   // la sombra indicadora.
+  // showMes/showPeriod agregan una columna extra (Fecha o Periodicidad/Inicio) —
+  // con 8 columnas necesitan más ancho mínimo antes de compactarse o Categoría/
+  // Descripción quedan ilegibles; por debajo de ese ancho, ScrollHint hace scroll
+  // horizontal en vez de comprimir el texto.
   return(
     <div>
-    <ScrollHint minWidth={760}>
+    <ScrollHint minWidth={showMes||showPeriod?1000:760}>
       {/* Headers internos */}
       {partidas.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:cols,
@@ -1769,10 +1773,10 @@ export default function App(){
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       {/* Sidebar */}
       <aside className="sidebar-nav" style={{width:220,background:C.sidebar,flexShrink:0,
-        display:"flex",flexDirection:"column",position:"fixed",
+        display:"flex",flexDirection:"column",position:"fixed",overflow:"hidden",
         top:0,left:0,bottom:0,zIndex:50}}>
         <div style={{padding:"22px 20px 18px",borderBottom:"1px solid #222"}}>
-          <div style={{fontSize:10,color:"#444",letterSpacing:2.5,textTransform:"uppercase",marginBottom:6}}>Corporativo</div>
+          <div className="sidebar-logo-text" style={{fontSize:10,color:"#444",letterSpacing:2.5,textTransform:"uppercase",marginBottom:6,whiteSpace:"nowrap"}}>Corporativo</div>
           <div className="sidebar-logo-text" style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5}}>GEOLIS</div>
           <div className="sidebar-logo-text" style={{fontSize:11,color:"#555",marginTop:3}}>Módulo de Presupuestos</div>
         </div>
