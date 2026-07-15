@@ -1103,12 +1103,11 @@ function BarChart({items,height=260}){
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
   mFlujo: mFlujoBase, mFlujoAcum: mFlujoAcumBase, mIngresos: mIngresosBase, totalCAPEX, totalOPEX, totalEgr,
   totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[]}) {
-  // Incorporar ingresos adicionales por mes (la tabla de captura ya los suma aparte;
-  // aquí se fusionan en la fila FACTURACIÓN para que el Excel cuadre con el total anual).
-  // Flujo y acumulado se recalculan localmente para que todo el libro quede consistente.
-  const mIngresos = mIngresosBase.map((v,i)=>v+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
-  const mFlujo = mIngresos.map((v,i)=>v-mEgresos[i]);
-  const mFlujoAcum = mFlujo.reduce((acc,v,i)=>{ acc.push(i===0?v:acc[i-1]+v); return acc; },[]);
+  // mIngresosBase ya incluye los ingresos adicionales por mes (fusionados en el cálculo
+  // del Resumen mensual) — se reutiliza tal cual para que el Excel cuadre con la pantalla.
+  const mIngresos = mIngresosBase;
+  const mFlujo = mFlujoBase;
+  const mFlujoAcum = mFlujoAcumBase;
   // Cargar SheetJS con soporte de estilos
   if(!window.XLSX){
     await new Promise((res,rej)=>{
@@ -2548,10 +2547,10 @@ export default function App(){
     // Egresos totales por mes
     const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
 
-    // Ingresos (estado editable)
-    const mIngresos=ingresos.slice(0,NMESES);
-    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0)
-      + ingAdicionales.reduce((s,x)=>s+x.monto,0);
+    // Ingresos (estado editable) + ingresos adicionales del mes correspondiente
+    const mIngresos=ingresos.slice(0,NMESES)
+      .map((v,i)=>v+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
+    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
 
     // Flujo efectivo mensual = Ingresos - Egresos
     const mFlujo=Array(NMESES).fill(0).map((_,i)=>mIngresos[i]-mEgresos[i]);
