@@ -53,9 +53,24 @@ const CATS_MACRO_CONTABLE = ["ACTIVOS", "ARRENDA DE INMUEBLES Y SERV", "ARTICULO
 // Mapping: subcategoría escrita → categoría macro contable
 const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LUZ, AGUA E INTERNET": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LIMPIEZA": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE VIGILANCIA": "ARRENDA DE INMUEBLES Y SERV", "TELEFONIA FIJA": "ARRENDA DE INMUEBLES Y SERV", "AGUA Y ALCANTARILLADO": "ARRENDA DE INMUEBLES Y SERV", "ARRENDAMIENTO DE OF. MOVILES": "ARRENDA DE INMUEBLES Y SERV", "ROPA Y ARTICULOS DE PROTECCION": "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO (ADQUISICION)": "EQUIPO DE COMPUTO", "ARRENDAMIENTO DE EQ. COMPUTO": "EQUIPO DE COMPUTO", "ENSERES MENORES DIVERSOS": "EQUIPOS Y ENSERES", "INSUMOS AGRICOLAS": "INSUMOS OPERATIVOS", "PAPELERIA Y UTILES DE OFICINA": "INSUMOS DE OFICINA", "ARTICULOS DE ASEO Y SANITARIOS": "INSUMOS DE OFICINA", "ARTICULOS DE CAFETERIA": "INSUMOS DE OFICINA", "ARTICULOS DIGITALES Y DE COMPUTO": "INSUMOS DE OFICINA", "SERVICIOS DE MERCADOTECNIA": "MARKETING", "PUBLICIDAD Y PROPAGANDA": "MARKETING", "ABRASIVOS": "MATERIALES", "ACEITE LUBRICANTE P/MAQUINARIA": "MATERIALES", "ACEITES Y LUBRICANTES": "MATERIALES", "BANDA CADEN TRANS COPL": "MATERIALES", "CONEXIONES PARA TUBERIA": "MATERIALES", "FIBRAS HILOS Y TELAS": "MATERIALES", "GRASAS": "MATERIALES", "HERRAMIENTAS MANUALES": "MATERIALES", "LLANTAS, CAMARAS Y ACCESORIOS": "MATERIALES", "MATERIAL ELECTRICO": "MATERIALES", "MATERIALES Y ART P/MANTENIMIENTO": "MATERIALES", "POSTE DE TELEMETRIA": "MATERIALES", "MATERIAL PRIMEROS AUXILIOS": "MATERIALES DE SALUD", "NOMINA": "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR (PARA TRANSMITIR)": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE BANDA ANCHA": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE RADIOCOMUNICACION": "SERV TELEFONIA CELULAR Y RADIO", "CUADRILLA DE INSTALACION": "SERVICIOS", "HERRAMIENTA": "SERVICIOS", "CAPACITACION": "SERVICIOS DE CAPACITACION", "SERVICIOS MEDICOS": "SERVICIOS DE SALUD", "SERVICIOS Y COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "ALIMENTACION": "VIATICOS", "CASETAS PUENTES Y PEAJES": "VIATICOS", "SERV DE TRANSPORTAC AEREA": "VIATICOS", "SERV DE TRANSPORTAC TERRESTRE": "VIATICOS", "SERVICIOS DE HOSPEDAJE": "VIATICOS", "CAJA CHICA": "VIATICOS", "REEMBOLSOS": "VIATICOS", "MOBILIARIO": "EQUIPOS Y ENSERES", "SILLA DE OFICINA": "EQUIPOS Y ENSERES", "ESCRITORIO": "EQUIPOS Y ENSERES", "MUEBLES": "EQUIPOS Y ENSERES"};
 
+// Categoría escrita → categoría contable macro (misma regla que usa el modal
+// "¿A qué categoría contable pertenece?" y el aviso de partidas sin categoría) —
+// versión standalone para usarse fuera del componente (ej. exportarExcel).
+function macroDeCategoria(cat){
+  const catUp=(cat||"").trim().toUpperCase();
+  if(!catUp) return "SIN CATEGORÍA";
+  if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return catUp;
+  if(SUBCAT_MAPPING[catUp]) return SUBCAT_MAPPING[catUp];
+  try{
+    const m=JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}");
+    if(m[catUp]) return m[catUp];
+  }catch(e){}
+  return "SIN CATEGORÍA";
+}
+
 // Partidas históricas para autocompletar al escribir categoría
 const HISTORIAL_CAPEX = {
-  "cuervito": [{"cat": "EQUIPO DE TRANSPORTE", "desc": "Camionetas", "unidad": "Unidad", "cantidad": 1, "monto": 550000.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Sensores de presión", "unidad": "Unidad", "cantidad": 360, "monto": 165.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Gateway", "unidad": "Unidad", "cantidad": 180, "monto": 175.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "PLC", "unidad": "Unidad", "cantidad": 50, "monto": 300.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Arreglos  y accesorios", "unidad": "Unidad", "cantidad": 180, "monto": 650.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Panel solar", "unidad": "Unidad", "cantidad": 180, "monto": 60.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Controlador de carga", "unidad": "Unidad", "cantidad": 180, "monto": 35.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Bateria Ciclo profundo", "unidad": "Unidad", "cantidad": 360, "monto": 80.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Gabinete", "unidad": "Unidad", "cantidad": 180, "monto": 90.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Cableado, clemas y riel", "unidad": "Unidad", "cantidad": 180, "monto": 60.0}, {"cat": "TRANSMISION", "desc": "Kit Starlink mini", "unidad": "Unidad", "cantidad": 40, "monto": 277.0}, {"cat": "TRANSMISION", "desc": "Antenas repetidoras", "unidad": "Unidad", "cantidad": 40, "monto": 1100.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Monitores", "unidad": "Unidad", "cantidad": 6, "monto": 450.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Workstation", "unidad": "Unidad", "cantidad": 1, "monto": 1800.0}, {"cat": "CENTRO DE MONITOREO", "desc": "UPS", "unidad": "Unidad", "cantidad": 1, "monto": 250.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Accesorios", "unidad": "Unidad", "cantidad": 1, "monto": 200.0}],
+  "cuervito": [{"cat": "EQUIPO DE TRANSPORTE", "desc": "Camionetas", "unidad": "Unidad", "cantidad": 1, "monto": 550000.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Sensores de presión", "unidad": "Unidad", "cantidad": 360, "monto": 2970.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Gateway", "unidad": "Unidad", "cantidad": 180, "monto": 3150.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "PLC", "unidad": "Unidad", "cantidad": 50, "monto": 5400.0}, {"cat": "EQUIPO DE ADQUISICION", "desc": "Arreglos  y accesorios", "unidad": "Unidad", "cantidad": 180, "monto": 11700.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Panel solar", "unidad": "Unidad", "cantidad": 180, "monto": 1080.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Controlador de carga", "unidad": "Unidad", "cantidad": 180, "monto": 630.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Bateria Ciclo profundo", "unidad": "Unidad", "cantidad": 360, "monto": 1440.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Gabinete", "unidad": "Unidad", "cantidad": 180, "monto": 1620.0}, {"cat": "GABINETE Y ENERGIA", "desc": "Cableado, clemas y riel", "unidad": "Unidad", "cantidad": 180, "monto": 1080.0}, {"cat": "TRANSMISION", "desc": "Kit Starlink mini", "unidad": "Unidad", "cantidad": 40, "monto": 4986.0}, {"cat": "TRANSMISION", "desc": "Antenas repetidoras", "unidad": "Unidad", "cantidad": 40, "monto": 19800.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Monitores", "unidad": "Unidad", "cantidad": 6, "monto": 8100.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Workstation", "unidad": "Unidad", "cantidad": 1, "monto": 32400.0}, {"cat": "CENTRO DE MONITOREO", "desc": "UPS", "unidad": "Unidad", "cantidad": 1, "monto": 4500.0}, {"cat": "CENTRO DE MONITOREO", "desc": "Accesorios", "unidad": "Unidad", "cantidad": 1, "monto": 3600.0}],
   "perdiz":   [{"cat": "EQUIPO DE TRANSPORTE", "desc": "Camionetas", "unidad": "Unidad", "cantidad": 0, "monto": 32025.45}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Comisionamiento Gen", "unidad": "Unidad", "cantidad": 1, "monto": 6500.0}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Material de Seguridad", "unidad": "Unidad", "cantidad": 0, "monto": 3500.0}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Herramienta Manual", "unidad": "Unidad", "cantidad": 1, "monto": 11538.46}, {"cat": "EQUIPO DE MOBILIARIO", "desc": "Comisionamiento HPS", "unidad": "Unidad", "cantidad": 0, "monto": 2000.0}, {"cat": "MAQUINARIA Y EQUIPO 1", "desc": "Bomba HPS", "unidad": "Unidad", "cantidad": 1, "monto": 176089.03}, {"cat": "MAQUINARIA Y EQUIPO 2", "desc": "VDF", "unidad": "Unidad", "cantidad": 1, "monto": 79961.3}, {"cat": "MAQUINARIA Y EQUIPO 3", "desc": "Generador", "unidad": "Unidad", "cantidad": 1, "monto": 513000.0}, {"cat": "MAQUINARIA Y EQUIPO 4", "desc": "Refaccionamiento bomba", "unidad": "Unidad", "cantidad": 1, "monto": 65000.0}, {"cat": "MAQUINARIA Y EQUIPO 5", "desc": "Refaccionamiento generador", "unidad": "Unidad", "cantidad": 1, "monto": 65000.0}, {"cat": "MAQUINARIA Y EQUIPO 6", "desc": "CCM", "unidad": "Unidad", "cantidad": 1, "monto": 160486.99501936912}, {"cat": "MAQUINARIA Y EQUIPO 7", "desc": "Cobertizo", "unidad": "Unidad", "cantidad": 1, "monto": 100000.0}, {"cat": "OTROS ACTIVOS", "desc": "Obra mecanica", "unidad": "Unidad", "cantidad": 1, "monto": 94452.26}, {"cat": "OTROS ACTIVOS", "desc": "Valvulas", "unidad": "Unidad", "cantidad": 1, "monto": 117998.91}, {"cat": "OTROS ACTIVOS", "desc": "Obra Electrica", "unidad": "Unidad", "cantidad": 1, "monto": 556015.9120088544}, {"cat": "OTROS ACTIVOS", "desc": "RICCSSA", "unidad": "Obra civil", "cantidad": 1, "monto": 280969.06156405987}, {"cat": "OTROS ACTIVOS", "desc": "Pruebas PND y Pintura", "unidad": "Unidad", "cantidad": 1, "monto": 17867.79}, {"cat": "PARIDAD", "desc": "18.07", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "MES", "desc": "30.4", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "PERIODO PAGO (DÍAS)", "desc": "30", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "GASOLINA MAGNA", "desc": "22", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "DIESEL", "desc": "23", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "LINEA DE 12 A 4", "desc": "1265057.97", "unidad": "Unidad", "cantidad": 1, "monto": 0}, {"cat": "LINEA DE 16 A 6", "desc": "1553586.78", "unidad": "Unidad", "cantidad": 1, "monto": 0}],
 };
 const HISTORIAL_NOMINA = {
@@ -271,9 +286,15 @@ function distribuirOpex(p, numMeses=12){
   const intervalo = PM_INTERVALO[p.periodicidad||"mensual"]||1;
   const inicio = Math.max(1, p.mesInicioOpex||1);
   const montoMes = (p.monto||0)*(p.cantidad||1);
+  // Repeticiones: cuántas veces ocurre este gasto antes de parar (ej. una cuadrilla
+  // de instalación mensual que solo dura 3 meses). Vacío/0 = sin límite (se repite
+  // hasta el fin del proyecto, comportamiento de siempre).
+  const maxOcurrencias = p.repeticiones>0 ? p.repeticiones : Infinity;
   return Array(numMeses+1).fill(0).map((_,i)=>{
     if(i<inicio) return 0;
-    return (i-inicio) % intervalo === 0 ? montoMes : 0;
+    if((i-inicio)%intervalo!==0) return 0;
+    const ocurrencia=(i-inicio)/intervalo+1;
+    return ocurrencia<=maxOcurrencias ? montoMes : 0;
   });
 }
 
@@ -289,6 +310,16 @@ function mesIndexCapex(p, fechaInicio, numMeses=12){
   const anioIni = inicio.getFullYear(), mesIni = inicio.getMonth()+1;
   const diff = (parseInt(p.mesGastoAnio)-anioIni)*12 + (parseInt(p.mesGastoMes)-mesIni);
   return Math.min(Math.max(diff,0), numMeses);
+}
+
+// Duración real del proyecto en meses operativos (M1..Mn), a partir de las fechas
+// capturadas — soporta desde presupuestos de 6 meses hasta de 20 años (240 meses).
+// Default 12 si no hay fechas (mismo comportamiento de siempre para M0..M12).
+function calcularNumMesesOp(fechaInicio, fechaFin){
+  if(!fechaInicio || !fechaFin) return 12;
+  const ini=new Date(fechaInicio+"T00:00:00"), fin=new Date(fechaFin+"T00:00:00");
+  const meses=(fin.getFullYear()-ini.getFullYear())*12 + (fin.getMonth()-ini.getMonth());
+  return Math.max(1, meses);
 }
 
 // Meses activos de un puesto de nómina
@@ -663,7 +694,12 @@ function AlmacenSuggestions({query, onPick}){
 
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
-function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto}){
+function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12}){
+  // Rango de años de los selects "Año" — antes fijo 2024-2035; ahora se ajusta
+  // a la duración real del proyecto (soporta desde 6 meses hasta 20 años).
+  const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
+  const anioFinProy = fechaFinProyecto ? new Date(fechaFinProyecto+"T00:00:00").getFullYear() : anioIniProy+11;
+  const RANGO_ANIOS = Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
   const cols = showMes
     ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
@@ -778,7 +814,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     borderRadius:6,fontSize:11,width:"50%",textAlign:"center",
                     background:!p.mesGastoAnio?"#FFF5F5":C.white,color:C.grayDark}}>
                   <option value="">Año*</option>
-                  {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                  {RANGO_ANIOS.map(y=>(
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
@@ -797,7 +833,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   <select value={p.mesGastoMes||""}
                     onChange={e=>{
                       const mesGastoMes=e.target.value;
-                      const idx=mesIndexCapex({...p,mesGastoMes},fechaInicioProyecto,12);
+                      const idx=mesIndexCapex({...p,mesGastoMes},fechaInicioProyecto,numMesesOpProyecto);
                       onUpdate({...p,mesGastoMes,mesInicioOpex:mesGastoMes&&p.mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
                     }}
                     className="sel-brand"
@@ -812,7 +848,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   <select value={p.mesGastoAnio||""}
                     onChange={e=>{
                       const mesGastoAnio=e.target.value;
-                      const idx=mesIndexCapex({...p,mesGastoAnio},fechaInicioProyecto,12);
+                      const idx=mesIndexCapex({...p,mesGastoAnio},fechaInicioProyecto,numMesesOpProyecto);
                       onUpdate({...p,mesGastoAnio,mesInicioOpex:p.mesGastoMes&&mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
                     }}
                     className="sel-brand"
@@ -820,7 +856,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                       fontSize:10,width:"50%",textAlign:"center",background:C.white,color:C.grayDark}}>
                     <option value="">Año</option>
-                    {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                    {RANGO_ANIOS.map(y=>(
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
@@ -828,6 +864,13 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                 {p.mesInicioOpex&&!p.mesGastoMes&&(
                   <div style={{fontSize:9,color:C.grayMid}}>Inicia M{p.mesInicioOpex} (sin fecha)</div>
                 )}
+                {/* Número de repeticiones — opcional, vacío = sin límite (se repite hasta el fin del proyecto) */}
+                <input type="number" min="1" placeholder="Repeticiones (vacío=sin límite)"
+                  value={p.repeticiones||""}
+                  onChange={e=>onUpdate({...p,repeticiones:e.target.value?parseInt(e.target.value):null})}
+                  title="Número de veces que se repite este gasto (ej. 3 = solo 3 meses/periodos, luego para). Vacío = se repite hasta el fin del proyecto."
+                  style={{padding:"4px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                    fontSize:9,width:"100%",background:C.white,color:C.grayDark,boxSizing:"border-box"}}/>
               </div>
             )}
             <MoneyInput value={p.monto} onChange={v=>onUpdate({...p,monto:v})}/>
@@ -1148,85 +1191,155 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   }
 
   // ── Hoja 1: SERVICIO ──────────────────────────────────────────────────────
+  // Estructura calcada del archivo real de Geolis (SERVICIO): cada subcategoría
+  // en su propio renglón con distribución mensual real (fecha real para CAPEX,
+  // periodicidad real para OPEX), agrupada bajo su categoría contable macro con
+  // un renglón de subtotal — en vez del resumen de 4 filas que había antes.
+  const NUM_MESES_OP=NMESES-1;
   const hdrS=["Descripción","Total Presupuestado",...MESES13];
-  const rowsS=[
-    hdrS,
-    ["INGRESOS año MXN",""],
-    ["FACTURACIÓN",totalIngresosAnual,...mIngresos],
-    ["EGRESOS año",""],
-    ["CAPEX (Activos)",totalCAPEX,...mCapex],
-    ["OPEX",totalOPEX,...mOpex],
-    ["TOTAL",totalEgr,...mEgresos],
-    ["OPEX",totalOPEX,...mOpex],
-    ["ACUMULADO","",...mFlujoAcum],
-  ];
-  // Agregar detalle por categoría OPEX (respeta periodicidad — debe sumar al mismo
-  // totalOPEX que ya se muestra arriba; usar la suma cruda cantidad*monto aquí
-  // subestimaba/sobreestimaba partidas no mensuales)
-  const catMap={};
+  const rowsS=[hdrS];
+  const seccionRows=[], subtotalRows=[], totalRows=[];
+  function addRowS(desc, total, mensual){
+    rowsS.push([desc, total, ...mensual]);
+    return rowsS.length-1;
+  }
+
+  seccionRows.push(addRowS("INGRESOS año MXN","",Array(NMESES).fill("")));
+  addRowS("FACTURACIÓN", totalIngresosAnual, mIngresos);
+  seccionRows.push(addRowS("EGRESOS año","",Array(NMESES).fill("")));
+
+  // CAPEX: 1 renglón por categoría (fecha real de compra), + rollup "ACTIVOS"
+  const capexPorCat={};
+  areas.forEach(id=>{
+    (costos[id]?.capex||[]).forEach(p=>{
+      const k=p.cat||"SIN CATEGORÍA";
+      if(!capexPorCat[k]) capexPorCat[k]=Array(NMESES).fill(0);
+      capexPorCat[k][mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+    });
+  });
+  Object.entries(capexPorCat).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cat,arr])=>{
+    addRowS(cat, arr.reduce((s,v)=>s+v,0), arr);
+  });
+  if(Object.keys(capexPorCat).length>0) subtotalRows.push(addRowS("ACTIVOS", totalCAPEX, mCapex));
+
+  // OPEX: 1 renglón por categoría (mat/via con periodicidad real), nómina agregada en un solo renglón
+  const opexPorCat={};
   areas.forEach(id=>{
     ["mat","via"].forEach(c=>{
       (costos[id]?.[c]||[]).forEach(p=>{
-        const k=p.cat||"SIN CAT";
-        catMap[k]=(catMap[k]||0)+totalOpexPartida(p,12);
+        const k=p.cat||"SIN CATEGORÍA";
+        if(!opexPorCat[k]) opexPorCat[k]=Array(NMESES).fill(0);
+        distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>opexPorCat[k][i]+=v);
       });
     });
+  });
+  const nominaArr=Array(NMESES).fill(0);
+  let hayNomina=false;
+  areas.forEach(id=>{
     (costos[id]?.nomina||[]).forEach(p=>{
-      catMap["NOMINA Y ADICIONALES"]=(catMap["NOMINA Y ADICIONALES"]||0)+costoTotalNomina(p,12);
+      hayNomina=true;
+      distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>nominaArr[i]+=v);
     });
   });
-  Object.entries(catMap).sort().forEach(([cat,total])=>{
-    const mens=parseFloat((total/12).toFixed(2));
-    rowsS.push([cat,total,0,...Array(12).fill(mens)]);
+  if(hayNomina) opexPorCat["NOMINA Y ADICIONALES"]=nominaArr;
+
+  // Agrupar categorías OPEX bajo su categoría contable macro
+  const macroGrupos={};
+  Object.entries(opexPorCat).forEach(([cat,arr])=>{
+    const macro=macroDeCategoria(cat);
+    if(!macroGrupos[macro]) macroGrupos[macro]={};
+    macroGrupos[macro][cat]=arr;
   });
+  Object.entries(macroGrupos).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([macro,cats])=>{
+    const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
+    const esUnaSolaIgualAMacro=catEntries.length===1 && catEntries[0][0].toUpperCase()===macro.toUpperCase();
+    if(esUnaSolaIgualAMacro){
+      const [cat,arr]=catEntries[0];
+      addRowS(cat, arr.reduce((s,v)=>s+v,0), arr);
+    } else {
+      catEntries.forEach(([cat,arr])=>addRowS(cat, arr.reduce((s,v)=>s+v,0), arr));
+      const macroArr=Array(NMESES).fill(0);
+      catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
+      subtotalRows.push(addRowS(macro, macroArr.reduce((s,v)=>s+v,0), macroArr));
+    }
+  });
+
+  totalRows.push(addRowS("TOTAL EGRESOS", totalEgr, mEgresos));
+
   const wsS=XLSX.utils.aoa_to_sheet(rowsS);
-  wsS["!cols"]=[{wch:32},{wch:18},...Array(NMESES).fill({wch:14})];
+  wsS["!cols"]=[{wch:34},{wch:18},...Array(NMESES).fill({wch:14})];
   // Formato moneda en todas las columnas numéricas
-  applyMoneyFmt(wsS, 2, 1, rowsS.length-1, NMESES+1);
+  applyMoneyFmt(wsS, 1, 1, rowsS.length-1, NMESES+1);
   // Fila 0 (header) en negrita
   for(let c=0;c<=NMESES+1;c++){
     const a=XLSX.utils.encode_cell({r:0,c});
     if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1a1a1a"}},alignment:{horizontal:"center"}};
   }
-  // Filas de sección (INGRESOS, EGRESOS) en color
-  [1,3].forEach(ri=>{
+  // Filas de sección (INGRESOS año, EGRESOS año)
+  seccionRows.forEach(ri=>{
     for(let c=0;c<=NMESES+1;c++){
       const a=XLSX.utils.encode_cell({r:ri,c});
       if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"374151"}}};
     }
   });
+  // Filas de subtotal por categoría macro (ACTIVOS, y macro-rollups de OPEX)
+  subtotalRows.forEach(ri=>{
+    for(let c=0;c<=NMESES+1;c++){
+      const a=XLSX.utils.encode_cell({r:ri,c});
+      if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"7c3aed"}},fill:{fgColor:{rgb:"F5F3FF"}}};
+    }
+  });
+  // Fila de total general de egresos
+  totalRows.forEach(ri=>{
+    for(let c=0;c<=NMESES+1;c++){
+      const a=XLSX.utils.encode_cell({r:ri,c});
+      if(wsS[a]) wsS[a].s={font:{bold:true,color:{rgb:"991B1B"}},fill:{fgColor:{rgb:"FEE2E2"}}};
+    }
+  });
   XLSX.utils.book_append_sheet(wb,wsS,"SERVICIO");
 
   // ── Hoja 2: FLUJO ─────────────────────────────────────────────────────────
+  // Incluye las filas "IVA" (16%) que trae el archivo real de Geolis junto a
+  // cada total — la app no cobra IVA automáticamente en la captura, así que
+  // estas filas son el total con IVA agregado sobre lo ya capturado.
+  const IVA_RATE=0.16;
+  const mIngresosIVA=mIngresos.map(v=>v*(1+IVA_RATE));
+  const mEgresosIVA=mEgresos.map(v=>v*(1+IVA_RATE));
+  const mFlujoIVA=mIngresosIVA.map((v,i)=>v-mEgresosIVA[i]);
+  const mFlujoAcumIVA=mFlujoIVA.reduce((acc,v,i)=>{ acc.push(i===0?v:acc[i-1]+v); return acc; },[]);
   const rowsF=[
     ["","","","","Mes 0","Mes 0",...Array(11).fill("").map((_,i)=>`Mes ${i+1}`)],
     ["","","","","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","FEB"],
     ["Ingresos (MN)","","","",""],
     ["INGRESOS","","","","",...mIngresos],
     ["Ingresos Totales (MN)","","","","",...mIngresos],
+    ["Ingresos Totales (MN) IVA","","","","",...mIngresosIVA],
     [""],
     ["Egresos (MX)","","","",""],
     ["OPEX","","","","",...mOpex],
     ["CAPEX","","","","",...mCapex],
     [""],
     ["Egresos Totales (MN)","","","","",...mEgresos],
+    ["Egresos Totales (MN) IVA","","","","",...mEgresosIVA],
     [""],
     ["FLUJO EFECTIVO","","","","",...mFlujo],
+    ["FLUJO EFECTIVO IVA","","","","",...mFlujoIVA],
     [""],
     ["FLUJO ACUMULADO","","","","",...mFlujoAcum],
+    ["FLUJO ACUMULADO IVA","","","","",...mFlujoAcumIVA],
     [""],
-    ["OPEX Promedio",(totalOPEX/12).toFixed(2)],
+    ["OPEX Promedio",(totalOPEX/NUM_MESES_OP).toFixed(2)],
   ];
   const wsF=XLSX.utils.aoa_to_sheet(rowsF);
-  wsF["!cols"]=[{wch:24},{wch:8},{wch:8},{wch:8},...Array(NMESES).fill({wch:14})];
+  wsF["!cols"]=[{wch:26},{wch:8},{wch:8},{wch:8},...Array(NMESES).fill({wch:14})];
   applyMoneyFmt(wsF, 3, 4, rowsF.length-1, 4+NMESES);
   // Header principal oscuro
   for(let c=0;c<4+NMESES;c++){
     const a=XLSX.utils.encode_cell({r:0,c});
     if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"DDAC00"}},fill:{fgColor:{rgb:"1a1a1a"}}};
   }
-  // Filas FLUJO EFECTIVO y ACUMULADO en color
-  [12,14].forEach(ri=>{
+  // Filas FLUJO EFECTIVO y ACUMULADO (sin y con IVA) en color
+  [14,15,17,18].forEach(ri=>{
     for(let c=0;c<4+NMESES;c++){
       const a=XLSX.utils.encode_cell({r:ri,c});
       if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"7c3aed"}},fill:{fgColor:{rgb:"F5F3FF"}}};
@@ -2429,7 +2542,7 @@ export default function App(){
                     catOptions={CAT_CAPEX}
                     addLabel="Agregar equipo / inversión"
                     headerColor="#7c3aed"
-                    showMes={true}/>
+                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}/>
                 </SCard>
 
                 {/* Nómina */}
@@ -2458,7 +2571,7 @@ export default function App(){
                     catOptions={CAT_OPEX}
                     addLabel="Agregar material"
                     headerColor="#0891b2"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                 </SCard>
 
                 {/* Viáticos */}
@@ -2473,7 +2586,7 @@ export default function App(){
                     catOptions={CAT_OPEX}
                     addLabel="Agregar viático"
                     headerColor="#d97706"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                 </SCard>
 
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
@@ -2492,11 +2605,17 @@ export default function App(){
   // ══════════════════════════════════════════════════════════════════════════
   if(step===4){
     const cats=getAreasCat(pres?.tipo||"instalacion");
-    const NMESES=13; // M0..M12
-    const MESES13=["M0 (Inst.)","M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"];
+    // Duración real del proyecto (de 6 meses a 20 años) según fechaInicio/fechaFin —
+    // ya no se asume siempre M0..M12.
+    const NUM_MESES_OP=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
+    const NMESES=NUM_MESES_OP+1; // +1 por M0 (instalación)
+    const MESES13=["M0 (Inst.)",...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
+    // Rango de años para selects (ingresos adicionales) — mismo criterio que PartidaTable
+    const anioIniProy=pres?.fechaInicio ? new Date(pres.fechaInicio+"T00:00:00").getFullYear() : 2024;
+    const anioFinProy=pres?.fechaFin ? new Date(pres.fechaFin+"T00:00:00").getFullYear() : anioIniProy+11;
+    const RANGO_ANIOS=Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
 
     // ── Cálculos mensuales ─────────────────────────────────────────────────
-    const NUM_MESES_OP=NMESES-1; // 12 meses operativos después de M0
 
     // CAPEX: cada partida cae en el mes real de compra (fecha vs. fecha de inicio del proyecto)
     const mCapex=Array(NMESES).fill(0);
@@ -2547,9 +2666,11 @@ export default function App(){
     // Egresos totales por mes
     const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
 
-    // Ingresos (estado editable) + ingresos adicionales del mes correspondiente
-    const mIngresos=ingresos.slice(0,NMESES)
-      .map((v,i)=>v+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
+    // Ingresos (estado editable) + ingresos adicionales del mes correspondiente —
+    // se arma con Array(NMESES) en vez de recortar "ingresos" para que proyectos
+    // más largos que el arreglo guardado (ej. 20 años) no pierdan meses.
+    const mIngresos=Array(NMESES).fill(0)
+      .map((_,i)=>(ingresos[i]||0)+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
     const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
 
     // Flujo efectivo mensual = Ingresos - Egresos
@@ -2832,12 +2953,11 @@ export default function App(){
                   <div style={{fontSize:11,color:C.grayMid,marginBottom:6}}>Monto a facturar por mes</div>
                   <MoneyInput value={precioFijo} onChange={v=>{
                     setPrecioFijo(v);
-                    // Distribuir automáticamente en M1..M12
-                    const meses=pres?.fechaInicio&&pres?.fechaFin
-                      ? Math.max(1,Math.round((new Date(pres.fechaFin)-new Date(pres.fechaInicio))/(1000*60*60*24*30)))
-                      : 12;
-                    const n=Array(13).fill(0);
-                    for(let i=1;i<=Math.min(12,meses);i++) n[i]=v;
+                    // Distribuir automáticamente en M1..Mn (n = duración real del proyecto,
+                    // de 6 meses a 20 años — ya no se recorta a 12)
+                    const meses=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
+                    const n=Array(meses+1).fill(0);
+                    for(let i=1;i<=meses;i++) n[i]=v;
                     setIngresos(n);
                   }}/>
                 </div>
@@ -2884,8 +3004,8 @@ export default function App(){
                     <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
                       className="sel-brand"
                       style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                      {Array.from({length:12},(_,i)=>i+1).map(m=>(
-                        <option key={m} value={m}>M{m} · {MESES[m-1]}</option>
+                      {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>(
+                        <option key={m} value={m}>M{m} · {MESES[(m-1)%12]}</option>
                       ))}
                     </select>
                   </div>
@@ -2895,7 +3015,7 @@ export default function App(){
                       onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)}:x))}
                       className="sel-brand"
                       style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                      {Array.from({length:12},(_,i)=>2024+i).map(y=>(
+                      {RANGO_ANIOS.map(y=>(
                         <option key={y} value={y}>{y}</option>
                       ))}
                     </select>
