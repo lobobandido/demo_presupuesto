@@ -66,6 +66,25 @@ export async function eliminarPresupuestoDeNube(id){
   return {ok:true};
 }
 
+// ─── CATÁLOGO DE ALMACÉN (búsqueda para autocompletar Categoría en CAPEX/OPEX) ─
+export async function buscarArticulosAlmacen(query){
+  if(!supabase || !query || query.trim().length<3) return [];
+  const q = query.trim().replace(/[%_,()]/g,"");
+  // Cada palabra debe aparecer en la descripción (AND) — así "tubo acero" encuentra
+  // "TUBO DE ACERO AL CARBON..." aunque no sea una frase contigua — o el texto
+  // completo puede matchear directo el grupo o el código del artículo.
+  const palabras = q.split(/\s+/).filter(Boolean);
+  if(palabras.length===0) return [];
+  const descAnd = palabras.map(w=>`descripcion.ilike.%${w}%`).join(",");
+  const filtro = `and(${descAnd}),nombre_grupo.ilike.%${q}%,codigo_articulo.ilike.%${q}%`;
+  const {data,error} = await supabase.from("catalogo_almacen")
+    .select("codigo_articulo,descripcion,unidad_medida,nombre_grupo")
+    .or(filtro)
+    .limit(6);
+  if(error){ console.error("[supabase] buscarArticulosAlmacen:", error.message); return []; }
+  return data||[];
+}
+
 // ─── GUARDAR (crea o reemplaza por completo el presupuesto en la nube) ──────
 export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAdicionales, precioFijo}){
   if(!supabase) return null;

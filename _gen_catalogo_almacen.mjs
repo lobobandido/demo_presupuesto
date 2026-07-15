@@ -37,20 +37,22 @@ function nombreSubgrupo(grupo, subgrupo){
   return NOMBRE_SUBGRUPO[`${grupo}-${subgrupo}`] || `SUBGRUPO ${subgrupo}`;
 }
 
-function limpiarDescripcion(desc){
+function limpiarConInfo(desc){
   const fragmentos = String(desc||"").split(",").map(f=>f.trim()).filter(f=>f.length>0);
   const vistos = new Set();
   const limpios = [];
+  let tuvoDuplicados = false;
   for (const f of fragmentos){
     const key = f.toUpperCase();
-    if (vistos.has(key)) continue;
+    if (vistos.has(key)){ tuvoDuplicados = true; continue; }
     vistos.add(key);
     limpios.push(f);
   }
   let resultado = limpios.join(", ");
   if (resultado.length > 150) resultado = resultado.slice(0,150).trim();
-  return resultado;
+  return { limpio: resultado, tuvoDuplicados };
 }
+function limpiarDescripcion(desc){ return limpiarConInfo(desc).limpio; }
 function esc(s){ return String(s).replace(/'/g,"''"); }
 function pad2(v){ return String(v).trim().padStart(2,"0"); }
 
@@ -58,17 +60,21 @@ function pad2(v){ return String(v).trim().padStart(2,"0"); }
 const wb = XLSX.readFile(SRC);
 const rows = XLSX.utils.sheet_to_json(wb.Sheets["Articulos"], {header:1, defval:""}).slice(1);
 
+let articulosConDuplicados = 0;
 const articulos = rows
   .filter(r => String(r[0]).trim() !== "")
   .map(r => {
     const grupo = pad2(r[1]);
     const subgrupo = pad2(r[2]);
+    const { limpio, tuvoDuplicados } = limpiarConInfo(r[3]);
+    if (tuvoDuplicados) articulosConDuplicados++;
     return {
       codigo_articulo: String(r[0]).trim(),
       grupo, subgrupo,
       nombre_grupo: NOMBRE_GRUPO[grupo] || `GRUPO ${grupo}`,
       nombre_subgrupo: nombreSubgrupo(grupo, subgrupo),
-      descripcion: limpiarDescripcion(r[3]),
+      descripcion: limpio,
+      _tuvoDuplicados: tuvoDuplicados,
       unidad_medida: String(r[5]||"").trim(),
     };
   });
@@ -178,13 +184,22 @@ const sql = header + valores + ";\n" + footer;
 fs.writeFileSync(`${OUT_DIR}/catalogo_almacen_500.sql`, sql, 'utf8');
 
 // ─── Generar JSON ───────────────────────────────────────────────────────────
-fs.writeFileSync(`${OUT_DIR}/catalogo_almacen_500.json`, JSON.stringify(seleccionados, null, 2), 'utf8');
+const seleccionadosPublicos = seleccionados.map(({_tuvoDuplicados, ...resto}) => resto);
+fs.writeFileSync(`${OUT_DIR}/catalogo_almacen_500.json`, JSON.stringify(seleccionadosPublicos, null, 2), 'utf8');
 
 // ─── Generar stats ──────────────────────────────────────────────────────────
 const statsPorGrupo = {};
 seleccionados.forEach(a => { statsPorGrupo[a.nombre_grupo] = (statsPorGrupo[a.nombre_grupo]||0)+1; });
 const subgruposUnicosCubiertos = new Set(seleccionados.map(a=>`${a.grupo}-${a.subgrupo}`)).size;
 const sqlKB = (Buffer.byteLength(sql,'utf8')/1024).toFixed(1);
+
+// grupos donde al menos un subgrupo real (dataset completo) no tiene nombre definido
+const gruposSinNombreSubgrupo = new Set();
+for (const key of porSubgrupo.keys()){
+  const [g, s] = key.split("-");
+  if (!NOMBRE_SUBGRUPO[`${g}-${s}`]) gruposSinNombreSubgrupo.add(g);
+}
+const duplicadosEnSeleccion = seleccionados.filter(a=>a._tuvoDuplicados).length;
 
 let stats = `CATALOGO ALMACEN — 500 ARTICULOS REPRESENTATIVOS\n`;
 stats += `Fuente: Articulos Almacen (3)_todas las categorias.xlsx (${rows.length} artículos totales, ${porSubgrupo.size} pares grupo-subgrupo únicos)\n`;
@@ -196,9 +211,66 @@ stats += `ARTICULOS POR GRUPO:\n`;
 Object.entries(statsPorGrupo).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([g,c])=>{
   stats += `  ${g.padEnd(32,".")} ${c}\n`;
 });
+stats += `\nGRUPOS SIN NOMBRE DE SUBGRUPO DEFINIDO (usan "SUBGRUPO XX"): ${gruposSinNombreSubgrupo.size} / ${gruposOrdenados.length}\n`;
+stats += `  ${[...gruposSinNombreSubgrupo].sort().map(g=>`${g}=${NOMBRE_GRUPO[g]||g}`).join(", ")}\n`;
+stats += `\nARTICULOS CON DESCRIPCION DUPLICADA (encontrados y limpiados):\n`;
+stats += `  En los 500 seleccionados: ${duplicadosEnSeleccion} / ${seleccionados.length}\n`;
+stats += `  En el archivo completo (${rows.length} artículos): ${articulosConDuplicados}\n`;
 fs.writeFileSync(`${OUT_DIR}/catalogo_stats.txt`, stats, 'utf8');
+
+// ─── JSON jerárquico (grupos → subgrupos → artículos) ──────────────────────
+const totalRealPorSubgrupo = new Map(); // "g-s" -> total real en dataset completo
+for (const [k, lista] of porSubgrupo) totalRealPorSubgrupo.set(k, lista.length);
+
+const seleccionadosPorSubgrupo = new Map();
+seleccionados.forEach(a=>{
+  const k = `${a.grupo}-${a.subgrupo}`;
+  if (!seleccionadosPorSubgrupo.has(k)) seleccionadosPorSubgrupo.set(k, []);
+  seleccionadosPorSubgrupo.get(k).push({codigo:a.codigo_articulo, desc:a.descripcion, um:a.unidad_medida});
+});
+
+const gruposJerarquia = gruposOrdenados.map(g => {
+  const subgruposDelGrupo = [...porSubgrupo.keys()]
+    .filter(k => k.startsWith(`${g}-`))
+    .map(k => k.split("-")[1])
+    .sort();
+  return {
+    codigo: g,
+    nombre: NOMBRE_GRUPO[g] || `GRUPO ${g}`,
+    subgrupos: subgruposDelGrupo.map(s => {
+      const key = `${g}-${s}`;
+      return {
+        codigo: s,
+        nombre: nombreSubgrupo(g, s),
+        total_articulos: totalRealPorSubgrupo.get(key) || 0,
+        articulos: seleccionadosPorSubgrupo.get(key) || [],
+      };
+    }),
+  };
+});
+fs.writeFileSync(`${OUT_DIR}/catalogo_almacen.json`, JSON.stringify({grupos:gruposJerarquia}, null, 2), 'utf8');
+
+// ─── supabase_catalogo.sql — mismo INSERT pero en lotes (batches) ──────────
+const LOTE = 500;
+let batchedSql = header.replace(/INSERT INTO catalogo_almacen[\s\S]*$/, "").trimEnd() + "\n\n";
+batchedSql += `-- ${seleccionados.length} artículos en lotes de ${LOTE} (prueba). Al subir el catálogo completo\n`;
+batchedSql += `-- (17,312 artículos), este mismo generador produce ${Math.ceil(rows.length/LOTE)} lotes siguiendo el mismo patrón.\n\n`;
+for (let i=0; i<seleccionados.length; i+=LOTE){
+  const lote = seleccionados.slice(i, i+LOTE);
+  batchedSql += `-- Lote ${Math.floor(i/LOTE)+1} de ${Math.ceil(seleccionados.length/LOTE)} (${lote.length} artículos)\n`;
+  batchedSql += `INSERT INTO catalogo_almacen\n  (codigo_articulo, grupo, subgrupo, nombre_grupo, nombre_subgrupo, descripcion, unidad_medida)\nVALUES\n`;
+  batchedSql += lote.map(a =>
+    `  ('${esc(a.codigo_articulo)}', '${esc(a.grupo)}', '${esc(a.subgrupo)}', '${esc(a.nombre_grupo)}', '${esc(a.nombre_subgrupo)}', '${esc(a.descripcion)}', '${esc(a.unidad_medida)}')`
+  ).join(",\n");
+  batchedSql += `\nON CONFLICT (codigo_articulo) DO NOTHING;\n\n`;
+}
+batchedSql += `SELECT nombre_grupo, COUNT(*) as total\nFROM catalogo_almacen\nGROUP BY nombre_grupo\nORDER BY nombre_grupo;\n`;
+fs.writeFileSync(`${OUT_DIR}/supabase_catalogo.sql`, batchedSql, 'utf8');
 
 console.log(`Seleccionados: ${seleccionados.length}`);
 console.log(`Subgrupos únicos cubiertos: ${subgruposUnicosCubiertos} / ${porSubgrupo.size}`);
 console.log(`SQL: ${sqlKB} KB`);
 console.log('Grupos que superan 15 (por variedad garantizada en pasada 1):', Object.entries(countPorGrupo).filter(([,c])=>c>15).map(([g,c])=>`${g}:${c}`).join(', '));
+console.log('Grupos sin nombre de subgrupo definido:', gruposSinNombreSubgrupo.size, '/', gruposOrdenados.length);
+console.log('Artículos con descripción duplicada — en selección:', duplicadosEnSeleccion, '| en archivo completo:', articulosConDuplicados);
+console.log('supabase_catalogo.sql tamaño:', (Buffer.byteLength(batchedSql,'utf8')/1024).toFixed(1), 'KB');

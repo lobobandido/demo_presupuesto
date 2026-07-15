@@ -1,0 +1,5022 @@
+{
+  "grupos": [
+    {
+      "codigo": "01",
+      "nombre": "TUBERIAS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "ACERO AL CARBON SIN COSTURA",
+          "total_articulos": 97,
+          "articulos": [
+            {
+              "codigo": "0101001",
+              "desc": "TUBO DE ACERO AL CARBON, DIAMETRO 3/4\", CEDULA 160, S/C, ASTM A106 GR.B, EXT BISELADOS, ASME B36.10M",
+              "um": "MT"
+            },
+            {
+              "codigo": "0101002",
+              "desc": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 3\", CEDULA 80, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+              "um": "MT"
+            },
+            {
+              "codigo": "0101003",
+              "desc": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 4\", CEDULA 40, ASTM A106 GR.B, EXT BISELADOS, NACE MR0175.",
+              "um": "MT"
+            },
+            {
+              "codigo": "0101004",
+              "desc": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 6\", CEDULA 80, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+              "um": "MT"
+            },
+            {
+              "codigo": "0101005",
+              "desc": "TUBO DE ACERO AL CARBON, DIAMETRO 6\", CEDULA STD, S/C, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+              "um": "MT"
+            },
+            {
+              "codigo": "0101006",
+              "desc": "TUBO DE ACERO AL CARBON, DIAMETRO 8\", CEDULA STD, S/C, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "ACERO INOXIDABLE SIN COSTURA",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "0102001",
+              "desc": "TUBO DE ACERO INOXIDABLE, DIAMETRO 1\", CEDULA 40, S/C, PARA VIAJE DE FLAMA DE 6.10 ML, CON CONECTORES TUERCA UNION DE 3000# FXM",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "ACERO AL CARBON CON COSTURA",
+          "total_articulos": 21,
+          "articulos": [
+            {
+              "codigo": "0104001",
+              "desc": "TUBO DE ACERO AL CARBON, DIAMETRO 20\", ESPESOR DE PARED 0.375\", C/C, API 5L GR. BNS PSL2 SAW, EXT BISELADOS, ESPECIFICACION DE DISEÑO ASME B36.10M/ISO",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "TUBING",
+          "total_articulos": 14,
+          "articulos": [
+            {
+              "codigo": "0106001",
+              "desc": "TUBING DE, ACERO INOXIDABLE, DIAMETRO 3/8\" OD, ESPESOR 0.049, S/C, 316, TRAMO DE 6.1 MTS",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "CPVC",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "0107001",
+              "desc": "TUBO DE CPVC, DIAMETRO 1\", CEDULA 40, ASTM F441/F441M, LONGITUD DE 3 MTS.",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "PEAD",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "0108001",
+              "desc": "TUBO DE PEAD, DIAMETRO 12\", RD 9, SERVICIO CONTRA INCENDIO, APROBACION FM",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "R.C.I",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "0109001",
+              "desc": "TUBO, 4\", CED 10, ASTM A795, EXTREMO RANURADO, FM",
+              "um": "MT"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "02",
+      "nombre": "CONEXIONES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "CODO",
+          "total_articulos": 211,
+          "articulos": [
+            {
+              "codigo": "0201001",
+              "desc": "CODO, DE, SOLDABLE DE 90°, ACERO AL CARBON, DIAMETRO 3\", CEDULA 40, ASTM A234 Gr. WPB, EXTREMOS BISELADOS, ISO 15156-2 / NACE MR0175",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "TEE",
+          "total_articulos": 216,
+          "articulos": [
+            {
+              "codigo": "0202001",
+              "desc": "TEE, RECTA, DE, ACERO AL CARBON, DIAMETRO DE 3\", X, CEDULA 40, ASTM A-105, EXTREMOS ROSCABLES, CLASE 3000, GALVANIZADA, ASME B16.11",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "TAPON",
+          "total_articulos": 92,
+          "articulos": [
+            {
+              "codigo": "0203001",
+              "desc": "TAPON, SOLDABLE A TOPE, DE, ACERO AL CARBÓN, DIAMETRO 10\", CEDULA 40, ASTM A234 Gr. WPB, EXTREMOS BISELADOS, ISO 15156-2 / NACE MR0175, ASME B16.9",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "REDUCCION",
+          "total_articulos": 167,
+          "articulos": [
+            {
+              "codigo": "0204001",
+              "desc": "REDUCCION, CONCENTRICA, ACERO AL CARBON, DIAMETRO 8\"X4\", CEDULA 40, ASTM A234 GR WPB, S/C, EXTREMO BISELADO, ISO 15156-2, ASME B16.9",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SWAGE",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "0205001",
+              "desc": "SWAGE, CONCENTRICO, ACERO AL CARBON, DIAMETRO 3/4\"X1/2\", CEDULA 80, ASTM A105, SIN COSTURA, EXTREMO PLANO, X, ROSCADO, NACE MR-0175, ESPECIFICACION DE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "NIPLE",
+          "total_articulos": 87,
+          "articulos": [
+            {
+              "codigo": "0206001",
+              "desc": "NIPLE, X, ACERO AL CARBÓN, DIAMETRO 1/2\", LONGITUD 3\", CEDULA 40, ASTM A106 GR. B, EXTREMO ROSCADO NPT, ROSCADO NPT, ISO 15156-2 / NACE MR0175, ESPECI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "COPLE",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "0207001",
+              "desc": "COPLE, RECTO, DE, CPVC, DIAMETRO 1\", X, 1\", ASTM D2846, EXTREMO SOCKET/SOLVENT WELD, SOCKET/SOLVENT WELD",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "OLET",
+          "total_articulos": 167,
+          "articulos": [
+            {
+              "codigo": "0208001",
+              "desc": "THREDOLET, ACERO AL CARBON, DIAMETRO 8\", X, 1/2\", EXTREMO BISELADO, ROSCABLE, CLASE 3000, ASTM A-105, ASME B16.11",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "BRIDA",
+          "total_articulos": 358,
+          "articulos": [
+            {
+              "codigo": "0209001",
+              "desc": "BRIDA, CUELLO SOLDABLE, ACERO AL CARBON, DIAMETRO 3\", X, 3\", CLASE 600, CEDULA 80, RF, ASTM A-105, ASME B16.5, NACE MR0175 ULTIMA EDICION",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "FIGURA 8",
+          "total_articulos": 15,
+          "articulos": [
+            {
+              "codigo": "0210001",
+              "desc": "FIGURA 8, DE, ACERO AL CARBÓN, DIAMETRO 8\", CLASE 900#, R.T.J., ASTM A515 GR. 70, ASME B16.48, P/BRIDA ASME B16.5, ISO 15156-2",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "ESPARRAGO/TUERCAS",
+          "total_articulos": 281,
+          "articulos": [
+            {
+              "codigo": "0212001",
+              "desc": "ESPARRAGO/TUERCAS, DIAMETRO 3/4\", LONGITUD 5\", DE ACERO ASTM A-193, ASTM B 766. CLASE 25 TIPO II, No TUERCAS DOS, ROSCA ESTANDAR USS, ASTM A-194, 2HM,",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "KIT DE AISLAMIENTO",
+          "total_articulos": 28,
+          "articulos": [
+            {
+              "codigo": "0213001",
+              "desc": "KIT DE AISLAMIENTO P/BRIDA, DIAMETRO 3\", CLASE 300#, ACERO INOXIDABLE/RESINA EPÓXICA, REFORZADA CON FIBRA DE VIDRIO(G10), BUJE y ARANDELAS AISLANTE EN",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "FILTRO PARA TUBERIA",
+          "total_articulos": 16,
+          "articulos": [
+            {
+              "codigo": "0214001",
+              "desc": "FILTRO Y, ACERO AL CARBON, DIAMETRO 3\", BRIDADO, CLASE 150#, RF, ASTM  216 GR. WCB, ELEMENTO DE FILTRACION TIPO REJILLA, DE, ACERO INOXIDABLE, PARA PA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "ACCESORIOS PEAD",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "0215001",
+              "desc": "COPLE UNION, PEAD, 12\", RD 9, FM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "ACCESORIOS TUBING",
+          "total_articulos": 211,
+          "articulos": [
+            {
+              "codigo": "0216001",
+              "desc": "X, CONECTOR RECTO MACHO, ACERO INOXIDABLE, DIAMETRO 1/2\", CONEXIÓN1 1/2\" OD, CONEXIÓN2 1/2\" NPT, 316",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "17",
+          "nombre": "ORIFICE FITTING",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "0217001",
+              "desc": "ORIFICE FITTING, ACERO AL CARBON, DIAMETRO 3\", CAMARAS 2, EXTREMO BRIDADO #150 RF, X, ROSCADO NTP, SERVICIO GAS DULCE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "18",
+          "nombre": "CRUZ",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "0218001",
+              "desc": "CRUZ DE, ACERO AL CARBÓN, DIAMETRO 4\", CEDULA 80, ASTM A234 GR. WPB, EXTREMOS BISELADOS, ISO 15156-2, ASME B16.9",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "19",
+          "nombre": "ACCESORIOS R.C.I",
+          "total_articulos": 34,
+          "articulos": [
+            {
+              "codigo": "0219001",
+              "desc": "CODO, 90°, 8\", CLASE 300#, EXTREMO RANURADO, ASTM A536, UL/FM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "20",
+          "nombre": "TUERCA UNION",
+          "total_articulos": 17,
+          "articulos": [
+            {
+              "codigo": "0220001",
+              "desc": "TUERCA UNION, ACERO AL CARBON, DIAMETRO 1\", CLASE 3000#, ASTM A105, EXTREMOS ROSCADOS, ISO 15156/NACE MR 0175, MSS SP-83",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "03",
+      "nombre": "VALVULAS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 145,
+          "articulos": [
+            {
+              "codigo": "0301001",
+              "desc": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 16\", CLASE #600, ESPESOR 1/8, MATERIAL ANILLO CENTRADOR CON ANILLO METALICO CENTRADOR Y DE RESPALDO INTERNO, MAT",
+              "um": "PC"
+            },
+            {
+              "codigo": "0301002",
+              "desc": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 2\", CLASE #900, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR ACERO INOXIDABLE 304, MATERIAL BOBINADO ACERO INOXIDABLE",
+              "um": "PC"
+            },
+            {
+              "codigo": "0301003",
+              "desc": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 6\", CLASE #600, ESPESOR 1/8, MATERIAL ANILLO CENTRADOR CON ANILLO METALICO CENTRADOR Y DE RESPALDO INTERNO, MATE",
+              "um": "PC"
+            },
+            {
+              "codigo": "0301004",
+              "desc": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 16\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIB",
+              "um": "PC"
+            },
+            {
+              "codigo": "0301005",
+              "desc": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 12\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIB",
+              "um": "PC"
+            },
+            {
+              "codigo": "0301006",
+              "desc": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 6\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIBL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 44,
+          "articulos": [
+            {
+              "codigo": "0303001",
+              "desc": "ANILLO METALICO RTJ, OCTAGONAL, DIAMETRO 4\", CLASE 900#, ACERO INOXIDABLE UNS S31600, RING No R-37, DUREZA BRINELL 160, ASME B16.20",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 15,
+          "articulos": [
+            {
+              "codigo": "0304001",
+              "desc": "LAMINADO PARA JUNTA, MARCA GARLOCK, MODELO 700L, ESPESOR 1/16\", LARGO 60\", ANCHO 60\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "0305001",
+              "desc": "EMPAQUE, NEOPRENO, PARA BRIDA CARA PLANA, DIAMETRO 12\", CLASE 150#, ESPESOR 1/8\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "0306001",
+              "desc": "O-RING, EMPAQUE DE HNBR PARA PLACA DE ORIFICIO, CARA LISA, TUBO MED 4\", CEDULA 40 ESPESOR DE 1/8",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "04",
+      "nombre": "BRIDAS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 17,
+          "articulos": [
+            {
+              "codigo": "0401001",
+              "desc": "ADHESIVO, DE MONTAJE DE AGARRE TOTAL INMEDIATO, CEYS, MODELO MONTACK, CARTUCHO EN 315ML, USO EN DIVERSIDAD DE MATERIALES, COLOR TRASLUCIDO",
+              "um": "PC"
+            },
+            {
+              "codigo": "0401002",
+              "desc": "ADHESIVO, BASE BUTILICA EN DISOLVENTE, MODELO POLYKEN 1027",
+              "um": "PC"
+            },
+            {
+              "codigo": "0401003",
+              "desc": "ADHESIVO, USO GENERAL, CURADO RÁPIDO, LOCTITE, MODELO 495",
+              "um": "PC"
+            },
+            {
+              "codigo": "0401004",
+              "desc": "ADHESIVO, PARA CONCRETO, 90 MINUTOS, FESTER, MODELO 601856, PRESENTACIÓN CUBETA DE 19 LITROS",
+              "um": "PC"
+            },
+            {
+              "codigo": "0401005",
+              "desc": "ADHESIVO, FIJADOR DE ROSCAS, HENKEL, MODELO LOCTITE 277, 50 ML",
+              "um": "PC"
+            },
+            {
+              "codigo": "0401006",
+              "desc": "ADHESIVO, ADHESIVO EPOXICO, 5 - 25 °C, Hilti, MODELO HIT-RE 500 V3",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 29,
+          "articulos": [
+            {
+              "codigo": "0402001",
+              "desc": "SELLADOR, ELASTOMERICO EN PASTA PARA PUERTAS Y VENTANAS GRIS, 10 a 32 °C, SISTA, MODELO ELASTOMERICO GRIS, CARTUCHO 280ML",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "0403001",
+              "desc": "PASTA ANTIFERRANTE, PASTA AUTOMOTRIZ, 18 C Y 25 C, COMEX, COLOR CAR",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "05",
+      "nombre": "EMPAQUES Y SELLOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 46,
+          "articulos": [
+            {
+              "codigo": "0501001",
+              "desc": "ACEITE, MOTOR, 2 TIEMPOS, MODELO 0781-319-8923-M, STIHL",
+              "um": "LT"
+            },
+            {
+              "codigo": "0501002",
+              "desc": "ACEITE, CETUS HIPERSYN PARA COMPRESORES DE AIRE, 46, SINTÉTICO, 244 °C, CHEVRON",
+              "um": "LT"
+            },
+            {
+              "codigo": "0501003",
+              "desc": "ACEITE, MOTORES DE COMBUSTION INTERNA GAS NATURAL, 40 (SAE 40), MODELO S5N 40, SHELL",
+              "um": "LT"
+            },
+            {
+              "codigo": "0501004",
+              "desc": "ACEITE, MULTIGRADO, 20W-50, MOBIL, MOTOR A GASOLINA",
+              "um": "LT"
+            },
+            {
+              "codigo": "0501005",
+              "desc": "ACEITE, MULTIGRADO, 15W-40, MOBIL, MOTOR A GASOLINA",
+              "um": "LT"
+            },
+            {
+              "codigo": "0501006",
+              "desc": "ACEITE, QUARTZ 9000, 5W-30, 100% SINTETICO, FILTRA LUB, 12B946 TOT MX",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "0502001",
+              "desc": "ACEITE HIDRAULICO, HM / HLP, ISO 32, ACEITE MINERAL GRUPO II + ADITIVOS, DIN 51524-2, ISO 11158, ASTM D6158, SAE MS 1004, AGMA 9005-E02, MODELO GEYSER",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 28,
+          "articulos": [
+            {
+              "codigo": "0504001",
+              "desc": "POLIREX EP2, 235, MINERAL GRUPO II, MODELO CARTUCHO DE 14 OZ, MOBIL",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "0505001",
+              "desc": "ADITIVO BARDHAL 2",
+              "um": "LT"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "06",
+      "nombre": "INSTRUMENTACION",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "0601001",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, GAS, 3 CAPAS (INTERIOR Y EXTERIOR DE PLASTICO RESISTENTE, CAPA INTERMEDIA CON TRAMADO DE HILO DE POLIESTER), ROSCADO, DIAM",
+              "um": "PC"
+            },
+            {
+              "codigo": "0601002",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, GAS Y OXIGENO, GOMA SINTETICA (EPDM O NITRILO), ROSCADO, DIAMETRO 1/4\", LONGITUD 50 M, 200-300 PSI, 200 F, DOBLE LINEA COL",
+              "um": "PC"
+            },
+            {
+              "codigo": "0601003",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, ACEITE, MALLA T-304, SIN CONEXIONES, DIAMETRO 2 IN, LONGITUD 20 CM, 100 PSI, 200 °F",
+              "um": "PC"
+            },
+            {
+              "codigo": "0601004",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, GAS, UNA TRENSA DE ACERO DE ALTA RESISTENCIA, SAE 100R5-32, DIAMETRO INTERIOR A 13/16, LONGITUD 20 M, 24-350 PSI, 40-120 °",
+              "um": "PC"
+            },
+            {
+              "codigo": "0601005",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, PARA ACEITE, TUBO INTERIOR DE CAUCHO SINTÉTICO, TRENZA DE ACERO ALTA RESISTENCIA, DASH-10, DIAMETRO 1/2\", LONGITUD 50 M, 1",
+              "um": "PC"
+            },
+            {
+              "codigo": "0601006",
+              "desc": "MANGUERA FLEXIBLE DE ACERO, ACEITE Y GAS, MALLA ACERADA, 32C5C, DIAMETRO 2\", LONGITUD 1 M, 170 PSI, -40 °C A 121 °C, SAE 100 R5",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 61,
+          "articulos": [
+            {
+              "codigo": "0602001",
+              "desc": "MANGUERA, PETRÓLEO CRUDO, AGUA DE PROCESO, FLUIDO QUIMICOS, PVC CRISTAL TRANSPARANTE, CAMLOCK, DIAMETRO 1 1/2\", LONGITUD 3 MTS, ˜ 80 PSI, 5 °C A 60 °C",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "0603001",
+              "desc": "MANGUERA CONTRA INCENDIO, No CAPAS 4 PARA USO RUDO, 2-1/2\", LONGITUD 30 M, 300 PSI, PARA USO EN ÁREAS DE HIDROCARBUROS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 97,
+          "articulos": [
+            {
+              "codigo": "0604001",
+              "desc": "BOQUILLA PARA MANGUERA, DIAMETRO 3\", HEMBRA, ACERO GALVANIZADO, 100 GAL., TIPO DE CHORRO CONEXIÓN RÁPIDA",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "07",
+      "nombre": "ELECTRICIDAD",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 152,
+          "articulos": [
+            {
+              "codigo": "0701001",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO 4\", CLASE 150, EXTREMOS, BRIDADOS, RF, MATERIAL CUERPO ACERO AL CARBON, ASTM A-216 Gr. WCB, VASTAGO, TRIM 8, OPERADA CO",
+              "um": "PC"
+            },
+            {
+              "codigo": "0701002",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO 3\", CLASE 600, EXTREMOS, BRIDADOS, RF, MATERIAL CUERPO ACERO AL CARBON, ASTM A-216 GR.WCB, VASTAGO, TRIM 8, OPERADA CON",
+              "um": "PC"
+            },
+            {
+              "codigo": "0701003",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 3/4\", CLASE CLASE  800#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL CA",
+              "um": "PC"
+            },
+            {
+              "codigo": "0701004",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 3/4\", CLASE CLASE  1500#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL C",
+              "um": "PC"
+            },
+            {
+              "codigo": "0701005",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 1\", CLASE CLASE  800#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL CARB",
+              "um": "PC"
+            },
+            {
+              "codigo": "0701006",
+              "desc": "VALVULA DE COMPUERTA, DIAMETRO 1\", CLASE  1500#, EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO ACERO AL CARBON, ASTM A105, VASTAGO ASCENDENTE, TRIM 16",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 46,
+          "articulos": [
+            {
+              "codigo": "0702001",
+              "desc": "VALVULA DE GLOBO, DIAMETRO 3/4\", CLASE 800#, EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO ACERO AL CARBON, ASTM A105, ENSAMBLE DE YUGO Y VASTAGO EXTE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 153,
+          "articulos": [
+            {
+              "codigo": "0703001",
+              "desc": "VALVULA DE BOLA, CUERPO COMPLETO, DIAMETRO 3\", CLASE 2000, EXTREMO, ROSCADOS, RF, CUERPO, ACERO AL CARBON, ASTM A-105, PASO, COMPLETO, BOLA, ASTM A-21",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 113,
+          "articulos": [
+            {
+              "codigo": "0704001",
+              "desc": "VALVULA DE RETENCIÓN, RF, DIAMETRO 3\", CLASE 600, BRIDADA, ACERO AL CARBON, ASTM A-216 Gr. WCB, TRIM 8, NACE MR0175",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "0705001",
+              "desc": "VALVULA DE MARIPOSA, DIAMETRO 4\", CLASE ANSI 150 LB., EXTREMOS CUELLO ROSCABLE, MATERIAL DE CUERPO A.C., ASTM A216 Gr. WCB, MANUAL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "0706001",
+              "desc": "VALVULA MACHO, DIAMETRO 2 1/2\" NO LUBRICADA, CLASE 300, EXTREMOS ROSCADOS NPTF, CUERPO ACERO AL CARBON ASTM A216 GR WCB, DISEÑO ASME B16.34, VASTAGO D",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 26,
+          "articulos": [
+            {
+              "codigo": "0707001",
+              "desc": "VALVULA DE AGUJA, DIAMETRO 1/2\", CLASE 3000, EXTREMOS ROSCADOS, ACERO INOXIDABLE, 316, MACHO- HEMBRA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "0708001",
+              "desc": "VALVULA DE DIAFRAGMA, DIAMETRO 4\", CLASE 150#, EXTREMOS BRIDADOS, R.F., MATERIAL DE CUERPO ACERO AL CARBON, ASTM A-536, TRIM ACERO INOXIDABLE, APERTUR",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "0709001",
+              "desc": "MANIFOLD, No DE VIAS 5, ACERO INOXIDABLE, PRESION MAX 6250 PSI, TEMPERATURA MAX 399° C, CONEXION A PROCESO NPT 1/2\" -14 HEMBRA, MODELO R305, FABRICANT",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 20,
+          "articulos": [
+            {
+              "codigo": "0710001",
+              "desc": "VALVULA DE BOLA, DIAMETRO 3/4\", CLASE 6000#, EXTREMOS NPT X NPT HEMBRA, ACERO INOXIDABLE 316, No VIAS 2, MATERIAL ASIENTO PTFE, TEMP MAX 121 °C",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "08",
+      "nombre": "HERRAMIENTAS",
+      "subgrupos": [
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "0802001",
+              "desc": "PILOTO, ACERO AL CARBÓN, PARTE CONTROLADOR DE VÁLVULA, KIMRAY, EQUIPO PRINCIPAL VÁLVULA DE GLOBO, 150 PG PILOT INDIRECT, MODELO: AFZ. PRESIÓN: 150 A 1",
+              "um": "PC"
+            },
+            {
+              "codigo": "0802002",
+              "desc": "KIT DE REPARACIÓN DE PILOTO, DIVERSOS, PARTE DIAFRAGMA, KIMRAY, EQUIPO PRINCIPAL PILOTO",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "10",
+      "nombre": "EQUIPOS",
+      "subgrupos": [
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1004001",
+              "desc": "LANA MINERAL, ˜ 12–16 KG/M³, ESPESOR 1-1/2\", -40 °C HASTA +120 °C, MATERIAL FIBRA DE VIDRIO CON ALUMINIO, MEDIDA 1.22 M X 15 M, OWENS CORNING",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 25,
+          "articulos": [
+            {
+              "codigo": "1005001",
+              "desc": "MEDIA CAÑA, POLIURETANO, 30\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1005002",
+              "desc": "MEDIA CAÑA, POLIURETANO, 24\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1005003",
+              "desc": "MEDIA CAÑA, POLIURETANO, 20\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1005004",
+              "desc": "MEDIA CAÑA, POLIURETANO, 16\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1005005",
+              "desc": "MEDIA CAÑA, POLIURETANO, 14\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1005006",
+              "desc": "MEDIA CAÑA, POLIURETANO, 12\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "1007001",
+              "desc": "NEOPRENO NEGRO, ESPESOR 1/8\", LARGO 10 M, ANCHO 1 M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1009001",
+              "desc": "PLACA TEFLÓN PTFE, ESPESOR 3/8\", LARGO 48\", ANCHO 48\", COLOR BLANCO",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "11",
+      "nombre": "MANTENIMIENTO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 24,
+          "articulos": [
+            {
+              "codigo": "1101001",
+              "desc": "RELLENO PARA NIVELACION DE PISO, A BASE DE CALICHE O ESCOMBRO CON GRAVA",
+              "um": "CU"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 21,
+          "articulos": [
+            {
+              "codigo": "1102001",
+              "desc": "CEMENTO, DUREZA, CEMEX, 15 BULTOS DE 50KG",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "1103001",
+              "desc": "CONCRETO, PREMEZCLADO, 100 KG/CM2, 14 CM, 2.4 TON/M3",
+              "um": "CU"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1104003",
+              "desc": "CAL, KILO",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1105001",
+              "desc": "LADRILLO, TABIQUE, ROJO RECOCIDO, DIMENSIONES: 6 CM X 12 CM X 24 CM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "1106001",
+              "desc": "BLOCK, MACIZO DE 12 X 20 X 40CM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 28,
+          "articulos": [
+            {
+              "codigo": "1107001",
+              "desc": "VARILLA CORRUGADA DE 3/4\", CALIBRE 16, 12 MTS DE LARGO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 171,
+          "articulos": [
+            {
+              "codigo": "1108001",
+              "desc": "TIPO ESTROBO 1\", ACERO GALVANIZADO, DIAMETRO 18.80, LONGITUD 6x36, 9.8 TONS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 28,
+          "articulos": [
+            {
+              "codigo": "1109001",
+              "desc": "MOLDURA RINCONERO, PINO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 16,
+          "articulos": [
+            {
+              "codigo": "1110001",
+              "desc": "MULTIDIRECCIONAL, TORNILLO, DIAMETRO 1 7/16\", BASE 0.60 M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 30,
+          "articulos": [
+            {
+              "codigo": "1111001",
+              "desc": "ZOCLO PISO VINÍLICO, VINIL, LARGO 2.40 MT X  ANCHO 6CM, COLOR HUDSON SILVER, MODELO 2021HUDSONSILPZ, GREDA, INTERIOR",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "1112001",
+              "desc": "ALAMBRE, ACERO RECOCIDO, CALIBRE 14",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 33,
+          "articulos": [
+            {
+              "codigo": "1113001",
+              "desc": "MALLA, CICLON FOLTADA, MATERIAL PVC, LARGO 20 MTS, ALTO 2.5 MTS, CALIBRE 11, ABERTURA 63 MM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1114001",
+              "desc": "ASFALTO, EN FRIO, TMN 3/8\", ESTABILIDAD 350 KG MINIMO, FLUJO 2 - 4 MM, VACIOS 4 - 8 %, VAM 15 %, VFA 65 - 78%, CEMEX",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 53,
+          "articulos": [
+            {
+              "codigo": "1115001",
+              "desc": "ARMADO DE SOPORTE RMA-1-1, ACERO, LARGO 3 M, ANCHO 2.30 M, CALIBRE 16, ASTM A36 GR 50, INCLUYE 2 PLACAS DE ACERO 0.70 M X 0.70 M, PERNOS 3/4\", TUERCAS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "1116001",
+              "desc": "ANCLAJE QUIMICO, POLIESTER, MOD CF 890, CART 300 ML",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "17",
+          "nombre": "SUBGRUPO 17",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1117001",
+              "desc": "VIDRIO, LARGO 48.2 CM, ANCHO 5.5 CM, GROSOR 6 MM, CANTO PULIDO",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "12",
+      "nombre": "MATERIALES GENERALES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 113,
+          "articulos": [
+            {
+              "codigo": "1201001",
+              "desc": "PICHANCHA CON REJILLA, ACERO INOXIDABLE, DIAMETRO 1\", LONGITUD 12 CM, CONEXION DE ENTRADA ROSCADO HEMBRA",
+              "um": "PC"
+            },
+            {
+              "codigo": "1201002",
+              "desc": "TUERCA UNIÓN LISA, CPVC, DIAMETRO 1\", LONGITUD 100 MM, CONEXION DE ENTRADA SOCKET",
+              "um": "PC"
+            },
+            {
+              "codigo": "1201003",
+              "desc": "ADAPTADOR MACHO, CPVC, DIAMETRO 1\", LONGITUD 75 MM, CONEXION DE ENTRADA SOCKET, CONEXION DE SALIDA ROSCADO MACHO",
+              "um": "PC"
+            },
+            {
+              "codigo": "1201004",
+              "desc": "TUERCA UNION DE GOLPE, ACERO AL CARBON, DIAMETRO 2\", LONGITUD 600 MM, CONEXION DE ENTRADA ROSCABLE, CONEXION DE SALIDA ROSCABLE, PRESION DE ENTRADA 30",
+              "um": "PC"
+            },
+            {
+              "codigo": "1201005",
+              "desc": "SANITARIO, CERÁMICA, DIAMETRO 2\" DESCARGA, LONGITUD 72 CM",
+              "um": "PC"
+            },
+            {
+              "codigo": "1201006",
+              "desc": "BRIDA FLEXIBLE, PVC, DIAMETRO 4\", LONGITUD 8 CM, COFLEX, MODELO 2-pb-200",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 234,
+          "articulos": [
+            {
+              "codigo": "1202001",
+              "desc": "RODILLO CALIDAD MEDIA 3/8X9\", LISO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 114,
+          "articulos": [
+            {
+              "codigo": "1203001",
+              "desc": "RECEPTACULO, MEDIA VUELTA, 30 A, 250 V, NEGRO, No POLOS 2, No CABLES 3 HILOS, #14-8 AWG",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 223,
+          "articulos": [
+            {
+              "codigo": "1204001",
+              "desc": "DISCO DE CORTE PARA METAL, ABRASIVO, DIAMETRO 4-1/2\", RECUBRIMIENTO OXIDO DE ALUMINIO, ESPESOR 1/16\", DIAMETRO INTERIOR 7/8\", AUSTROMEX, 13, 300 RPM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "1205001",
+              "desc": "POLIN, MADERA TRATADA, DE PINO, LONGITUD 3 MTS, ANCHO 4\", ALTO 4\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 36,
+          "articulos": [
+            {
+              "codigo": "1206001",
+              "desc": "CARDA, TIPO COPA ALAMBRE TRENZADO, ACERO, DIAMETRO EXTERIOR 5\", EJE ROSCABLE 5/8\", LONGITUD 7/8\", TRUPER",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 23,
+          "articulos": [
+            {
+              "codigo": "1207001",
+              "desc": "CERRADURA, PARA PERFIL DE ALUMINIO, DIAMETRO 1, LONGITUD 15CM, ANCHO 6CM, ALTO 15CM, NIVEL DE SEGURIDAD ALTO, DER-IZQ",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 1505,
+          "articulos": [
+            {
+              "codigo": "1208001",
+              "desc": "CINCHOS, PLASTICO, TRANSPARENTE, LONGITUD 30 CM, ANCHO 4.5 MM, PAQ. DE 100 PC",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 97,
+          "articulos": [
+            {
+              "codigo": "1209001",
+              "desc": "ESTROBO, ACERO GALVANIZADO, DIAMETRO UN PULGADA, CAP VERTICAL ., CAP EN U 9.8 TONELADAS, TIPO DE OJAL SENCILLO, CONSTRUCCION 6X36",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "13",
+      "nombre": "QUIMICOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 156,
+          "articulos": [
+            {
+              "codigo": "1301001",
+              "desc": "PRIMARIO EPÓXICO, GRIS",
+              "um": "LT"
+            },
+            {
+              "codigo": "1301002",
+              "desc": "PINTURA RA-26, RECUBRIMIENTO EPÓXICO, BLANCO",
+              "um": "LT"
+            },
+            {
+              "codigo": "1301003",
+              "desc": "ACABADO DE POLIURETNAO ACRILICO ALIFÁTICO, GRIS MAQUINA- RAL¿506",
+              "um": "LT"
+            },
+            {
+              "codigo": "1301004",
+              "desc": "PINTURA RA-28, ACABADO DE POLIURETANO ACRILICO ALIFÁTICO, BLANCO, No RAL 9010",
+              "um": "LT"
+            },
+            {
+              "codigo": "1301005",
+              "desc": "3M, MODELO SCOTCH 1601, SPRAY BARNIZ AISLANTE SCOTCH 1601 TRANSPARENTE",
+              "um": "LT"
+            },
+            {
+              "codigo": "1301006",
+              "desc": "TIPO PINTURA ENLACE, RA-26, BLANCO PERLA, No RAL 1013, COMEX, CUBETA",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 17,
+          "articulos": [
+            {
+              "codigo": "1302001",
+              "desc": "IMPERMEABILIZANTE, RECUBRIMIENTO, NEGRO, TIPO DE SOLVENTE EPOXICO LIQUIDO, PORCENTAJE DE SOLIDOS 100%, APLICACION ASPERSION EN SITIO O PLANTA, SUPERFI",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "1303002",
+              "desc": "RECUBRIMIENTO TERMOFIJO 2 COMPONENTES, EPOXICO, NEGRO, APLICACION MANUAL, TIEMPO DE SECADO TACTO 120-180 MIN @25°C, DURABILIDAD 30 AÑOS, MODELO RAM 10",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 29,
+          "articulos": [
+            {
+              "codigo": "1304001",
+              "desc": "ACABADO ARQUITECTÓNICO, ACRÍLICA, BLANCO, TIPO DE SOLVENTE AGUA, APLICACION MUROS Y PLAFONES, TIEMPO SECADO 4 HORAS, PRO ADV I/E MATE BLC G 150S 5G",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "1305001",
+              "desc": "SELLADOR ELASTICO, LIQUIDO, RESISTENTE A ACEITES",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 27,
+          "articulos": [
+            {
+              "codigo": "1306001",
+              "desc": "ADELGAZADOR, HIDROCARBURO AROMÁNTICOS+CETONAS+ÉSTRES+ALCOHOLES, 0.0-1.05 g/cm3, SHERWIN WILLIAMS, MODELO RA-28",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "1307001",
+              "desc": "CATALIZADOR, PARTE B, MODELO RA-28 MODIFICADO",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "1308001",
+              "desc": "ESCORIA DE COBRE, .595 A 1.190, 7.5 A 8, POR SACO DE TONELADA",
+              "um": "KG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "14",
+      "nombre": "CONSUMIBLES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 48,
+          "articulos": [
+            {
+              "codigo": "1401001",
+              "desc": "ANGULO, A.C., ESPESOR 3/16\", LADO 1 1\", X, LADO 2 1\", LONGITUD 6.10 METROS, ESPECIFICACIÓN DE MATERIAL ASTM A-36",
+              "um": "PC"
+            },
+            {
+              "codigo": "1401002",
+              "desc": "ANGULO, 6 METROS",
+              "um": "PC"
+            },
+            {
+              "codigo": "1401003",
+              "desc": "ANGULO, ACERO AL CARBÓN, ESPESOR 1/4\", LADO 1 3\", X, LADO 2 3\", LONGITUD 6.10 M, ESPECIFICACIÓN DE MATERIAL A36",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 60,
+          "articulos": [
+            {
+              "codigo": "1402001",
+              "desc": "PERFIL I, IR, 203 MM X 46.2 KG/M, 6.1 M, ASTM A572 GR. 50",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 67,
+          "articulos": [
+            {
+              "codigo": "1403001",
+              "desc": "PLACA DE ACERO, ESPESOR 1/2\", ANCHO 4FT, LONGITUD 10 FT, A-36",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 23,
+          "articulos": [
+            {
+              "codigo": "1404001",
+              "desc": "SOLERA DE ACERO, ESPESOR 1/4, ANCHO 4\", LONGITUD 6 M, ACERO ASTM A-36",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 15,
+          "articulos": [
+            {
+              "codigo": "1405001",
+              "desc": "CANAL TIPO, PERALTE 4\", ANCHO DE PATIN 40 MM, ESPESOR DEL ALMA 5.2 MM, LONGITUD 6.10 M, A36",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1406001",
+              "desc": "MONTEN, CALIBRE 10, PATIN 2.75\", PERALTE 10\", CEJA 2.75\", LONGITUD 6.10 M, ASTM A-568, DE 11.2 KG/M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 66,
+          "articulos": [
+            {
+              "codigo": "1407001",
+              "desc": "PTR, CUADRADO, CALIBRE 14, ANCHO 1\", ALTURA 1\", LONGITUD 6 METROS, A.C., ASTM A513",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "1408001",
+              "desc": "TUBO ESTRUCTURAL, DIAMETRO 2\", CEDULA C-40, LONGITUD 6 MTS, ASTM A-106 GR B, ASME B36.10, N/A",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 44,
+          "articulos": [
+            {
+              "codigo": "1409001",
+              "desc": "LAMINA, ANTIDERRAPANTE, CALIBRE 1/8, LARGO 10', ANCHO 4', A.C., ASTM A-186",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "1410001",
+              "desc": "REJILLA TIPO IRVING, GALVANIZADA ANTIDERRAPANTE, PERALTE 1\", ANCHO 1 MTS., LARGO 6 MTS., ESPESOR DE SOLERA 1/8\", ESPACIO ENTRE SOLERA 30 MM, ESPACIO E",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1411001",
+              "desc": "FIJADORES PARA REJILLA IRVING, GRAPA DE FIJACION PARA REJILLA TIPO IRVING, GALVANIZADO, ESPACIO ENTRE SOLERAS 30 MM, PERALTE DE REJILLA IRVING 25 A 38",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "1412001",
+              "desc": "PERFIL SOLIDO, COLD ROLLED, 1/2, LONGITUD 6.10 M, A-36",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 29,
+          "articulos": [
+            {
+              "codigo": "1413001",
+              "desc": "BASE FIJA REGULABLE, ACERO, LARGO 60 CM, DOKA AT PACK",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "15",
+      "nombre": "SEGURIDAD INDUSTRIAL",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 911,
+          "articulos": [
+            {
+              "codigo": "1501001",
+              "desc": "LLAVE, UNIVERSAL DE LONA, CUERPO ALUMINIO / CINTA NYLON, DIAMETRO 3\", LONGITUD 12\", ANCHO 1 11/16, URREA, MODELO 802",
+              "um": "PC"
+            },
+            {
+              "codigo": "1501002",
+              "desc": "LINTERNA, DE MANO, DE NYLON Y POLICARBONATO, 2.85\", 7.06\", COLOR NARANJA, INTRÍNSECAMENTE SEGURA Y RECARGABLE",
+              "um": "PC"
+            },
+            {
+              "codigo": "1501003",
+              "desc": "TORQUÍMETRO, TRUENO DUAL, ACERO/ALUMNIO, 1/2\", TORQUE 30-250 FT-LB, URREA, MODELO 60143",
+              "um": "PC"
+            },
+            {
+              "codigo": "1501004",
+              "desc": "JUEGO DE 9 LLAVES TORX CON ORGANIZADOR ABATIBLE, ACERO AL CROMO VANADIO, TRUPER, MODELO TORX-9",
+              "um": "PC"
+            },
+            {
+              "codigo": "1501005",
+              "desc": "LÁMPARA LED, INALÁMBRICO, PLÁSTICO ABS (CARCASA), 21.6 CM, 10.5 CM, 17.7 CM, 3, 000 LÚMENES, RYOBI, MODELO PCL661B, BATERIA DE 18 V ONE",
+              "um": "PC"
+            },
+            {
+              "codigo": "1501006",
+              "desc": "NAVAJA, BOLSILLO PLEGABLE, HOJA DE ACERO, MANGO DE PLÁSTICO, 25.9 CM, 7.62 CM, 1.27 CM, RYOBI, MODELO RHCKF02",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 15,
+          "articulos": [
+            {
+              "codigo": "1502001",
+              "desc": "SEPARADOR DE BRIDA, HIDRAULICO, 14 TON, PRESION MAXIMA 700 BAR, DESPLAZAMIENTO 80 MM, 3. 16 PUL, MODELO STF14H",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 196,
+          "articulos": [
+            {
+              "codigo": "1503001",
+              "desc": "BOMBA, ELECTRICA EXTRACTORA PARA TAMBOR, 16 LTS  POR MIN., CORRIENTE ENTRADA 60 W, 12 V DC, TULER, MODELO TUL-202001",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 15,
+          "articulos": [
+            {
+              "codigo": "1504001",
+              "desc": "ESCAREADOR, NEUMATICO, 90 PSI, TORSION MAXIMA 4600 IPM, ENTRADA DE AIRE 1/4\", URREA, MODELO UP125",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 25,
+          "articulos": [
+            {
+              "codigo": "1505001",
+              "desc": "KIT DE SOLDADURA, ELECTRONICA DE 21 PIEZAS CON CAUTIN DE 60 W, CORRIENTE ENTRADA 0.55 A, 110 V AC, FRECUENCIA DE ENTRADA 60 HZ, LJ-EXPLOSIVE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 207,
+          "articulos": [
+            {
+              "codigo": "1506001",
+              "desc": "PISTOLA, -40 A 550 °C, 630 A 670 NM, RESOLUCION 0.1 °C, EXACTITUD ±  1 %, MODELO 561, FLUKE, TERMÓMETRO POR INFRARROJO Y DE CONTACTO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 32,
+          "articulos": [
+            {
+              "codigo": "1507001",
+              "desc": "CAJA PLÁSTICA, POLIPROPILENO, USO RUDO CON TAPA, LONGITUD 60 CM, ANCHO 40 CM, ALTURA 27 CM, 42 LTS, PLASTIC TRENDS, MODELO S011tka0, SKU 141456",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 26,
+          "articulos": [
+            {
+              "codigo": "1508001",
+              "desc": "DESBROZADORA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "1509001",
+              "desc": "CARRO DE CARGA PLEGABLE TIPO PLATAFORMA, LONGITUD 73 CM, ANCHO 47 CM, ALTURA 14 CM, 150 KG, LLANTA 4\", PESO 7 KG, INCLUYE: RECUBRIMIENTO ANTIDERRAPANT",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "16",
+      "nombre": "PINTURA",
+      "subgrupos": [
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 23,
+          "articulos": [
+            {
+              "codigo": "1603001",
+              "desc": "CARTUCHO MP 45 ET., ETIQUETA AUTOLAMINABLE, MATERIAL VINILO, 1.0\" W x 6.50\" H, -40 a 66°C (-40 a 150°F), ANCHO ÁREA DE IMPRESIÓN DE  25.4 x 165.1 mm,",
+              "um": "PC"
+            },
+            {
+              "codigo": "1603002",
+              "desc": "HOJA DE SIERRA DE BANDA, 18 TPI, MATERIAL ACERO, MODELO 48-39-0521, MILWAUKEE, TAMAÑO DE CORTE 44-7/8\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "1603003",
+              "desc": "KIT DE ARRANQUE DE BATERIA M18, 18V & 12V, MODELO 48-59-1850-P, MILWAUKEE, M18™ REDLITHIUM™ XC5.0",
+              "um": "PC"
+            },
+            {
+              "codigo": "1603004",
+              "desc": "CARGADOR, BATERIA DE ION LITIO, MATERIAL PLASTICO, CORRIENTE ENTRADA 120 V AC (50/60 HZ), COLOR NEGRO, AMARILLO, MODELO DCB107-B3, DEWALT",
+              "um": "PC"
+            },
+            {
+              "codigo": "1603005",
+              "desc": "BATERIA POWERSTACK 20V MAX, COMPACTO, MATERIAL PLATICA, 1.7 Ah, COLOR AMARILLO, MODELO DCBP034-B3, DEWALT",
+              "um": "PC"
+            },
+            {
+              "codigo": "1603006",
+              "desc": "BATERIA, M18, MODELO REDLITHIUM FORGE HD 12.0, MILWAUKEE, 48-11-1813",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 33,
+          "articulos": [
+            {
+              "codigo": "1606001",
+              "desc": "TUBO DE CENTRIFUGA EN FORMA DE PERA, CAPACIDAD 100 ML, MODELO CVS45244-100",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "1608001",
+              "desc": "SISTEMA DE ARRANQUE RETRÁCTIL PARA DESBROZADORA, JALDELI, PARA MOTOR DE 33, 43, 52 CC.",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "17",
+      "nombre": "AISLAMIENTO",
+      "subgrupos": [
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1704001",
+              "desc": "TORRE DE LUZ, PORTATIL CON MASTIL HIDRAULICO, GENERADOR INTEGRADO ˜ 6 kW – 8 kW, TENSION 120 V / 240 V, COMBUSTIBLE DIESEL, NO DE LAMPARAS 4, TIPO LED",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "1705001",
+              "desc": "GENERADOR INVERTER PORTÁTIL MONOFÁSICO, DRIVER MOTOR DE 4 TIEMPOS, 3, 500 W, GASOLINA, TANQUE COMBISTIBLE 7.5 L, MARCA PREDATOR, MODELO P3500i",
+              "um": "PC"
+            },
+            {
+              "codigo": "1705003",
+              "desc": "GENERADOR PORTATIL SILENCIOSO TRI-FUEL, DRIVER MOTOR DE 4 TIEMPOS, GASOLINA 9 KW/ GAS LP 8.5 KW/ GAS NATURAL 8.2 KW, TEMPERATURA DE OPERACIÓN 40 °C, G",
+              "um": "PC"
+            },
+            {
+              "codigo": "1705004",
+              "desc": "GENERADOR PORTATIL A GASOLINA, MONOFASICO, No ETAPAS 1, 3400 W MAX. / 3000 W NOMINAL, PRESION SALIDA 120/240 V AC, 60 HZ, RPM 3600 RPM, POWERMATE",
+              "um": "PC"
+            },
+            {
+              "codigo": "1705005",
+              "desc": "GENERADOR ELECTRICO, PORTATIL, MARCA BRIGGS & STRATTON, MODELO 030707, SERVICIO PRUEBAS DE BANCO, 5000 W, GASOLINA, TANQUE COMBISTIBLE 28.4 L, VOLTAJE",
+              "um": "PC"
+            },
+            {
+              "codigo": "1705006",
+              "desc": "GENERADOR ELECTRICO, PORTATIL, MARCA BRIGGS & STRATTON, MODELO 30614 G5000, SERVICIO PRUEBAS DE BANCO, 5000 W, GASOLINA, TANQUE COMBISTIBLE 28.4 LT, V",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "1706001",
+              "desc": "MANIFOLD, TX5AMF CAPACIDAD 60 GL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "1707001",
+              "desc": "BOMBA, ELECTRICA PERIFÉRICA, 3/4 HP, GASTO 40 L/MIN, DIAMETRO SUCCION 1\" NPT, DIAMETRO DESCARGA 1\" NPT, PRESION ENTRADA 8 M, RPM 3, 450",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "1708001",
+              "desc": "HIDROLAVADORA, ELECTRICA, 1400 W, PRESION MAX 1 450 PSI, PRESION OPERACION 1 050 PSI, LONGITUD MANGUERA 5 M, HYP1450XT, FABRICANTE HYUNDAI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "1710001",
+              "desc": "MAQUINA PARA SOLDAR / INVERSOR, ALIMENTACION ELECTRICA 120/230 V, VOLTAJE SALIDA 20A - 250A, MODELO MEGA FORCE 250iD, LINCOLN",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "1711001",
+              "desc": "VENTILADOR, TAMBOR, 42\", 44X46X20\", 16, 900 - 20, 500 CFM, 3/4, 72 LBS, 120 VOLTIOS, 4 ASPAS, MARCA UNLINE, MODELO H-9346, OSHA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "1712001",
+              "desc": "EQUIPO HIDRONEUMÁTICO HYDRO-MAC, ACERO, 90L, PRES MAX 150 PSI, TEMP MAX 40°C, SERVICIO VERTICAL, CON BOMBA JET 3/4 HP  MOD EAJ075-090VE MARCA EVANS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1713001",
+              "desc": "SANBLASTER, ACERO, LARGO 520 MM, ANCHO 380 MM, ALTURA 950 MM, 10 GALONES, PRES DISEÑO 60 PSI, PRES MAX 110 PSI, MANGUERA Y PISTOLA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1714001",
+              "desc": "BAILARINA COMPACTADORA, 5.5 HP, GASOLINA, TANQUE COMBISTIBLE 2.5 LTS, MOTOR HONDA GX160, MCA TRUPER, CLAVE BAI-55, CODIGO 102971",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "1715001",
+              "desc": "CALEFACTOR PORTATIL TIPO SALAMANDRA CON TERMOSTATO AJUSTABLE, 30, 000 W, 60 HZ, 480 V AC, TRAFASICO, ˜ 36 A, PORTATIL, CON ASA SUPERIOR Y BASE ESTABLE",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "18",
+      "nombre": "CIVIL",
+      "subgrupos": [
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "1804001",
+              "desc": "FILTRO DE COMBUSTIBLE DIESEL, MEDIO FILTRANTE DE CELULOSA / CARCASA DE ACERO, No PARTE 33032, WIX FILTERS",
+              "um": "PC"
+            },
+            {
+              "codigo": "1804002",
+              "desc": "FILTRO DE ACEITE, ACERO / MEDIO DILTRANTE DE CELULOSA, No PARTE 51064, WIX FILTERS",
+              "um": "PC"
+            },
+            {
+              "codigo": "1804003",
+              "desc": "FILTRO DE AIRE, ACERO / MEDIO FILTRANTE DE CELULOSA, No PARTE 46449, WIX FILTERS",
+              "um": "PC"
+            },
+            {
+              "codigo": "1804004",
+              "desc": "BATERÍA, 12 V, 730 A, No PARTE H-48/91(LN3)-730, MARCA LTH HI-TEC",
+              "um": "PC"
+            },
+            {
+              "codigo": "1804005",
+              "desc": "CARCASA DE BATERÍA, 12 V, 730 A, No PARTE H-48/91(LN3)-730, MARCA LTH HI-TEC",
+              "um": "PC"
+            },
+            {
+              "codigo": "1804006",
+              "desc": "FILTRO DE ACEITE DE MOTOR FLUJO PLENO ENROSCABLE TIPO SELLADO, No PARTE P550162, MARCA DONALDSON",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "1805001",
+              "desc": "BATERIA SELLADA, ACIDO DE PLOMO, LARGO 197 MM, ANCHO 165 MM, ALTO 170 MM, 12V-36AH-10HR- MODELO 6-FM-38",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "1806001",
+              "desc": "TAPA DE ARRANQUE, COMPRESOR DE AIRE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "1807001",
+              "desc": "IMPULSOR  PARA BOMBA JET, 0.75 HP, CODIGO BIP3HJX2075, MCA EVANS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 16,
+          "articulos": [
+            {
+              "codigo": "1808001",
+              "desc": "ADAPTADOR PARA GRIFO CON ELEMENTO REDUCTOR, LATON, DIAMETRO G3/4 CON PIEZA REDUCTORA DE G1/2, No PARTE 2.645-013.0, KARCHER",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "19",
+      "nombre": "TRANSPORTE",
+      "subgrupos": [
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "1902001",
+              "desc": "ISOCONTENEDOR, HABITACIONAL / OFICINA, ACONDICIONADO, ACERO ESTRUCTURA GRADO MARITIMO CON RECUBRIMIENTO ANTICORROSIVOS, LARGO 20 FT, ANCHO 8 FT, ALTO",
+              "um": "PC"
+            },
+            {
+              "codigo": "1902002",
+              "desc": "OFICINA MOVIL, LARGO 12 M, MODELO 2015, CEDAR CREEK, EQUIPADA/AMUEBLADA",
+              "um": "PC"
+            },
+            {
+              "codigo": "1902003",
+              "desc": "OFICINA MÓVIL, LARGO 12', ANCHO 64', MODELO 12768-02, INCLUYE:  MINI SPLIT, ESCRITORIO CURVO EN L CON ARCHIVERO (2 PZA), LIBRERO ALTO CON PUERTAS (1 P",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "1903001",
+              "desc": "ESTRUCTURA PARA COBERTIZO, ACERO, LARGO 8 M, ANCHO 4 M, A BASE DE TUBERÍA DE ACERO AL CARBÓN DE 4\" DE DIÁMETRO, MONTÉN DE ACERO DE 6\", PTR DE 2\", ARMA",
+              "um": "PC"
+            },
+            {
+              "codigo": "1903002",
+              "desc": "ESTRUCTURA PARA COBERTIZO, LARGO 12 M, ANCHO 8 M, A BASE DE TUBERIA A.C. DE 4\" DE DIAMETRO, MONTEN DE ACERO DE 6\" Y PTR DE 2\" CON ARMADURA TIPO WARREN",
+              "um": "PC"
+            },
+            {
+              "codigo": "1903003",
+              "desc": "ESTRUCTURA PARA COBERTIZO, LARGO 10 M, ANCHO 6 M, A BASE DE TUBERÍA A.C. DE 4\" DE DIÁMETRO, MONTEN DE ACERO DE 6\" Y PTR DE 2\" CON ARMADURA TIPO WARREN",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "20",
+      "nombre": "COMPUTO Y TELECOMUNICACIONES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 14,
+          "articulos": [
+            {
+              "codigo": "2001001",
+              "desc": "CHAROLA, ALUMINIO, ESCALERA, PERFIL Z, ANCHO 12 PULG, PERALTE 6 PULG, LONGITUD 6 MTS, PASO 9 PULG, NEMA VE1-IPC 61537",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 48,
+          "articulos": [
+            {
+              "codigo": "2002001",
+              "desc": "TUBO, CONDUIT, ACERO GALVANIZADO, DIAMETRO 3/4\", CEDULA 80, UL, NEC, NEMA, ASTM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 571,
+          "articulos": [
+            {
+              "codigo": "2003001",
+              "desc": "CONECTOR MYERS, DIAMETRO 1 1/4, MATERIAL DE ZINC ACABADO ESTANDAR, SERIE MODELO ST-4, LONGITUD ., NEMA 2, 3, 3R, 4 4X y 12, MARCA CROUSE HINDS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 199,
+          "articulos": [
+            {
+              "codigo": "2004001",
+              "desc": "CABLE, CONDUCTOR, CONDUCTOR DE COBRE ESTAÑADO, No CONDUCTORES 1 PAR (16) (2), AWG 16, 600 V, AISLAMIENO BI-LAMINATE (ALUM+POLY), 80°C, MODELO MOD.8719",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 69,
+          "articulos": [
+            {
+              "codigo": "2005001",
+              "desc": "TABLERO ELECTRICO, DE, DISTRIBUCION, 127/220 V, FASES 2, CAPACIDAD EN BARRAS 125 A, CANTIDAD DE DERIVADOS 12 POLOS, TIPO DE MONTAJE SOBREPONER, NOM-00",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 24,
+          "articulos": [
+            {
+              "codigo": "2006001",
+              "desc": "ARRANCADOR DE MOTOR, VOLTAJE 460 V AC, FASES 3, KODIAK, 250 HP, TRIFASICO, W/PPC, 40 HP CP STARTER",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "2007001",
+              "desc": "MOTOR, SERVICIO CONTINUO, INDUCCION, MOTOR TRIFASICO, JAULA DE ARDILLA, DE POLOS 4, 208 - 230 / 460 V, 400 HP, RPM 1500 RPM, CLASIFICACIÓN MOTOR ALTO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 21,
+          "articulos": [
+            {
+              "codigo": "2008001",
+              "desc": "TRANSFORMADOR, SECO (DRY TYPE), REDUCIDO, SERVICIO INDUSTRIAL, RELACION TRANSFOMACIÓN 480 V A 220 V/ 110 V, CAPACIDAD 30 KVA, TIPO DE ENFRIAMIENTO REF",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 71,
+          "articulos": [
+            {
+              "codigo": "2009001",
+              "desc": "POSTE CONICO CIRCULAR, CCT, ACERO, LONGITUD 9 MTS, GALVANIZADO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 94,
+          "articulos": [
+            {
+              "codigo": "2010001",
+              "desc": "BARRA DE UNION CON AISLADORES 1249 A, PLACA  TG-BUS-G11, BARRA DE COBRE ESTAÑADA, 20 x 7.62 x 0.64 CM, CALIBRE AWG N/A, REDES DE TIERRA FÍSICAS INSTAL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "2011001",
+              "desc": "SFI, VOLTAJE ENTRADA 120-500 V DC, VOLTAJE SALIDA 240 V MONOFÁSICO, 50/60 HZ, 12 KVA NOM., INVERSOR HÍBRIDO, CLASIFICACIÓN LOW VOLTAGE, TIPO DE BATERI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 17,
+          "articulos": [
+            {
+              "codigo": "2012001",
+              "desc": "BANCO DE BATERIA, CLASIFICACIÓN 250KW/522KWH BATERRY ESS, TIPO DE BATERIA LFP (LITIO FERROFOSFATO), 600 CICLOS, TIEMPO DE RESPALDO ENTRE 2 A 10 HRS, I",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "2013001",
+              "desc": "RECTIFICADOR/CARGADOR, VOLTAJE ENTRADA 20-21 V, VOLTAJE SALIDA 18 V, GABINETE PLÁSTICO, CLASIFICACIÓN HD12.0, NOM-024, BATERÍA M18™ REDLITHIUM™ FORGE™",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 29,
+          "articulos": [
+            {
+              "codigo": "2014001",
+              "desc": "CELDA SOLAR, TECNOLOGIA PWM (MODULACIÓN POR ANCHO DE PULSO), 12V DC, 20 A, TIPO DE CONEXIÓN CONEXION DE TERMINALES, TIPO DE CONTROLADOR CONTROLADOR DE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "2015001",
+              "desc": "ÁNODO, ALTO POTENCIAL, MAGNESIO, PESO 17  LIBRAS, EMPACADO CON MEZCLA DE RELLENO CONDUCTIVO (BACKFILL)",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "21",
+      "nombre": "MOBILIARIO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 148,
+          "articulos": [
+            {
+              "codigo": "2101001",
+              "desc": "TIPO DE REPUESTO INTERRUPTOR DOBLE TIRO, 600 V, FASE 3, AMPERAJE 100, SIEMENS, MOD. DTNF363",
+              "um": "PC"
+            },
+            {
+              "codigo": "2101002",
+              "desc": "INTERRUPTOR TERMOMAGNETICO, UNIPOLAR, 127, FASE 1, AMPERAJE 10 A, ENCHUFABLE, MODELO MOD.QO110, SQUARE-D, NOM-001-20212",
+              "um": "PC"
+            },
+            {
+              "codigo": "2101003",
+              "desc": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127/240, FASE 2, AMPERAJE 40 A, ENCHUFABLE, MODELO QO240, SQUARE-D, NOM-001-2012",
+              "um": "PC"
+            },
+            {
+              "codigo": "2101004",
+              "desc": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127, FASE 1, AMPERAJE 15 A, ENCHUFABLE, MODELO QO115, SQUARE D, NOM-001-SEDE 2012",
+              "um": "PC"
+            },
+            {
+              "codigo": "2101005",
+              "desc": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127/240, FASE 3, AMPERAJE 30 A, ENCHUFABLE, MODELO QO330, SQUARE D, NOM-001-SEDE 0212",
+              "um": "PC"
+            },
+            {
+              "codigo": "2101006",
+              "desc": "FRENTE CENTRO DE CARGA CON ZAPATA PRINCIPAL, ., FASE 1 FASE 3 H. DE 12 P, AMPERAJE ., SOBREPONER, MODELO MOD.QOC16US, SQUARE-D, NOM-001-SEDE 2012",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "2102001",
+              "desc": "TIPO DE REPUESTO, INTERRUPTOR SELECTOR DE 2 POSICIONES (0-1), PARTE SA 0-1 20, SALZER, TABLERO DE DISTRIBUCION, 250V AC /48V DC, 20 A",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "2103001",
+              "desc": "TIPO DE REPUESTO, EMBOBINADO, PARTE MOTOR, LINCOLN, SOLDADORA, 12 V, 400 A",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "2104001",
+              "desc": "CELDA DE POTENCIA, MODELO ASSY200A, MICROHARMONY, GEN II",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "2105001",
+              "desc": "TIPO DE REPUESTO, FOCO ADITIVO METÁLICO, PARTE 928480400097, PHILIPS, SISTEMA DE ALUMBRADO, 220 V, MH 400W/640 E40 CL U 1SL/6",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "2108001",
+              "desc": "TIPO DE REPUESTO, BATERIA DE LITIO, PARTE ER34615 (34615), EVE ENERGY, MEDIDORES/SENSOR, 3.6 V, 19 AH",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "30",
+      "nombre": "TUBERIA PEAD",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 21,
+          "articulos": [
+            {
+              "codigo": "3001001",
+              "desc": "RADIO PORTATIL ANALOGICO  VHF, 16 CANALES, ALIMENTACION 7.5 V DC, PUERTOS CLONES CABLE, ACESORIO (AUDIO/PTT), VELOCIDAD TRANSMISION ESPACIADO: 25/20/1",
+              "um": "PC"
+            },
+            {
+              "codigo": "3001002",
+              "desc": "RADIO PORTATIL, ALIMENTACION 7.5 V DC ±20 %, PUERTOS CONECTOR DE AUDIO DE 2 PINES, VELOCIDAD TRANSMISION TDMA 2-SLOT 12.5 KHZ, PROTOCOLOS FM ANALOGICO",
+              "um": "PC"
+            },
+            {
+              "codigo": "3001003",
+              "desc": "GATEWAY INALAMBRICO, ALIMENTACION AC/DC 100-240 V, PUERTOS 1-4 PUERTO ETHERNET RJ45, PUERTO SERIALES RS-232/RS-485, USB, VELOCIDAD TRANSMISION ETHERNE",
+              "um": "PC"
+            },
+            {
+              "codigo": "3001004",
+              "desc": "ANTENA OMNIDIRECCIONAL, ALIMENTACION 30 V, PUERTOS COAXIAL, VELOCIDAD TRANSMISION 2.4 GHZ, PROTOCOLOS 802.15.4, ANCHO DE BANDA 10 MB, THROUGHPUT 10 MB",
+              "um": "PC"
+            },
+            {
+              "codigo": "3001005",
+              "desc": "RADIO PORTATIL BIDIRECCIONAL ANALOGICO UHF, ALIMENTACION RECARGABLE, PROTOCOLOS ANALOGICO, ANCHO DE BANDA UHF 400-470 MHZ RANGO DE FRECUENCIA, PLASTIC",
+              "um": "PC"
+            },
+            {
+              "codigo": "3001006",
+              "desc": "TARJETA DE COMUNICACIÓN PLATAFORMERA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 18,
+          "articulos": [
+            {
+              "codigo": "3002001",
+              "desc": "TP LINK ARCHER C50, ALIMENTACION ENERGIA, VELOCIDAD TRANSMISION 867MBPS, ANCHO DE BANDA 1.2 GBPS, ADMINISTRABLE SI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "3003001",
+              "desc": "LECTOR DE TARJETAS DE PROXIMIDAD CON TECLADO, ALIMENTACION -, CAPACIDAD ALMACENAMIENTO -, PUERTOS -, COMUNICACIÓN -, -, SISTEMA OPERATIVO LINUX. SALID",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "3004001",
+              "desc": "KIT DE CABLE SENSOR PARA CERCA CICLÓNICA, ALIMENTACION -, CAPACIDAD ALMACENAMIENTO -, PUERTOS -, COMUNICACIÓN -, -, MARCA: IRONCLAD / 150 METROS / 2 Z",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 48,
+          "articulos": [
+            {
+              "codigo": "3005001",
+              "desc": "POSTE SECCIONADO DEL CCTV, ACERO ROLADO EN FRIO, LARGO 6 MT, 49 KG, ESPECIALIZADO PARA LA INSTALACIÓN DE VIDEOVIGILANCIA / INCLUYE BASE DE CIMENTACIÓN",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "3006001",
+              "desc": "BOCINA PORTATIL BLUETOOTH CON MICROFONOS INALAMBRICOS, ALIMENTACION BATERIA RECARGABLES DE ION-LITIO, PUERTOS USB, VELOCIDAD TRANSMISION BLUETOOTH 5.1",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "3007001",
+              "desc": "RADIO PORTATIL ANALOGICO, ALIMENTACION 7.5 VDC ±20 %, VELOCIDAD TRANSMISION 25/12.5/6.25 KHZ, PROTOCOLOS FM ANALOGICO, NXDN, DMR, ANCHO DE BANDA 25 KH",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "3008001",
+              "desc": "CABLE UTP CAT 6A, No DE HILOS 8, COBRE UTP, AZUL, CALIBRE 23 AWG. MARCA. PANDUIT MODELO: PUL6AHD04BU-EG O SIMILAR",
+              "um": "MT"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 284,
+          "articulos": [
+            {
+              "codigo": "3009001",
+              "desc": "MOUSE INALAMBRICO BLUETOOTH, MARCA DELL, MODELO MS700, SISTEMA OPERATIVO WINDOWS 10",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 44,
+          "articulos": [
+            {
+              "codigo": "3010001",
+              "desc": "LICENCIA DE SOFTWARE, No USUARIOS 1, APLICACION CORREO ELECTRONICO, VIGENCIA ANUAL",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "31",
+      "nombre": "CONEXIONES PEAD",
+      "subgrupos": [
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "3102001",
+              "desc": "TARJETA DE CONTROL P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3102002",
+              "desc": "TARJETA DE MEDIDAS I/V XMV P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3102003",
+              "desc": "TARJETA DE COMUNICACION FIBRA OPTICA P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3102004",
+              "desc": "TARJETA INTERFAZ USUARIO P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3102005",
+              "desc": "TARJETA E/S USUARIO P2G, ELECTRONICO, PARTE TARJETA, TENESIS, ALIMENTADOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3102006",
+              "desc": "KIT DE FIBRA ÓPTICA, FIBRA, PARTE KIT, TENESIS, SISTEMA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "3108001",
+              "desc": "ADAPTADOR, PLASTICO, PARTE ETHERNET, STARLINK",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 68,
+          "articulos": [
+            {
+              "codigo": "3109001",
+              "desc": "Dell Cargador para Laptop 492-BDQM, 65W, 20V, CARGADOR CA, PARTE SKU: 492-BDQM, DELL, CARGADOR",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "32",
+      "nombre": "TUBERIA ESPECIAL",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "3201001",
+              "desc": "TRANSMISOR, PRESION MANOMETRICA, SENSOR TIPO DIAFRAGMA ACERO INOXIDABLE 316L, RANGO MAXIMO 4000 PSIG, CALIBRACIÓN 0-100 KG/CM2, CONEXIÓN A PROCESO 1/2",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 121,
+          "articulos": [
+            {
+              "codigo": "3202001",
+              "desc": "REGISTRADOR DE FLUJO, CAJA DE ALUMINIO, MARCA BARTON, MODELO 202E, 0-1000 PSI, DIAMETRO CARATULA 10.5\", PRESION MAX 0-200 WC, TEMPERATURA MAXIMA 82° C",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 20,
+          "articulos": [
+            {
+              "codigo": "3203001",
+              "desc": "CONTROLADOR, NEUMATICO DE PRESION, MODO DE CONTROL PROPORCIONAL +RESET, ACCION DIRECTA, ELEMENTO DE MEDICION TUBO BOURDON DE MONEL, RANGO 0-100 BAR, M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 44,
+          "articulos": [
+            {
+              "codigo": "3204001",
+              "desc": "REGULADOR, MANTENEDOR DE NIVEL DE ACEITE, ALUMINIO, TAMAÑO DE PUERTO ENTRADA 1/2\" NPTF - SALIDA 3/4\" NPTF - VENTILACIÓN Y ELÉCTRICO 1/2\" NPTF, MOD. LM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "3205001",
+              "desc": "SWITCH, NIVEL, NEUMATICO TIPO FLOTADOR, CUERPO Y FLOTADOR DE AC. INOX 304, CONEXIÓN A PROCESO 2\" MNPT, MONTAJE HORIZONTAL, GRAVEDAD ESPECIFICA 0.5 O S",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 53,
+          "articulos": [
+            {
+              "codigo": "3206001",
+              "desc": "MEDIDOR DE FLUJO ULTRASÓNICO, CAUDAL DE LÍQUIDOS (FLUJO VOLUMÉTRICO, ABS, EXACTITUD ±1% DEL VALOR MEDIDO, CONEXIÓN A PROCESOS CLAMP-ON, TIPO DE TRANSM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "3207001",
+              "desc": "ANALIZADOR DE RED  3F, V, A, KW, KVAR, KVA, DIGITAL, PANTALLA LCD/LED, EXACTITUD ±0.5%, REPETIBILIDAD ALTA, UNIDADES V, KV, HZ, CAMARA TERMICA OPC, TI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 118,
+          "articulos": [
+            {
+              "codigo": "3208001",
+              "desc": "VÁLVULA DE SEGURIDAD PSV, 1\", DIAMETRO ENTRADA 1\" #300 RF, DIAMETRO SALIDA 2\", #150, RF, MATERIAL CUERPO ACERO AL CARBÓN, DIAMETRO ORIFICIO E, 341-700",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "3209001",
+              "desc": "KIT DE CALIBRACIÓN, SULFURO DE HIDRÓGENO, CONCENTRACION 50 PPMV, CILINDRO D58, CAPACIDAD ALMACENAMIENTO 58 L, VALVULA REGULACION C-10 (5/8\" 18 UNF), M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 53,
+          "articulos": [
+            {
+              "codigo": "3210001",
+              "desc": "ELEMENTO DE TEMPERATURA, RTD PT-100 DE PLATINO, No DE HILOS 4, CONEXION TERMOPOZO 1/2\" NPT, CON RESORTE DE CARGA, DIAMETRO EXT BULBO 1/4\", FUNDA PROTE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 16,
+          "articulos": [
+            {
+              "codigo": "3211001",
+              "desc": "PLC, RTU INTELIGENTE INALAMBRICO CON EXPASION MODULAR E/S, PROCESADOR ARM CORTEX-A8 AMM3352 A 600 MHZ, MEMORIA 256 MB DDR3L, NODOS REMOTOS, PUERTOS DE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "3212001",
+              "desc": "NIPLE DE INYECCION DE QUIMICOS, CUERPO A.C. API 5L GR. BNS PSL2 SAW, DIAMETRO 2\", TEMPERATURA -15°F A +400°F, TEMPERATURA MAX 6000 PSI, MONTAJE FLAREW",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "3213001",
+              "desc": "CAMARA DE FLOTACION, ACERO AL CARBON ASTM A-216, CAMARA ROSCADA, CONEXIÓN A PROCESO 2\" FNPT, CONEXIÓN DEL INSTRUMENTO  2\" FNPT, POSICION VERTICAL, MON",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 31,
+          "articulos": [
+            {
+              "codigo": "3214001",
+              "desc": "GABINETE METALICO PARA INTEMPERIE, ACERO, PUERTAS TIPO MONOBLOCK, RECUBRIMIENTO EPOXICO - POLIESTER TEXTURIZADO, GIRS CLARO, 600 X 600 X 300 MM, PLACA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "3215001",
+              "desc": "COMPUTADOR DE FLUJO MULTIVARIABLE- SCANNER 2000, SERVICIO MEDICION DE PRESION ESTATICA, DIFERENCIA Y TEMPERATURA, PRESION MAXIMA 1, 500 PSI, TEMPERATU",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 14,
+          "articulos": [
+            {
+              "codigo": "3216001",
+              "desc": "PISTOLA DE TEMPERATURA, C°, -30 °C a 500 °C, EXACTITUD 12:1, ALIMENTACION BATERÍA AA ESTÁNDAR, MODELO 62MAX, FLUKE, Termómetro IR",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "17",
+          "nombre": "SUBGRUPO 17",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "3217001",
+              "desc": "RADIO BASE (ADQUISICIÓN DE DATOS), SEÑAL DE ENTRADA RS485, PUERTO DE ENTRADA USB (TIPO C), ALIMENTACION 8V ~ 28 V, CORRIENTE DE TRABAJO 24 V, MODELO S",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "33",
+      "nombre": "ACCESORIOS ESPECIALES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "3301001",
+              "desc": "ALIMENTACION INTELIGENTE, MODULO DE ENERGIA \"BLACK\", MODELO 701PBKKF, ROSEMOUNT, CERTIFICACION ATEX",
+              "um": "PC"
+            },
+            {
+              "codigo": "3301002",
+              "desc": "KIT DE TRANSMISION DE DATOS, MODELO 990744-21, FLUXDIAG",
+              "um": "PC"
+            },
+            {
+              "codigo": "3301003",
+              "desc": "MATERIAL DE ATENUACION, MODELO 992080-11, ESTERA DE AMORTIGUAMIENTO PARA TUBERIA Y TRANSDUCTOR",
+              "um": "PC"
+            },
+            {
+              "codigo": "3301004",
+              "desc": "MATERIAL DE ATENUACION, MODELO 992081-1, INCLUYE: HERRAMIENTA DE LAMINACION, PAPEL DE LIJA, MATERIAL DE LIMPIEZA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "3302001",
+              "desc": "CRISTAL, INASTILLABLE, DIAMETRO DE CARATULA 4-1/2\", PARTE POR PROVEEDOR, POR PROVEEDOR, MANOMETRO, PARA MANOMETRO, ELEMENTO TIPO BOURD ON DE ACERO INO",
+              "um": "PC"
+            },
+            {
+              "codigo": "3302002",
+              "desc": "GLICERINA PURA (O VEGETAL), GRADO TECNICO, CON PUREZA DEL 99%, PARTE MANOMETRO, GLICERINA USP, REPUESTO DE PI, 2 KG",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 18,
+          "articulos": [
+            {
+              "codigo": "3303001",
+              "desc": "CAPACITOR, POLIPROPILENO, 1000 V CD, PARTE SKUNITY¿K11464A, SKUNITY, VARIADOR DE FRECUENCIA MOD. NB15836548A, MODELO 300-020-527, MARCA YASKAWA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "3304001",
+              "desc": "REGULADOR DE GAS COMBUSTIBLE TIPO BIG JOE, MAX, N/A, PARTE RG10 2N50-T2V4, BMD O EQUIVALENTE, CASING PRESSURE 550, MAX DIFF 200  SPRING 27 - 50 PSIG",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "3305001",
+              "desc": "ACCESORIO ACTUADOR DE VALVULA DE DESCARGA, ACERO INOX, POR PROVEEDOR, PARTE 15010267, MURPHY, SWITCH DE NIVEL NEUMATICO, PARA SWITCH, NIVEL, NEUMATICO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "3306001",
+              "desc": "PLUMILLA, PLASTICO, COLOR AZUL DE LA TINTA, ESTANDAR, PARTE 82-39-0103-06, NOVESA, TERMOMANOGRAFO ITTBARTON, PARA PRUEBAS HIDROSTÁTICAS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 26,
+          "articulos": [
+            {
+              "codigo": "3308001",
+              "desc": "KIT DE REPARACION 1/4 90-150, PARTE 1126250, MODELO REPAIR KIT, S.S. TRIM - W/1/4 ORIFICE, NORRISEAL-WELLMARK, KIT BY REGULADOR MODELO 1HS-3S25N, INCL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "3310001",
+              "desc": "PASTA INDICADORA DE NIVEL DE AGUA, PASTA QUÍMICA SENSIBLE AL AGUA, BASE SOLUBLE EN HIDROCARBUROS, ENVASE DE 3 OZ (85 G); DIÁMETRO APROX. 5 CM, ALTURA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "3311001",
+              "desc": "MODULO DE EXPANSION ENTRADAS-SALIDA, ALIMENTACION 24 VDC, No ENTRADAS 16, PNP/NPN, MODELO IO-RO16, UNITRONICS, MONTAJE RIEL DIN",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 138,
+          "articulos": [
+            {
+              "codigo": "3314001",
+              "desc": "RELE DE ACOPLAMIENTO, PHOENIX CONTACT  2700356, PSR-PS20-1NO-1NC-24DC-SC",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "3316001",
+              "desc": "BATERÍA RECARGABLE, ION-LITIO, 28X19X6.2 CM, PARTE 177X LI-ION BATTERY, FLUKE, ANALIZADOR DE ENERGIA, VOLTAJE 3.56V, CAPACIDAD 4000 mAh",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "40",
+      "nombre": "MEDICION Y CONTROL",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "4001001",
+              "desc": "SISTEMA DE SUPRESION, TIPO AGENTE GABINETE DE ALOJAMIENTO Y PROTECCIÓN PARA EQUIPOS DE BOMBERO Y DISPOSITIVOS DE SEGURIDAD, AREA DE COBERTURA ESPACIOS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 59,
+          "articulos": [
+            {
+              "codigo": "4002001",
+              "desc": "TUBERIA, CED. 10 EXT. EXTREMOS RANURADOS, ASTM A-795 FM, DIAMETRO 4\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "4003001",
+              "desc": "FUNDA PARA EXTINTOR, 9 KG, AGENTE EXTINTOR PQS, NOM-002-STPS-2010, LARGO 12 CM, ANCHO 38 CM, ALTURA 57 CM, DIAMETRO 18 CM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "4005001",
+              "desc": "DETECTOR, CONCENTRACION, MULTIGAS, BATERIA RECARGABLE, CLASE I, DIVISION 1, GRUPOS A, B, C Y D CLASE II DIVISION I, GRUPOS E, F Y G CLASE III, DIVISIO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 23,
+          "articulos": [
+            {
+              "codigo": "4006001",
+              "desc": "ALARMA VISIBLE EXTERIOR, TIPO LED, INTERMITENTE, ROJO, FEDERAL SIGNAL 27XL-024R-MOD, ALARMA VISIBLE COLOR \"ROJO\" INTERMITENTE TIPO LED. A PRUEBA DE EX",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "4007001",
+              "desc": "ESTACION MANUAL, NOTIFIER NBG-12LXSP, CONVENCIONAL DOBLE ACCION, INTERRUPTOS N/A DE SPST, CERRADURA HEXAGONAL Y DE LLAVE, ETIQUETA INGLES/ESPAÑOL (FIR",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 21,
+          "articulos": [
+            {
+              "codigo": "4008001",
+              "desc": "LETRERO PISO MOJADO, PRETUL, POLIPROPILENO, 62 CM, AMARILLO, PLEGABLE, MODELO 23020",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 522,
+          "articulos": [
+            {
+              "codigo": "4009001",
+              "desc": "BRZALETE, BRIGADISTA, TELA CANASTA+ FORRO CARTERA+ ELASTICO CROCHET, VERDE, NOM-002-STPS-2010, LARGO AJUSTABLE, ANCHO 12 CM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 27,
+          "articulos": [
+            {
+              "codigo": "4010001",
+              "desc": "KIT DE RESCATE, REVESIBLE CON POLIPASTO, ALUMINO / ACERO / POLIURETANO / POLIESTER, 205 KG, EN 567:2013, MARCA  JAG SYSTEM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 105,
+          "articulos": [
+            {
+              "codigo": "4011001",
+              "desc": "ARO SALVAVIDA, PLÁSTICO RÍGIDO, 100-120 N, 2.5 KG, NOM-005-SEMAR-2006, SOLAS, IMO, USCG, NARANJA, CON BASE Y RABIZA DE 20 MTS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 534,
+          "articulos": [
+            {
+              "codigo": "4012001",
+              "desc": "DICLOFENACO, TABLETA DE 100 MG, CAJA CON 20 TABLETAS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 131,
+          "articulos": [
+            {
+              "codigo": "4013001",
+              "desc": "MANGA DE VIENTO, ARO DE SOPORTE METALICO, NYLON REFORZADO, POSTE VERTICAL, DIAMETRO 10\", LARGO 102 CM, ANCHO BOCA MENOR 7 CM, COLOR NARANJA, ANSI/NFPA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 26,
+          "articulos": [
+            {
+              "codigo": "4014001",
+              "desc": "LONA, IGNIFUGA, FIBRA DE VIDRIO + RECUBRIMIENTO DE SILICONA, COLOR GRIS, LARGO 4 M, ANCHO 4 M, NOM. PEMEX-SS-293-2019, ANSI FM 4950, NFPA 701…",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 38,
+          "articulos": [
+            {
+              "codigo": "4015001",
+              "desc": "CONTENEDOR, METÁLICO, CAPACIDAD 200 LITROS, NEGRO, CON TAPA Y COLLARIN/ARO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "4016001",
+              "desc": "ARRESTADOR DE FLAMA, 12\", 150#, RF, CUERPO AC. CARBON WCB, INTERIORES (CELDA DE FLAMA) ACERO INOXIDABLE TIPO 316L, CLASIFICACION NEC TIPO C Y D, EMPAQ",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "41",
+      "nombre": "SISTEMAS DE BOMBEO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "4101001",
+              "desc": "CÁPSULA, DE NITROGENO, 5 1/8\" X 1 1/16\", PARTE 87-120043-001, KIDDE, SUPRESIÓN DE FUEGO, PRESIÓN 2700 PSI, SISTEMAS FIJOS",
+              "um": "PC"
+            },
+            {
+              "codigo": "4101002",
+              "desc": "CAJA KIDDE XV COMPLETA, CUERPO ROBUSTO DE ALUMINIO FUNDIDO A PRESIÓN, 3-3/4” X 8-1/2” X 9-3/4”, PARTE 87-120099-002, KIDDE, SISTEMA DE SUPRESIÓN DE FU",
+              "um": "PC"
+            },
+            {
+              "codigo": "4101003",
+              "desc": "ESTACIÓN MANUAL ALARMA CONTRA  FUEGO, DOBLE ACCIÓN, ALEACIÓN DE ALUMINIO SIN COBRE, 6-3/8\" X 4-1/2\" X 3\", PARTE XAL-53, KILLARK, SISTEMA DE SUPRESIÓN",
+              "um": "PC"
+            },
+            {
+              "codigo": "4101004",
+              "desc": "Microswitch Kit for XV™ Control System, electronico, cable de 610mm, PARTE 87-120039-501, KIDDE, CAJA KIDDE XV",
+              "um": "PC"
+            },
+            {
+              "codigo": "4101005",
+              "desc": "actuador solenoide, ELECTRONICO, 0.5 LBS, PARTE 83-100034-001, KIDDE, CAJA KIDDE XV",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "4102001",
+              "desc": "ADAPTADOR DOBLE HEMBRA GIRATORIO, BRONCE FUNDIDO, 2\" NPT - 2-1/2\" NSHT, PARTE SF2520T-D, DIXON VALVE, SISTEMA DE CONTRAINCENDIO DE SUMINISTRO DE AGUA",
+              "um": "PC"
+            },
+            {
+              "codigo": "4102002",
+              "desc": "ADAPTADOR DE MANGUERA DE BOCA DE INCENDIO, BRONCE, 2 - 1/2 PULGADAS NH HEMBRA X 1 -1/2 PULGADAS NH MACHO, PARTE ADAPTADOR, MELGWELDR, SISTEMA DE CONTR",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "4105001",
+              "desc": "UNIVERSAL DISPLAY FF, ALUMINIUM, N/D, PARTE 010569-001, DET-TRONICS, DETECTOR DE GAS, MODELO: UD10A5M27W2",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "4106001",
+              "desc": "PLACA DE CIRCUITO IMPRESO, A PRUEBA DE EXPLOSIONES, LARGO: 10.795 CM, ANCHO: 6.985 CM, ALTO: 11.43 CM, PARTE K2005455A, FEDERAL SIGNAL, SEMAFORO",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "50",
+      "nombre": "MAQUINARIA Y EQUIPO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 229,
+          "articulos": [
+            {
+              "codigo": "5001001",
+              "desc": "ESCOBA, CON CEPILLO DE REPUESTO DITEMO",
+              "um": "PC"
+            },
+            {
+              "codigo": "5001002",
+              "desc": "PASTILLA LIMPIADORA PARA INODORO, 100 GR, BREF DUO-CUBES",
+              "um": "PC"
+            },
+            {
+              "codigo": "5001003",
+              "desc": "INSECTICIDA EN AEROSOL, 400 ML",
+              "um": "PC"
+            },
+            {
+              "codigo": "5001004",
+              "desc": "JABÓN LÍQUIDO LAVATRASTE, 2.9 LTS., MARCA MEMBER´S MARK",
+              "um": "PC"
+            },
+            {
+              "codigo": "5001005",
+              "desc": "TOALLA INTERDOBLADA, PAPEL, MARCA SANITAS",
+              "um": "PC"
+            },
+            {
+              "codigo": "5001006",
+              "desc": "TOALLA EN ROLLO, PAPEL, MARCA MARLI",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 193,
+          "articulos": [
+            {
+              "codigo": "5002001",
+              "desc": "AIRE ACONDICIONADO, 12, 000 BTUS, 50X78X24.5 CM, ALIMENTACION 220V, 1000 W, MONTAJE TIPO MINI SPLIT",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 66,
+          "articulos": [
+            {
+              "codigo": "5003001",
+              "desc": "BATERIA DE COCINA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 156,
+          "articulos": [
+            {
+              "codigo": "5004001",
+              "desc": "PISTACHES SIN CÁSCARA, KIRLAND SIGNATURE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 309,
+          "articulos": [
+            {
+              "codigo": "5005001",
+              "desc": "MOUSE INALÁMBRICO BLUETOOTH, ALIMENTACION BATERIA AAA, WINDOWS 10, MARCA DELL, MODELO MS700",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 534,
+          "articulos": [
+            {
+              "codigo": "5006001",
+              "desc": "HOJAS, DE PAPEL, TAMAÑO CARTA, 99% BLANCURA, CAJA 5000 HOJAS",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 260,
+          "articulos": [
+            {
+              "codigo": "5007001",
+              "desc": "CAMISA CASUAL, MANGA LARGA, 60% ALGODÓN / 40% POLIÉSTER, TALLA 32, BLANCO, CABALLERO, MODELO PESCADOR, UNITAM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 210,
+          "articulos": [
+            {
+              "codigo": "5008001",
+              "desc": "CAJA FUERTE, YALE, 3XL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "5009002",
+              "desc": "ASCENSOR, ELECTROMECANICO, 630 KG, ACERO INOXIDABLE, 1.0 M/S, LARGO 2 M, ANCHO 1.1 M, ALTURA 2 M, ESSENTIA E10, ORONA",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "60",
+      "nombre": "VEHICULOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6001001",
+              "desc": "SEDAN, MOTOR 1, 2 LITROS, 3 CILINDROS EN LINEA, DOHC, 12 VALVULAS MIVEC, 76 HP @ 6, 000 RPM, 74 LB-FT@ 4, ASIENTOS 5 PASAJEROS, GASOLINA, MULTICOLOR,",
+              "um": "PC"
+            },
+            {
+              "codigo": "6001002",
+              "desc": "SEDAN, MOTOR 1.2L MIVEC DOHC 12 VALVULAS (3 CILINDROS), 76 HP @ 6, 000 RPM, 74 LB-OIE @ 4, ASIENTOS 5 PASAJEROS, GASOLINA, BLANCO, MODELO MIRAGE G4 GL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "6002001",
+              "desc": "CAMIONETA PICK UP, MOTOR 2.7, CILINDROS 4, TRANSMISION MANUAL, 166, 180, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, PLATA, MODELO 2022, HILUX DOBL",
+              "um": "PC"
+            },
+            {
+              "codigo": "6002002",
+              "desc": "CAMIONETA PICK UP, MOTOR 2.7, CILINDROS 4, TRANSMISION MANUAL, 166, 180, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2022, HILUX DOB",
+              "um": "PC"
+            },
+            {
+              "codigo": "6002003",
+              "desc": "CAMIONETA PICK UP, MOTOR 2.7, TRANSMISION ESTANDAR, TRACCION TRASERA, BLANCA, MODELO 2025, DOBLE CABINA SR HILUX",
+              "um": "PC"
+            },
+            {
+              "codigo": "6002004",
+              "desc": "CAMIONETA PICK UP, MOTOR 2.5, CILINDROS 4, TRANSMISION AUTOMÁTICA, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2023, FRONTIER LE",
+              "um": "PC"
+            },
+            {
+              "codigo": "6002005",
+              "desc": "CAMIONETA PICK UP, MOTOR 2.5, CILINDROS 4, TRANSMISION MANUAL, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2023, FRONTIER LE",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6003001",
+              "desc": "VAN, MOTOR 3.5, 277 HP, 258 LB-FT, ASIENTOS 12, TRACCION DELANTERA, GASOLINA, BLANCO, MODELO 2026",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6004001",
+              "desc": "SUV, MOTOR 1.5 L, 4 CILINDROS EN LINEA, 16 VALVULAS, SISTEMA MIVEC, 103 HP@ 6, 000 RPM, 104 LB-PIES @ 4, ASIENTOS 5 PASAJEROS, TRACCION DELANTERA (FWD",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "61",
+      "nombre": "REFACCIONES VEHICULOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 152,
+          "articulos": [
+            {
+              "codigo": "6101001",
+              "desc": "JUNTA DE CARTER MOTOR, METAL, No PARTE 12612350, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+              "um": "PC"
+            },
+            {
+              "codigo": "6101002",
+              "desc": "RETEN CIGÜEÑAL TRASERO, METAL, No PARTE 89060436, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+              "um": "PC"
+            },
+            {
+              "codigo": "6101003",
+              "desc": "RETEN DELANTERO CIGÜEÑAL, METAL, No PARTE 12585673, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+              "um": "PC"
+            },
+            {
+              "codigo": "6101004",
+              "desc": "FILTRO DE ACEITE, MOD. 2014",
+              "um": "PC"
+            },
+            {
+              "codigo": "6101005",
+              "desc": "FILTRO DE CLIMA, MOD. 2014",
+              "um": "PC"
+            },
+            {
+              "codigo": "6101006",
+              "desc": "FILTRO DE GASOLINA, MOD.2014",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 42,
+          "articulos": [
+            {
+              "codigo": "6102001",
+              "desc": "BALERO FAG6315J20AAC3 BALERO AISLADO MARCA FAG",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 36,
+          "articulos": [
+            {
+              "codigo": "6103001",
+              "desc": "CRUCETA DIRECCION, CAMIONETEA FRONTIER 2023",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 108,
+          "articulos": [
+            {
+              "codigo": "6104001",
+              "desc": "SENSOR ANGULO DE GIRO, No PARTE 19418403, GENERAL MOTORS, SILVERADO 1500  2012",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 41,
+          "articulos": [
+            {
+              "codigo": "6105001",
+              "desc": "BALATA DELANTERA, SILVERADO 1500, MOD 2013",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 96,
+          "articulos": [
+            {
+              "codigo": "6106001",
+              "desc": "MAZA DELANTERA, MOD. 2013",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 34,
+          "articulos": [
+            {
+              "codigo": "6107001",
+              "desc": "JUEGO DE BIRLOS DE SEGURIDAD, No PARTE 1.50, M12",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 53,
+          "articulos": [
+            {
+              "codigo": "6108001",
+              "desc": "CUBRE BATEA, HILUX",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6109001",
+              "desc": "SOPORTE CARDAN, VEHICULO HILUX 2015",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6110001",
+              "desc": "EQUIPO GPS, PORTA RELEVADOR Y RELEVADOR, MODELO GV300W, MARCA QUECLINK",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "62",
+      "nombre": "LLANTAS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6201001",
+              "desc": "GRUA TITAN, CAPACIDAD GRUA 28 TON, LONGITUD PLUMA 16 METROS, RADIO MAXIMO 8 METROS, TIPO DE MONTAJE SOBRE CAMIÓN, ESTABILIZADORES EXTENDIDOS, CAMA UTI",
+              "um": "PC"
+            },
+            {
+              "codigo": "6201002",
+              "desc": "GRUA TITAN, CAPACIDAD GRUA 30 TON, LONGITUD PLUMA 33.52 MT, RADIO MAXIMO 1.52 MT, TIPO DE MONTAJE SOBRE CAMIÓN, ESTABILIZADORES 4, CAMA UTIL PLATAFORM",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6202001",
+              "desc": "TRACTOCAMION, MOTOR DIESEL, 6 CILINDROS EN LINEA, CUMMINS 6.7 L, TRANSMISIÓN AUTOMATICA, 300HP A 2600 RPM, TORQUE 700 LB-FT A 1600 RPM, CAPACIDAD CARG",
+              "um": "PC"
+            },
+            {
+              "codigo": "6202002",
+              "desc": "TRACTOCAMION, MOTOR MOTOR V8 6.7 L POWER STROKE TURBO DIÉSEL, TRANSMISIÓN AUTOMÁTICA, 450 HP, TORQUE 935 LB-FT (1, 268 NM), CAPACIDAD CARGA 2, 700 – 3",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6204001",
+              "desc": "RETROEXCAVADORA, MOTOR CATERPILLAR 420, 4x4, CAPACIDAD DE CARGA 1.5 TONELADAS, PROFUNDIDAD DE EXCAVACIÓN 1m3, CAPACIDAD DE LA CUCHARA 610mm, CANOPY ST",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6206001",
+              "desc": "PLATAFORMA ARTICULADA, GENIE, CAPACIDAD DE CARGA 750 LBS, No EJES 2, LONGITUD 186 FT, EXTENSIÓN 80 FT, ANCHO 8 FT, MODELO SX-180",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "6208001",
+              "desc": "GRUA, HIAB, CAPACIDAD NOMINAL 23 TON, RADIO OPERACIÓN 10 A 15 M, LONGITUD DE PLUMA 51, GANCHO BOOM CRANE TRUCK, WINCHES NO APLICA, EJES 4, 2011 PETERB",
+              "um": "PC"
+            },
+            {
+              "codigo": "6208002",
+              "desc": "GRUA, HIAB, CAPACIDAD NOMINAL 13 - 17 TON, RADIO OPERACIÓN 10 A 15 M, LONGITUD DE PLUMA 25 FT, GANCHO SI, WINCHES NO APLICA, EJES 3, HIAB XS 166L WALL",
+              "um": "PC"
+            },
+            {
+              "codigo": "6208003",
+              "desc": "GRUA, CAMION GRUA ARTICULADA CON CABINA DORMITORIO PETERBILT 367 T/A, CAPACIDAD NOMINAL /, RADIO OPERACIÓN /, LONGITUD DE PLUMA /, GANCHO /, WINCHES /",
+              "um": "PC"
+            },
+            {
+              "codigo": "6208004",
+              "desc": "GRUA, CAMIÓN GRUA INTERNATIONAL DURASTAR 4300, CAPACIDAD NOMINAL CAPACIDAD: 15, 870 LIBRAS, RADIO OPERACIÓN /, LONGITUD DE PLUMA LONGITUD DE BRAZO: 27",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6209001",
+              "desc": "BRAZO ARTICULADO, CAPACIDAD NOMINAL 3.2 TON, LONGITUD MAXIMA 7.10, RADIO OPERACION 1.8 MT, SISTEMA DE ACCIONAMIENTO TOMA DE FUERZA, GRÚA FASSI F65B.02",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "6211001",
+              "desc": "CONTENEDOR, MARITIMO 10 FT OPEN TOP, ACERO, ANCHO 2.43 M, LARGO 2.99 M, ALTO 2.59 M",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "12",
+          "nombre": "SUBGRUPO 12",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "6212001",
+              "desc": "ELECTRIC FORKLIFT, 3, 300 LB, LONGITUD PLUMA 42\", MOTOR ELECTRICO 80 V, EFL30-189, E PICKER, AÑO 2023, TIPO DE MASTIL: 3 ETAPAS, ALTURA MAXIMA 130\", C",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "6213001",
+              "desc": "ROLLINGSTAR RS816 T/A ENCLOSED BATTERY BACKUP CARGO TRAILER, ALMENTACIÓN LECTRICA 3 PHASE, 10.00 KW, ALUMINUM FRAME, LARGO 16 FT, 12, 000 LB",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "6214001",
+              "desc": "EQUIPO COMBINADO DE DESAZOLVE, MOTOR 4 - 6 CILINDROS, TRANSMISION MANUAL, 222 HP, TORQUE 627 lb-ft @1500 rpm, MAX 660 Lb-f, TRACCION 4X2, 7.5 M3, DIAM",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "63",
+      "nombre": "LUBRICANTES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "6301001",
+              "desc": "CABLE DE CAN BUS, COBRE, 170 CM, No PARTE 1, NATIONAL CRANE, TITAN",
+              "um": "PC"
+            },
+            {
+              "codigo": "6301002",
+              "desc": "SWITCH DE ARRANQUE, BRONCE, 3/4, No PARTE 2, NATIONAL CRANE, TITAN",
+              "um": "PC"
+            },
+            {
+              "codigo": "6301003",
+              "desc": "SENSOR DE PROXIMIDAD, COBRE, 10.1, No PARTE 3, NATONIAL CRANE, TITAN",
+              "um": "PC"
+            },
+            {
+              "codigo": "6301004",
+              "desc": "KIT DE SELLOS, METAL, -, No PARTE 90026160, FREIGHTLINER M2",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 22,
+          "articulos": [
+            {
+              "codigo": "6304001",
+              "desc": "FILTRO DE ACEITE, A, 168 MM, No PARTE P551100, DONALDSON, RETRO",
+              "um": "PC"
+            },
+            {
+              "codigo": "6304002",
+              "desc": "FILTRO DE COMBUSTIBLE, A, 147.6 MM, No PARTE P550248, DONALDSON, RETRO",
+              "um": "PC"
+            },
+            {
+              "codigo": "6304003",
+              "desc": "TERMINAL CON BIELETA, A, 1, No PARTE 4409, CASE, RETRO 580N",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "6309001",
+              "desc": "VÁLVULA DE RETENCIÓN DE CARGA, ACERO, 36 MM X 110 MM, No PARTE 9852361, HIAB, BRAZO HIDRÁULICO",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6310001",
+              "desc": "ARRESTADOR DE FLAMA, ACERO, DIAMETRO 4\", CLASE 150 LB, PRESION MAXIMA 10 PSI, MONTAJE VERTICAL, FRAC TANK, MOD- SERIE 65, MARCA PROTECTOTANK",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "6311001",
+              "desc": "FILTRO DE AIRE, No PARTE P821575, DONALDSON",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "6314001",
+              "desc": "MECANISMO DE ARRANQUE, S/E, No PARTE 5, STIHL, HIDROLAVADORA",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "6316001",
+              "desc": "BANDA DE DISTRIBUCIÓN, HULE, S/N, No PARTE 5000155697, WACKER NEUSON, LUMINARIA",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "70",
+      "nombre": "PAPELERIA",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 39,
+          "articulos": [
+            {
+              "codigo": "7001001",
+              "desc": "SEPARADOR BIFASICO DE ALTA PRESION, PROCESAMIENTO DE GAS 180 MMPCSD, PROCESAMIENTO DE ACEITE 50 MBPD, GAS AMARGO, PRESION DE DISEÑO 92.4 KG/CM2, TEMPE",
+              "um": "EQ"
+            },
+            {
+              "codigo": "7001002",
+              "desc": "RECTIFICADOR PRIMARIO DE GAS DE ALTA PRESION, PROCESAMIENTO DE GAS 300 MMPCD, PROCESAMIENTO HIDROCARBUROS 10, 000 BPD, PRESION DE DISEÑO 92.4 KG/CM2,",
+              "um": "EQ"
+            },
+            {
+              "codigo": "7001003",
+              "desc": "TANQUE DE DESFOGUES KO, PROCESAMIENTO DE GAS 600 MMPCSD, PROCESAMIENTO DE CONDENSADOS 1040 BPD, PRESION DE DISEÑO 3.82 kg/cm2, TEMPERATURA DE DISEÑO 2",
+              "um": "EQ"
+            },
+            {
+              "codigo": "7001004",
+              "desc": "SEPARADOR DE SUCCION, PROCESAMIENTO DE GAS AMARGO, PRESION DE DISEÑO 35-38 KG/CM2, PRESION MAXIMA OPERACION 44 KG/CM2, TEMPERATURA DE DISEÑO 122 °F, T",
+              "um": "EQ"
+            },
+            {
+              "codigo": "7001005",
+              "desc": "FILTRO HORIZONTAL DE SEPARADOR DE ENTRADA, PROCESAMIENTO DE GAS AMARGO, PRESION DE DISEÑO 35 - 38 KG/CM2, PRESION MAXIMA OPERACION 70.31 KG/CM2, TEMPE",
+              "um": "EQ"
+            },
+            {
+              "codigo": "7001006",
+              "desc": "SEPARADOR DE GAS COMBUSTIBLE SCRUBBER, PROCESAMIENTO DE GAS DULCE, PRESION DE DISEÑO 250 PSI, PRESION MAXIMA OPERACION 635 PSI, TEMPERATURA DE DISEÑO",
+              "um": "EQ"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "7002001",
+              "desc": "DEPOSITO HIDRAULICO ASTMOSFERICO PARA ALMACENAMIENTO Y RECIRCULACION, 8 GALONES, SERVICIO ACEITE HIDRAULICO PARA SISTEMA DE POTENCIA FLUIDA, PRESION D",
+              "um": "EQ"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 64,
+          "articulos": [
+            {
+              "codigo": "7005001",
+              "desc": "HOSS HORIZONTAL PUMP SYSTEM (HPS), SERIE 862, MODELO CML18500, ELEMENTO MOTRIZ MOTOR ELECTRICO GE, 300 HP, 449TS, 3/60/460 V, No ETAPAS 17, GASTO 15,",
+              "um": "EQ"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "7007001",
+              "desc": "QUEMADOR ELEVADO DE ALTA PRESION, SONICO, 600 MMPCSD, PRESION DISEÑO 5 KG/CM2, ATIRANTADO, ENCENDIDO DUAL, RADIACIÓN 1500 BTU/HFT2 A PIE DE QUEMADOR,",
+              "um": "EQ"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "7009001",
+              "desc": "PATIN DE SISTEMA DE MEDICIÓN DE SUCCIÓN, SERVICIO GAS AMARGO, DIAMETRO 24\", PRESION DISEÑO 35 - 38 KG/CM2, RANGO DE MEDICIÓN 30 - 1500 PSI (2 - 400 IN",
+              "um": "EQ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "71",
+      "nombre": "ARTICULOS DE OFICINA",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 20,
+          "articulos": [
+            {
+              "codigo": "7101001",
+              "desc": "FILTRO CON DRIP POT (FILTRO DE GAS DE INSTRUMENTO), ACERO INOXIDABLE, FISHER, EQUIPO PRINCIPAL SEPARADOR FWKO-32, MOD.  FD200",
+              "um": "PC"
+            },
+            {
+              "codigo": "7101002",
+              "desc": "ESTRANGULADOR TIPO FIP (FIXED ORIFICE), ACERO INOXIDABLE, 10/64\", DIAMETRO 2\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "7101003",
+              "desc": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 12/64\", DIAMETRO 2\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "7101004",
+              "desc": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 14/64\", DIAMETRO 2\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "7101005",
+              "desc": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 16/64\", DIAMETRO 2\"",
+              "um": "PC"
+            },
+            {
+              "codigo": "7101006",
+              "desc": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 18/64\", DIAMETRO 2\"",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 1302,
+          "articulos": [
+            {
+              "codigo": "7105001",
+              "desc": "CHUMACERA, S2000, 3\", NO PARTE 070369, DODGE, EQUIPO PRINCIPAL P4B-S2-300R",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 185,
+          "articulos": [
+            {
+              "codigo": "7106048",
+              "desc": "PKG PLAIN CUP, CI, .940 X .572 GRV 2, NO PARTE A-4085, ARIEL, COMPRESOR ARIEL JGK/4",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 6,
+          "articulos": [
+            {
+              "codigo": "7107001",
+              "desc": "BUJIA DE IGNICION, ESTANDAR, 4.18\"X1.72\"X0.09\", NO PARTE I-64-1, AURURN, EQUIPO PRINCIPAL QUEMADOR PORTATIL",
+              "um": "PC"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "7109001",
+              "desc": "GRAMPA, ACERO DE ALTA RESISTENCIA, DIAMETRO 1 1/2\"",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "80",
+      "nombre": "SERVICIOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "8001001",
+              "desc": "REFRIGERANTE, GAS, CAS No 75-45-6, BASE QUIMICA CLORODIFLUOROMETANO",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "8003001",
+              "desc": "ANTICONGELANTE, HDAX® PF Antifreeze/Coolant - Premixed 50/50, GRADO PUREZA 50/50, MORADO CLARO",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "8005001",
+              "desc": "GLICERINA, GRADO PUREZA 99%, GAS (PRESION DE VAPOR) <1 MM HG, DENSIDAD 1.26 G/ML, O SIMILAR",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "8007001",
+              "desc": "DESINCRUSTANTES (ACIDO), INDUSTRIAL, 1.110, NARANJA, SWIPE",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "8008001",
+              "desc": "ANTIESPUMANTES, BARRA SOLDADURA OXIACETILENICA RECUBIERTA, GRADO PUREZA 99.9% MINIMO, GAS ACETILENO / OXIGENO, 7.85 G/CM³, ROJO, BASE QUIMICA ACERO AL",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "8009001",
+              "desc": "INHIBIDORES DE CORROSION, ATMOSFERICO NP1, GRADO PUREZA ALTA EFECTIVIDAD, GAS CONTRA CORROSION, 0.85 -  0.95 G/CM3, TRANSPARENTE, BASE QUIMICA COMPUES",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "10",
+          "nombre": "SUBGRUPO 10",
+          "total_articulos": 17,
+          "articulos": [
+            {
+              "codigo": "8010001",
+              "desc": "DESENGRASANTE FÓRMULA CONCENTRADA, FASE BIODEGRADABLE, 1.0388, ROJO, MODELO DINAMOV, IMPORFIL",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "11",
+          "nombre": "SUBGRUPO 11",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "8011001",
+              "desc": "SOLVENTE DIELECTRICO, AEROSOL LIMPIADOR DIELECTRICOS PARA CIRCUITOS Y COMPONENTES ELECTRICOS, GRADO PUREZA 80-95% HIDROCARBUROS CICLICOS SATURADOS, 5-",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "13",
+          "nombre": "SUBGRUPO 13",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "8013001",
+              "desc": "BENTONITA SODICA, GRADO PUREZA = 90 %, GAS MATERIAL SOLIDO, 0.9 – 1.1 g/cm³, GRIS CLARO A BEIGE",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "14",
+          "nombre": "SUBGRUPO 14",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "8014001",
+              "desc": "COMBUSTIBLE, DIESEL MARINO, D6",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "15",
+          "nombre": "SUBGRUPO 15",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "8015001",
+              "desc": "OXIGENO, GRADO PUREZA 99.5, GAS INDUSTRIAL OXIGENO, DE 8 METROS CUBICOS, INCOLORO, LLENADO DE 150 A 200 Kg/cm². A 21 GRADOS CENTIGRADOS.",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "16",
+          "nombre": "SUBGRUPO 16",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "8016001",
+              "desc": "ACETILENO, GRADO PUREZA DE 98%, DE 6.2 METROS CUBICOS, INCOLORO, LLENADO A 17 Kg/cm². A 21 GRADOS CENTIGRADOS.",
+              "um": "KG"
+            }
+          ]
+        },
+        {
+          "codigo": "18",
+          "nombre": "SUBGRUPO 18",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "8018001",
+              "desc": "THINNER, GRADO PUREZA N/A, 0.778 – 0.843 a 20 °C, ESTÁNDAR",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "19",
+          "nombre": "SUBGRUPO 19",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "8019001",
+              "desc": "HERBICIDA, INGREDIENTE ACTIVO GLIFOSATO, CONCENTRACION DE ACTIVO 35.6%, CATEGORIA TOXICOLOGICA 5",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "20",
+          "nombre": "SUBGRUPO 20",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "8020001",
+              "desc": "DESMOLDANTE, BASE EN ACEITES MINERALES, LÍQUIDO, AMARILLO AMBAR, RENDIMIENTO APROXIMADO DE 14 A 18 M2 POR LITRO",
+              "um": "LT"
+            }
+          ]
+        },
+        {
+          "codigo": "21",
+          "nombre": "SUBGRUPO 21",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "8021001",
+              "desc": "TIPO BARRA ESPUMANTE GRADO PUREZA 99.9% MINIMO, GAS ACETILENO / OXIGENO, 7.85 G/CM³, ROJO, BASE QUIMICA ACERO AL CARBONO CON RECUBRIMIENTO FUNDENTE, B",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "90",
+      "nombre": "ACTIVOS FIJOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 9,
+          "articulos": [
+            {
+              "codigo": "9001001",
+              "desc": "ANÁLISIS CLÍNICOS ANUALES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9001002",
+              "desc": "EXAMEN DE INGRESO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9001003",
+              "desc": "EXAMEN PERIÓDICO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9001004",
+              "desc": "VALORACIÓN MÉDICA ESPECIALISTA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9001005",
+              "desc": "LABORATORIALES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9001006",
+              "desc": "PLACAS DE RAYOS X",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "9002001",
+              "desc": "PLATAFORMA PSICOWEB",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 8,
+          "articulos": [
+            {
+              "codigo": "9003001",
+              "desc": "CURSO DE TRABAJOS CON RIESGOS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "9004001",
+              "desc": "SERVICIO DE HOSPITALIZACIÓN",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "9005001",
+              "desc": "HIELO Y AGUA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "9006001",
+              "desc": "REGALOS FIN DE AÑO",
+              "um": "PC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "91",
+      "nombre": "SOFTWARE",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "9101001",
+              "desc": "RENTA DE BODEGA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9101002",
+              "desc": "RENTA DE CAMPER",
+              "um": "SV"
+            },
+            {
+              "codigo": "9101003",
+              "desc": "RENTA DE OFICINA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9101004",
+              "desc": "RENTA DE CASA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9101005",
+              "desc": "LIMPIEZA DE INMUEBLES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9101006",
+              "desc": "IMPUESTO PREDIAL",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "9102001",
+              "desc": "ARRENDAMIENTO EQUIPO COMPUTO",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "9103001",
+              "desc": "CUOTAS Y SUSCRIPCIONES",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "9104001",
+              "desc": "MANTENIMIENTO DE OFICINAS",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "92",
+      "nombre": "COMUNICACIONES",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "9201001",
+              "desc": "RENTA DE AUTOBÚS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9201002",
+              "desc": "RENTA DE VEHÍCULO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9201003",
+              "desc": "UNIDAD TIPO VAN",
+              "um": "SV"
+            },
+            {
+              "codigo": "9201004",
+              "desc": "RENTA DE CAMIONETAS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 26,
+          "articulos": [
+            {
+              "codigo": "9202001",
+              "desc": "ROTULACIÓN DE VEHICULOS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9202002",
+              "desc": "AGENCIA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9202003",
+              "desc": "ARRASTRES Y REMOLQUES (GRÚA)",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "9203001",
+              "desc": "VERIFICACIÓN VEHICULAR",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "9204001",
+              "desc": "CONSUMO COMBUSTIBLE",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "93",
+      "nombre": "ALMACEN GENERAL",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 22,
+          "articulos": [
+            {
+              "codigo": "9301001",
+              "desc": "RENTA DE HIAB",
+              "um": "SV"
+            },
+            {
+              "codigo": "9301002",
+              "desc": "RENTA DE GRÚA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9301003",
+              "desc": "PLATAFORMA TELESCÓPICA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9301004",
+              "desc": "RENTA DE PLATAFORMA AUTOELEVAB",
+              "um": "SV"
+            },
+            {
+              "codigo": "9301005",
+              "desc": "RENTA DE TRANSFORMADOR",
+              "um": "SV"
+            },
+            {
+              "codigo": "9301006",
+              "desc": "RENTA DE EXCAVADORA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 30,
+          "articulos": [
+            {
+              "codigo": "9302001",
+              "desc": "RENTA DE GENERADOR ELÉCTRICO",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 3,
+          "articulos": [
+            {
+              "codigo": "9303001",
+              "desc": "RENTA DE CANASTILLA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "9304001",
+              "desc": "RENTA DE BROCA PARA PERFORACION",
+              "um": "SR"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "94",
+      "nombre": "MATERIALES CAMPO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 10,
+          "articulos": [
+            {
+              "codigo": "9401001",
+              "desc": "POSICIONAMIENTO SEO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9401002",
+              "desc": "ESPACIOS EN FERIAS O CONGRESOS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9401003",
+              "desc": "ARTÍCULOS PROMOCIONALES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9401004",
+              "desc": "IMPRESIÓN DIGITAL",
+              "um": "SV"
+            },
+            {
+              "codigo": "9401005",
+              "desc": "PUBLICIDAD EN REDES SOCIALES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9401006",
+              "desc": "ESPACIOS EN MEDIOS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "9402001",
+              "desc": "PLAYERAS, GORRAS, CASACAS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "9403001",
+              "desc": "CATERING, COFFE BREAK",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "9404001",
+              "desc": "RECONOCIMIENTOS, TROFEOS",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "95",
+      "nombre": "EQUIPOS CAMPO",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "9501001",
+              "desc": "AUDITORIA FINANCIERA CONTABLE",
+              "um": "SV"
+            },
+            {
+              "codigo": "9501002",
+              "desc": "AUDITORIA DE SEGURIDAD SOCIAL",
+              "um": "SV"
+            },
+            {
+              "codigo": "9501003",
+              "desc": "ACREDITADO EN PROTECCIÓN CIVIL",
+              "um": "SV"
+            },
+            {
+              "codigo": "9501004",
+              "desc": "AUDITORIA EXTERNA ACHILLES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9501005",
+              "desc": "CARTAS DE AUTENTIFICACIÓN",
+              "um": "SV"
+            },
+            {
+              "codigo": "9501006",
+              "desc": "AUDITORIA PARA CERTIFICACIONES",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 11,
+          "articulos": [
+            {
+              "codigo": "9502001",
+              "desc": "SERVICIO DE CONSULTORÍA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 5,
+          "articulos": [
+            {
+              "codigo": "9503001",
+              "desc": "SEGUROS ( PRIMA DE SEGUROS)",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 4,
+          "articulos": [
+            {
+              "codigo": "9504001",
+              "desc": "PERMISO ANTE CONAGUA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "9505001",
+              "desc": "NO DEDUCIBLE",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 1,
+          "articulos": [
+            {
+              "codigo": "9506001",
+              "desc": "ADQUISICION DE TARJETA DE MEMBRESIA",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "96",
+      "nombre": "INSUMOS OPERATIVOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 19,
+          "articulos": [
+            {
+              "codigo": "9601001",
+              "desc": "FLETES EXTRANJEROS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9601002",
+              "desc": "FLETES NACIONALES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9601003",
+              "desc": "FLETES MARITIMO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9601004",
+              "desc": "ASEGURAMIENTO DE CARGA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9601005",
+              "desc": "EMPLAYE EMBALADO DE MERCANCÍAS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9601006",
+              "desc": "ALMACENAMIENTO DE MERCANCÍAS",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "97",
+      "nombre": "INSUMOS OFICINA",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 24,
+          "articulos": [
+            {
+              "codigo": "9701001",
+              "desc": "SERVICIO DE RECOLECCIÓN RPBI",
+              "um": "SV"
+            },
+            {
+              "codigo": "9701002",
+              "desc": "MANTENIMIENTO A EXTINTORES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9701003",
+              "desc": "RECO DE RESIDUOS PELIGROSOS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9701004",
+              "desc": "RENTA DE BAÑOS PORTÁTILES",
+              "um": "SV"
+            },
+            {
+              "codigo": "9701005",
+              "desc": "RENTA DE FOSAS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9701006",
+              "desc": "RENTA DE CISTERNA",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "98",
+      "nombre": "ARTICULOS LIMPIEZA",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "9801001",
+              "desc": "INSTALACIÓN DE SISTEMAS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9801002",
+              "desc": "CALIBRACIÓN DE EQ DE SEGURIDAD",
+              "um": "SV"
+            },
+            {
+              "codigo": "9801003",
+              "desc": "PERFORACIÓN DE POZO DE AGUA",
+              "um": "SV"
+            },
+            {
+              "codigo": "9801004",
+              "desc": "CALIBRACION DE CALIDAD",
+              "um": "SV"
+            },
+            {
+              "codigo": "9801008",
+              "desc": "CERTIFICADOS DE CALIDAD",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "9802001",
+              "desc": "RADIOGRAFIADO",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "99",
+      "nombre": "VARIOS",
+      "subgrupos": [
+        {
+          "codigo": "01",
+          "nombre": "SUBGRUPO 01",
+          "total_articulos": 34,
+          "articulos": [
+            {
+              "codigo": "9901001",
+              "desc": "MTTO A MAQUINARIA Y EQUIPO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9901002",
+              "desc": "MAQUINADOS Y TORNOS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9901003",
+              "desc": "PRUEBA DE REVENIMIENTO",
+              "um": "SV"
+            },
+            {
+              "codigo": "9901004",
+              "desc": "SERVICIOS TOPOGRAFICOS",
+              "um": "SV"
+            },
+            {
+              "codigo": "9901005",
+              "desc": "DESARROLLO HIDRÁULICO",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "02",
+          "nombre": "SUBGRUPO 02",
+          "total_articulos": 45,
+          "articulos": [
+            {
+              "codigo": "9902001",
+              "desc": "SUMINISTRO, TRANSPORTE Y PRESENTACIÓN EN SITIO, INSTALACIÓN, INTERCONEXIÓN, FAT, OSAT, PRUEBAS PREOPERACIONALES, PUESTA EN MARCHA Y DESEMPEÑO CONTROLA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "03",
+          "nombre": "SUBGRUPO 03",
+          "total_articulos": 27,
+          "articulos": [
+            {
+              "codigo": "9903001",
+              "desc": "VACIADO DE CONCRETO HIDRÁULICO HECHO EN OBRA AGREGADO MÁX. 19 MM, CEMENTO, CON UNA RESISTENCIA DE FC=250 KG/CM2, REVENIMIENTO DE 12 CM, EN ELEMENTOS D",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "04",
+          "nombre": "SUBGRUPO 04",
+          "total_articulos": 13,
+          "articulos": [
+            {
+              "codigo": "9904001",
+              "desc": "INSTALACION, PRUEBAS Y PUESTA EN MARCHA DE SISTEMA DE PROTECCION CATODICA PARA TUBERIA DE PROCESO DE UNA LONGITUD DE 47.5 MTS DE DISTANCIA A PROTEGER,",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "05",
+          "nombre": "SUBGRUPO 05",
+          "total_articulos": 2,
+          "articulos": [
+            {
+              "codigo": "9905001",
+              "desc": "SUMINISTRO, MANEJO, INSTALACIÓN Y PRUEBA DE TANQUE DE ALMACENAMIENTO CILÍNDRICO VERTICAL PARA ALMACENAMIENTO DE CRUDO, CON CAPACIDAD EFECTIVA DE OPERA",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "06",
+          "nombre": "SUBGRUPO 06",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "9906001",
+              "desc": "CONSTRUCCION DE RED CONTRA INCENDIOS, 5TO TREN 1ERA FASE  BS PERDIZ (FABRICACION, INSTALACION, MONTAJE, PRUEBAS Y OBRA COMPLEMENTARIA)",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "07",
+          "nombre": "SUBGRUPO 07",
+          "total_articulos": 7,
+          "articulos": [
+            {
+              "codigo": "9907001",
+              "desc": "CALIBRACION DE INSTRUMENTOS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "08",
+          "nombre": "SUBGRUPO 08",
+          "total_articulos": 9,
+          "articulos": [
+            {
+              "codigo": "9908001",
+              "desc": "ANALISIS DE ESFUERZOS MECANICOS",
+              "um": "SV"
+            }
+          ]
+        },
+        {
+          "codigo": "09",
+          "nombre": "SUBGRUPO 09",
+          "total_articulos": 12,
+          "articulos": [
+            {
+              "codigo": "9909001",
+              "desc": "INTERVENCIÓN DE POZOS PARA MANTENIMIENTO Y REHABILITACIÓN (INTERVENCIÓN DE POZOS DE PRODUCCION)",
+              "um": "SV"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

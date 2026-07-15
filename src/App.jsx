@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube } from "./supabaseApi";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -627,6 +627,40 @@ function FL({children,required}){
   </label>;
 }
 
+// El almacén usa códigos abreviados (MT, PC, LT...) que no existen en UNIDADES
+// (el <select> de la app) — se traducen al vocabulario que la app ya entiende.
+const UM_ALMACEN_A_UNIDAD={MT:"Metro",PC:"Pieza",LT:"Litro",KG:"Kg",CU:"Unidad",EQ:"Unidad",SR:"Servicio",SV:"Servicio"};
+
+// ─── SUGERENCIAS DEL CATALOGO DE ALMACEN ─────────────────────────────────────
+// Busca en la tabla catalogo_almacen (Supabase) mientras se escribe la
+// Categoría — al elegir un artículo se llenan Descripción/Unidad con datos
+// reales del almacén; la Categoría se deja como nombre_grupo (ej. "TUBERIAS"),
+// que pasa por el flujo normal de categoría contable macro si no está mapeada.
+function AlmacenSuggestions({query, onPick}){
+  const [resultados, setResultados] = useState([]);
+  useEffect(()=>{
+    let cancelado=false;
+    buscarArticulosAlmacen(query).then(data=>{ if(!cancelado) setResultados(data); });
+    return ()=>{ cancelado=true; };
+  }, [query]);
+  if(resultados.length===0) return null;
+  return (
+    <div style={{marginTop:4}}>
+      <div style={{fontSize:9,color:C.grayMid,marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Artículos del almacén:</div>
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        {resultados.map(a=>(
+          <button key={a.codigo_articulo} onClick={()=>onPick(a)}
+            style={{textAlign:"left",padding:"5px 8px",background:"#F0F9FF",
+              border:"1px solid #BAE6FD",borderRadius:4,cursor:"pointer",fontSize:10,color:"#0369A1"}}
+            title={a.descripcion}>
+            <strong>{a.codigo_articulo}</strong> · {a.descripcion.length>60?a.descripcion.slice(0,60)+"…":a.descripcion} <span style={{opacity:0.7}}>({a.unidad_medida})</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto}){
@@ -697,6 +731,12 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     ))}
                   </div>
                 </div>
+              )}
+              {/* Sugerencias del catálogo de almacén (Supabase) al escribir categoría */}
+              {p.cat&&p.cat.trim().length>=3&&!p.desc&&(
+                <AlmacenSuggestions query={p.cat} onPick={a=>onUpdate({...p,
+                  cat:a.nombre_grupo, desc:a.descripcion,
+                  unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad"})}/>
               )}
             </div>
             <input value={p.desc} onChange={e=>onUpdate({...p,desc:e.target.value})}
