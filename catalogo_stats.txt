@@ -1,0 +1,53 @@
+CATALOGO ALMACEN — 500 ARTICULOS REPRESENTATIVOS
+Fuente: Articulos Almacen (3)_todas las categorias.xlsx (17312 artículos totales, 322 pares grupo-subgrupo únicos)
+============================================================
+
+TOTAL ARTICULOS SELECCIONADOS: 500
+SUBGRUPOS UNICOS CUBIERTOS: 322 / 322
+TAMAÑO DEL SQL GENERADO: 80.6 KB
+
+ARTICULOS POR GRUPO:
+  ACCESORIOS ESPECIALES........... 15
+  ACTIVOS FIJOS................... 11
+  AISLAMIENTO..................... 15
+  ALMACEN GENERAL................. 9
+  ARTICULOS DE OFICINA............ 10
+  ARTICULOS LIMPIEZA.............. 6
+  BRIDAS.......................... 8
+  CIVIL........................... 10
+  COMPUTO Y TELECOMUNICACIONES.... 15
+  COMUNICACIONES.................. 9
+  CONEXIONES...................... 19
+  CONEXIONES PEAD................. 8
+  CONSUMIBLES..................... 15
+  ELECTRICIDAD.................... 15
+  EMPAQUES Y SELLOS............... 9
+  EQUIPOS......................... 9
+  EQUIPOS CAMPO................... 11
+  HERRAMIENTAS.................... 2
+  INSTRUMENTACION................. 9
+  INSUMOS OFICINA................. 6
+  INSUMOS OPERATIVOS.............. 6
+  LLANTAS......................... 15
+  LUBRICANTES..................... 12
+  MANTENIMIENTO................... 17
+  MAQUINARIA Y EQUIPO............. 14
+  MATERIALES CAMPO................ 9
+  MATERIALES GENERALES............ 14
+  MEDICION Y CONTROL.............. 15
+  MOBILIARIO...................... 11
+  PAPELERIA....................... 10
+  PINTURA......................... 8
+  QUIMICOS........................ 13
+  REFACCIONES VEHICULOS........... 15
+  SEGURIDAD INDUSTRIAL............ 14
+  SERVICIOS....................... 16
+  SISTEMAS DE BOMBEO.............. 9
+  SOFTWARE........................ 9
+  TRANSPORTE...................... 6
+  TUBERIA ESPECIAL................ 17
+  TUBERIA PEAD.................... 15
+  TUBERIAS........................ 12
+  VALVULAS........................ 10
+  VARIOS.......................... 13
+  VEHICULOS....................... 9

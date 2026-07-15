@@ -1,0 +1,4502 @@
+[
+  {
+    "codigo_articulo": "0101001",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, DIAMETRO 3/4\", CEDULA 160, S/C, ASTM A106 GR.B, EXT BISELADOS, ASME B36.10M",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0101002",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 3\", CEDULA 80, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0101003",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 4\", CEDULA 40, ASTM A106 GR.B, EXT BISELADOS, NACE MR0175.",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0101004",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, S/C, DIAMETRO 6\", CEDULA 80, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0101005",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, DIAMETRO 6\", CEDULA STD, S/C, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0101006",
+    "grupo": "01",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON SIN COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, DIAMETRO 8\", CEDULA STD, S/C, ASTM A106 GR.B, EXT BISELADOS, ISO 15156-2, ASME B36.10M",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0102001",
+    "grupo": "01",
+    "subgrupo": "02",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO INOXIDABLE SIN COSTURA",
+    "descripcion": "TUBO DE ACERO INOXIDABLE, DIAMETRO 1\", CEDULA 40, S/C, PARA VIAJE DE FLAMA DE 6.10 ML, CON CONECTORES TUERCA UNION DE 3000# FXM",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0104001",
+    "grupo": "01",
+    "subgrupo": "04",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "ACERO AL CARBON CON COSTURA",
+    "descripcion": "TUBO DE ACERO AL CARBON, DIAMETRO 20\", ESPESOR DE PARED 0.375\", C/C, API 5L GR. BNS PSL2 SAW, EXT BISELADOS, ESPECIFICACION DE DISEÑO ASME B36.10M/ISO",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0106001",
+    "grupo": "01",
+    "subgrupo": "06",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "TUBING",
+    "descripcion": "TUBING DE, ACERO INOXIDABLE, DIAMETRO 3/8\" OD, ESPESOR 0.049, S/C, 316, TRAMO DE 6.1 MTS",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0107001",
+    "grupo": "01",
+    "subgrupo": "07",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "CPVC",
+    "descripcion": "TUBO DE CPVC, DIAMETRO 1\", CEDULA 40, ASTM F441/F441M, LONGITUD DE 3 MTS.",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0108001",
+    "grupo": "01",
+    "subgrupo": "08",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "PEAD",
+    "descripcion": "TUBO DE PEAD, DIAMETRO 12\", RD 9, SERVICIO CONTRA INCENDIO, APROBACION FM",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0109001",
+    "grupo": "01",
+    "subgrupo": "09",
+    "nombre_grupo": "TUBERIAS",
+    "nombre_subgrupo": "R.C.I",
+    "descripcion": "TUBO, 4\", CED 10, ASTM A795, EXTREMO RANURADO, FM",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "0201001",
+    "grupo": "02",
+    "subgrupo": "01",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "CODO",
+    "descripcion": "CODO, DE, SOLDABLE DE 90°, ACERO AL CARBON, DIAMETRO 3\", CEDULA 40, ASTM A234 Gr. WPB, EXTREMOS BISELADOS, ISO 15156-2 / NACE MR0175",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0202001",
+    "grupo": "02",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "TEE",
+    "descripcion": "TEE, RECTA, DE, ACERO AL CARBON, DIAMETRO DE 3\", X, CEDULA 40, ASTM A-105, EXTREMOS ROSCABLES, CLASE 3000, GALVANIZADA, ASME B16.11",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0203001",
+    "grupo": "02",
+    "subgrupo": "03",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "TAPON",
+    "descripcion": "TAPON, SOLDABLE A TOPE, DE, ACERO AL CARBÓN, DIAMETRO 10\", CEDULA 40, ASTM A234 Gr. WPB, EXTREMOS BISELADOS, ISO 15156-2 / NACE MR0175, ASME B16.9",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0204001",
+    "grupo": "02",
+    "subgrupo": "04",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "REDUCCION",
+    "descripcion": "REDUCCION, CONCENTRICA, ACERO AL CARBON, DIAMETRO 8\"X4\", CEDULA 40, ASTM A234 GR WPB, S/C, EXTREMO BISELADO, ISO 15156-2, ASME B16.9",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0205001",
+    "grupo": "02",
+    "subgrupo": "05",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "SWAGE",
+    "descripcion": "SWAGE, CONCENTRICO, ACERO AL CARBON, DIAMETRO 3/4\"X1/2\", CEDULA 80, ASTM A105, SIN COSTURA, EXTREMO PLANO, X, ROSCADO, NACE MR-0175, ESPECIFICACION DE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0206001",
+    "grupo": "02",
+    "subgrupo": "06",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "NIPLE",
+    "descripcion": "NIPLE, X, ACERO AL CARBÓN, DIAMETRO 1/2\", LONGITUD 3\", CEDULA 40, ASTM A106 GR. B, EXTREMO ROSCADO NPT, ROSCADO NPT, ISO 15156-2 / NACE MR0175, ESPECI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0207001",
+    "grupo": "02",
+    "subgrupo": "07",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "COPLE",
+    "descripcion": "COPLE, RECTO, DE, CPVC, DIAMETRO 1\", X, 1\", ASTM D2846, EXTREMO SOCKET/SOLVENT WELD, SOCKET/SOLVENT WELD",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0208001",
+    "grupo": "02",
+    "subgrupo": "08",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "OLET",
+    "descripcion": "THREDOLET, ACERO AL CARBON, DIAMETRO 8\", X, 1/2\", EXTREMO BISELADO, ROSCABLE, CLASE 3000, ASTM A-105, ASME B16.11",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0209001",
+    "grupo": "02",
+    "subgrupo": "09",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "BRIDA",
+    "descripcion": "BRIDA, CUELLO SOLDABLE, ACERO AL CARBON, DIAMETRO 3\", X, 3\", CLASE 600, CEDULA 80, RF, ASTM A-105, ASME B16.5, NACE MR0175 ULTIMA EDICION",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0210001",
+    "grupo": "02",
+    "subgrupo": "10",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "FIGURA 8",
+    "descripcion": "FIGURA 8, DE, ACERO AL CARBÓN, DIAMETRO 8\", CLASE 900#, R.T.J., ASTM A515 GR. 70, ASME B16.48, P/BRIDA ASME B16.5, ISO 15156-2",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0212001",
+    "grupo": "02",
+    "subgrupo": "12",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "ESPARRAGO/TUERCAS",
+    "descripcion": "ESPARRAGO/TUERCAS, DIAMETRO 3/4\", LONGITUD 5\", DE ACERO ASTM A-193, ASTM B 766. CLASE 25 TIPO II, No TUERCAS DOS, ROSCA ESTANDAR USS, ASTM A-194, 2HM,",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0213001",
+    "grupo": "02",
+    "subgrupo": "13",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "KIT DE AISLAMIENTO",
+    "descripcion": "KIT DE AISLAMIENTO P/BRIDA, DIAMETRO 3\", CLASE 300#, ACERO INOXIDABLE/RESINA EPÓXICA, REFORZADA CON FIBRA DE VIDRIO(G10), BUJE y ARANDELAS AISLANTE EN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0214001",
+    "grupo": "02",
+    "subgrupo": "14",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "FILTRO PARA TUBERIA",
+    "descripcion": "FILTRO Y, ACERO AL CARBON, DIAMETRO 3\", BRIDADO, CLASE 150#, RF, ASTM  216 GR. WCB, ELEMENTO DE FILTRACION TIPO REJILLA, DE, ACERO INOXIDABLE, PARA PA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0215001",
+    "grupo": "02",
+    "subgrupo": "15",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "ACCESORIOS PEAD",
+    "descripcion": "COPLE UNION, PEAD, 12\", RD 9, FM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0216001",
+    "grupo": "02",
+    "subgrupo": "16",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "ACCESORIOS TUBING",
+    "descripcion": "X, CONECTOR RECTO MACHO, ACERO INOXIDABLE, DIAMETRO 1/2\", CONEXIÓN1 1/2\" OD, CONEXIÓN2 1/2\" NPT, 316",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0217001",
+    "grupo": "02",
+    "subgrupo": "17",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "ORIFICE FITTING",
+    "descripcion": "ORIFICE FITTING, ACERO AL CARBON, DIAMETRO 3\", CAMARAS 2, EXTREMO BRIDADO #150 RF, X, ROSCADO NTP, SERVICIO GAS DULCE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0218001",
+    "grupo": "02",
+    "subgrupo": "18",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "CRUZ",
+    "descripcion": "CRUZ DE, ACERO AL CARBÓN, DIAMETRO 4\", CEDULA 80, ASTM A234 GR. WPB, EXTREMOS BISELADOS, ISO 15156-2, ASME B16.9",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0219001",
+    "grupo": "02",
+    "subgrupo": "19",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "ACCESORIOS R.C.I",
+    "descripcion": "CODO, 90°, 8\", CLASE 300#, EXTREMO RANURADO, ASTM A536, UL/FM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0220001",
+    "grupo": "02",
+    "subgrupo": "20",
+    "nombre_grupo": "CONEXIONES",
+    "nombre_subgrupo": "TUERCA UNION",
+    "descripcion": "TUERCA UNION, ACERO AL CARBON, DIAMETRO 1\", CLASE 3000#, ASTM A105, EXTREMOS ROSCADOS, ISO 15156/NACE MR 0175, MSS SP-83",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301001",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 16\", CLASE #600, ESPESOR 1/8, MATERIAL ANILLO CENTRADOR CON ANILLO METALICO CENTRADOR Y DE RESPALDO INTERNO, MAT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301002",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 2\", CLASE #900, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR ACERO INOXIDABLE 304, MATERIAL BOBINADO ACERO INOXIDABLE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301003",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CGI, DIAMETRO 6\", CLASE #600, ESPESOR 1/8, MATERIAL ANILLO CENTRADOR CON ANILLO METALICO CENTRADOR Y DE RESPALDO INTERNO, MATE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301004",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 16\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301005",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 12\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0301006",
+    "grupo": "03",
+    "subgrupo": "01",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPAQUE ESPIROMETALICO, CG, DIAMETRO 6\", CLASE 600#, ESPESOR 1/8\", MATERIAL ANILLO CENTRADOR SS 316, MATERIAL BOBINADO SS 316, RELLENO GRAFITO FLEXIBL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0303001",
+    "grupo": "03",
+    "subgrupo": "03",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "ANILLO METALICO RTJ, OCTAGONAL, DIAMETRO 4\", CLASE 900#, ACERO INOXIDABLE UNS S31600, RING No R-37, DUREZA BRINELL 160, ASME B16.20",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0304001",
+    "grupo": "03",
+    "subgrupo": "04",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "LAMINADO PARA JUNTA, MARCA GARLOCK, MODELO 700L, ESPESOR 1/16\", LARGO 60\", ANCHO 60\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0305001",
+    "grupo": "03",
+    "subgrupo": "05",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "EMPAQUE, NEOPRENO, PARA BRIDA CARA PLANA, DIAMETRO 12\", CLASE 150#, ESPESOR 1/8\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0306001",
+    "grupo": "03",
+    "subgrupo": "06",
+    "nombre_grupo": "VALVULAS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "O-RING, EMPAQUE DE HNBR PARA PLACA DE ORIFICIO, CARA LISA, TUBO MED 4\", CEDULA 40 ESPESOR DE 1/8",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401001",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, DE MONTAJE DE AGARRE TOTAL INMEDIATO, CEYS, MODELO MONTACK, CARTUCHO EN 315ML, USO EN DIVERSIDAD DE MATERIALES, COLOR TRASLUCIDO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401002",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, BASE BUTILICA EN DISOLVENTE, MODELO POLYKEN 1027",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401003",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, USO GENERAL, CURADO RÁPIDO, LOCTITE, MODELO 495",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401004",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, PARA CONCRETO, 90 MINUTOS, FESTER, MODELO 601856, PRESENTACIÓN CUBETA DE 19 LITROS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401005",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, FIJADOR DE ROSCAS, HENKEL, MODELO LOCTITE 277, 50 ML",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0401006",
+    "grupo": "04",
+    "subgrupo": "01",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADHESIVO, ADHESIVO EPOXICO, 5 - 25 °C, Hilti, MODELO HIT-RE 500 V3",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0402001",
+    "grupo": "04",
+    "subgrupo": "02",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "SELLADOR, ELASTOMERICO EN PASTA PARA PUERTAS Y VENTANAS GRIS, 10 a 32 °C, SISTA, MODELO ELASTOMERICO GRIS, CARTUCHO 280ML",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0403001",
+    "grupo": "04",
+    "subgrupo": "03",
+    "nombre_grupo": "BRIDAS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "PASTA ANTIFERRANTE, PASTA AUTOMOTRIZ, 18 C Y 25 C, COMEX, COLOR CAR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0501001",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, MOTOR, 2 TIEMPOS, MODELO 0781-319-8923-M, STIHL",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0501002",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, CETUS HIPERSYN PARA COMPRESORES DE AIRE, 46, SINTÉTICO, 244 °C, CHEVRON",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0501003",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, MOTORES DE COMBUSTION INTERNA GAS NATURAL, 40 (SAE 40), MODELO S5N 40, SHELL",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0501004",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, MULTIGRADO, 20W-50, MOBIL, MOTOR A GASOLINA",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0501005",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, MULTIGRADO, 15W-40, MOBIL, MOTOR A GASOLINA",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0501006",
+    "grupo": "05",
+    "subgrupo": "01",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACEITE, QUARTZ 9000, 5W-30, 100% SINTETICO, FILTRA LUB, 12B946 TOT MX",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0502001",
+    "grupo": "05",
+    "subgrupo": "02",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ACEITE HIDRAULICO, HM / HLP, ISO 32, ACEITE MINERAL GRUPO II + ADITIVOS, DIN 51524-2, ISO 11158, ASTM D6158, SAE MS 1004, AGMA 9005-E02, MODELO GEYSER",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0504001",
+    "grupo": "05",
+    "subgrupo": "04",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "POLIREX EP2, 235, MINERAL GRUPO II, MODELO CARTUCHO DE 14 OZ, MOBIL",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0505001",
+    "grupo": "05",
+    "subgrupo": "05",
+    "nombre_grupo": "EMPAQUES Y SELLOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "ADITIVO BARDHAL 2",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "0601001",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, GAS, 3 CAPAS (INTERIOR Y EXTERIOR DE PLASTICO RESISTENTE, CAPA INTERMEDIA CON TRAMADO DE HILO DE POLIESTER), ROSCADO, DIAM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0601002",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, GAS Y OXIGENO, GOMA SINTETICA (EPDM O NITRILO), ROSCADO, DIAMETRO 1/4\", LONGITUD 50 M, 200-300 PSI, 200 F, DOBLE LINEA COL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0601003",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, ACEITE, MALLA T-304, SIN CONEXIONES, DIAMETRO 2 IN, LONGITUD 20 CM, 100 PSI, 200 °F",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0601004",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, GAS, UNA TRENSA DE ACERO DE ALTA RESISTENCIA, SAE 100R5-32, DIAMETRO INTERIOR A 13/16, LONGITUD 20 M, 24-350 PSI, 40-120 °",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0601005",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, PARA ACEITE, TUBO INTERIOR DE CAUCHO SINTÉTICO, TRENZA DE ACERO ALTA RESISTENCIA, DASH-10, DIAMETRO 1/2\", LONGITUD 50 M, 1",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0601006",
+    "grupo": "06",
+    "subgrupo": "01",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANGUERA FLEXIBLE DE ACERO, ACEITE Y GAS, MALLA ACERADA, 32C5C, DIAMETRO 2\", LONGITUD 1 M, 170 PSI, -40 °C A 121 °C, SAE 100 R5",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0602001",
+    "grupo": "06",
+    "subgrupo": "02",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "MANGUERA, PETRÓLEO CRUDO, AGUA DE PROCESO, FLUIDO QUIMICOS, PVC CRISTAL TRANSPARANTE, CAMLOCK, DIAMETRO 1 1/2\", LONGITUD 3 MTS, ˜ 80 PSI, 5 °C A 60 °C",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0603001",
+    "grupo": "06",
+    "subgrupo": "03",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "MANGUERA CONTRA INCENDIO, No CAPAS 4 PARA USO RUDO, 2-1/2\", LONGITUD 30 M, 300 PSI, PARA USO EN ÁREAS DE HIDROCARBUROS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0604001",
+    "grupo": "06",
+    "subgrupo": "04",
+    "nombre_grupo": "INSTRUMENTACION",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "BOQUILLA PARA MANGUERA, DIAMETRO 3\", HEMBRA, ACERO GALVANIZADO, 100 GAL., TIPO DE CHORRO CONEXIÓN RÁPIDA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701001",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO 4\", CLASE 150, EXTREMOS, BRIDADOS, RF, MATERIAL CUERPO ACERO AL CARBON, ASTM A-216 Gr. WCB, VASTAGO, TRIM 8, OPERADA CO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701002",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO 3\", CLASE 600, EXTREMOS, BRIDADOS, RF, MATERIAL CUERPO ACERO AL CARBON, ASTM A-216 GR.WCB, VASTAGO, TRIM 8, OPERADA CON",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701003",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 3/4\", CLASE CLASE  800#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL CA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701004",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 3/4\", CLASE CLASE  1500#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL C",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701005",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO DIAMETRO 1\", CLASE CLASE  800#, EXTREMOS EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO MATERIAL DE CUERPO ACERO AL CARB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0701006",
+    "grupo": "07",
+    "subgrupo": "01",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALVULA DE COMPUERTA, DIAMETRO 1\", CLASE  1500#, EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO ACERO AL CARBON, ASTM A105, VASTAGO ASCENDENTE, TRIM 16",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0702001",
+    "grupo": "07",
+    "subgrupo": "02",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "VALVULA DE GLOBO, DIAMETRO 3/4\", CLASE 800#, EXTREMOS CAJA PARA SOLDAR, MATERIAL DE CUERPO ACERO AL CARBON, ASTM A105, ENSAMBLE DE YUGO Y VASTAGO EXTE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0703001",
+    "grupo": "07",
+    "subgrupo": "03",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "VALVULA DE BOLA, CUERPO COMPLETO, DIAMETRO 3\", CLASE 2000, EXTREMO, ROSCADOS, RF, CUERPO, ACERO AL CARBON, ASTM A-105, PASO, COMPLETO, BOLA, ASTM A-21",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0704001",
+    "grupo": "07",
+    "subgrupo": "04",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "VALVULA DE RETENCIÓN, RF, DIAMETRO 3\", CLASE 600, BRIDADA, ACERO AL CARBON, ASTM A-216 Gr. WCB, TRIM 8, NACE MR0175",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0705001",
+    "grupo": "07",
+    "subgrupo": "05",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "VALVULA DE MARIPOSA, DIAMETRO 4\", CLASE ANSI 150 LB., EXTREMOS CUELLO ROSCABLE, MATERIAL DE CUERPO A.C., ASTM A216 Gr. WCB, MANUAL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0706001",
+    "grupo": "07",
+    "subgrupo": "06",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "VALVULA MACHO, DIAMETRO 2 1/2\" NO LUBRICADA, CLASE 300, EXTREMOS ROSCADOS NPTF, CUERPO ACERO AL CARBON ASTM A216 GR WCB, DISEÑO ASME B16.34, VASTAGO D",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0707001",
+    "grupo": "07",
+    "subgrupo": "07",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "VALVULA DE AGUJA, DIAMETRO 1/2\", CLASE 3000, EXTREMOS ROSCADOS, ACERO INOXIDABLE, 316, MACHO- HEMBRA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0708001",
+    "grupo": "07",
+    "subgrupo": "08",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "VALVULA DE DIAFRAGMA, DIAMETRO 4\", CLASE 150#, EXTREMOS BRIDADOS, R.F., MATERIAL DE CUERPO ACERO AL CARBON, ASTM A-536, TRIM ACERO INOXIDABLE, APERTUR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0709001",
+    "grupo": "07",
+    "subgrupo": "09",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "MANIFOLD, No DE VIAS 5, ACERO INOXIDABLE, PRESION MAX 6250 PSI, TEMPERATURA MAX 399° C, CONEXION A PROCESO NPT 1/2\" -14 HEMBRA, MODELO R305, FABRICANT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0710001",
+    "grupo": "07",
+    "subgrupo": "10",
+    "nombre_grupo": "ELECTRICIDAD",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "VALVULA DE BOLA, DIAMETRO 3/4\", CLASE 6000#, EXTREMOS NPT X NPT HEMBRA, ACERO INOXIDABLE 316, No VIAS 2, MATERIAL ASIENTO PTFE, TEMP MAX 121 °C",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0802001",
+    "grupo": "08",
+    "subgrupo": "02",
+    "nombre_grupo": "HERRAMIENTAS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "PILOTO, ACERO AL CARBÓN, PARTE CONTROLADOR DE VÁLVULA, KIMRAY, EQUIPO PRINCIPAL VÁLVULA DE GLOBO, 150 PG PILOT INDIRECT, MODELO: AFZ. PRESIÓN: 150 A 1",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "0802002",
+    "grupo": "08",
+    "subgrupo": "02",
+    "nombre_grupo": "HERRAMIENTAS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "KIT DE REPARACIÓN DE PILOTO, DIVERSOS, PARTE DIAFRAGMA, KIMRAY, EQUIPO PRINCIPAL PILOTO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1004001",
+    "grupo": "10",
+    "subgrupo": "04",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "LANA MINERAL, ˜ 12–16 KG/M³, ESPESOR 1-1/2\", -40 °C HASTA +120 °C, MATERIAL FIBRA DE VIDRIO CON ALUMINIO, MEDIDA 1.22 M X 15 M, OWENS CORNING",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005001",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 30\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005002",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 24\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005003",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 20\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005004",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 16\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005005",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 14\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1005006",
+    "grupo": "10",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MEDIA CAÑA, POLIURETANO, 12\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1007001",
+    "grupo": "10",
+    "subgrupo": "07",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "NEOPRENO NEGRO, ESPESOR 1/8\", LARGO 10 M, ANCHO 1 M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1009001",
+    "grupo": "10",
+    "subgrupo": "09",
+    "nombre_grupo": "EQUIPOS",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "PLACA TEFLÓN PTFE, ESPESOR 3/8\", LARGO 48\", ANCHO 48\", COLOR BLANCO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1101001",
+    "grupo": "11",
+    "subgrupo": "01",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RELLENO PARA NIVELACION DE PISO, A BASE DE CALICHE O ESCOMBRO CON GRAVA",
+    "unidad_medida": "CU"
+  },
+  {
+    "codigo_articulo": "1102001",
+    "grupo": "11",
+    "subgrupo": "02",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CEMENTO, DUREZA, CEMEX, 15 BULTOS DE 50KG",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "1103001",
+    "grupo": "11",
+    "subgrupo": "03",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CONCRETO, PREMEZCLADO, 100 KG/CM2, 14 CM, 2.4 TON/M3",
+    "unidad_medida": "CU"
+  },
+  {
+    "codigo_articulo": "1104003",
+    "grupo": "11",
+    "subgrupo": "04",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "CAL, KILO",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "1105001",
+    "grupo": "11",
+    "subgrupo": "05",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "LADRILLO, TABIQUE, ROJO RECOCIDO, DIMENSIONES: 6 CM X 12 CM X 24 CM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1106001",
+    "grupo": "11",
+    "subgrupo": "06",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "BLOCK, MACIZO DE 12 X 20 X 40CM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1107001",
+    "grupo": "11",
+    "subgrupo": "07",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "VARILLA CORRUGADA DE 3/4\", CALIBRE 16, 12 MTS DE LARGO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1108001",
+    "grupo": "11",
+    "subgrupo": "08",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "TIPO ESTROBO 1\", ACERO GALVANIZADO, DIAMETRO 18.80, LONGITUD 6x36, 9.8 TONS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1109001",
+    "grupo": "11",
+    "subgrupo": "09",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "MOLDURA RINCONERO, PINO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1110001",
+    "grupo": "11",
+    "subgrupo": "10",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "MULTIDIRECCIONAL, TORNILLO, DIAMETRO 1 7/16\", BASE 0.60 M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1111001",
+    "grupo": "11",
+    "subgrupo": "11",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "ZOCLO PISO VINÍLICO, VINIL, LARGO 2.40 MT X  ANCHO 6CM, COLOR HUDSON SILVER, MODELO 2021HUDSONSILPZ, GREDA, INTERIOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1112001",
+    "grupo": "11",
+    "subgrupo": "12",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "ALAMBRE, ACERO RECOCIDO, CALIBRE 14",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "1113001",
+    "grupo": "11",
+    "subgrupo": "13",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "MALLA, CICLON FOLTADA, MATERIAL PVC, LARGO 20 MTS, ALTO 2.5 MTS, CALIBRE 11, ABERTURA 63 MM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1114001",
+    "grupo": "11",
+    "subgrupo": "14",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "ASFALTO, EN FRIO, TMN 3/8\", ESTABILIDAD 350 KG MINIMO, FLUJO 2 - 4 MM, VACIOS 4 - 8 %, VAM 15 %, VFA 65 - 78%, CEMEX",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "1115001",
+    "grupo": "11",
+    "subgrupo": "15",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "ARMADO DE SOPORTE RMA-1-1, ACERO, LARGO 3 M, ANCHO 2.30 M, CALIBRE 16, ASTM A36 GR 50, INCLUYE 2 PLACAS DE ACERO 0.70 M X 0.70 M, PERNOS 3/4\", TUERCAS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1116001",
+    "grupo": "11",
+    "subgrupo": "16",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "ANCLAJE QUIMICO, POLIESTER, MOD CF 890, CART 300 ML",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1117001",
+    "grupo": "11",
+    "subgrupo": "17",
+    "nombre_grupo": "MANTENIMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 17",
+    "descripcion": "VIDRIO, LARGO 48.2 CM, ANCHO 5.5 CM, GROSOR 6 MM, CANTO PULIDO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201001",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PICHANCHA CON REJILLA, ACERO INOXIDABLE, DIAMETRO 1\", LONGITUD 12 CM, CONEXION DE ENTRADA ROSCADO HEMBRA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201002",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TUERCA UNIÓN LISA, CPVC, DIAMETRO 1\", LONGITUD 100 MM, CONEXION DE ENTRADA SOCKET",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201003",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ADAPTADOR MACHO, CPVC, DIAMETRO 1\", LONGITUD 75 MM, CONEXION DE ENTRADA SOCKET, CONEXION DE SALIDA ROSCADO MACHO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201004",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TUERCA UNION DE GOLPE, ACERO AL CARBON, DIAMETRO 2\", LONGITUD 600 MM, CONEXION DE ENTRADA ROSCABLE, CONEXION DE SALIDA ROSCABLE, PRESION DE ENTRADA 30",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201005",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SANITARIO, CERÁMICA, DIAMETRO 2\" DESCARGA, LONGITUD 72 CM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1201006",
+    "grupo": "12",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "BRIDA FLEXIBLE, PVC, DIAMETRO 4\", LONGITUD 8 CM, COFLEX, MODELO 2-pb-200",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1202001",
+    "grupo": "12",
+    "subgrupo": "02",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "RODILLO CALIDAD MEDIA 3/8X9\", LISO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1203001",
+    "grupo": "12",
+    "subgrupo": "03",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "RECEPTACULO, MEDIA VUELTA, 30 A, 250 V, NEGRO, No POLOS 2, No CABLES 3 HILOS, #14-8 AWG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1204001",
+    "grupo": "12",
+    "subgrupo": "04",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "DISCO DE CORTE PARA METAL, ABRASIVO, DIAMETRO 4-1/2\", RECUBRIMIENTO OXIDO DE ALUMINIO, ESPESOR 1/16\", DIAMETRO INTERIOR 7/8\", AUSTROMEX, 13, 300 RPM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1205001",
+    "grupo": "12",
+    "subgrupo": "05",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "POLIN, MADERA TRATADA, DE PINO, LONGITUD 3 MTS, ANCHO 4\", ALTO 4\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1206001",
+    "grupo": "12",
+    "subgrupo": "06",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "CARDA, TIPO COPA ALAMBRE TRENZADO, ACERO, DIAMETRO EXTERIOR 5\", EJE ROSCABLE 5/8\", LONGITUD 7/8\", TRUPER",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1207001",
+    "grupo": "12",
+    "subgrupo": "07",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "CERRADURA, PARA PERFIL DE ALUMINIO, DIAMETRO 1, LONGITUD 15CM, ANCHO 6CM, ALTO 15CM, NIVEL DE SEGURIDAD ALTO, DER-IZQ",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1208001",
+    "grupo": "12",
+    "subgrupo": "08",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "CINCHOS, PLASTICO, TRANSPARENTE, LONGITUD 30 CM, ANCHO 4.5 MM, PAQ. DE 100 PC",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1209001",
+    "grupo": "12",
+    "subgrupo": "09",
+    "nombre_grupo": "MATERIALES GENERALES",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "ESTROBO, ACERO GALVANIZADO, DIAMETRO UN PULGADA, CAP VERTICAL ., CAP EN U 9.8 TONELADAS, TIPO DE OJAL SENCILLO, CONSTRUCCION 6X36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1301001",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PRIMARIO EPÓXICO, GRIS",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1301002",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PINTURA RA-26, RECUBRIMIENTO EPÓXICO, BLANCO",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1301003",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACABADO DE POLIURETNAO ACRILICO ALIFÁTICO, GRIS MAQUINA- RAL¿506",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1301004",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PINTURA RA-28, ACABADO DE POLIURETANO ACRILICO ALIFÁTICO, BLANCO, No RAL 9010",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1301005",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "3M, MODELO SCOTCH 1601, SPRAY BARNIZ AISLANTE SCOTCH 1601 TRANSPARENTE",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1301006",
+    "grupo": "13",
+    "subgrupo": "01",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TIPO PINTURA ENLACE, RA-26, BLANCO PERLA, No RAL 1013, COMEX, CUBETA",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1302001",
+    "grupo": "13",
+    "subgrupo": "02",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "IMPERMEABILIZANTE, RECUBRIMIENTO, NEGRO, TIPO DE SOLVENTE EPOXICO LIQUIDO, PORCENTAJE DE SOLIDOS 100%, APLICACION ASPERSION EN SITIO O PLANTA, SUPERFI",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1303002",
+    "grupo": "13",
+    "subgrupo": "03",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "RECUBRIMIENTO TERMOFIJO 2 COMPONENTES, EPOXICO, NEGRO, APLICACION MANUAL, TIEMPO DE SECADO TACTO 120-180 MIN @25°C, DURABILIDAD 30 AÑOS, MODELO RAM 10",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1304001",
+    "grupo": "13",
+    "subgrupo": "04",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "ACABADO ARQUITECTÓNICO, ACRÍLICA, BLANCO, TIPO DE SOLVENTE AGUA, APLICACION MUROS Y PLAFONES, TIEMPO SECADO 4 HORAS, PRO ADV I/E MATE BLC G 150S 5G",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1305001",
+    "grupo": "13",
+    "subgrupo": "05",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "SELLADOR ELASTICO, LIQUIDO, RESISTENTE A ACEITES",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1306001",
+    "grupo": "13",
+    "subgrupo": "06",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "ADELGAZADOR, HIDROCARBURO AROMÁNTICOS+CETONAS+ÉSTRES+ALCOHOLES, 0.0-1.05 g/cm3, SHERWIN WILLIAMS, MODELO RA-28",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1307001",
+    "grupo": "13",
+    "subgrupo": "07",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "CATALIZADOR, PARTE B, MODELO RA-28 MODIFICADO",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "1308001",
+    "grupo": "13",
+    "subgrupo": "08",
+    "nombre_grupo": "QUIMICOS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "ESCORIA DE COBRE, .595 A 1.190, 7.5 A 8, POR SACO DE TONELADA",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "1401001",
+    "grupo": "14",
+    "subgrupo": "01",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ANGULO, A.C., ESPESOR 3/16\", LADO 1 1\", X, LADO 2 1\", LONGITUD 6.10 METROS, ESPECIFICACIÓN DE MATERIAL ASTM A-36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1401002",
+    "grupo": "14",
+    "subgrupo": "01",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ANGULO, 6 METROS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1401003",
+    "grupo": "14",
+    "subgrupo": "01",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ANGULO, ACERO AL CARBÓN, ESPESOR 1/4\", LADO 1 3\", X, LADO 2 3\", LONGITUD 6.10 M, ESPECIFICACIÓN DE MATERIAL A36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1402001",
+    "grupo": "14",
+    "subgrupo": "02",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "PERFIL I, IR, 203 MM X 46.2 KG/M, 6.1 M, ASTM A572 GR. 50",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1403001",
+    "grupo": "14",
+    "subgrupo": "03",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "PLACA DE ACERO, ESPESOR 1/2\", ANCHO 4FT, LONGITUD 10 FT, A-36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1404001",
+    "grupo": "14",
+    "subgrupo": "04",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "SOLERA DE ACERO, ESPESOR 1/4, ANCHO 4\", LONGITUD 6 M, ACERO ASTM A-36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1405001",
+    "grupo": "14",
+    "subgrupo": "05",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "CANAL TIPO, PERALTE 4\", ANCHO DE PATIN 40 MM, ESPESOR DEL ALMA 5.2 MM, LONGITUD 6.10 M, A36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1406001",
+    "grupo": "14",
+    "subgrupo": "06",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "MONTEN, CALIBRE 10, PATIN 2.75\", PERALTE 10\", CEJA 2.75\", LONGITUD 6.10 M, ASTM A-568, DE 11.2 KG/M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1407001",
+    "grupo": "14",
+    "subgrupo": "07",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "PTR, CUADRADO, CALIBRE 14, ANCHO 1\", ALTURA 1\", LONGITUD 6 METROS, A.C., ASTM A513",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1408001",
+    "grupo": "14",
+    "subgrupo": "08",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "TUBO ESTRUCTURAL, DIAMETRO 2\", CEDULA C-40, LONGITUD 6 MTS, ASTM A-106 GR B, ASME B36.10, N/A",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1409001",
+    "grupo": "14",
+    "subgrupo": "09",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "LAMINA, ANTIDERRAPANTE, CALIBRE 1/8, LARGO 10', ANCHO 4', A.C., ASTM A-186",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1410001",
+    "grupo": "14",
+    "subgrupo": "10",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "REJILLA TIPO IRVING, GALVANIZADA ANTIDERRAPANTE, PERALTE 1\", ANCHO 1 MTS., LARGO 6 MTS., ESPESOR DE SOLERA 1/8\", ESPACIO ENTRE SOLERA 30 MM, ESPACIO E",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1411001",
+    "grupo": "14",
+    "subgrupo": "11",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "FIJADORES PARA REJILLA IRVING, GRAPA DE FIJACION PARA REJILLA TIPO IRVING, GALVANIZADO, ESPACIO ENTRE SOLERAS 30 MM, PERALTE DE REJILLA IRVING 25 A 38",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1412001",
+    "grupo": "14",
+    "subgrupo": "12",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "PERFIL SOLIDO, COLD ROLLED, 1/2, LONGITUD 6.10 M, A-36",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1413001",
+    "grupo": "14",
+    "subgrupo": "13",
+    "nombre_grupo": "CONSUMIBLES",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "BASE FIJA REGULABLE, ACERO, LARGO 60 CM, DOKA AT PACK",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501001",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "LLAVE, UNIVERSAL DE LONA, CUERPO ALUMINIO / CINTA NYLON, DIAMETRO 3\", LONGITUD 12\", ANCHO 1 11/16, URREA, MODELO 802",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501002",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "LINTERNA, DE MANO, DE NYLON Y POLICARBONATO, 2.85\", 7.06\", COLOR NARANJA, INTRÍNSECAMENTE SEGURA Y RECARGABLE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501003",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TORQUÍMETRO, TRUENO DUAL, ACERO/ALUMNIO, 1/2\", TORQUE 30-250 FT-LB, URREA, MODELO 60143",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501004",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "JUEGO DE 9 LLAVES TORX CON ORGANIZADOR ABATIBLE, ACERO AL CROMO VANADIO, TRUPER, MODELO TORX-9",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501005",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "LÁMPARA LED, INALÁMBRICO, PLÁSTICO ABS (CARCASA), 21.6 CM, 10.5 CM, 17.7 CM, 3, 000 LÚMENES, RYOBI, MODELO PCL661B, BATERIA DE 18 V ONE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1501006",
+    "grupo": "15",
+    "subgrupo": "01",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "NAVAJA, BOLSILLO PLEGABLE, HOJA DE ACERO, MANGO DE PLÁSTICO, 25.9 CM, 7.62 CM, 1.27 CM, RYOBI, MODELO RHCKF02",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1502001",
+    "grupo": "15",
+    "subgrupo": "02",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "SEPARADOR DE BRIDA, HIDRAULICO, 14 TON, PRESION MAXIMA 700 BAR, DESPLAZAMIENTO 80 MM, 3. 16 PUL, MODELO STF14H",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1503001",
+    "grupo": "15",
+    "subgrupo": "03",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "BOMBA, ELECTRICA EXTRACTORA PARA TAMBOR, 16 LTS  POR MIN., CORRIENTE ENTRADA 60 W, 12 V DC, TULER, MODELO TUL-202001",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1504001",
+    "grupo": "15",
+    "subgrupo": "04",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "ESCAREADOR, NEUMATICO, 90 PSI, TORSION MAXIMA 4600 IPM, ENTRADA DE AIRE 1/4\", URREA, MODELO UP125",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1505001",
+    "grupo": "15",
+    "subgrupo": "05",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "KIT DE SOLDADURA, ELECTRONICA DE 21 PIEZAS CON CAUTIN DE 60 W, CORRIENTE ENTRADA 0.55 A, 110 V AC, FRECUENCIA DE ENTRADA 60 HZ, LJ-EXPLOSIVE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1506001",
+    "grupo": "15",
+    "subgrupo": "06",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "PISTOLA, -40 A 550 °C, 630 A 670 NM, RESOLUCION 0.1 °C, EXACTITUD ±  1 %, MODELO 561, FLUKE, TERMÓMETRO POR INFRARROJO Y DE CONTACTO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1507001",
+    "grupo": "15",
+    "subgrupo": "07",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "CAJA PLÁSTICA, POLIPROPILENO, USO RUDO CON TAPA, LONGITUD 60 CM, ANCHO 40 CM, ALTURA 27 CM, 42 LTS, PLASTIC TRENDS, MODELO S011tka0, SKU 141456",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1508001",
+    "grupo": "15",
+    "subgrupo": "08",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "DESBROZADORA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1509001",
+    "grupo": "15",
+    "subgrupo": "09",
+    "nombre_grupo": "SEGURIDAD INDUSTRIAL",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "CARRO DE CARGA PLEGABLE TIPO PLATAFORMA, LONGITUD 73 CM, ANCHO 47 CM, ALTURA 14 CM, 150 KG, LLANTA 4\", PESO 7 KG, INCLUYE: RECUBRIMIENTO ANTIDERRAPANT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603001",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CARTUCHO MP 45 ET., ETIQUETA AUTOLAMINABLE, MATERIAL VINILO, 1.0\" W x 6.50\" H, -40 a 66°C (-40 a 150°F), ANCHO ÁREA DE IMPRESIÓN DE  25.4 x 165.1 mm,",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603002",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "HOJA DE SIERRA DE BANDA, 18 TPI, MATERIAL ACERO, MODELO 48-39-0521, MILWAUKEE, TAMAÑO DE CORTE 44-7/8\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603003",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "KIT DE ARRANQUE DE BATERIA M18, 18V & 12V, MODELO 48-59-1850-P, MILWAUKEE, M18™ REDLITHIUM™ XC5.0",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603004",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CARGADOR, BATERIA DE ION LITIO, MATERIAL PLASTICO, CORRIENTE ENTRADA 120 V AC (50/60 HZ), COLOR NEGRO, AMARILLO, MODELO DCB107-B3, DEWALT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603005",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "BATERIA POWERSTACK 20V MAX, COMPACTO, MATERIAL PLATICA, 1.7 Ah, COLOR AMARILLO, MODELO DCBP034-B3, DEWALT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1603006",
+    "grupo": "16",
+    "subgrupo": "03",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "BATERIA, M18, MODELO REDLITHIUM FORGE HD 12.0, MILWAUKEE, 48-11-1813",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1606001",
+    "grupo": "16",
+    "subgrupo": "06",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "TUBO DE CENTRIFUGA EN FORMA DE PERA, CAPACIDAD 100 ML, MODELO CVS45244-100",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1608001",
+    "grupo": "16",
+    "subgrupo": "08",
+    "nombre_grupo": "PINTURA",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "SISTEMA DE ARRANQUE RETRÁCTIL PARA DESBROZADORA, JALDELI, PARA MOTOR DE 33, 43, 52 CC.",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1704001",
+    "grupo": "17",
+    "subgrupo": "04",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "TORRE DE LUZ, PORTATIL CON MASTIL HIDRAULICO, GENERADOR INTEGRADO ˜ 6 kW – 8 kW, TENSION 120 V / 240 V, COMBUSTIBLE DIESEL, NO DE LAMPARAS 4, TIPO LED",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1705001",
+    "grupo": "17",
+    "subgrupo": "05",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GENERADOR INVERTER PORTÁTIL MONOFÁSICO, DRIVER MOTOR DE 4 TIEMPOS, 3, 500 W, GASOLINA, TANQUE COMBISTIBLE 7.5 L, MARCA PREDATOR, MODELO P3500i",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1705003",
+    "grupo": "17",
+    "subgrupo": "05",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GENERADOR PORTATIL SILENCIOSO TRI-FUEL, DRIVER MOTOR DE 4 TIEMPOS, GASOLINA 9 KW/ GAS LP 8.5 KW/ GAS NATURAL 8.2 KW, TEMPERATURA DE OPERACIÓN 40 °C, G",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1705004",
+    "grupo": "17",
+    "subgrupo": "05",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GENERADOR PORTATIL A GASOLINA, MONOFASICO, No ETAPAS 1, 3400 W MAX. / 3000 W NOMINAL, PRESION SALIDA 120/240 V AC, 60 HZ, RPM 3600 RPM, POWERMATE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1705005",
+    "grupo": "17",
+    "subgrupo": "05",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GENERADOR ELECTRICO, PORTATIL, MARCA BRIGGS & STRATTON, MODELO 030707, SERVICIO PRUEBAS DE BANCO, 5000 W, GASOLINA, TANQUE COMBISTIBLE 28.4 L, VOLTAJE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1705006",
+    "grupo": "17",
+    "subgrupo": "05",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GENERADOR ELECTRICO, PORTATIL, MARCA BRIGGS & STRATTON, MODELO 30614 G5000, SERVICIO PRUEBAS DE BANCO, 5000 W, GASOLINA, TANQUE COMBISTIBLE 28.4 LT, V",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1706001",
+    "grupo": "17",
+    "subgrupo": "06",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "MANIFOLD, TX5AMF CAPACIDAD 60 GL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1707001",
+    "grupo": "17",
+    "subgrupo": "07",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "BOMBA, ELECTRICA PERIFÉRICA, 3/4 HP, GASTO 40 L/MIN, DIAMETRO SUCCION 1\" NPT, DIAMETRO DESCARGA 1\" NPT, PRESION ENTRADA 8 M, RPM 3, 450",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1708001",
+    "grupo": "17",
+    "subgrupo": "08",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "HIDROLAVADORA, ELECTRICA, 1400 W, PRESION MAX 1 450 PSI, PRESION OPERACION 1 050 PSI, LONGITUD MANGUERA 5 M, HYP1450XT, FABRICANTE HYUNDAI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1710001",
+    "grupo": "17",
+    "subgrupo": "10",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "MAQUINA PARA SOLDAR / INVERSOR, ALIMENTACION ELECTRICA 120/230 V, VOLTAJE SALIDA 20A - 250A, MODELO MEGA FORCE 250iD, LINCOLN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1711001",
+    "grupo": "17",
+    "subgrupo": "11",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "VENTILADOR, TAMBOR, 42\", 44X46X20\", 16, 900 - 20, 500 CFM, 3/4, 72 LBS, 120 VOLTIOS, 4 ASPAS, MARCA UNLINE, MODELO H-9346, OSHA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1712001",
+    "grupo": "17",
+    "subgrupo": "12",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "EQUIPO HIDRONEUMÁTICO HYDRO-MAC, ACERO, 90L, PRES MAX 150 PSI, TEMP MAX 40°C, SERVICIO VERTICAL, CON BOMBA JET 3/4 HP  MOD EAJ075-090VE MARCA EVANS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1713001",
+    "grupo": "17",
+    "subgrupo": "13",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "SANBLASTER, ACERO, LARGO 520 MM, ANCHO 380 MM, ALTURA 950 MM, 10 GALONES, PRES DISEÑO 60 PSI, PRES MAX 110 PSI, MANGUERA Y PISTOLA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1714001",
+    "grupo": "17",
+    "subgrupo": "14",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "BAILARINA COMPACTADORA, 5.5 HP, GASOLINA, TANQUE COMBISTIBLE 2.5 LTS, MOTOR HONDA GX160, MCA TRUPER, CLAVE BAI-55, CODIGO 102971",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1715001",
+    "grupo": "17",
+    "subgrupo": "15",
+    "nombre_grupo": "AISLAMIENTO",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "CALEFACTOR PORTATIL TIPO SALAMANDRA CON TERMOSTATO AJUSTABLE, 30, 000 W, 60 HZ, 480 V AC, TRAFASICO, ˜ 36 A, PORTATIL, CON ASA SUPERIOR Y BASE ESTABLE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804001",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE COMBUSTIBLE DIESEL, MEDIO FILTRANTE DE CELULOSA / CARCASA DE ACERO, No PARTE 33032, WIX FILTERS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804002",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE ACEITE, ACERO / MEDIO DILTRANTE DE CELULOSA, No PARTE 51064, WIX FILTERS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804003",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE AIRE, ACERO / MEDIO FILTRANTE DE CELULOSA, No PARTE 46449, WIX FILTERS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804004",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "BATERÍA, 12 V, 730 A, No PARTE H-48/91(LN3)-730, MARCA LTH HI-TEC",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804005",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "CARCASA DE BATERÍA, 12 V, 730 A, No PARTE H-48/91(LN3)-730, MARCA LTH HI-TEC",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1804006",
+    "grupo": "18",
+    "subgrupo": "04",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE ACEITE DE MOTOR FLUJO PLENO ENROSCABLE TIPO SELLADO, No PARTE P550162, MARCA DONALDSON",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1805001",
+    "grupo": "18",
+    "subgrupo": "05",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "BATERIA SELLADA, ACIDO DE PLOMO, LARGO 197 MM, ANCHO 165 MM, ALTO 170 MM, 12V-36AH-10HR- MODELO 6-FM-38",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1806001",
+    "grupo": "18",
+    "subgrupo": "06",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "TAPA DE ARRANQUE, COMPRESOR DE AIRE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1807001",
+    "grupo": "18",
+    "subgrupo": "07",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "IMPULSOR  PARA BOMBA JET, 0.75 HP, CODIGO BIP3HJX2075, MCA EVANS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1808001",
+    "grupo": "18",
+    "subgrupo": "08",
+    "nombre_grupo": "CIVIL",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "ADAPTADOR PARA GRIFO CON ELEMENTO REDUCTOR, LATON, DIAMETRO G3/4 CON PIEZA REDUCTORA DE G1/2, No PARTE 2.645-013.0, KARCHER",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1902001",
+    "grupo": "19",
+    "subgrupo": "02",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ISOCONTENEDOR, HABITACIONAL / OFICINA, ACONDICIONADO, ACERO ESTRUCTURA GRADO MARITIMO CON RECUBRIMIENTO ANTICORROSIVOS, LARGO 20 FT, ANCHO 8 FT, ALTO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1902002",
+    "grupo": "19",
+    "subgrupo": "02",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "OFICINA MOVIL, LARGO 12 M, MODELO 2015, CEDAR CREEK, EQUIPADA/AMUEBLADA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1902003",
+    "grupo": "19",
+    "subgrupo": "02",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "OFICINA MÓVIL, LARGO 12', ANCHO 64', MODELO 12768-02, INCLUYE:  MINI SPLIT, ESCRITORIO CURVO EN L CON ARCHIVERO (2 PZA), LIBRERO ALTO CON PUERTAS (1 P",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1903001",
+    "grupo": "19",
+    "subgrupo": "03",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "ESTRUCTURA PARA COBERTIZO, ACERO, LARGO 8 M, ANCHO 4 M, A BASE DE TUBERÍA DE ACERO AL CARBÓN DE 4\" DE DIÁMETRO, MONTÉN DE ACERO DE 6\", PTR DE 2\", ARMA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1903002",
+    "grupo": "19",
+    "subgrupo": "03",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "ESTRUCTURA PARA COBERTIZO, LARGO 12 M, ANCHO 8 M, A BASE DE TUBERIA A.C. DE 4\" DE DIAMETRO, MONTEN DE ACERO DE 6\" Y PTR DE 2\" CON ARMADURA TIPO WARREN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "1903003",
+    "grupo": "19",
+    "subgrupo": "03",
+    "nombre_grupo": "TRANSPORTE",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "ESTRUCTURA PARA COBERTIZO, LARGO 10 M, ANCHO 6 M, A BASE DE TUBERÍA A.C. DE 4\" DE DIÁMETRO, MONTEN DE ACERO DE 6\" Y PTR DE 2\" CON ARMADURA TIPO WARREN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2001001",
+    "grupo": "20",
+    "subgrupo": "01",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CHAROLA, ALUMINIO, ESCALERA, PERFIL Z, ANCHO 12 PULG, PERALTE 6 PULG, LONGITUD 6 MTS, PASO 9 PULG, NEMA VE1-IPC 61537",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2002001",
+    "grupo": "20",
+    "subgrupo": "02",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TUBO, CONDUIT, ACERO GALVANIZADO, DIAMETRO 3/4\", CEDULA 80, UL, NEC, NEMA, ASTM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2003001",
+    "grupo": "20",
+    "subgrupo": "03",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CONECTOR MYERS, DIAMETRO 1 1/4, MATERIAL DE ZINC ACABADO ESTANDAR, SERIE MODELO ST-4, LONGITUD ., NEMA 2, 3, 3R, 4 4X y 12, MARCA CROUSE HINDS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2004001",
+    "grupo": "20",
+    "subgrupo": "04",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "CABLE, CONDUCTOR, CONDUCTOR DE COBRE ESTAÑADO, No CONDUCTORES 1 PAR (16) (2), AWG 16, 600 V, AISLAMIENO BI-LAMINATE (ALUM+POLY), 80°C, MODELO MOD.8719",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "2005001",
+    "grupo": "20",
+    "subgrupo": "05",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "TABLERO ELECTRICO, DE, DISTRIBUCION, 127/220 V, FASES 2, CAPACIDAD EN BARRAS 125 A, CANTIDAD DE DERIVADOS 12 POLOS, TIPO DE MONTAJE SOBREPONER, NOM-00",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2006001",
+    "grupo": "20",
+    "subgrupo": "06",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "ARRANCADOR DE MOTOR, VOLTAJE 460 V AC, FASES 3, KODIAK, 250 HP, TRIFASICO, W/PPC, 40 HP CP STARTER",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2007001",
+    "grupo": "20",
+    "subgrupo": "07",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "MOTOR, SERVICIO CONTINUO, INDUCCION, MOTOR TRIFASICO, JAULA DE ARDILLA, DE POLOS 4, 208 - 230 / 460 V, 400 HP, RPM 1500 RPM, CLASIFICACIÓN MOTOR ALTO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2008001",
+    "grupo": "20",
+    "subgrupo": "08",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "TRANSFORMADOR, SECO (DRY TYPE), REDUCIDO, SERVICIO INDUSTRIAL, RELACION TRANSFOMACIÓN 480 V A 220 V/ 110 V, CAPACIDAD 30 KVA, TIPO DE ENFRIAMIENTO REF",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2009001",
+    "grupo": "20",
+    "subgrupo": "09",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "POSTE CONICO CIRCULAR, CCT, ACERO, LONGITUD 9 MTS, GALVANIZADO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2010001",
+    "grupo": "20",
+    "subgrupo": "10",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "BARRA DE UNION CON AISLADORES 1249 A, PLACA  TG-BUS-G11, BARRA DE COBRE ESTAÑADA, 20 x 7.62 x 0.64 CM, CALIBRE AWG N/A, REDES DE TIERRA FÍSICAS INSTAL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2011001",
+    "grupo": "20",
+    "subgrupo": "11",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "SFI, VOLTAJE ENTRADA 120-500 V DC, VOLTAJE SALIDA 240 V MONOFÁSICO, 50/60 HZ, 12 KVA NOM., INVERSOR HÍBRIDO, CLASIFICACIÓN LOW VOLTAGE, TIPO DE BATERI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2012001",
+    "grupo": "20",
+    "subgrupo": "12",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "BANCO DE BATERIA, CLASIFICACIÓN 250KW/522KWH BATERRY ESS, TIPO DE BATERIA LFP (LITIO FERROFOSFATO), 600 CICLOS, TIEMPO DE RESPALDO ENTRE 2 A 10 HRS, I",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2013001",
+    "grupo": "20",
+    "subgrupo": "13",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "RECTIFICADOR/CARGADOR, VOLTAJE ENTRADA 20-21 V, VOLTAJE SALIDA 18 V, GABINETE PLÁSTICO, CLASIFICACIÓN HD12.0, NOM-024, BATERÍA M18™ REDLITHIUM™ FORGE™",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2014001",
+    "grupo": "20",
+    "subgrupo": "14",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "CELDA SOLAR, TECNOLOGIA PWM (MODULACIÓN POR ANCHO DE PULSO), 12V DC, 20 A, TIPO DE CONEXIÓN CONEXION DE TERMINALES, TIPO DE CONTROLADOR CONTROLADOR DE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2015001",
+    "grupo": "20",
+    "subgrupo": "15",
+    "nombre_grupo": "COMPUTO Y TELECOMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "ÁNODO, ALTO POTENCIAL, MAGNESIO, PESO 17  LIBRAS, EMPACADO CON MEZCLA DE RELLENO CONDUCTIVO (BACKFILL)",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101001",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TIPO DE REPUESTO INTERRUPTOR DOBLE TIRO, 600 V, FASE 3, AMPERAJE 100, SIEMENS, MOD. DTNF363",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101002",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INTERRUPTOR TERMOMAGNETICO, UNIPOLAR, 127, FASE 1, AMPERAJE 10 A, ENCHUFABLE, MODELO MOD.QO110, SQUARE-D, NOM-001-20212",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101003",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127/240, FASE 2, AMPERAJE 40 A, ENCHUFABLE, MODELO QO240, SQUARE-D, NOM-001-2012",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101004",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127, FASE 1, AMPERAJE 15 A, ENCHUFABLE, MODELO QO115, SQUARE D, NOM-001-SEDE 2012",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101005",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INTERRUPTOR TERMOMAGNÉTICO, UNIPOLAR, 127/240, FASE 3, AMPERAJE 30 A, ENCHUFABLE, MODELO QO330, SQUARE D, NOM-001-SEDE 0212",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2101006",
+    "grupo": "21",
+    "subgrupo": "01",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FRENTE CENTRO DE CARGA CON ZAPATA PRINCIPAL, ., FASE 1 FASE 3 H. DE 12 P, AMPERAJE ., SOBREPONER, MODELO MOD.QOC16US, SQUARE-D, NOM-001-SEDE 2012",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2102001",
+    "grupo": "21",
+    "subgrupo": "02",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TIPO DE REPUESTO, INTERRUPTOR SELECTOR DE 2 POSICIONES (0-1), PARTE SA 0-1 20, SALZER, TABLERO DE DISTRIBUCION, 250V AC /48V DC, 20 A",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2103001",
+    "grupo": "21",
+    "subgrupo": "03",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "TIPO DE REPUESTO, EMBOBINADO, PARTE MOTOR, LINCOLN, SOLDADORA, 12 V, 400 A",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2104001",
+    "grupo": "21",
+    "subgrupo": "04",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "CELDA DE POTENCIA, MODELO ASSY200A, MICROHARMONY, GEN II",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2105001",
+    "grupo": "21",
+    "subgrupo": "05",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "TIPO DE REPUESTO, FOCO ADITIVO METÁLICO, PARTE 928480400097, PHILIPS, SISTEMA DE ALUMBRADO, 220 V, MH 400W/640 E40 CL U 1SL/6",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "2108001",
+    "grupo": "21",
+    "subgrupo": "08",
+    "nombre_grupo": "MOBILIARIO",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "TIPO DE REPUESTO, BATERIA DE LITIO, PARTE ER34615 (34615), EVE ENERGY, MEDIDORES/SENSOR, 3.6 V, 19 AH",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001001",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RADIO PORTATIL ANALOGICO  VHF, 16 CANALES, ALIMENTACION 7.5 V DC, PUERTOS CLONES CABLE, ACESORIO (AUDIO/PTT), VELOCIDAD TRANSMISION ESPACIADO: 25/20/1",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001002",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RADIO PORTATIL, ALIMENTACION 7.5 V DC ±20 %, PUERTOS CONECTOR DE AUDIO DE 2 PINES, VELOCIDAD TRANSMISION TDMA 2-SLOT 12.5 KHZ, PROTOCOLOS FM ANALOGICO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001003",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "GATEWAY INALAMBRICO, ALIMENTACION AC/DC 100-240 V, PUERTOS 1-4 PUERTO ETHERNET RJ45, PUERTO SERIALES RS-232/RS-485, USB, VELOCIDAD TRANSMISION ETHERNE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001004",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ANTENA OMNIDIRECCIONAL, ALIMENTACION 30 V, PUERTOS COAXIAL, VELOCIDAD TRANSMISION 2.4 GHZ, PROTOCOLOS 802.15.4, ANCHO DE BANDA 10 MB, THROUGHPUT 10 MB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001005",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RADIO PORTATIL BIDIRECCIONAL ANALOGICO UHF, ALIMENTACION RECARGABLE, PROTOCOLOS ANALOGICO, ANCHO DE BANDA UHF 400-470 MHZ RANGO DE FRECUENCIA, PLASTIC",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3001006",
+    "grupo": "30",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TARJETA DE COMUNICACIÓN PLATAFORMERA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3002001",
+    "grupo": "30",
+    "subgrupo": "02",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TP LINK ARCHER C50, ALIMENTACION ENERGIA, VELOCIDAD TRANSMISION 867MBPS, ANCHO DE BANDA 1.2 GBPS, ADMINISTRABLE SI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3003001",
+    "grupo": "30",
+    "subgrupo": "03",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "LECTOR DE TARJETAS DE PROXIMIDAD CON TECLADO, ALIMENTACION -, CAPACIDAD ALMACENAMIENTO -, PUERTOS -, COMUNICACIÓN -, -, SISTEMA OPERATIVO LINUX. SALID",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3004001",
+    "grupo": "30",
+    "subgrupo": "04",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "KIT DE CABLE SENSOR PARA CERCA CICLÓNICA, ALIMENTACION -, CAPACIDAD ALMACENAMIENTO -, PUERTOS -, COMUNICACIÓN -, -, MARCA: IRONCLAD / 150 METROS / 2 Z",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3005001",
+    "grupo": "30",
+    "subgrupo": "05",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "POSTE SECCIONADO DEL CCTV, ACERO ROLADO EN FRIO, LARGO 6 MT, 49 KG, ESPECIALIZADO PARA LA INSTALACIÓN DE VIDEOVIGILANCIA / INCLUYE BASE DE CIMENTACIÓN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3006001",
+    "grupo": "30",
+    "subgrupo": "06",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "BOCINA PORTATIL BLUETOOTH CON MICROFONOS INALAMBRICOS, ALIMENTACION BATERIA RECARGABLES DE ION-LITIO, PUERTOS USB, VELOCIDAD TRANSMISION BLUETOOTH 5.1",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3007001",
+    "grupo": "30",
+    "subgrupo": "07",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "RADIO PORTATIL ANALOGICO, ALIMENTACION 7.5 VDC ±20 %, VELOCIDAD TRANSMISION 25/12.5/6.25 KHZ, PROTOCOLOS FM ANALOGICO, NXDN, DMR, ANCHO DE BANDA 25 KH",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3008001",
+    "grupo": "30",
+    "subgrupo": "08",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "CABLE UTP CAT 6A, No DE HILOS 8, COBRE UTP, AZUL, CALIBRE 23 AWG. MARCA. PANDUIT MODELO: PUL6AHD04BU-EG O SIMILAR",
+    "unidad_medida": "MT"
+  },
+  {
+    "codigo_articulo": "3009001",
+    "grupo": "30",
+    "subgrupo": "09",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "MOUSE INALAMBRICO BLUETOOTH, MARCA DELL, MODELO MS700, SISTEMA OPERATIVO WINDOWS 10",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3010001",
+    "grupo": "30",
+    "subgrupo": "10",
+    "nombre_grupo": "TUBERIA PEAD",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "LICENCIA DE SOFTWARE, No USUARIOS 1, APLICACION CORREO ELECTRONICO, VIGENCIA ANUAL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102001",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TARJETA DE CONTROL P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102002",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TARJETA DE MEDIDAS I/V XMV P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102003",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TARJETA DE COMUNICACION FIBRA OPTICA P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102004",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TARJETA INTERFAZ USUARIO P2G, ELECTRONICO, PARTE TARJETA, MBPAIHOP, ALIMENTADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102005",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TARJETA E/S USUARIO P2G, ELECTRONICO, PARTE TARJETA, TENESIS, ALIMENTADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3102006",
+    "grupo": "31",
+    "subgrupo": "02",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "KIT DE FIBRA ÓPTICA, FIBRA, PARTE KIT, TENESIS, SISTEMA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3108001",
+    "grupo": "31",
+    "subgrupo": "08",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "ADAPTADOR, PLASTICO, PARTE ETHERNET, STARLINK",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3109001",
+    "grupo": "31",
+    "subgrupo": "09",
+    "nombre_grupo": "CONEXIONES PEAD",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "Dell Cargador para Laptop 492-BDQM, 65W, 20V, CARGADOR CA, PARTE SKU: 492-BDQM, DELL, CARGADOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3201001",
+    "grupo": "32",
+    "subgrupo": "01",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TRANSMISOR, PRESION MANOMETRICA, SENSOR TIPO DIAFRAGMA ACERO INOXIDABLE 316L, RANGO MAXIMO 4000 PSIG, CALIBRACIÓN 0-100 KG/CM2, CONEXIÓN A PROCESO 1/2",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3202001",
+    "grupo": "32",
+    "subgrupo": "02",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "REGISTRADOR DE FLUJO, CAJA DE ALUMINIO, MARCA BARTON, MODELO 202E, 0-1000 PSI, DIAMETRO CARATULA 10.5\", PRESION MAX 0-200 WC, TEMPERATURA MAXIMA 82° C",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3203001",
+    "grupo": "32",
+    "subgrupo": "03",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CONTROLADOR, NEUMATICO DE PRESION, MODO DE CONTROL PROPORCIONAL +RESET, ACCION DIRECTA, ELEMENTO DE MEDICION TUBO BOURDON DE MONEL, RANGO 0-100 BAR, M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3204001",
+    "grupo": "32",
+    "subgrupo": "04",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "REGULADOR, MANTENEDOR DE NIVEL DE ACEITE, ALUMINIO, TAMAÑO DE PUERTO ENTRADA 1/2\" NPTF - SALIDA 3/4\" NPTF - VENTILACIÓN Y ELÉCTRICO 1/2\" NPTF, MOD. LM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3205001",
+    "grupo": "32",
+    "subgrupo": "05",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "SWITCH, NIVEL, NEUMATICO TIPO FLOTADOR, CUERPO Y FLOTADOR DE AC. INOX 304, CONEXIÓN A PROCESO 2\" MNPT, MONTAJE HORIZONTAL, GRAVEDAD ESPECIFICA 0.5 O S",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3206001",
+    "grupo": "32",
+    "subgrupo": "06",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "MEDIDOR DE FLUJO ULTRASÓNICO, CAUDAL DE LÍQUIDOS (FLUJO VOLUMÉTRICO, ABS, EXACTITUD ±1% DEL VALOR MEDIDO, CONEXIÓN A PROCESOS CLAMP-ON, TIPO DE TRANSM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3207001",
+    "grupo": "32",
+    "subgrupo": "07",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "ANALIZADOR DE RED  3F, V, A, KW, KVAR, KVA, DIGITAL, PANTALLA LCD/LED, EXACTITUD ±0.5%, REPETIBILIDAD ALTA, UNIDADES V, KV, HZ, CAMARA TERMICA OPC, TI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3208001",
+    "grupo": "32",
+    "subgrupo": "08",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "VÁLVULA DE SEGURIDAD PSV, 1\", DIAMETRO ENTRADA 1\" #300 RF, DIAMETRO SALIDA 2\", #150, RF, MATERIAL CUERPO ACERO AL CARBÓN, DIAMETRO ORIFICIO E, 341-700",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3209001",
+    "grupo": "32",
+    "subgrupo": "09",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "KIT DE CALIBRACIÓN, SULFURO DE HIDRÓGENO, CONCENTRACION 50 PPMV, CILINDRO D58, CAPACIDAD ALMACENAMIENTO 58 L, VALVULA REGULACION C-10 (5/8\" 18 UNF), M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3210001",
+    "grupo": "32",
+    "subgrupo": "10",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "ELEMENTO DE TEMPERATURA, RTD PT-100 DE PLATINO, No DE HILOS 4, CONEXION TERMOPOZO 1/2\" NPT, CON RESORTE DE CARGA, DIAMETRO EXT BULBO 1/4\", FUNDA PROTE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3211001",
+    "grupo": "32",
+    "subgrupo": "11",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "PLC, RTU INTELIGENTE INALAMBRICO CON EXPASION MODULAR E/S, PROCESADOR ARM CORTEX-A8 AMM3352 A 600 MHZ, MEMORIA 256 MB DDR3L, NODOS REMOTOS, PUERTOS DE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3212001",
+    "grupo": "32",
+    "subgrupo": "12",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "NIPLE DE INYECCION DE QUIMICOS, CUERPO A.C. API 5L GR. BNS PSL2 SAW, DIAMETRO 2\", TEMPERATURA -15°F A +400°F, TEMPERATURA MAX 6000 PSI, MONTAJE FLAREW",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3213001",
+    "grupo": "32",
+    "subgrupo": "13",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "CAMARA DE FLOTACION, ACERO AL CARBON ASTM A-216, CAMARA ROSCADA, CONEXIÓN A PROCESO 2\" FNPT, CONEXIÓN DEL INSTRUMENTO  2\" FNPT, POSICION VERTICAL, MON",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3214001",
+    "grupo": "32",
+    "subgrupo": "14",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "GABINETE METALICO PARA INTEMPERIE, ACERO, PUERTAS TIPO MONOBLOCK, RECUBRIMIENTO EPOXICO - POLIESTER TEXTURIZADO, GIRS CLARO, 600 X 600 X 300 MM, PLACA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3215001",
+    "grupo": "32",
+    "subgrupo": "15",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "COMPUTADOR DE FLUJO MULTIVARIABLE- SCANNER 2000, SERVICIO MEDICION DE PRESION ESTATICA, DIFERENCIA Y TEMPERATURA, PRESION MAXIMA 1, 500 PSI, TEMPERATU",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3216001",
+    "grupo": "32",
+    "subgrupo": "16",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "PISTOLA DE TEMPERATURA, C°, -30 °C a 500 °C, EXACTITUD 12:1, ALIMENTACION BATERÍA AA ESTÁNDAR, MODELO 62MAX, FLUKE, Termómetro IR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3217001",
+    "grupo": "32",
+    "subgrupo": "17",
+    "nombre_grupo": "TUBERIA ESPECIAL",
+    "nombre_subgrupo": "SUBGRUPO 17",
+    "descripcion": "RADIO BASE (ADQUISICIÓN DE DATOS), SEÑAL DE ENTRADA RS485, PUERTO DE ENTRADA USB (TIPO C), ALIMENTACION 8V ~ 28 V, CORRIENTE DE TRABAJO 24 V, MODELO S",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3301001",
+    "grupo": "33",
+    "subgrupo": "01",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ALIMENTACION INTELIGENTE, MODULO DE ENERGIA \"BLACK\", MODELO 701PBKKF, ROSEMOUNT, CERTIFICACION ATEX",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3301002",
+    "grupo": "33",
+    "subgrupo": "01",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "KIT DE TRANSMISION DE DATOS, MODELO 990744-21, FLUXDIAG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3301003",
+    "grupo": "33",
+    "subgrupo": "01",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MATERIAL DE ATENUACION, MODELO 992080-11, ESTERA DE AMORTIGUAMIENTO PARA TUBERIA Y TRANSDUCTOR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3301004",
+    "grupo": "33",
+    "subgrupo": "01",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MATERIAL DE ATENUACION, MODELO 992081-1, INCLUYE: HERRAMIENTA DE LAMINACION, PAPEL DE LIJA, MATERIAL DE LIMPIEZA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3302001",
+    "grupo": "33",
+    "subgrupo": "02",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CRISTAL, INASTILLABLE, DIAMETRO DE CARATULA 4-1/2\", PARTE POR PROVEEDOR, POR PROVEEDOR, MANOMETRO, PARA MANOMETRO, ELEMENTO TIPO BOURD ON DE ACERO INO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3302002",
+    "grupo": "33",
+    "subgrupo": "02",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "GLICERINA PURA (O VEGETAL), GRADO TECNICO, CON PUREZA DEL 99%, PARTE MANOMETRO, GLICERINA USP, REPUESTO DE PI, 2 KG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3303001",
+    "grupo": "33",
+    "subgrupo": "03",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CAPACITOR, POLIPROPILENO, 1000 V CD, PARTE SKUNITY¿K11464A, SKUNITY, VARIADOR DE FRECUENCIA MOD. NB15836548A, MODELO 300-020-527, MARCA YASKAWA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3304001",
+    "grupo": "33",
+    "subgrupo": "04",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "REGULADOR DE GAS COMBUSTIBLE TIPO BIG JOE, MAX, N/A, PARTE RG10 2N50-T2V4, BMD O EQUIVALENTE, CASING PRESSURE 550, MAX DIFF 200  SPRING 27 - 50 PSIG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3305001",
+    "grupo": "33",
+    "subgrupo": "05",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "ACCESORIO ACTUADOR DE VALVULA DE DESCARGA, ACERO INOX, POR PROVEEDOR, PARTE 15010267, MURPHY, SWITCH DE NIVEL NEUMATICO, PARA SWITCH, NIVEL, NEUMATICO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3306001",
+    "grupo": "33",
+    "subgrupo": "06",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "PLUMILLA, PLASTICO, COLOR AZUL DE LA TINTA, ESTANDAR, PARTE 82-39-0103-06, NOVESA, TERMOMANOGRAFO ITTBARTON, PARA PRUEBAS HIDROSTÁTICAS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3308001",
+    "grupo": "33",
+    "subgrupo": "08",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "KIT DE REPARACION 1/4 90-150, PARTE 1126250, MODELO REPAIR KIT, S.S. TRIM - W/1/4 ORIFICE, NORRISEAL-WELLMARK, KIT BY REGULADOR MODELO 1HS-3S25N, INCL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3310001",
+    "grupo": "33",
+    "subgrupo": "10",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "PASTA INDICADORA DE NIVEL DE AGUA, PASTA QUÍMICA SENSIBLE AL AGUA, BASE SOLUBLE EN HIDROCARBUROS, ENVASE DE 3 OZ (85 G); DIÁMETRO APROX. 5 CM, ALTURA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3311001",
+    "grupo": "33",
+    "subgrupo": "11",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "MODULO DE EXPANSION ENTRADAS-SALIDA, ALIMENTACION 24 VDC, No ENTRADAS 16, PNP/NPN, MODELO IO-RO16, UNITRONICS, MONTAJE RIEL DIN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3314001",
+    "grupo": "33",
+    "subgrupo": "14",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "RELE DE ACOPLAMIENTO, PHOENIX CONTACT  2700356, PSR-PS20-1NO-1NC-24DC-SC",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "3316001",
+    "grupo": "33",
+    "subgrupo": "16",
+    "nombre_grupo": "ACCESORIOS ESPECIALES",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "BATERÍA RECARGABLE, ION-LITIO, 28X19X6.2 CM, PARTE 177X LI-ION BATTERY, FLUKE, ANALIZADOR DE ENERGIA, VOLTAJE 3.56V, CAPACIDAD 4000 mAh",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4001001",
+    "grupo": "40",
+    "subgrupo": "01",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SISTEMA DE SUPRESION, TIPO AGENTE GABINETE DE ALOJAMIENTO Y PROTECCIÓN PARA EQUIPOS DE BOMBERO Y DISPOSITIVOS DE SEGURIDAD, AREA DE COBERTURA ESPACIOS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4002001",
+    "grupo": "40",
+    "subgrupo": "02",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TUBERIA, CED. 10 EXT. EXTREMOS RANURADOS, ASTM A-795 FM, DIAMETRO 4\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4003001",
+    "grupo": "40",
+    "subgrupo": "03",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "FUNDA PARA EXTINTOR, 9 KG, AGENTE EXTINTOR PQS, NOM-002-STPS-2010, LARGO 12 CM, ANCHO 38 CM, ALTURA 57 CM, DIAMETRO 18 CM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4005001",
+    "grupo": "40",
+    "subgrupo": "05",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "DETECTOR, CONCENTRACION, MULTIGAS, BATERIA RECARGABLE, CLASE I, DIVISION 1, GRUPOS A, B, C Y D CLASE II DIVISION I, GRUPOS E, F Y G CLASE III, DIVISIO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4006001",
+    "grupo": "40",
+    "subgrupo": "06",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "ALARMA VISIBLE EXTERIOR, TIPO LED, INTERMITENTE, ROJO, FEDERAL SIGNAL 27XL-024R-MOD, ALARMA VISIBLE COLOR \"ROJO\" INTERMITENTE TIPO LED. A PRUEBA DE EX",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4007001",
+    "grupo": "40",
+    "subgrupo": "07",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "ESTACION MANUAL, NOTIFIER NBG-12LXSP, CONVENCIONAL DOBLE ACCION, INTERRUPTOS N/A DE SPST, CERRADURA HEXAGONAL Y DE LLAVE, ETIQUETA INGLES/ESPAÑOL (FIR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4008001",
+    "grupo": "40",
+    "subgrupo": "08",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "LETRERO PISO MOJADO, PRETUL, POLIPROPILENO, 62 CM, AMARILLO, PLEGABLE, MODELO 23020",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4009001",
+    "grupo": "40",
+    "subgrupo": "09",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "BRZALETE, BRIGADISTA, TELA CANASTA+ FORRO CARTERA+ ELASTICO CROCHET, VERDE, NOM-002-STPS-2010, LARGO AJUSTABLE, ANCHO 12 CM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4010001",
+    "grupo": "40",
+    "subgrupo": "10",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "KIT DE RESCATE, REVESIBLE CON POLIPASTO, ALUMINO / ACERO / POLIURETANO / POLIESTER, 205 KG, EN 567:2013, MARCA  JAG SYSTEM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4011001",
+    "grupo": "40",
+    "subgrupo": "11",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "ARO SALVAVIDA, PLÁSTICO RÍGIDO, 100-120 N, 2.5 KG, NOM-005-SEMAR-2006, SOLAS, IMO, USCG, NARANJA, CON BASE Y RABIZA DE 20 MTS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4012001",
+    "grupo": "40",
+    "subgrupo": "12",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "DICLOFENACO, TABLETA DE 100 MG, CAJA CON 20 TABLETAS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4013001",
+    "grupo": "40",
+    "subgrupo": "13",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "MANGA DE VIENTO, ARO DE SOPORTE METALICO, NYLON REFORZADO, POSTE VERTICAL, DIAMETRO 10\", LARGO 102 CM, ANCHO BOCA MENOR 7 CM, COLOR NARANJA, ANSI/NFPA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4014001",
+    "grupo": "40",
+    "subgrupo": "14",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "LONA, IGNIFUGA, FIBRA DE VIDRIO + RECUBRIMIENTO DE SILICONA, COLOR GRIS, LARGO 4 M, ANCHO 4 M, NOM. PEMEX-SS-293-2019, ANSI FM 4950, NFPA 701…",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4015001",
+    "grupo": "40",
+    "subgrupo": "15",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "CONTENEDOR, METÁLICO, CAPACIDAD 200 LITROS, NEGRO, CON TAPA Y COLLARIN/ARO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4016001",
+    "grupo": "40",
+    "subgrupo": "16",
+    "nombre_grupo": "MEDICION Y CONTROL",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "ARRESTADOR DE FLAMA, 12\", 150#, RF, CUERPO AC. CARBON WCB, INTERIORES (CELDA DE FLAMA) ACERO INOXIDABLE TIPO 316L, CLASIFICACION NEC TIPO C Y D, EMPAQ",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4101001",
+    "grupo": "41",
+    "subgrupo": "01",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CÁPSULA, DE NITROGENO, 5 1/8\" X 1 1/16\", PARTE 87-120043-001, KIDDE, SUPRESIÓN DE FUEGO, PRESIÓN 2700 PSI, SISTEMAS FIJOS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4101002",
+    "grupo": "41",
+    "subgrupo": "01",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CAJA KIDDE XV COMPLETA, CUERPO ROBUSTO DE ALUMINIO FUNDIDO A PRESIÓN, 3-3/4” X 8-1/2” X 9-3/4”, PARTE 87-120099-002, KIDDE, SISTEMA DE SUPRESIÓN DE FU",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4101003",
+    "grupo": "41",
+    "subgrupo": "01",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTACIÓN MANUAL ALARMA CONTRA  FUEGO, DOBLE ACCIÓN, ALEACIÓN DE ALUMINIO SIN COBRE, 6-3/8\" X 4-1/2\" X 3\", PARTE XAL-53, KILLARK, SISTEMA DE SUPRESIÓN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4101004",
+    "grupo": "41",
+    "subgrupo": "01",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "Microswitch Kit for XV™ Control System, electronico, cable de 610mm, PARTE 87-120039-501, KIDDE, CAJA KIDDE XV",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4101005",
+    "grupo": "41",
+    "subgrupo": "01",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "actuador solenoide, ELECTRONICO, 0.5 LBS, PARTE 83-100034-001, KIDDE, CAJA KIDDE XV",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4102001",
+    "grupo": "41",
+    "subgrupo": "02",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ADAPTADOR DOBLE HEMBRA GIRATORIO, BRONCE FUNDIDO, 2\" NPT - 2-1/2\" NSHT, PARTE SF2520T-D, DIXON VALVE, SISTEMA DE CONTRAINCENDIO DE SUMINISTRO DE AGUA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4102002",
+    "grupo": "41",
+    "subgrupo": "02",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ADAPTADOR DE MANGUERA DE BOCA DE INCENDIO, BRONCE, 2 - 1/2 PULGADAS NH HEMBRA X 1 -1/2 PULGADAS NH MACHO, PARTE ADAPTADOR, MELGWELDR, SISTEMA DE CONTR",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4105001",
+    "grupo": "41",
+    "subgrupo": "05",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "UNIVERSAL DISPLAY FF, ALUMINIUM, N/D, PARTE 010569-001, DET-TRONICS, DETECTOR DE GAS, MODELO: UD10A5M27W2",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "4106001",
+    "grupo": "41",
+    "subgrupo": "06",
+    "nombre_grupo": "SISTEMAS DE BOMBEO",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "PLACA DE CIRCUITO IMPRESO, A PRUEBA DE EXPLOSIONES, LARGO: 10.795 CM, ANCHO: 6.985 CM, ALTO: 11.43 CM, PARTE K2005455A, FEDERAL SIGNAL, SEMAFORO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001001",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESCOBA, CON CEPILLO DE REPUESTO DITEMO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001002",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PASTILLA LIMPIADORA PARA INODORO, 100 GR, BREF DUO-CUBES",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001003",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INSECTICIDA EN AEROSOL, 400 ML",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001004",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "JABÓN LÍQUIDO LAVATRASTE, 2.9 LTS., MARCA MEMBER´S MARK",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001005",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TOALLA INTERDOBLADA, PAPEL, MARCA SANITAS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5001006",
+    "grupo": "50",
+    "subgrupo": "01",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TOALLA EN ROLLO, PAPEL, MARCA MARLI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5002001",
+    "grupo": "50",
+    "subgrupo": "02",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "AIRE ACONDICIONADO, 12, 000 BTUS, 50X78X24.5 CM, ALIMENTACION 220V, 1000 W, MONTAJE TIPO MINI SPLIT",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5003001",
+    "grupo": "50",
+    "subgrupo": "03",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "BATERIA DE COCINA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5004001",
+    "grupo": "50",
+    "subgrupo": "04",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "PISTACHES SIN CÁSCARA, KIRLAND SIGNATURE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5005001",
+    "grupo": "50",
+    "subgrupo": "05",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "MOUSE INALÁMBRICO BLUETOOTH, ALIMENTACION BATERIA AAA, WINDOWS 10, MARCA DELL, MODELO MS700",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5006001",
+    "grupo": "50",
+    "subgrupo": "06",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "HOJAS, DE PAPEL, TAMAÑO CARTA, 99% BLANCURA, CAJA 5000 HOJAS",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5007001",
+    "grupo": "50",
+    "subgrupo": "07",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "CAMISA CASUAL, MANGA LARGA, 60% ALGODÓN / 40% POLIÉSTER, TALLA 32, BLANCO, CABALLERO, MODELO PESCADOR, UNITAM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5008001",
+    "grupo": "50",
+    "subgrupo": "08",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "CAJA FUERTE, YALE, 3XL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "5009002",
+    "grupo": "50",
+    "subgrupo": "09",
+    "nombre_grupo": "MAQUINARIA Y EQUIPO",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "ASCENSOR, ELECTROMECANICO, 630 KG, ACERO INOXIDABLE, 1.0 M/S, LARGO 2 M, ANCHO 1.1 M, ALTURA 2 M, ESSENTIA E10, ORONA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6001001",
+    "grupo": "60",
+    "subgrupo": "01",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SEDAN, MOTOR 1, 2 LITROS, 3 CILINDROS EN LINEA, DOHC, 12 VALVULAS MIVEC, 76 HP @ 6, 000 RPM, 74 LB-FT@ 4, ASIENTOS 5 PASAJEROS, GASOLINA, MULTICOLOR,",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6001002",
+    "grupo": "60",
+    "subgrupo": "01",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SEDAN, MOTOR 1.2L MIVEC DOHC 12 VALVULAS (3 CILINDROS), 76 HP @ 6, 000 RPM, 74 LB-OIE @ 4, ASIENTOS 5 PASAJEROS, GASOLINA, BLANCO, MODELO MIRAGE G4 GL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6002001",
+    "grupo": "60",
+    "subgrupo": "02",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CAMIONETA PICK UP, MOTOR 2.7, CILINDROS 4, TRANSMISION MANUAL, 166, 180, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, PLATA, MODELO 2022, HILUX DOBL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6002002",
+    "grupo": "60",
+    "subgrupo": "02",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CAMIONETA PICK UP, MOTOR 2.7, CILINDROS 4, TRANSMISION MANUAL, 166, 180, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2022, HILUX DOB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6002003",
+    "grupo": "60",
+    "subgrupo": "02",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CAMIONETA PICK UP, MOTOR 2.7, TRANSMISION ESTANDAR, TRACCION TRASERA, BLANCA, MODELO 2025, DOBLE CABINA SR HILUX",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6002004",
+    "grupo": "60",
+    "subgrupo": "02",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CAMIONETA PICK UP, MOTOR 2.5, CILINDROS 4, TRANSMISION AUTOMÁTICA, CAPACIDAD PASAJEROS 5, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2023, FRONTIER LE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6002005",
+    "grupo": "60",
+    "subgrupo": "02",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "CAMIONETA PICK UP, MOTOR 2.5, CILINDROS 4, TRANSMISION MANUAL, TRACCION 4X2, GASOLINA, BLANCO, MODELO 2023, FRONTIER LE",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6003001",
+    "grupo": "60",
+    "subgrupo": "03",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "VAN, MOTOR 3.5, 277 HP, 258 LB-FT, ASIENTOS 12, TRACCION DELANTERA, GASOLINA, BLANCO, MODELO 2026",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6004001",
+    "grupo": "60",
+    "subgrupo": "04",
+    "nombre_grupo": "VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "SUV, MOTOR 1.5 L, 4 CILINDROS EN LINEA, 16 VALVULAS, SISTEMA MIVEC, 103 HP@ 6, 000 RPM, 104 LB-PIES @ 4, ASIENTOS 5 PASAJEROS, TRACCION DELANTERA (FWD",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101001",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "JUNTA DE CARTER MOTOR, METAL, No PARTE 12612350, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101002",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RETEN CIGÜEÑAL TRASERO, METAL, No PARTE 89060436, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101003",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RETEN DELANTERO CIGÜEÑAL, METAL, No PARTE 12585673, GM, EQUIPO PRINCIPAL ESCALADE 2013",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101004",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FILTRO DE ACEITE, MOD. 2014",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101005",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FILTRO DE CLIMA, MOD. 2014",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6101006",
+    "grupo": "61",
+    "subgrupo": "01",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FILTRO DE GASOLINA, MOD.2014",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6102001",
+    "grupo": "61",
+    "subgrupo": "02",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "BALERO FAG6315J20AAC3 BALERO AISLADO MARCA FAG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6103001",
+    "grupo": "61",
+    "subgrupo": "03",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CRUCETA DIRECCION, CAMIONETEA FRONTIER 2023",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6104001",
+    "grupo": "61",
+    "subgrupo": "04",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "SENSOR ANGULO DE GIRO, No PARTE 19418403, GENERAL MOTORS, SILVERADO 1500  2012",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6105001",
+    "grupo": "61",
+    "subgrupo": "05",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "BALATA DELANTERA, SILVERADO 1500, MOD 2013",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6106001",
+    "grupo": "61",
+    "subgrupo": "06",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "MAZA DELANTERA, MOD. 2013",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6107001",
+    "grupo": "61",
+    "subgrupo": "07",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "JUEGO DE BIRLOS DE SEGURIDAD, No PARTE 1.50, M12",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6108001",
+    "grupo": "61",
+    "subgrupo": "08",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "CUBRE BATEA, HILUX",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6109001",
+    "grupo": "61",
+    "subgrupo": "09",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "SOPORTE CARDAN, VEHICULO HILUX 2015",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6110001",
+    "grupo": "61",
+    "subgrupo": "10",
+    "nombre_grupo": "REFACCIONES VEHICULOS",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "EQUIPO GPS, PORTA RELEVADOR Y RELEVADOR, MODELO GV300W, MARCA QUECLINK",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6201001",
+    "grupo": "62",
+    "subgrupo": "01",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "GRUA TITAN, CAPACIDAD GRUA 28 TON, LONGITUD PLUMA 16 METROS, RADIO MAXIMO 8 METROS, TIPO DE MONTAJE SOBRE CAMIÓN, ESTABILIZADORES EXTENDIDOS, CAMA UTI",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6201002",
+    "grupo": "62",
+    "subgrupo": "01",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "GRUA TITAN, CAPACIDAD GRUA 30 TON, LONGITUD PLUMA 33.52 MT, RADIO MAXIMO 1.52 MT, TIPO DE MONTAJE SOBRE CAMIÓN, ESTABILIZADORES 4, CAMA UTIL PLATAFORM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6202001",
+    "grupo": "62",
+    "subgrupo": "02",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TRACTOCAMION, MOTOR DIESEL, 6 CILINDROS EN LINEA, CUMMINS 6.7 L, TRANSMISIÓN AUTOMATICA, 300HP A 2600 RPM, TORQUE 700 LB-FT A 1600 RPM, CAPACIDAD CARG",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6202002",
+    "grupo": "62",
+    "subgrupo": "02",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "TRACTOCAMION, MOTOR MOTOR V8 6.7 L POWER STROKE TURBO DIÉSEL, TRANSMISIÓN AUTOMÁTICA, 450 HP, TORQUE 935 LB-FT (1, 268 NM), CAPACIDAD CARGA 2, 700 – 3",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6204001",
+    "grupo": "62",
+    "subgrupo": "04",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "RETROEXCAVADORA, MOTOR CATERPILLAR 420, 4x4, CAPACIDAD DE CARGA 1.5 TONELADAS, PROFUNDIDAD DE EXCAVACIÓN 1m3, CAPACIDAD DE LA CUCHARA 610mm, CANOPY ST",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6206001",
+    "grupo": "62",
+    "subgrupo": "06",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "PLATAFORMA ARTICULADA, GENIE, CAPACIDAD DE CARGA 750 LBS, No EJES 2, LONGITUD 186 FT, EXTENSIÓN 80 FT, ANCHO 8 FT, MODELO SX-180",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6208001",
+    "grupo": "62",
+    "subgrupo": "08",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "GRUA, HIAB, CAPACIDAD NOMINAL 23 TON, RADIO OPERACIÓN 10 A 15 M, LONGITUD DE PLUMA 51, GANCHO BOOM CRANE TRUCK, WINCHES NO APLICA, EJES 4, 2011 PETERB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6208002",
+    "grupo": "62",
+    "subgrupo": "08",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "GRUA, HIAB, CAPACIDAD NOMINAL 13 - 17 TON, RADIO OPERACIÓN 10 A 15 M, LONGITUD DE PLUMA 25 FT, GANCHO SI, WINCHES NO APLICA, EJES 3, HIAB XS 166L WALL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6208003",
+    "grupo": "62",
+    "subgrupo": "08",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "GRUA, CAMION GRUA ARTICULADA CON CABINA DORMITORIO PETERBILT 367 T/A, CAPACIDAD NOMINAL /, RADIO OPERACIÓN /, LONGITUD DE PLUMA /, GANCHO /, WINCHES /",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6208004",
+    "grupo": "62",
+    "subgrupo": "08",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "GRUA, CAMIÓN GRUA INTERNATIONAL DURASTAR 4300, CAPACIDAD NOMINAL CAPACIDAD: 15, 870 LIBRAS, RADIO OPERACIÓN /, LONGITUD DE PLUMA LONGITUD DE BRAZO: 27",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6209001",
+    "grupo": "62",
+    "subgrupo": "09",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "BRAZO ARTICULADO, CAPACIDAD NOMINAL 3.2 TON, LONGITUD MAXIMA 7.10, RADIO OPERACION 1.8 MT, SISTEMA DE ACCIONAMIENTO TOMA DE FUERZA, GRÚA FASSI F65B.02",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6211001",
+    "grupo": "62",
+    "subgrupo": "11",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "CONTENEDOR, MARITIMO 10 FT OPEN TOP, ACERO, ANCHO 2.43 M, LARGO 2.99 M, ALTO 2.59 M",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6212001",
+    "grupo": "62",
+    "subgrupo": "12",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 12",
+    "descripcion": "ELECTRIC FORKLIFT, 3, 300 LB, LONGITUD PLUMA 42\", MOTOR ELECTRICO 80 V, EFL30-189, E PICKER, AÑO 2023, TIPO DE MASTIL: 3 ETAPAS, ALTURA MAXIMA 130\", C",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6213001",
+    "grupo": "62",
+    "subgrupo": "13",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "ROLLINGSTAR RS816 T/A ENCLOSED BATTERY BACKUP CARGO TRAILER, ALMENTACIÓN LECTRICA 3 PHASE, 10.00 KW, ALUMINUM FRAME, LARGO 16 FT, 12, 000 LB",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6214001",
+    "grupo": "62",
+    "subgrupo": "14",
+    "nombre_grupo": "LLANTAS",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "EQUIPO COMBINADO DE DESAZOLVE, MOTOR 4 - 6 CILINDROS, TRANSMISION MANUAL, 222 HP, TORQUE 627 lb-ft @1500 rpm, MAX 660 Lb-f, TRACCION 4X2, 7.5 M3, DIAM",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6301001",
+    "grupo": "63",
+    "subgrupo": "01",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CABLE DE CAN BUS, COBRE, 170 CM, No PARTE 1, NATIONAL CRANE, TITAN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6301002",
+    "grupo": "63",
+    "subgrupo": "01",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SWITCH DE ARRANQUE, BRONCE, 3/4, No PARTE 2, NATIONAL CRANE, TITAN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6301003",
+    "grupo": "63",
+    "subgrupo": "01",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SENSOR DE PROXIMIDAD, COBRE, 10.1, No PARTE 3, NATONIAL CRANE, TITAN",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6301004",
+    "grupo": "63",
+    "subgrupo": "01",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "KIT DE SELLOS, METAL, -, No PARTE 90026160, FREIGHTLINER M2",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6304001",
+    "grupo": "63",
+    "subgrupo": "04",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE ACEITE, A, 168 MM, No PARTE P551100, DONALDSON, RETRO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6304002",
+    "grupo": "63",
+    "subgrupo": "04",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "FILTRO DE COMBUSTIBLE, A, 147.6 MM, No PARTE P550248, DONALDSON, RETRO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6304003",
+    "grupo": "63",
+    "subgrupo": "04",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "TERMINAL CON BIELETA, A, 1, No PARTE 4409, CASE, RETRO 580N",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6309001",
+    "grupo": "63",
+    "subgrupo": "09",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "VÁLVULA DE RETENCIÓN DE CARGA, ACERO, 36 MM X 110 MM, No PARTE 9852361, HIAB, BRAZO HIDRÁULICO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6310001",
+    "grupo": "63",
+    "subgrupo": "10",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "ARRESTADOR DE FLAMA, ACERO, DIAMETRO 4\", CLASE 150 LB, PRESION MAXIMA 10 PSI, MONTAJE VERTICAL, FRAC TANK, MOD- SERIE 65, MARCA PROTECTOTANK",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6311001",
+    "grupo": "63",
+    "subgrupo": "11",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "FILTRO DE AIRE, No PARTE P821575, DONALDSON",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6314001",
+    "grupo": "63",
+    "subgrupo": "14",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "MECANISMO DE ARRANQUE, S/E, No PARTE 5, STIHL, HIDROLAVADORA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "6316001",
+    "grupo": "63",
+    "subgrupo": "16",
+    "nombre_grupo": "LUBRICANTES",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "BANDA DE DISTRIBUCIÓN, HULE, S/N, No PARTE 5000155697, WACKER NEUSON, LUMINARIA",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7001001",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SEPARADOR BIFASICO DE ALTA PRESION, PROCESAMIENTO DE GAS 180 MMPCSD, PROCESAMIENTO DE ACEITE 50 MBPD, GAS AMARGO, PRESION DE DISEÑO 92.4 KG/CM2, TEMPE",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7001002",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RECTIFICADOR PRIMARIO DE GAS DE ALTA PRESION, PROCESAMIENTO DE GAS 300 MMPCD, PROCESAMIENTO HIDROCARBUROS 10, 000 BPD, PRESION DE DISEÑO 92.4 KG/CM2,",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7001003",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "TANQUE DE DESFOGUES KO, PROCESAMIENTO DE GAS 600 MMPCSD, PROCESAMIENTO DE CONDENSADOS 1040 BPD, PRESION DE DISEÑO 3.82 kg/cm2, TEMPERATURA DE DISEÑO 2",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7001004",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SEPARADOR DE SUCCION, PROCESAMIENTO DE GAS AMARGO, PRESION DE DISEÑO 35-38 KG/CM2, PRESION MAXIMA OPERACION 44 KG/CM2, TEMPERATURA DE DISEÑO 122 °F, T",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7001005",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FILTRO HORIZONTAL DE SEPARADOR DE ENTRADA, PROCESAMIENTO DE GAS AMARGO, PRESION DE DISEÑO 35 - 38 KG/CM2, PRESION MAXIMA OPERACION 70.31 KG/CM2, TEMPE",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7001006",
+    "grupo": "70",
+    "subgrupo": "01",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SEPARADOR DE GAS COMBUSTIBLE SCRUBBER, PROCESAMIENTO DE GAS DULCE, PRESION DE DISEÑO 250 PSI, PRESION MAXIMA OPERACION 635 PSI, TEMPERATURA DE DISEÑO",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7002001",
+    "grupo": "70",
+    "subgrupo": "02",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "DEPOSITO HIDRAULICO ASTMOSFERICO PARA ALMACENAMIENTO Y RECIRCULACION, 8 GALONES, SERVICIO ACEITE HIDRAULICO PARA SISTEMA DE POTENCIA FLUIDA, PRESION D",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7005001",
+    "grupo": "70",
+    "subgrupo": "05",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "HOSS HORIZONTAL PUMP SYSTEM (HPS), SERIE 862, MODELO CML18500, ELEMENTO MOTRIZ MOTOR ELECTRICO GE, 300 HP, 449TS, 3/60/460 V, No ETAPAS 17, GASTO 15,",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7007001",
+    "grupo": "70",
+    "subgrupo": "07",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "QUEMADOR ELEVADO DE ALTA PRESION, SONICO, 600 MMPCSD, PRESION DISEÑO 5 KG/CM2, ATIRANTADO, ENCENDIDO DUAL, RADIACIÓN 1500 BTU/HFT2 A PIE DE QUEMADOR,",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7009001",
+    "grupo": "70",
+    "subgrupo": "09",
+    "nombre_grupo": "PAPELERIA",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "PATIN DE SISTEMA DE MEDICIÓN DE SUCCIÓN, SERVICIO GAS AMARGO, DIAMETRO 24\", PRESION DISEÑO 35 - 38 KG/CM2, RANGO DE MEDICIÓN 30 - 1500 PSI (2 - 400 IN",
+    "unidad_medida": "EQ"
+  },
+  {
+    "codigo_articulo": "7101001",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FILTRO CON DRIP POT (FILTRO DE GAS DE INSTRUMENTO), ACERO INOXIDABLE, FISHER, EQUIPO PRINCIPAL SEPARADOR FWKO-32, MOD.  FD200",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7101002",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTRANGULADOR TIPO FIP (FIXED ORIFICE), ACERO INOXIDABLE, 10/64\", DIAMETRO 2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7101003",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 12/64\", DIAMETRO 2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7101004",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 14/64\", DIAMETRO 2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7101005",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 16/64\", DIAMETRO 2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7101006",
+    "grupo": "71",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESTRANGULADOR DE ORIFICIO FIJO (CHOKE BEAN), ACERO INOXIDABLE, 18/64\", DIAMETRO 2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7105001",
+    "grupo": "71",
+    "subgrupo": "05",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "CHUMACERA, S2000, 3\", NO PARTE 070369, DODGE, EQUIPO PRINCIPAL P4B-S2-300R",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7106048",
+    "grupo": "71",
+    "subgrupo": "06",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "PKG PLAIN CUP, CI, .940 X .572 GRV 2, NO PARTE A-4085, ARIEL, COMPRESOR ARIEL JGK/4",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7107001",
+    "grupo": "71",
+    "subgrupo": "07",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "BUJIA DE IGNICION, ESTANDAR, 4.18\"X1.72\"X0.09\", NO PARTE I-64-1, AURURN, EQUIPO PRINCIPAL QUEMADOR PORTATIL",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "7109001",
+    "grupo": "71",
+    "subgrupo": "09",
+    "nombre_grupo": "ARTICULOS DE OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "GRAMPA, ACERO DE ALTA RESISTENCIA, DIAMETRO 1 1/2\"",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "8001001",
+    "grupo": "80",
+    "subgrupo": "01",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "REFRIGERANTE, GAS, CAS No 75-45-6, BASE QUIMICA CLORODIFLUOROMETANO",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "8003001",
+    "grupo": "80",
+    "subgrupo": "03",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "ANTICONGELANTE, HDAX® PF Antifreeze/Coolant - Premixed 50/50, GRADO PUREZA 50/50, MORADO CLARO",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8005001",
+    "grupo": "80",
+    "subgrupo": "05",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "GLICERINA, GRADO PUREZA 99%, GAS (PRESION DE VAPOR) <1 MM HG, DENSIDAD 1.26 G/ML, O SIMILAR",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8007001",
+    "grupo": "80",
+    "subgrupo": "07",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "DESINCRUSTANTES (ACIDO), INDUSTRIAL, 1.110, NARANJA, SWIPE",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8008001",
+    "grupo": "80",
+    "subgrupo": "08",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "ANTIESPUMANTES, BARRA SOLDADURA OXIACETILENICA RECUBIERTA, GRADO PUREZA 99.9% MINIMO, GAS ACETILENO / OXIGENO, 7.85 G/CM³, ROJO, BASE QUIMICA ACERO AL",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8009001",
+    "grupo": "80",
+    "subgrupo": "09",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "INHIBIDORES DE CORROSION, ATMOSFERICO NP1, GRADO PUREZA ALTA EFECTIVIDAD, GAS CONTRA CORROSION, 0.85 -  0.95 G/CM3, TRANSPARENTE, BASE QUIMICA COMPUES",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8010001",
+    "grupo": "80",
+    "subgrupo": "10",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 10",
+    "descripcion": "DESENGRASANTE FÓRMULA CONCENTRADA, FASE BIODEGRADABLE, 1.0388, ROJO, MODELO DINAMOV, IMPORFIL",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8011001",
+    "grupo": "80",
+    "subgrupo": "11",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 11",
+    "descripcion": "SOLVENTE DIELECTRICO, AEROSOL LIMPIADOR DIELECTRICOS PARA CIRCUITOS Y COMPONENTES ELECTRICOS, GRADO PUREZA 80-95% HIDROCARBUROS CICLICOS SATURADOS, 5-",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8013001",
+    "grupo": "80",
+    "subgrupo": "13",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 13",
+    "descripcion": "BENTONITA SODICA, GRADO PUREZA = 90 %, GAS MATERIAL SOLIDO, 0.9 – 1.1 g/cm³, GRIS CLARO A BEIGE",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "8014001",
+    "grupo": "80",
+    "subgrupo": "14",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 14",
+    "descripcion": "COMBUSTIBLE, DIESEL MARINO, D6",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8015001",
+    "grupo": "80",
+    "subgrupo": "15",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 15",
+    "descripcion": "OXIGENO, GRADO PUREZA 99.5, GAS INDUSTRIAL OXIGENO, DE 8 METROS CUBICOS, INCOLORO, LLENADO DE 150 A 200 Kg/cm². A 21 GRADOS CENTIGRADOS.",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "8016001",
+    "grupo": "80",
+    "subgrupo": "16",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 16",
+    "descripcion": "ACETILENO, GRADO PUREZA DE 98%, DE 6.2 METROS CUBICOS, INCOLORO, LLENADO A 17 Kg/cm². A 21 GRADOS CENTIGRADOS.",
+    "unidad_medida": "KG"
+  },
+  {
+    "codigo_articulo": "8018001",
+    "grupo": "80",
+    "subgrupo": "18",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 18",
+    "descripcion": "THINNER, GRADO PUREZA N/A, 0.778 – 0.843 a 20 °C, ESTÁNDAR",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8019001",
+    "grupo": "80",
+    "subgrupo": "19",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 19",
+    "descripcion": "HERBICIDA, INGREDIENTE ACTIVO GLIFOSATO, CONCENTRACION DE ACTIVO 35.6%, CATEGORIA TOXICOLOGICA 5",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8020001",
+    "grupo": "80",
+    "subgrupo": "20",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 20",
+    "descripcion": "DESMOLDANTE, BASE EN ACEITES MINERALES, LÍQUIDO, AMARILLO AMBAR, RENDIMIENTO APROXIMADO DE 14 A 18 M2 POR LITRO",
+    "unidad_medida": "LT"
+  },
+  {
+    "codigo_articulo": "8021001",
+    "grupo": "80",
+    "subgrupo": "21",
+    "nombre_grupo": "SERVICIOS",
+    "nombre_subgrupo": "SUBGRUPO 21",
+    "descripcion": "TIPO BARRA ESPUMANTE GRADO PUREZA 99.9% MINIMO, GAS ACETILENO / OXIGENO, 7.85 G/CM³, ROJO, BASE QUIMICA ACERO AL CARBONO CON RECUBRIMIENTO FUNDENTE, B",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "9001001",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ANÁLISIS CLÍNICOS ANUALES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9001002",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EXAMEN DE INGRESO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9001003",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EXAMEN PERIÓDICO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9001004",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "VALORACIÓN MÉDICA ESPECIALISTA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9001005",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "LABORATORIALES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9001006",
+    "grupo": "90",
+    "subgrupo": "01",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PLACAS DE RAYOS X",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9002001",
+    "grupo": "90",
+    "subgrupo": "02",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "PLATAFORMA PSICOWEB",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9003001",
+    "grupo": "90",
+    "subgrupo": "03",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CURSO DE TRABAJOS CON RIESGOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9004001",
+    "grupo": "90",
+    "subgrupo": "04",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "SERVICIO DE HOSPITALIZACIÓN",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9005001",
+    "grupo": "90",
+    "subgrupo": "05",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "HIELO Y AGUA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9006001",
+    "grupo": "90",
+    "subgrupo": "06",
+    "nombre_grupo": "ACTIVOS FIJOS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "REGALOS FIN DE AÑO",
+    "unidad_medida": "PC"
+  },
+  {
+    "codigo_articulo": "9101001",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE BODEGA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9101002",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE CAMPER",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9101003",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE OFICINA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9101004",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE CASA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9101005",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "LIMPIEZA DE INMUEBLES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9101006",
+    "grupo": "91",
+    "subgrupo": "01",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "IMPUESTO PREDIAL",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9102001",
+    "grupo": "91",
+    "subgrupo": "02",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ARRENDAMIENTO EQUIPO COMPUTO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9103001",
+    "grupo": "91",
+    "subgrupo": "03",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CUOTAS Y SUSCRIPCIONES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9104001",
+    "grupo": "91",
+    "subgrupo": "04",
+    "nombre_grupo": "SOFTWARE",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "MANTENIMIENTO DE OFICINAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9201001",
+    "grupo": "92",
+    "subgrupo": "01",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE AUTOBÚS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9201002",
+    "grupo": "92",
+    "subgrupo": "01",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE VEHÍCULO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9201003",
+    "grupo": "92",
+    "subgrupo": "01",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "UNIDAD TIPO VAN",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9201004",
+    "grupo": "92",
+    "subgrupo": "01",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE CAMIONETAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9202001",
+    "grupo": "92",
+    "subgrupo": "02",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ROTULACIÓN DE VEHICULOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9202002",
+    "grupo": "92",
+    "subgrupo": "02",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "AGENCIA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9202003",
+    "grupo": "92",
+    "subgrupo": "02",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "ARRASTRES Y REMOLQUES (GRÚA)",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9203001",
+    "grupo": "92",
+    "subgrupo": "03",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "VERIFICACIÓN VEHICULAR",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9204001",
+    "grupo": "92",
+    "subgrupo": "04",
+    "nombre_grupo": "COMUNICACIONES",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "CONSUMO COMBUSTIBLE",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301001",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE HIAB",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301002",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE GRÚA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301003",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PLATAFORMA TELESCÓPICA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301004",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE PLATAFORMA AUTOELEVAB",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301005",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE TRANSFORMADOR",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9301006",
+    "grupo": "93",
+    "subgrupo": "01",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE EXCAVADORA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9302001",
+    "grupo": "93",
+    "subgrupo": "02",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "RENTA DE GENERADOR ELÉCTRICO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9303001",
+    "grupo": "93",
+    "subgrupo": "03",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "RENTA DE CANASTILLA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9304001",
+    "grupo": "93",
+    "subgrupo": "04",
+    "nombre_grupo": "ALMACEN GENERAL",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "RENTA DE BROCA PARA PERFORACION",
+    "unidad_medida": "SR"
+  },
+  {
+    "codigo_articulo": "9401001",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "POSICIONAMIENTO SEO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9401002",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESPACIOS EN FERIAS O CONGRESOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9401003",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ARTÍCULOS PROMOCIONALES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9401004",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "IMPRESIÓN DIGITAL",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9401005",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PUBLICIDAD EN REDES SOCIALES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9401006",
+    "grupo": "94",
+    "subgrupo": "01",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ESPACIOS EN MEDIOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9402001",
+    "grupo": "94",
+    "subgrupo": "02",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "PLAYERAS, GORRAS, CASACAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9403001",
+    "grupo": "94",
+    "subgrupo": "03",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "CATERING, COFFE BREAK",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9404001",
+    "grupo": "94",
+    "subgrupo": "04",
+    "nombre_grupo": "MATERIALES CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "RECONOCIMIENTOS, TROFEOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501001",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "AUDITORIA FINANCIERA CONTABLE",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501002",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "AUDITORIA DE SEGURIDAD SOCIAL",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501003",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ACREDITADO EN PROTECCIÓN CIVIL",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501004",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "AUDITORIA EXTERNA ACHILLES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501005",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CARTAS DE AUTENTIFICACIÓN",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9501006",
+    "grupo": "95",
+    "subgrupo": "01",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "AUDITORIA PARA CERTIFICACIONES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9502001",
+    "grupo": "95",
+    "subgrupo": "02",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "SERVICIO DE CONSULTORÍA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9503001",
+    "grupo": "95",
+    "subgrupo": "03",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "SEGUROS ( PRIMA DE SEGUROS)",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9504001",
+    "grupo": "95",
+    "subgrupo": "04",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "PERMISO ANTE CONAGUA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9505001",
+    "grupo": "95",
+    "subgrupo": "05",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "NO DEDUCIBLE",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9506001",
+    "grupo": "95",
+    "subgrupo": "06",
+    "nombre_grupo": "EQUIPOS CAMPO",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "ADQUISICION DE TARJETA DE MEMBRESIA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601001",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FLETES EXTRANJEROS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601002",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FLETES NACIONALES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601003",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "FLETES MARITIMO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601004",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ASEGURAMIENTO DE CARGA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601005",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "EMPLAYE EMBALADO DE MERCANCÍAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9601006",
+    "grupo": "96",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OPERATIVOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "ALMACENAMIENTO DE MERCANCÍAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701001",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SERVICIO DE RECOLECCIÓN RPBI",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701002",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MANTENIMIENTO A EXTINTORES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701003",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RECO DE RESIDUOS PELIGROSOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701004",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE BAÑOS PORTÁTILES",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701005",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE FOSAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9701006",
+    "grupo": "97",
+    "subgrupo": "01",
+    "nombre_grupo": "INSUMOS OFICINA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "RENTA DE CISTERNA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9801001",
+    "grupo": "98",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "INSTALACIÓN DE SISTEMAS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9801002",
+    "grupo": "98",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CALIBRACIÓN DE EQ DE SEGURIDAD",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9801003",
+    "grupo": "98",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PERFORACIÓN DE POZO DE AGUA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9801004",
+    "grupo": "98",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CALIBRACION DE CALIDAD",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9801008",
+    "grupo": "98",
+    "subgrupo": "01",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "CERTIFICADOS DE CALIDAD",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9802001",
+    "grupo": "98",
+    "subgrupo": "02",
+    "nombre_grupo": "ARTICULOS LIMPIEZA",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "RADIOGRAFIADO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9901001",
+    "grupo": "99",
+    "subgrupo": "01",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MTTO A MAQUINARIA Y EQUIPO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9901002",
+    "grupo": "99",
+    "subgrupo": "01",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "MAQUINADOS Y TORNOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9901003",
+    "grupo": "99",
+    "subgrupo": "01",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "PRUEBA DE REVENIMIENTO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9901004",
+    "grupo": "99",
+    "subgrupo": "01",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "SERVICIOS TOPOGRAFICOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9901005",
+    "grupo": "99",
+    "subgrupo": "01",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 01",
+    "descripcion": "DESARROLLO HIDRÁULICO",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9902001",
+    "grupo": "99",
+    "subgrupo": "02",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 02",
+    "descripcion": "SUMINISTRO, TRANSPORTE Y PRESENTACIÓN EN SITIO, INSTALACIÓN, INTERCONEXIÓN, FAT, OSAT, PRUEBAS PREOPERACIONALES, PUESTA EN MARCHA Y DESEMPEÑO CONTROLA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9903001",
+    "grupo": "99",
+    "subgrupo": "03",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 03",
+    "descripcion": "VACIADO DE CONCRETO HIDRÁULICO HECHO EN OBRA AGREGADO MÁX. 19 MM, CEMENTO, CON UNA RESISTENCIA DE FC=250 KG/CM2, REVENIMIENTO DE 12 CM, EN ELEMENTOS D",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9904001",
+    "grupo": "99",
+    "subgrupo": "04",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 04",
+    "descripcion": "INSTALACION, PRUEBAS Y PUESTA EN MARCHA DE SISTEMA DE PROTECCION CATODICA PARA TUBERIA DE PROCESO DE UNA LONGITUD DE 47.5 MTS DE DISTANCIA A PROTEGER,",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9905001",
+    "grupo": "99",
+    "subgrupo": "05",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 05",
+    "descripcion": "SUMINISTRO, MANEJO, INSTALACIÓN Y PRUEBA DE TANQUE DE ALMACENAMIENTO CILÍNDRICO VERTICAL PARA ALMACENAMIENTO DE CRUDO, CON CAPACIDAD EFECTIVA DE OPERA",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9906001",
+    "grupo": "99",
+    "subgrupo": "06",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 06",
+    "descripcion": "CONSTRUCCION DE RED CONTRA INCENDIOS, 5TO TREN 1ERA FASE  BS PERDIZ (FABRICACION, INSTALACION, MONTAJE, PRUEBAS Y OBRA COMPLEMENTARIA)",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9907001",
+    "grupo": "99",
+    "subgrupo": "07",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 07",
+    "descripcion": "CALIBRACION DE INSTRUMENTOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9908001",
+    "grupo": "99",
+    "subgrupo": "08",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 08",
+    "descripcion": "ANALISIS DE ESFUERZOS MECANICOS",
+    "unidad_medida": "SV"
+  },
+  {
+    "codigo_articulo": "9909001",
+    "grupo": "99",
+    "subgrupo": "09",
+    "nombre_grupo": "VARIOS",
+    "nombre_subgrupo": "SUBGRUPO 09",
+    "descripcion": "INTERVENCIÓN DE POZOS PARA MANTENIMIENTO Y REHABILITACIÓN (INTERVENCIÓN DE POZOS DE PRODUCCION)",
+    "unidad_medida": "SV"
+  }
+]
