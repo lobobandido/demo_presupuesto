@@ -54,10 +54,14 @@ En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presu
 | Empresa | Por defecto GEOLIS SA DE CV |
 | Tipo | **Instalación** / **Servicio** (generan ingresos) · **Departamento** / **Suministro** (gasto interno, sin ingresos) |
 | Fecha inicio | Define el mes de instalación (**M0**) |
-| Fecha fin | Define cuántos meses dura el proyecto (hasta M12) |
+| Fecha fin | Define cuántos meses dura el proyecto |
 | Fecha elaboración | Cuándo se está armando el presupuesto (por defecto, hoy) |
 
 > **Importante:** la fecha de inicio es la referencia contra la que se calculan todas las distribuciones mensuales de CAPEX y OPEX más adelante — no la cambies después de haber capturado costos, o los meses se recalculan.
+
+> **Duración del proyecto:** el Resumen mensual se ajusta automáticamente a la diferencia real entre fecha inicio y fecha fin — desde presupuestos de **6 meses** hasta de **20 años**. No hay un número fijo de columnas; si tu proyecto dura 3 años, verás 36+ meses en las tablas (con scroll horizontal). Los selectores de Año en CAPEX/OPEX/ingresos también se ajustan a ese rango.
+
+> Si falta un campo obligatorio (nombre, tipo, fechas) al intentar continuar, el aviso aparece **justo debajo del campo correspondiente**, en rojo.
 
 ---
 
@@ -87,19 +91,22 @@ El sistema calcula el costo real (salario + IMSS + prestaciones + ISR) automáti
 Gastos recurrentes. Por cada partida defines:
 - **Periodicidad**: mensual, bimestral, trimestral, semestral o anual
 - **Mes de inicio**: eliges un mes/año de calendario real (igual que en CAPEX) y el sistema calcula automáticamente en qué mes del proyecto arranca
+- **Repeticiones** (opcional): cuántas veces ocurre este gasto antes de parar. Déjalo vacío si el gasto se repite hasta el fin del proyecto (comportamiento normal). Ponle un número si el gasto **para antes** — por ejemplo, una cuadrilla de instalación que cobra mensual pero solo trabaja 3 meses: periodicidad Mensual + Repeticiones **3** → aparece en esos 3 meses y $0 después, en vez de repetirse todo el proyecto.
 
 > Ejemplo: una renta anual de $430,000 que solo se paga una vez al año debe ir con periodicidad **Anual**, no Mensual — si la pones mensual, la app la va a repetir los 12 meses y el total quedará 12 veces más alto de lo real.
 
-### 6.4 Cómo funciona el campo Categoría
-Al escribir en **Categoría** pasa esto:
+### 6.4 Cómo funciona el campo Categoría (Categoría → Subcategoría → Artículo)
+Al escribir en **Categoría** (CAPEX y OPEX Materiales/Viáticos) pasa esto:
 
-1. Si eliges una opción de la lista fija (las categorías más comunes de CAPEX u OPEX), listo.
-2. Si escribes algo nuevo, aparece **"Crear categoría..."** — al confirmar, si el texto no coincide con ninguna de las 27 categorías contables oficiales de Geolis, se abre una ventana preguntando **"¿A qué categoría contable pertenece?"**. Eliges una (o "No sé / Dejar sin categoría contable"), y la próxima vez que escribas ese mismo texto ya no te preguntará — queda memorizado.
-3. Mientras escribes, aparecen dos cajas de sugerencias debajo:
-   - **Sugerencias del historial** — partidas que tú mismo ya capturaste antes en otros presupuestos
-   - **Artículos del almacén** — artículos reales del catálogo de almacén de Geolis (busca por palabra en la descripción); si eliges uno, se llenan Descripción y Unidad automáticamente
+1. Si eliges una opción de la lista fija (las categorías más comunes, o cualquiera de los **44 grupos reales del catálogo de almacén** de Geolis — tubería, conexiones, válvulas, equipo de cómputo, etc.), sigue el paso 3.
+2. Si escribes algo que no está en ninguna lista, aparece **"Crear categoría..."** — al confirmar, si el texto no coincide con ninguna de las 27 categorías contables oficiales de Geolis, se abre una ventana preguntando **"¿A qué categoría contable pertenece?"**. Eliges una (o "No sé / Dejar sin categoría contable"), y la próxima vez que escribas ese mismo texto ya no te preguntará — queda memorizado.
+3. **Si la categoría elegida es un grupo real del almacén** (ej. "TUBERIAS"), se despliegan automáticamente dos campos más, en cascada:
+   - **Subcategoría** — filtrada según la categoría que elegiste (ej. solo subcategorías de Tubería: Acero al carbón, CPVC, PEAD, etc.)
+   - **Artículo** — filtrado según categoría + subcategoría, con el código y descripción real del almacén
+   - Al elegir el artículo, **Descripción** y **Unidad** se llenan solas (editable si necesitas ajustar).
+4. Si tu categoría **no** es un grupo del almacén (ej. "Viáticos", "Servicios", o algo que escribiste libre), en vez de la cascada ves la caja de **"Sugerencias del historial"** — partidas que ya capturaste antes en otros presupuestos con texto parecido — y puedes buscar directo por descripción entre los artículos del almacén.
 
-> Las 27 categorías contables oficiales no se pueden modificar libremente — vienen directamente del área de finanzas de Geolis.
+> Las 27 categorías contables oficiales no se pueden modificar libremente — vienen directamente del área de finanzas de Geolis. El catálogo de almacén (grupos/subcategorías/artículos) es un catálogo aparte, más operativo — cuando eliges uno, la app lo mapea automáticamente a su categoría contable la primera vez que lo usas.
 
 ### 6.5 Guardar
 Botón **Guardar** (verde, abajo a la derecha de cada área). Aparece la notificación "✓ Costos guardados". Puedes ir y volver entre áreas y guardar cada una por separado, no es necesario terminar todo de un jalón.
@@ -126,7 +133,7 @@ Dos formas de capturarlos:
 
 ## 8. Exportar
 
-- **Excel** — genera un `.xlsx` con hojas SERVICIO, FLUJO, EGRESOS (detalle de partidas) e INFO (resumen ejecutivo), con formato de moneda.
+- **Excel** — genera un `.xlsx` con hojas SERVICIO, FLUJO, EGRESOS (detalle de partidas) e INFO (resumen ejecutivo), con formato de moneda. La hoja SERVICIO lista cada subcategoría en su propio renglón con un subtotal por categoría contable macro (igual que los presupuestos reales de Geolis), y la hoja FLUJO incluye las filas con IVA (16%).
 - **PDF** — genera una versión imprimible del Resumen mensual completo (tablas y gráficas), útil para presentar al director o enviar al cliente.
 
 ---
@@ -160,9 +167,25 @@ No — es intencional. Si no reconoces a qué categoría contable pertenece, eli
 **¿Puedo perder mi trabajo si cierro el navegador sin guardar?**
 La app guarda automáticamente en tu navegador mientras capturas, pero para que quede disponible en la nube (y en otras computadoras) siempre da clic en **Guardar** en cada área antes de salir.
 
+**Un gasto recurrente sigue apareciendo después de que debería haber terminado, ¿cómo lo paro?**
+Usa el campo **Repeticiones** (ver 6.3) — sin él, cualquier gasto recurrente se repite hasta el fin del proyecto por diseño.
+
+**No me aparece Subcategoría ni Artículo al elegir una Categoría, ¿por qué?**
+Solo se despliegan cuando la Categoría elegida coincide con uno de los 44 grupos reales del catálogo de almacén (ver 6.4). Si tu categoría es algo como "Viáticos" o un texto libre que no está en ese catálogo, es normal que no aparezcan — usa la caja de sugerencias en su lugar.
+
 ---
 
-## 12. Ver también
+## 12. Presupuestos de ejemplo ya cargados
+
+En la app hay 3 presupuestos reales completos, listos para usarse como referencia o para clonar (ver 3.3):
+
+| Nombre | Tipo | Para qué sirve de ejemplo |
+|---|---|---|
+| **Monitoreo Cuervito** | Servicio | CAPEX en un solo mes (instalación), nómina fija, OPEX mensual + un gasto anual único, ingresos variables mes a mes |
+| **Perdiz - Papan CS** | Instalación | Proyecto grande: CAPEX repartido en varios meses, muchas categorías OPEX distintas, uso de "repeticiones" para gastos que paran a medio proyecto |
+| **Presupuesto TI H1 2026** | Departamento | Sin ingresos, licenciamiento de software (mensual y anual), telecomunicaciones recurrentes con repeticiones |
+
+## 13. Ver también
 
 - `02_Guia_Negocio_Toma_Decisiones.md` — cómo interpretar el Resumen mensual para tomar decisiones
 - `docs/Guia_Crear_Presupuesto_Cuervito.md` — ejemplo real completo, capturado de principio a fin
