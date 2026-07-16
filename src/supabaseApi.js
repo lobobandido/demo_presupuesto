@@ -78,10 +78,41 @@ export async function buscarArticulosAlmacen(query){
   const descAnd = palabras.map(w=>`descripcion.ilike.%${w}%`).join(",");
   const filtro = `and(${descAnd}),nombre_grupo.ilike.%${q}%,codigo_articulo.ilike.%${q}%`;
   const {data,error} = await supabase.from("catalogo_almacen")
-    .select("codigo_articulo,descripcion,unidad_medida,nombre_grupo")
+    .select("codigo_articulo,descripcion,unidad_medida,nombre_grupo,nombre_subgrupo")
     .or(filtro)
     .limit(6);
   if(error){ console.error("[supabase] buscarArticulosAlmacen:", error.message); return []; }
+  return data||[];
+}
+
+// ─── CATÁLOGO EN CASCADA: Categoría (grupo) → Subcategoría (subgrupo) → Artículo ─
+// PostgREST no tiene un SELECT DISTINCT directo vía el query builder — con ~500
+// filas hoy (y aunque crezca a 17,312) es más simple traer la columna y deduplicar
+// en JS que armar SQL crudo.
+export async function listarGruposAlmacen(){
+  if(!supabase) return [];
+  const {data,error} = await supabase.from("catalogo_almacen").select("nombre_grupo");
+  if(error){ console.error("[supabase] listarGruposAlmacen:", error.message); return []; }
+  return [...new Set((data||[]).map(r=>r.nombre_grupo))].sort();
+}
+
+export async function listarSubgruposAlmacen(grupo){
+  if(!supabase || !grupo) return [];
+  const {data,error} = await supabase.from("catalogo_almacen")
+    .select("nombre_subgrupo").eq("nombre_grupo", grupo);
+  if(error){ console.error("[supabase] listarSubgruposAlmacen:", error.message); return []; }
+  return [...new Set((data||[]).map(r=>r.nombre_subgrupo))].sort();
+}
+
+export async function listarArticulosPorSubgrupo(grupo, subgrupo, query=""){
+  if(!supabase || !grupo || !subgrupo) return [];
+  let req = supabase.from("catalogo_almacen")
+    .select("codigo_articulo,descripcion,unidad_medida")
+    .eq("nombre_grupo", grupo).eq("nombre_subgrupo", subgrupo);
+  const q = query.trim().replace(/[%_,()]/g,"");
+  if(q) req = req.ilike("descripcion", `%${q}%`);
+  const {data,error} = await req.order("descripcion").limit(200);
+  if(error){ console.error("[supabase] listarArticulosPorSubgrupo:", error.message); return []; }
   return data||[];
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen, listarGruposAlmacen, listarSubgruposAlmacen, listarArticulosPorSubgrupo } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -692,6 +692,57 @@ function AlmacenSuggestions({query, onPick}){
   );
 }
 
+// ─── CASCADA CATEGORÍA → SUBCATEGORÍA → ARTÍCULO (retro del coordinador) ─────
+// Cuando la Categoría elegida coincide con un grupo real del almacén, se
+// despliega Subcategoría (filtrada por grupo) y luego Artículo (filtrado por
+// grupo+subcategoría) — en vez de la caja de sugerencias libre de antes.
+function CascadaAlmacen({grupo, subgrupo, onPick, onSubgrupoChange}){
+  const [subgrupos,setSubgrupos]=useState([]);
+  const [articulos,setArticulos]=useState([]);
+  useEffect(()=>{
+    let cancelado=false;
+    setSubgrupos([]); setArticulos([]);
+    if(grupo) listarSubgruposAlmacen(grupo).then(data=>{ if(!cancelado) setSubgrupos(data); });
+    return ()=>{cancelado=true;};
+  },[grupo]);
+  useEffect(()=>{
+    let cancelado=false;
+    setArticulos([]);
+    if(grupo&&subgrupo) listarArticulosPorSubgrupo(grupo,subgrupo).then(data=>{ if(!cancelado) setArticulos(data); });
+    return ()=>{cancelado=true;};
+  },[grupo,subgrupo]);
+
+  if(!grupo||subgrupos.length===0) return null;
+  return (
+    <div style={{marginTop:4,display:"flex",flexDirection:"column",gap:4}}>
+      <select value={subgrupo||""} onChange={e=>onSubgrupoChange(e.target.value)}
+        className="sel-brand"
+        style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+          fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
+        <option value="">Subcategoría...</option>
+        {subgrupos.map(s=><option key={s} value={s}>{s}</option>)}
+      </select>
+      {subgrupo&&(
+        articulos.length>0 ? (
+          <select defaultValue="" onChange={e=>{
+            const art=articulos.find(a=>a.codigo_articulo===e.target.value);
+            if(art) onPick(art);
+          }} className="sel-brand"
+            style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
+              fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
+            <option value="">Artículo...</option>
+            {articulos.map(a=>(
+              <option key={a.codigo_articulo} value={a.codigo_articulo}>
+                {a.codigo_articulo} · {a.descripcion.length>70?a.descripcion.slice(0,70)+"…":a.descripcion}
+              </option>
+            ))}
+          </select>
+        ) : <div style={{fontSize:9,color:C.grayMid,padding:"2px 4px"}}>Sin artículos para esta subcategoría todavía.</div>
+      )}
+    </div>
+  );
+}
+
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12}){
@@ -700,6 +751,11 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
   const anioFinProy = fechaFinProyecto ? new Date(fechaFinProyecto+"T00:00:00").getFullYear() : anioIniProy+11;
   const RANGO_ANIOS = Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
+  // Grupos reales del catálogo de almacén — se cargan una sola vez por tabla y se
+  // fusionan con las categorías fijas de siempre (CAT_CAPEX/CAT_OPEX) en el dropdown.
+  const [gruposAlmacen,setGruposAlmacen]=useState([]);
+  useEffect(()=>{ listarGruposAlmacen().then(setGruposAlmacen); },[]);
+  const catOptionsConAlmacen=[...new Set([...catOptions, ...gruposAlmacen])];
   const cols = showMes
     ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
@@ -743,9 +799,9 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
               <CatalogInput value={p.cat} onChange={v=>{
-                onUpdate({...p,cat:v});
+                onUpdate({...p,cat:v,subcat:""});
                 // El dropdown de sugerencias se activa cuando hay historial
-              }} options={catOptions} placeholder="Categoría"
+              }} options={catOptionsConAlmacen} placeholder="Categoría"
                 onPartidaSelect={hist=>{
                   if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
                     periodicidad:hist.periodicidad||p.periodicidad});
@@ -768,11 +824,22 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   </div>
                 </div>
               )}
-              {/* Sugerencias del catálogo de almacén (Supabase) al escribir categoría */}
-              {p.cat&&p.cat.trim().length>=3&&!p.desc&&(
+              {/* Categoría → Subcategoría → Artículo en cascada, cuando la categoría
+                  elegida es un grupo real del catálogo de almacén */}
+              {p.cat&&gruposAlmacen.includes(p.cat)&&!p.desc&&(
+                <CascadaAlmacen grupo={p.cat} subgrupo={p.subcat}
+                  onSubgrupoChange={s=>onUpdate({...p,subcat:s})}
+                  onPick={a=>onUpdate({...p,
+                    desc:a.descripcion, unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
+                    articuloCodigo:a.codigo_articulo})}/>
+              )}
+              {/* Si aún no coincide con un grupo real (sigue escribiendo texto libre),
+                  ayuda a encontrar el artículo por descripción como antes */}
+              {p.cat&&p.cat.trim().length>=3&&!gruposAlmacen.includes(p.cat)&&!p.desc&&(
                 <AlmacenSuggestions query={p.cat} onPick={a=>onUpdate({...p,
-                  cat:a.nombre_grupo, desc:a.descripcion,
-                  unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad"})}/>
+                  cat:a.nombre_grupo, subcat:a.nombre_subgrupo||"", desc:a.descripcion,
+                  unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
+                  articuloCodigo:a.codigo_articulo})}/>
               )}
             </div>
             <input value={p.desc} onChange={e=>onUpdate({...p,desc:e.target.value})}
@@ -2125,6 +2192,7 @@ export default function App(){
                     border:`1px solid ${intentoGuardar&&!form.nombre?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
                     background:intentoGuardar&&!form.nombre?"#FFF5F5":C.white}}/>
+                {intentoGuardar&&!form.nombre&&<div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Nombre del proyecto requerido</div>}
               </div>
               <div>
                 <FL>Empresa</FL>
@@ -2139,6 +2207,7 @@ export default function App(){
                     border:`1px solid ${intentoGuardar&&!form.fechaInicio?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
                     background:intentoGuardar&&!form.fechaInicio?"#FFF5F5":C.white}}/>
+                {intentoGuardar&&!form.fechaInicio&&<div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Fecha inicio requerida</div>}
               </div>
               <div>
                 <FL required>Fecha fin</FL>
@@ -2147,6 +2216,7 @@ export default function App(){
                     border:`1px solid ${intentoGuardar&&!form.fechaFin?"#C0392B":C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
                     background:intentoGuardar&&!form.fechaFin?"#FFF5F5":C.white}}/>
+                {intentoGuardar&&!form.fechaFin&&<div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Fecha fin requerida</div>}
               </div>
               <div>
                 <FL>Fecha de elaboración</FL>
@@ -2244,16 +2314,8 @@ export default function App(){
         )}
         <div style={{display:"flex",justifyContent:"space-between"}}>
           {btn("Cancelar",()=>setStep(0),"secondary")}
-          {/* Los avisos de campos faltantes solo aparecen tras un intento fallido de
-              Continuar/Guardar — no desde que se carga la pantalla (ver guardarPres) */}
-          {intentoGuardar&&(!form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin)&&(
-            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
-              {!form.nombre&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Nombre del proyecto requerido</span>}
-              {!form.tipo&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Selecciona el tipo de presupuesto</span>}
-              {!form.fechaInicio&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Fecha inicio requerida</span>}
-              {!form.fechaFin&&<span style={{padding:"4px 10px",background:C.dangerLight,color:C.danger,borderRadius:6,fontSize:12,fontWeight:600}}>⚠ Fecha fin requerida</span>}
-            </div>
-          )}
+          {/* Los avisos de campos faltantes van justo debajo de cada input (ver arriba)
+              — solo aparecen tras un intento fallido de Continuar/Guardar */}
           {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
         </div>
 
