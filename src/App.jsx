@@ -649,6 +649,16 @@ const CAT_OPEX=[
   "HERRAMIENTAS","EQUIPOS Y ENSERES","SEGUROS","FLETES NACIONALES",
   "SERVICIOS DE CAPACITACIÓN","RENTA DE MAQUINARIA",
 ];
+// Categorías de OPEX Materiales — igual que CAT_OPEX pero sin nómina/licenciamiento
+// (esas no son "materiales", confundían el dropdown de esta sección)
+const CAT_OPEX_MAT = CAT_OPEX.filter(c=>![
+  "NÓMINA Y ADICIONALES","LICENCIAMIENTO MXN MENSUAL","LICENCIAMIENTO MXN ANUAL","LICENCIAMIENTO USD",
+].includes(c));
+// Categorías propias de OPEX Viáticos — más específicas que la única "VIÁTICOS" genérica
+const CAT_OPEX_VIA = [
+  "VIÁTICOS","ALIMENTACION","HOSPEDAJE","TRANSPORTE","CASETAS PUENTES Y PEAJES",
+  "SERV DE TRANSPORTAC AEREA","SERV DE TRANSPORTAC TERRESTRE",
+];
 
 // ─── FIELD LABEL ─────────────────────────────────────────────────────────────
 function FL({children,required}){
@@ -876,10 +886,10 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                 <select value={p.mesGastoAnio||""}
                   onChange={e=>onUpdate({...p,mesGastoAnio:e.target.value})}
                   className="sel-brand"
-                  title="Año de compra"
-                  style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoAnio?C.danger:C.grayBorder}`,
+                  title={fechaInicioProyecto&&fechaFinProyecto&&p.mesGastoAnio&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy)?`Fuera del rango del proyecto (${anioIniProy}-${anioFinProy})`:"Año de compra"}
+                  style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoAnio||(fechaInicioProyecto&&fechaFinProyecto&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy))?C.danger:C.grayBorder}`,
                     borderRadius:6,fontSize:11,width:"50%",textAlign:"center",
-                    background:!p.mesGastoAnio?"#FFF5F5":C.white,color:C.grayDark}}>
+                    background:!p.mesGastoAnio||(fechaInicioProyecto&&fechaFinProyecto&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy))?"#FFF5F5":C.white,color:C.grayDark}}>
                   <option value="">Año*</option>
                   {RANGO_ANIOS.map(y=>(
                     <option key={y} value={y}>{y}</option>
@@ -919,9 +929,10 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                       onUpdate({...p,mesGastoAnio,mesInicioOpex:p.mesGastoMes&&mesGastoAnio?Math.max(1,idx):(p.mesInicioOpex||1)});
                     }}
                     className="sel-brand"
-                    title="Año en que inicia este gasto"
-                    style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                      fontSize:10,width:"50%",textAlign:"center",background:C.white,color:C.grayDark}}>
+                    title={fechaInicioProyecto&&fechaFinProyecto&&p.mesGastoAnio&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy)?`Fuera del rango del proyecto (${anioIniProy}-${anioFinProy})`:"Año en que inicia este gasto"}
+                    style={{padding:"6px 4px",
+                      border:`1px solid ${fechaInicioProyecto&&fechaFinProyecto&&p.mesGastoAnio&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy)?C.danger:C.grayBorder}`,
+                      borderRadius:6,fontSize:10,width:"50%",textAlign:"center",background:C.white,color:C.grayDark}}>
                     <option value="">Año</option>
                     {RANGO_ANIOS.map(y=>(
                       <option key={y} value={y}>{y}</option>
@@ -932,12 +943,34 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   <div style={{fontSize:9,color:C.grayMid}}>Inicia M{p.mesInicioOpex} (sin fecha)</div>
                 )}
                 {/* Número de repeticiones — opcional, vacío = sin límite (se repite hasta el fin del proyecto) */}
-                <input type="number" min="1" placeholder="Repeticiones (vacío=sin límite)"
+                <input type="number" min="1" placeholder="Vacío = durante todo el proyecto"
                   value={p.repeticiones||""}
                   onChange={e=>onUpdate({...p,repeticiones:e.target.value?parseInt(e.target.value):null})}
-                  title="Número de veces que se repite este gasto (ej. 3 = solo 3 meses/periodos, luego para). Vacío = se repite hasta el fin del proyecto."
+                  title="Número de veces que se repite. Ejemplo: trimestral × 4 = solo 4 trimestres aunque el proyecto dure más"
                   style={{padding:"4px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                     fontSize:9,width:"100%",background:C.white,color:C.grayDark,boxSizing:"border-box"}}/>
+                {/* Meses donde cae el gasto — solo si no es mensual (si es mensual, es obvio) */}
+                {p.periodicidad&&p.periodicidad!=="mensual"&&(
+                  !p.mesGastoMes||!p.mesGastoAnio ? (
+                    <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>Define el mes de inicio para ver la distribución</div>
+                  ) : (()=>{
+                    const dist=distribuirOpex(p,numMesesOpProyecto);
+                    const inicio=new Date(fechaInicioProyecto+"T00:00:00");
+                    const nombresMes=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+                    const mesesActivos=[];
+                    dist.forEach((v,i)=>{
+                      if(v>0){
+                        const d=new Date(inicio); d.setMonth(d.getMonth()+i);
+                        mesesActivos.push(nombresMes[d.getMonth()]);
+                      }
+                    });
+                    return (
+                      <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>
+                        Cae en: {mesesActivos.join(" · ")} ({mesesActivos.length} veces)
+                      </div>
+                    );
+                  })()
+                )}
               </div>
             )}
             <MoneyInput value={p.monto} onChange={v=>onUpdate({...p,monto:v})}/>
@@ -2630,7 +2663,7 @@ export default function App(){
                     onUpdate={u=>upP(areaActiva,"mat",u.id,u)}
                     onRemove={rmP(areaActiva,"mat")}
                     onAdd={()=>addP(areaActiva,"mat")}
-                    catOptions={CAT_OPEX}
+                    catOptions={CAT_OPEX_MAT}
                     addLabel="Agregar material"
                     headerColor="#0891b2"
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
@@ -2645,7 +2678,7 @@ export default function App(){
                     onUpdate={u=>upP(areaActiva,"via",u.id,u)}
                     onRemove={rmP(areaActiva,"via")}
                     onAdd={()=>addP(areaActiva,"via")}
-                    catOptions={CAT_OPEX}
+                    catOptions={CAT_OPEX_VIA}
                     addLabel="Agregar viático"
                     headerColor="#d97706"
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
