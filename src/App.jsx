@@ -362,10 +362,10 @@ const LS_CATS="geolis_cats_v3";
 function getCats(){try{return JSON.parse(localStorage.getItem(LS_CATS)||"[]");}catch{return[];}}
 function saveCat(c){const e=getCats();if(!e.includes(c))localStorage.setItem(LS_CATS,JSON.stringify([...e,c]));}
 
-function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
+function initP(o={}){return{id:uid(),cat:"",subcat:"",articuloCodigo:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
   mesGasto:0,             // índice M0-M12 para CAPEX
   mesGastoMes:"",         // mes real (1-12) para mostrar en calendario
-  mesGastoAnio:"",        // año real para mostrar en calendario  
+  mesGastoAnio:"",        // año real para mostrar en calendario
   periodicidad:"mensual", // OPEX: mensual/bimestral/trimestral/semestral/anual
   mesInicioOpex:1,        // mes en que inicia el OPEX (1=primer mes)
   ...o};}
@@ -693,53 +693,52 @@ function AlmacenSuggestions({query, onPick}){
 }
 
 // ─── CASCADA CATEGORÍA → SUBCATEGORÍA → ARTÍCULO (retro del coordinador) ─────
-// Cuando la Categoría elegida coincide con un grupo real del almacén, se
-// despliega Subcategoría (filtrada por grupo) y luego Artículo (filtrado por
-// grupo+subcategoría) — en vez de la caja de sugerencias libre de antes.
-function CascadaAlmacen({grupo, subgrupo, onPick, onSubgrupoChange}){
+// Dos columnas independientes de la tabla (no apiladas): Subcategoría se
+// habilita al elegir una Categoría que sea un grupo real del almacén;
+// Artículo se habilita al elegir Subcategoría. Al elegir Artículo se
+// autocompletan Descripción y Unidad — mismo estilo que el select de Unidad.
+function CascadaAlmacenCells({grupo, subgrupo, articuloCodigo, esGrupoAlmacen, onSubgrupoChange, onArticuloPick}){
   const [subgrupos,setSubgrupos]=useState([]);
   const [articulos,setArticulos]=useState([]);
   useEffect(()=>{
     let cancelado=false;
-    setSubgrupos([]); setArticulos([]);
-    if(grupo) listarSubgruposAlmacen(grupo).then(data=>{ if(!cancelado) setSubgrupos(data); });
+    setSubgrupos([]);
+    if(esGrupoAlmacen&&grupo) listarSubgruposAlmacen(grupo).then(data=>{ if(!cancelado) setSubgrupos(data); });
     return ()=>{cancelado=true;};
-  },[grupo]);
+  },[grupo,esGrupoAlmacen]);
   useEffect(()=>{
     let cancelado=false;
     setArticulos([]);
-    if(grupo&&subgrupo) listarArticulosPorSubgrupo(grupo,subgrupo).then(data=>{ if(!cancelado) setArticulos(data); });
+    if(esGrupoAlmacen&&grupo&&subgrupo) listarArticulosPorSubgrupo(grupo,subgrupo).then(data=>{ if(!cancelado) setArticulos(data); });
     return ()=>{cancelado=true;};
-  },[grupo,subgrupo]);
+  },[grupo,subgrupo,esGrupoAlmacen]);
 
-  if(!grupo||subgrupos.length===0) return null;
+  const subHabilitado = esGrupoAlmacen && subgrupos.length>0;
+  const artHabilitado = !!subgrupo && articulos.length>0;
+  const selStyle = enabled=>({padding:"8px 10px",border:`1px solid ${C.grayBorder}`,
+    borderRadius:6,fontSize:11,width:"100%",background:enabled?C.white:"#F5F5F5",color:C.grayDark});
+
   return (
-    <div style={{marginTop:4,display:"flex",flexDirection:"column",gap:4}}>
-      <select value={subgrupo||""} onChange={e=>onSubgrupoChange(e.target.value)}
-        className="sel-brand"
-        style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-          fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
-        <option value="">Subcategoría...</option>
+    <>
+      <select value={subgrupo||""} disabled={!subHabilitado}
+        onChange={e=>onSubgrupoChange(e.target.value)}
+        className="sel-brand" style={selStyle(subHabilitado)}>
+        <option value="">— Seleccionar —</option>
         {subgrupos.map(s=><option key={s} value={s}>{s}</option>)}
       </select>
-      {subgrupo&&(
-        articulos.length>0 ? (
-          <select defaultValue="" onChange={e=>{
-            const art=articulos.find(a=>a.codigo_articulo===e.target.value);
-            if(art) onPick(art);
-          }} className="sel-brand"
-            style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-              fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
-            <option value="">Artículo...</option>
-            {articulos.map(a=>(
-              <option key={a.codigo_articulo} value={a.codigo_articulo}>
-                {a.codigo_articulo} · {a.descripcion.length>70?a.descripcion.slice(0,70)+"…":a.descripcion}
-              </option>
-            ))}
-          </select>
-        ) : <div style={{fontSize:9,color:C.grayMid,padding:"2px 4px"}}>Sin artículos para esta subcategoría todavía.</div>
-      )}
-    </div>
+      <select value={articuloCodigo||""} disabled={!artHabilitado}
+        onChange={e=>{
+          const art=articulos.find(a=>a.codigo_articulo===e.target.value);
+          if(art) onArticuloPick(art);
+        }} className="sel-brand" style={selStyle(artHabilitado)}>
+        <option value="">— Seleccionar —</option>
+        {articulos.map(a=>(
+          <option key={a.codigo_articulo} value={a.codigo_articulo}>
+            {a.codigo_articulo} · {a.descripcion.length>40?a.descripcion.slice(0,40)+"…":a.descripcion}
+          </option>
+        ))}
+      </select>
+    </>
   );
 }
 
@@ -757,15 +756,15 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   useEffect(()=>{ listarGruposAlmacen().then(setGruposAlmacen); },[]);
   const catOptionsConAlmacen=[...new Set([...catOptions, ...gruposAlmacen])];
   const cols = showMes
-    ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
+    ? "1.6fr 120px 120px 1.6fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
-      ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
-      : "2fr 2fr 90px 76px 1fr 100px 34px";
+      ? "1.6fr 120px 120px 1.6fr 74px 56px 150px 100px 92px 34px"
+      : "1.6fr 120px 120px 1.6fr 90px 76px 1fr 100px 34px";
   const headers = showMes
-    ? ["Categoría","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
+    ? ["Categoría","Subcategoría","Artículo","Descripción","Unidad","Cant.","Fecha compra *","Monto unit.","Total",""]
     : showPeriod
-      ? ["Categoría","Descripción","Unidad","Cant.","Periodicidad / Inicio","Monto unit.","Total",""]
-      : ["Categoría","Descripción","Unidad","Cant.","Monto unit.","Total",""];
+      ? ["Categoría","Subcategoría","Artículo","Descripción","Unidad","Cant.","Periodicidad / Inicio","Monto unit.","Total",""]
+      : ["Categoría","Subcategoría","Artículo","Descripción","Unidad","Cant.","Monto unit.","Total",""];
   // ── Estándar responsive de tablas (ver ScrollHint más arriba) ──────────────
   // Cualquier tabla de varias columnas de la app debe envolverse en <ScrollHint>
   // en vez de un <div overflowX> manual — centraliza el scroll horizontal +
@@ -785,7 +784,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
           {headers.map((h,i)=>(
             <div key={i} style={{fontSize:11,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.3,
-              textAlign:i>=3?"right":"left"}}>{h}</div>
+              textAlign:i>=5?"right":"left"}}>{h}</div>
           ))}
         </div>
       )}
@@ -824,16 +823,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   </div>
                 </div>
               )}
-              {/* Categoría → Subcategoría → Artículo en cascada, cuando la categoría
-                  elegida es un grupo real del catálogo de almacén */}
-              {p.cat&&gruposAlmacen.includes(p.cat)&&!p.desc&&(
-                <CascadaAlmacen grupo={p.cat} subgrupo={p.subcat}
-                  onSubgrupoChange={s=>onUpdate({...p,subcat:s})}
-                  onPick={a=>onUpdate({...p,
-                    desc:a.descripcion, unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
-                    articuloCodigo:a.codigo_articulo})}/>
-              )}
-              {/* Si aún no coincide con un grupo real (sigue escribiendo texto libre),
+              {/* Si la categoría no es un grupo real del almacén (texto libre),
                   ayuda a encontrar el artículo por descripción como antes */}
               {p.cat&&p.cat.trim().length>=3&&!gruposAlmacen.includes(p.cat)&&!p.desc&&(
                 <AlmacenSuggestions query={p.cat} onPick={a=>onUpdate({...p,
@@ -842,6 +832,14 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   articuloCodigo:a.codigo_articulo})}/>
               )}
             </div>
+            {/* Subcategoría / Artículo — columnas propias, en cascada según Categoría.
+                No son obligatorias: si el usuario escribe Descripción a mano, quedan vacías. */}
+            <CascadaAlmacenCells grupo={p.cat} subgrupo={p.subcat} articuloCodigo={p.articuloCodigo}
+              esGrupoAlmacen={!!p.cat&&gruposAlmacen.includes(p.cat)}
+              onSubgrupoChange={s=>onUpdate({...p,subcat:s})}
+              onArticuloPick={a=>onUpdate({...p,
+                desc:a.descripcion, unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
+                articuloCodigo:a.codigo_articulo})}/>
             <input value={p.desc} onChange={e=>onUpdate({...p,desc:e.target.value})}
               placeholder="Descripción"
               style={{padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
