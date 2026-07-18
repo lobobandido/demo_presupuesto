@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen, listarGruposAlmacen } from "./supabaseApi";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -711,11 +711,6 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
   const anioFinProy = fechaFinProyecto ? new Date(fechaFinProyecto+"T00:00:00").getFullYear() : anioIniProy+11;
   const RANGO_ANIOS = Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
-  // Grupos reales del catálogo de almacén — se cargan una sola vez por tabla y se
-  // fusionan con las categorías fijas de siempre (CAT_CAPEX/CAT_OPEX) en el dropdown.
-  const [gruposAlmacen,setGruposAlmacen]=useState([]);
-  useEffect(()=>{ listarGruposAlmacen().then(setGruposAlmacen); },[]);
-  const catOptionsConAlmacen=[...new Set([...catOptions, ...gruposAlmacen])];
   const cols = showMes
     ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
@@ -761,7 +756,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               <CatalogInput value={p.cat} onChange={v=>{
                 onUpdate({...p,cat:v,subcat:""});
                 // El dropdown de sugerencias se activa cuando hay historial
-              }} options={catOptionsConAlmacen} placeholder="Categoría"
+              }} options={catOptions} placeholder="Categoría"
                 onPartidaSelect={hist=>{
                   if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
                     periodicidad:hist.periodicidad||p.periodicidad});
