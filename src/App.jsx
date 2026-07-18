@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen, listarGruposAlmacen, listarSubgruposAlmacen, listarArticulosPorSubgrupo } from "./supabaseApi";
+import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen, listarGruposAlmacen } from "./supabaseApi";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -687,68 +687,18 @@ function AlmacenSuggestions({query, onPick}){
   if(resultados.length===0) return null;
   return (
     <div style={{marginTop:4}}>
-      <div style={{fontSize:9,color:C.grayMid,marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Artículos del almacén:</div>
-      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{fontSize:9,color:C.grayMid,marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Artículos de esta categoría:</div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
         {resultados.map(a=>(
           <button key={a.codigo_articulo} onClick={()=>onPick(a)}
-            style={{textAlign:"left",padding:"5px 8px",background:"#F0F9FF",
-              border:"1px solid #BAE6FD",borderRadius:4,cursor:"pointer",fontSize:10,color:"#0369A1"}}
+            style={{textAlign:"left",padding:"3px 8px",background:C.grayLight,
+              border:`1px solid ${C.grayBorder}`,borderRadius:4,cursor:"pointer",fontSize:10,color:C.grayDark,
+              maxWidth:220,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
             title={a.descripcion}>
-            <strong>{a.codigo_articulo}</strong> · {a.descripcion.length>60?a.descripcion.slice(0,60)+"…":a.descripcion} <span style={{opacity:0.7}}>({a.unidad_medida})</span>
+            {a.descripcion}
           </button>
         ))}
       </div>
-    </div>
-  );
-}
-
-// ─── CASCADA CATEGORÍA → SUBCATEGORÍA → ARTÍCULO (retro del coordinador) ─────
-// Cuando la Categoría elegida coincide con un grupo real del almacén, se
-// despliega Subcategoría (filtrada por grupo) y luego Artículo (filtrado por
-// grupo+subcategoría) — en vez de la caja de sugerencias libre de antes.
-function CascadaAlmacen({grupo, subgrupo, onPick, onSubgrupoChange}){
-  const [subgrupos,setSubgrupos]=useState([]);
-  const [articulos,setArticulos]=useState([]);
-  useEffect(()=>{
-    let cancelado=false;
-    setSubgrupos([]); setArticulos([]);
-    if(grupo) listarSubgruposAlmacen(grupo).then(data=>{ if(!cancelado) setSubgrupos(data); });
-    return ()=>{cancelado=true;};
-  },[grupo]);
-  useEffect(()=>{
-    let cancelado=false;
-    setArticulos([]);
-    if(grupo&&subgrupo) listarArticulosPorSubgrupo(grupo,subgrupo).then(data=>{ if(!cancelado) setArticulos(data); });
-    return ()=>{cancelado=true;};
-  },[grupo,subgrupo]);
-
-  if(!grupo||subgrupos.length===0) return null;
-  return (
-    <div style={{marginTop:4,display:"flex",flexDirection:"column",gap:4}}>
-      <select value={subgrupo||""} onChange={e=>onSubgrupoChange(e.target.value)}
-        className="sel-brand"
-        style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-          fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
-        <option value="">Subcategoría...</option>
-        {subgrupos.map(s=><option key={s} value={s}>{s}</option>)}
-      </select>
-      {subgrupo&&(
-        articulos.length>0 ? (
-          <select defaultValue="" onChange={e=>{
-            const art=articulos.find(a=>a.codigo_articulo===e.target.value);
-            if(art) onPick(art);
-          }} className="sel-brand"
-            style={{padding:"6px 8px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-              fontSize:11,width:"100%",background:C.white,color:C.grayDark}}>
-            <option value="">Artículo...</option>
-            {articulos.map(a=>(
-              <option key={a.codigo_articulo} value={a.codigo_articulo}>
-                {a.codigo_articulo} · {a.descripcion.length>70?a.descripcion.slice(0,70)+"…":a.descripcion}
-              </option>
-            ))}
-          </select>
-        ) : <div style={{fontSize:9,color:C.grayMid,padding:"2px 4px"}}>Sin artículos para esta subcategoría todavía.</div>
-      )}
     </div>
   );
 }
@@ -834,21 +784,11 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   </div>
                 </div>
               )}
-              {/* Categoría → Subcategoría → Artículo en cascada, cuando la categoría
-                  elegida es un grupo real del catálogo de almacén */}
-              {p.cat&&gruposAlmacen.includes(p.cat)&&!p.desc&&(
-                <CascadaAlmacen grupo={p.cat} subgrupo={p.subcat}
-                  onSubgrupoChange={s=>onUpdate({...p,subcat:s})}
-                  onPick={a=>onUpdate({...p,
-                    desc:a.descripcion, unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
-                    articuloCodigo:a.codigo_articulo})}/>
-              )}
-              {/* Si aún no coincide con un grupo real (sigue escribiendo texto libre),
-                  ayuda a encontrar el artículo por descripción como antes */}
-              {p.cat&&p.cat.trim().length>=3&&!gruposAlmacen.includes(p.cat)&&!p.desc&&(
+              {/* Chips de artículos del almacén para esta categoría — clic autocompleta
+                  Descripción y Unidad. Nada más (sin subcategoría, sin selects). */}
+              {p.cat&&!p.desc&&(
                 <AlmacenSuggestions query={p.cat} onPick={a=>onUpdate({...p,
-                  cat:a.nombre_grupo, subcat:a.nombre_subgrupo||"", desc:a.descripcion,
-                  unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
+                  desc:a.descripcion, unidad:UM_ALMACEN_A_UNIDAD[a.unidad_medida]||"Unidad",
                   articuloCodigo:a.codigo_articulo})}/>
               )}
             </div>
