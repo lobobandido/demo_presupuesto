@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Fragment } from "react";
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 
@@ -359,8 +359,8 @@ const fmt=n=>isNaN(n)||n==null?"$0.00":"$"+Number(n).toLocaleString("es-MX",{min
 const fmtMiles=n=>isNaN(n)||n==null?"0.00":Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
 
 const LS_CATS="geolis_cats_v3";
-function getCats(){try{return JSON.parse(localStorage.getItem(LS_CATS)||"[]");}catch{return[];}}
-function saveCat(c){const e=getCats();if(!e.includes(c))localStorage.setItem(LS_CATS,JSON.stringify([...e,c]));}
+function getCats(key=LS_CATS){try{return JSON.parse(localStorage.getItem(key)||"[]");}catch{return[];}}
+function saveCat(c,key=LS_CATS){const e=getCats(key);if(!e.includes(c))localStorage.setItem(key,JSON.stringify([...e,c]));}
 
 function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
   mesGasto:0,             // índice M0-M12 para CAPEX
@@ -485,14 +485,14 @@ function EstadoBadge({estado}){
 }
 
 // ─── CATALOG INPUT (CatInput + PuestoInput — mismo patrón) ───────────────────
-function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect}){
+function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect,storageKey=LS_CATS}){
   const [open,setOpen]=useState(false);
   const [txt,setTxt]=useState(value||"");
   const [macroModal,setMacroModal]=useState(false);
   const [newCatPending,setNewCatPending]=useState("");
   const [pos,setPos]=useState({top:0,left:0,width:0});
   const ref=useRef();
-  const allOpts=[...new Set([...options,...getCats()])];
+  const allOpts=[...new Set([...options,...getCats(storageKey)])];
   const filtered=allOpts.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
 
   // El menú se renderiza con position:fixed (ver abajo) para no ser recortado
@@ -538,7 +538,7 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
     const hasSub=SUBCAT_MAPPING[upper];
     if(isMacro||hasSub){
       // Existe, guardar directo
-      saveCat(upper); pick(upper);
+      saveCat(upper,storageKey); pick(upper);
     } else {
       // Nueva categoría — pedir categoría macro
       setNewCatPending(upper);
@@ -548,7 +548,7 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   }
 
   function confirmMacro(macro){
-    saveCat(newCatPending);
+    saveCat(newCatPending,storageKey);
     // Guardar el mapping en localStorage
     try{
       const m=JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}");
@@ -711,6 +711,12 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
   const anioFinProy = fechaFinProyecto ? new Date(fechaFinProyecto+"T00:00:00").getFullYear() : anioIniProy+11;
   const RANGO_ANIOS = Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
+  // Categorías personalizadas ("Crear categoría...") guardadas por sección —
+  // antes usaban una sola clave global y se mezclaban entre CAPEX/Materiales/Viáticos.
+  const catStorageKey = addLabel==="Agregar equipo / inversión" ? "geolis_cats_capex"
+    : addLabel==="Agregar material" ? "geolis_cats_mat"
+    : addLabel==="Agregar viático" ? "geolis_cats_via"
+    : LS_CATS;
   const cols = showMes
     ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
     : showPeriod
@@ -756,7 +762,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               <CatalogInput value={p.cat} onChange={v=>{
                 onUpdate({...p,cat:v,subcat:""});
                 // El dropdown de sugerencias se activa cuando hay historial
-              }} options={catOptions} placeholder="Categoría"
+              }} options={catOptions} placeholder="Categoría" storageKey={catStorageKey}
                 onPartidaSelect={hist=>{
                   if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
                     periodicidad:hist.periodicidad||p.periodicidad});
@@ -1504,6 +1510,8 @@ export default function App(){
   const [ingresos,setIngresos]     = useState(Array(13).fill(0));
   const [precioFijo,setPrecioFijo]  = useState(0);   // precio mensual fijo del servicio
   const [ingAdicionales,setIngAd]   = useState([]);  // [{id,mes,anio,monto,desc}]
+  // Filas expandibles (CAPEX/OPEX) en la Tabla SERVICIO del Resumen mensual
+  const [expandidosServicio,setExpandidosServicio] = useState({});
 
   // ── PUNTO 5: Persistir estado en localStorage ─────────────────────────────
   // Restaurar al montar
@@ -2454,7 +2462,7 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
-        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"248px minmax(0,1fr)",gap:28,maxWidth:1320}}>
+        <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"200px minmax(0,1fr)",gap:28,maxWidth:1320}}>
 
           {/* Sidebar áreas */}
           <div style={{minWidth:0}}>
@@ -2658,6 +2666,22 @@ export default function App(){
       mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
     });
 
+    // Detalle por partida CAPEX (para la fila expandible de Tabla SERVICIO) —
+    // no participa en ningún cálculo, solo reutiliza mesIndexCapex por partida.
+    const capexDetalle=[];
+    areas.forEach(id=>{
+      (costos[id]?.capex||[]).forEach(p=>{
+        const datos=Array(NMESES).fill(0);
+        datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+        capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
+      });
+    });
+    capexPM.forEach(p=>{
+      const datos=Array(NMESES).fill(0);
+      datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+      capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
+    });
+
     // OPEX: cada partida se distribuye según su periodicidad y mes de inicio
     const mOpex=Array(NMESES).fill(0);
     areas.forEach(id=>{
@@ -2672,6 +2696,23 @@ export default function App(){
     });
     opexPM.forEach(p=>{
       distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+    });
+
+    // Detalle por partida OPEX (para la fila expandible de Tabla SERVICIO) —
+    // reutiliza distribuirOpex/distribuirNomina por partida, sin afectar mOpex.
+    const opexDetalle=[];
+    areas.forEach(id=>{
+      ["mat","via"].forEach(cat=>{
+        (costos[id]?.[cat]||[]).forEach(p=>{
+          opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
+        });
+      });
+      (costos[id]?.nomina||[]).forEach(p=>{
+        opexDetalle.push({label:p.puesto==="Otro"?(p.puestoCustom||"Puesto"):(p.puesto||"Puesto"),datos:distribuirNomina(p,NUM_MESES_OP)});
+      });
+    });
+    opexPM.forEach(p=>{
+      opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
     });
 
     // Partidas sin categoría contable macro asignada (para revisión posterior) —
@@ -2905,9 +2946,19 @@ export default function App(){
               </tr>
             </thead>
             <tbody>
-              {filas.map((f,fi)=>(
-                <tr key={f.label} style={{background:fi%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
+              {filas.map((f,fi)=>{
+                const puedeExpandir=f.detalle&&f.detalle.length>0;
+                const abierto=puedeExpandir&&!!expandidosServicio[f.label];
+                return (
+                <Fragment key={f.label}>
+                <tr style={{background:fi%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
                   <td style={{padding:"8px 14px",display:"flex",alignItems:"center",gap:8,position:"sticky",left:0,background:fi%2===0?C.white:"#FAFAFA"}}>
+                    {puedeExpandir&&(
+                      <span onClick={()=>setExpandidosServicio(prev=>({...prev,[f.label]:!prev[f.label]}))}
+                        style={{cursor:"pointer",fontSize:9,color:C.grayMid,width:10,flexShrink:0,userSelect:"none"}}>
+                        {abierto?"▼":"▶"}
+                      </span>
+                    )}
                     <div style={{width:8,height:8,borderRadius:2,background:f.color,flexShrink:0}}/>
                     <span style={{fontWeight:600,color:f.color,fontSize:11}}>{f.label}</span>
                   </td>
@@ -2921,7 +2972,24 @@ export default function App(){
                     {fmtK(f.datos.reduce((s,v)=>s+v,0))}
                   </td>
                 </tr>
-              ))}
+                {abierto&&f.detalle.map((d,di)=>(
+                  <tr key={f.label+"_det_"+di} style={{background:C.grayLight,fontSize:11,color:C.grayMid}}>
+                    <td style={{padding:"5px 14px 5px 32px",position:"sticky",left:0,background:C.grayLight,color:C.grayMid}}>
+                      {d.label}
+                    </td>
+                    {d.datos.map((v,i)=>(
+                      <td key={i} style={{padding:"5px 4px",textAlign:"right",color:v>0?C.grayMid:C.grayBorder}}>
+                        {v!==0?fmtK(v):"—"}
+                      </td>
+                    ))}
+                    <td style={{padding:"5px 12px",textAlign:"right",color:C.grayMid}}>
+                      {fmtK(d.datos.reduce((s,v)=>s+v,0))}
+                    </td>
+                  </tr>
+                ))}
+                </Fragment>
+                );
+              })}
               {showTotal&&(
                 <tr style={{background:C.yellowLight,borderTop:`2px solid ${C.yellow}`}}>
                   <td style={{padding:"9px 14px",fontWeight:800,color:C.grayDark,position:"sticky",left:0,background:C.yellowLight}}>TOTAL</td>
@@ -3147,8 +3215,8 @@ export default function App(){
             {sTitle("Tabla SERVICIO — Ingresos vs Egresos por mes","Equivalente a la pestaña SERVICIO del archivo Excel de Geolis")}
             <TablaM filas={[
               {label:"INGRESOS (Facturación)",color:C.success,   datos:mIngresos},
-              {label:"CAPEX (Activos)",        color:C.yellowDark,datos:mCapex},
-              {label:"OPEX",                   color:"#374151",   datos:mOpex},
+              {label:"CAPEX (Activos)",        color:C.yellowDark,datos:mCapex, detalle:capexDetalle},
+              {label:"OPEX",                   color:"#374151",   datos:mOpex,  detalle:opexDetalle},
               {label:"EGRESOS TOTALES",         color:C.danger,    datos:mEgresos},
             ]} showTotal={false}/>
           </>)}
