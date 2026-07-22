@@ -485,7 +485,7 @@ function EstadoBadge({estado}){
 }
 
 // ─── CATALOG INPUT (CatInput + PuestoInput — mismo patrón) ───────────────────
-function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect,storageKey=LS_CATS}){
+function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect,storageKey=LS_CATS,extraOptions=[],extraLabel=""}){
   const [open,setOpen]=useState(false);
   const [txt,setTxt]=useState(value||"");
   const [macroModal,setMacroModal]=useState(false);
@@ -494,6 +494,9 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   const ref=useRef();
   const allOpts=[...new Set([...options,...getCats(storageKey)])];
   const filtered=allOpts.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
+  // Grupos del catálogo de almacén — opciones extra al final del dropdown,
+  // separadas por un divisor visual. Nunca se mezclan con allOpts/filtered.
+  const extraFiltradas=extraOptions.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
 
   // El menú se renderiza con position:fixed (ver abajo) para no ser recortado
   // por contenedores con overflow:hidden/auto (ej. el scroll horizontal de las
@@ -599,6 +602,27 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
               {opt}
             </div>
           ))}
+          {extraFiltradas.length>0&&(
+            <>
+              <div style={{padding:"4px 12px",fontSize:9,
+                color:C.grayMid,background:"#F5F5F5",
+                textTransform:"uppercase",letterSpacing:0.4,
+                borderTop:`1px solid ${C.line}`,
+                borderBottom:`1px solid ${C.line}`}}>
+                {extraLabel || "── catálogo almacén ──"}
+              </div>
+              {extraFiltradas.map((opt,i)=>(
+                <div key={"extra_"+i} onMouseDown={e=>{e.preventDefault();pick(opt);}}
+                  style={{padding:"9px 12px",fontSize:12,cursor:"pointer",
+                    background:"transparent",
+                    borderBottom:`1px solid ${C.line}`}}
+                  onMouseEnter={e=>e.currentTarget.style.background="#FFFBF0"}
+                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                  {opt}
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
       {/* PUNTO 1+2: Modal categoría contable macro */}
@@ -703,9 +727,156 @@ function AlmacenSuggestions({query, onPick}){
   );
 }
 
+// ─── CATÁLOGO EN CASCADA (OPEX Materiales) ────────────────────────────────────
+// Grupo del almacén → subcategoría → artículos. Solo se usa como opciones
+// EXTRA al final del dropdown de Categoría en OPEX Materiales; las 27 cuentas
+// contables (CAT_OPEX) siguen siendo la base y no se tocan.
+const CATALOGO_CASCADA = {
+  "MATERIALES": {
+    "TUBERIAS": [
+      {desc:'TUBO ACERO AL CARBON S/C 1/2"', um:"MT"},
+      {desc:'TUBO ACERO AL CARBON S/C 3/4"', um:"MT"},
+      {desc:'TUBO ACERO AL CARBON S/C 1"',   um:"MT"},
+      {desc:'TUBO ACERO AL CARBON S/C 2"',   um:"MT"},
+      {desc:'TUBO ACERO INOXIDABLE S/C 1/2"',um:"MT"},
+      {desc:'TUBO ACERO INOXIDABLE S/C 1"',  um:"MT"},
+      {desc:'TUBO CPVC DIAMETRO 1/2"',        um:"MT"},
+      {desc:'TUBO PEAD DIAMETRO 3/4"',        um:"MT"},
+    ],
+    "CONEXIONES": [
+      {desc:'CODO 90° ACERO AL CARBON 1/2"', um:"PC"},
+      {desc:'CODO 90° ACERO AL CARBON 1"',   um:"PC"},
+      {desc:'CODO 45° ACERO AL CARBON 3/4"', um:"PC"},
+      {desc:'TEE ACERO AL CARBON 3/4"',       um:"PC"},
+      {desc:'REDUCCION CONCENTRICA AC 1x3/4"',um:"PC"},
+      {desc:'NIPLE ACERO AL CARBON 1/2"',    um:"PC"},
+      {desc:'COPLE ACERO AL CARBON 3/4"',    um:"PC"},
+      {desc:'TAPON MACHO AC 1/2"',           um:"PC"},
+    ],
+    "VALVULAS": [
+      {desc:'VALVULA DE GLOBO AC 150# 1"',   um:"PC"},
+      {desc:'VALVULA DE BOLA AI 150# 1/2"',  um:"PC"},
+      {desc:'VALVULA CHECK AC 3/4"',          um:"PC"},
+      {desc:'VALVULA DE CONTROL NEUMATICA 1"',um:"PC"},
+    ],
+    "BRIDAS": [
+      {desc:'BRIDA SLIP-ON AC 150# 1"',      um:"PC"},
+      {desc:'BRIDA SLIP-ON AC 150# 2"',      um:"PC"},
+      {desc:'BRIDA WELD NECK AC 300# 1"',    um:"PC"},
+      {desc:'ESPARRAGO CON TUERCAS 5/8"',    um:"PC"},
+    ],
+    "EMPAQUES Y SELLOS": [
+      {desc:'EMPAQUE ESPIRAL METALICO 1"',   um:"PC"},
+      {desc:'SELLO MECANICO JOHN CRANE',      um:"PC"},
+      {desc:'EMPAQUE DE GRAFITO 1/8"',       um:"MT"},
+    ],
+    "INSTRUMENTACION": [
+      {desc:"SENSOR DE PRESION 4-20MA",       um:"PC"},
+      {desc:"SENSOR DE TEMPERATURA RTD PT100",um:"PC"},
+      {desc:"TRANSMISOR DE PRESION DIFER.",   um:"PC"},
+      {desc:"TRANSMISOR DE FLUJO ELECTR.",    um:"PC"},
+    ],
+    "ELECTRICIDAD": [
+      {desc:'CABLE THHN 12 AWG NEGRO',        um:"MT"},
+      {desc:'CABLE THHN 10 AWG ROJO',         um:"MT"},
+      {desc:'CABLE DE CONTROL 16AWG 4 HILOS', um:"MT"},
+      {desc:'INTERRUPTOR TERMOMAGNETICO 2P 20A',um:"PC"},
+      {desc:'GUARDAMOTOR 3P 9-13A',           um:"PC"},
+    ],
+    "SEGURIDAD INDUSTRIAL": [
+      {desc:"CASCO DE SEGURIDAD TIPO II",     um:"PC"},
+      {desc:"LENTES DE SEGURIDAD CLAROS",     um:"PC"},
+      {desc:"GUANTES DE CUERO SOLDADOR",      um:"PC"},
+      {desc:"BOTAS SEGURIDAD PUNTA DE ACERO", um:"PC"},
+      {desc:"EXTINTOR PQS 9 KG ABC",          um:"PC"},
+    ],
+  },
+  "TUBERIAS": {
+    "ACERO AL CARBON": [
+      {desc:'TUBO AC S/C 1/2"', um:"MT"},
+      {desc:'TUBO AC S/C 3/4"', um:"MT"},
+      {desc:'TUBO AC S/C 1"',   um:"MT"},
+      {desc:'TUBO AC S/C 2"',   um:"MT"},
+    ],
+    "ACERO INOXIDABLE": [
+      {desc:'TUBO AI S/C 1/2"', um:"MT"},
+      {desc:'TUBO AI S/C 1"',   um:"MT"},
+    ],
+    "CPVC / PEAD": [
+      {desc:'TUBO CPVC 1/2"',   um:"MT"},
+      {desc:'TUBO PEAD 3/4"',   um:"MT"},
+    ],
+  },
+  "CONEXIONES": {
+    "CODOS": [
+      {desc:'CODO 90° AC 1/2"', um:"PC"},
+      {desc:'CODO 90° AC 1"',   um:"PC"},
+      {desc:'CODO 45° AC 3/4"', um:"PC"},
+    ],
+    "TEES Y REDUCCIONES": [
+      {desc:'TEE AC 3/4"',                   um:"PC"},
+      {desc:'REDUCCION CONC. AC 1x3/4"',     um:"PC"},
+    ],
+    "NIPLES Y COPLES": [
+      {desc:'NIPLE AC 1/2"',    um:"PC"},
+      {desc:'COPLE AC 3/4"',    um:"PC"},
+    ],
+    "BRIDAS Y ESPÁRRAGOS": [
+      {desc:'BRIDA SLIP-ON AC 150# 1"',      um:"PC"},
+      {desc:'ESPARRAGO CON TUERCAS 5/8"',    um:"PC"},
+    ],
+  },
+  "VALVULAS": {
+    "GLOBO Y BOLA": [
+      {desc:'VALVULA GLOBO AC 1"',           um:"PC"},
+      {desc:'VALVULA BOLA AI 1/2"',          um:"PC"},
+    ],
+    "CHECK Y CONTROL": [
+      {desc:'VALVULA CHECK AC 3/4"',         um:"PC"},
+      {desc:'VALVULA CONTROL NEUMATICA 1"',  um:"PC"},
+    ],
+  },
+  "INSTRUMENTACION": {
+    "SENSORES": [
+      {desc:"SENSOR PRESION 4-20MA",         um:"PC"},
+      {desc:"SENSOR TEMPERATURA RTD PT100",  um:"PC"},
+      {desc:"SENSOR NIVEL ULTRASONICO",      um:"PC"},
+    ],
+    "TRANSMISORES": [
+      {desc:"TRANSMISOR PRESION DIFERENCIAL",um:"PC"},
+      {desc:"TRANSMISOR FLUJO ELECTROMAGNETICO",um:"PC"},
+    ],
+  },
+  "ELECTRICIDAD": {
+    "CABLES": [
+      {desc:'CABLE THHN 12 AWG NEGRO',       um:"MT"},
+      {desc:'CABLE THHN 10 AWG ROJO',        um:"MT"},
+      {desc:'CABLE CONTROL 16AWG 4 HILOS',   um:"MT"},
+    ],
+    "PROTECCIONES": [
+      {desc:'INTERRUPTOR TERMOMAGNETICO 2P 20A',um:"PC"},
+      {desc:'GUARDAMOTOR 3P 9-13A',          um:"PC"},
+    ],
+  },
+  "SEGURIDAD INDUSTRIAL": {
+    "EPP": [
+      {desc:"CASCO SEGURIDAD TIPO II",       um:"PC"},
+      {desc:"LENTES SEGURIDAD CLAROS",       um:"PC"},
+      {desc:"GUANTES CUERO SOLDADOR",        um:"PC"},
+      {desc:"BOTAS SEGURIDAD PUNTA ACERO",   um:"PC"},
+    ],
+    "EQUIPOS CONTRA INCENDIO": [
+      {desc:"EXTINTOR PQS 9 KG ABC",         um:"PC"},
+      {desc:"BOTIQUIN PRIMEROS AUXILIOS",    um:"PC"},
+    ],
+  },
+};
+
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12}){
+  // Cascada Subcategoría/Artículo (solo OPEX Materiales) — key=p.id, value=subcategoría elegida
+  const [subcatSel, setSubcatSel] = useState({});
   // Rango de años de los selects "Año" — antes fijo 2024-2035; ahora se ajusta
   // a la duración real del proyecto (soporta desde 6 meses hasta 20 años).
   const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
@@ -761,12 +932,59 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             <div>
               <CatalogInput value={p.cat} onChange={v=>{
                 onUpdate({...p,cat:v,subcat:""});
+                setSubcatSel(prev=>({...prev,[p.id]:""}));
                 // El dropdown de sugerencias se activa cuando hay historial
               }} options={catOptions} placeholder="Categoría" storageKey={catStorageKey}
+                extraOptions={addLabel==="Agregar material"?Object.keys(CATALOGO_CASCADA):[]}
+                extraLabel="── catálogo almacén ──"
                 onPartidaSelect={hist=>{
                   if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
                     periodicidad:hist.periodicidad||p.periodicidad});
                 }}/>
+              {/* Cascada Subcategoría/Artículo — solo OPEX Materiales, solo si la
+                  categoría elegida tiene entrada en CATALOGO_CASCADA. p.cat nunca
+                  cambia aquí: solo se autocompletan desc/unidad al elegir artículo. */}
+              {addLabel==="Agregar material"&&CATALOGO_CASCADA[p.cat]&&(
+                <div style={{marginTop:4,display:"flex",flexDirection:"column",gap:4}}>
+                  <select
+                    value={subcatSel[p.id]||""}
+                    onChange={e=>setSubcatSel(prev=>({...prev,[p.id]:e.target.value}))}
+                    className="sel-brand"
+                    style={{padding:"6px 6px",
+                      border:`1px solid ${C.grayBorder}`,
+                      borderRadius:6,fontSize:11,
+                      background:C.white,width:"100%",
+                      color:subcatSel[p.id]?C.grayDark:C.grayMid}}>
+                    <option value="">Subcategoría...</option>
+                    {Object.keys(CATALOGO_CASCADA[p.cat]).map(sg=>(
+                      <option key={sg} value={sg}>{sg}</option>
+                    ))}
+                  </select>
+                  {subcatSel[p.id]&&CATALOGO_CASCADA[p.cat]?.[subcatSel[p.id]]&&(
+                    <select
+                      value=""
+                      onChange={e=>{
+                        const art=CATALOGO_CASCADA[p.cat][subcatSel[p.id]]
+                          .find(a=>a.desc===e.target.value);
+                        if(art){
+                          onUpdate({...p,desc:art.desc,unidad:UM_ALMACEN_A_UNIDAD[art.um]||"Unidad"});
+                          setSubcatSel(prev=>({...prev,[p.id]:""}));
+                        }
+                      }}
+                      className="sel-brand"
+                      style={{padding:"6px 6px",
+                        border:`1px solid ${C.grayBorder}`,
+                        borderRadius:6,fontSize:11,
+                        background:C.white,width:"100%",
+                        color:C.grayMid}}>
+                      <option value="">Artículo...</option>
+                      {CATALOGO_CASCADA[p.cat][subcatSel[p.id]].map((a,i)=>(
+                        <option key={i} value={a.desc}>{a.desc} ({a.um})</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              )}
               {/* Sugerencias históricas al escribir categoría */}
               {p.cat&&buscarHistorial(p.cat,catOptions===CAT_CAPEX?"capex":"opex").length>0&&!p.desc&&(
                 <div style={{marginTop:4}}>
