@@ -229,28 +229,30 @@ const PLANTILLAS={
   },
   depto_ti:{
     nombre:"Depto. TI 2026 — Geolis",icon:"💻",tipos:["departamento"],
-    desc:"Presupuesto_Geolis_2026_v4.1 — 1er semestre Innovación y Tecnología",
+    desc:"Presupuesto TI 1er Semestre 2026 — Geolis SA de CV",
+    fechaInicio:"2026-01-01", fechaFin:"2026-06-30",
+    // ── CAPEX real de Presupuesto_1er_semestre2026_Geolis.xlsx ──────────────
     capex:[
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro",         unidad:"Unidad",cantidad:52, monto:25209},
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro Plus",     unidad:"Unidad",cantidad:16, monto:33861},
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Geolis — Dell Pro Max",      unidad:"Unidad",cantidad:4,  monto:50331},
-      {cat:"EQUIPO DE COMPUTO",     desc:"Laptop Cuervito — Dell Pro",        unidad:"Unidad",cantidad:16, monto:25209},
-      {cat:"ACCESORIOS",            desc:"Kit Teclado/Mouse Dell KM3322W",    unidad:"Unidad",cantidad:56, monto:408},
-      {cat:"ACCESORIOS",            desc:"Monitor Dell SE2425HM",             unidad:"Unidad",cantidad:20, monto:2000},
-      {cat:"ACCESORIOS",            desc:"Monitor Dell SE2725HM",             unidad:"Unidad",cantidad:20, monto:2549},
-      {cat:"ACCESORIOS",            desc:"Docking Station WD25",              unidad:"Unidad",cantidad:20, monto:3239},
+      {cat:"EQUIPO DE COMPUTO",      desc:"Laptops Dell Pro/Plus/Max — Geolis Ene", unidad:"Unidad", cantidad:72, monto:25209, mesGastoMes:1, mesGastoAnio:2026},
+      {cat:"EQUIPO DE COMPUTO",      desc:"Laptop Dell Pro — Cuervito Mar",         unidad:"Unidad", cantidad:16, monto:25209, mesGastoMes:3, mesGastoAnio:2026},
+      {cat:"EQUIPO DE COMPUTO",      desc:"Laptops Dell — Geolis Abr",              unidad:"Unidad", cantidad:20, monto:25209, mesGastoMes:4, mesGastoAnio:2026},
+      {cat:"EQUIPO DE COMPUTO",      desc:"Laptops Dell — May",                     unidad:"Unidad", cantidad:15, monto:25209, mesGastoMes:5, mesGastoAnio:2026},
+      {cat:"ACCESORIOS",             desc:"Monitores y teclados Dell — Mar",        unidad:"Unidad", cantidad:96, monto:1652,  mesGastoMes:3, mesGastoAnio:2026},
+      {cat:"ACCESORIOS",             desc:"Monitores, teclados y docking — Abr",    unidad:"Unidad", cantidad:60, monto:2835,  mesGastoMes:4, mesGastoAnio:2026},
+      {cat:"ACCESORIOS",             desc:"Monitor Dell S3225QS — May",             unidad:"Unidad", cantidad:4,  monto:9000,  mesGastoMes:5, mesGastoAnio:2026},
+      {cat:"ACCESORIOS",             desc:"Monitores y accesorios — Jun",           unidad:"Unidad", cantidad:7,  monto:2000,  mesGastoMes:6, mesGastoAnio:2026},
+      {cat:"ACCESORIOS",             desc:"Plaud — Grabador IA",                    unidad:"Unidad", cantidad:1,  monto:3800,  mesGastoMes:6, mesGastoAnio:2026},
+      {cat:"INFRAESTRUCTURA DE RED", desc:"Starlinks y switches — Jun",             unidad:"Unidad", cantidad:8,  monto:13612, mesGastoMes:6, mesGastoAnio:2026},
     ],
+    // ── OPEX real de Presupuesto_1er_semestre2026_Geolis.xlsx ───────────────
     opex:[
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"MS Office 365 Negocios x25",    unidad:"Mes",   cantidad:6, monto:4575},
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Adobe Acrobat Standard x16",    unidad:"Mes",   cantidad:6, monto:4784},
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Adobe Creative Cloud x3",       unidad:"Mes",   cantidad:6, monto:4500},
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Correos .mx POP x324",          unidad:"Mes",   cantidad:6, monto:38880},
-      {cat:"LICENCIAMIENTO MXN MENSUAL",desc:"Antivirus Cortex x26",          unidad:"Mes",   cantidad:6, monto:3328},
-      {cat:"LICENCIAMIENTO MXN ANUAL",  desc:"Autodesk AutoCAD x5",           unidad:"Año",   cantidad:1, monto:130750},
-      {cat:"LICENCIAMIENTO MXN ANUAL",  desc:"Autodesk AutoCAD LT",           unidad:"Año",   cantidad:1, monto:6335},
-      {cat:"LICENCIAMIENTO USD",        desc:"ChatGPT Business x15 /mes",     unidad:"Mes",   cantidad:6, monto:450},
-      {cat:"LICENCIAMIENTO USD",        desc:"Claude Pro Team x4 /mes",       unidad:"Mes",   cantidad:6, monto:100},
-      {cat:"LICENCIAMIENTO USD",        desc:"ClickUp Business x7 /año",      unidad:"Año",   cantidad:1, monto:1008},
+      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"MS Office 365 Negocios 25u",                      unidad:"Servicio", cantidad:25,  monto:183,   periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"MS Office 365 Teams 25u",                         unidad:"Servicio", cantidad:25,  monto:75,    periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"Adobe Acrobat Standard 16u",                      unidad:"Servicio", cantidad:16,  monto:299,   periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"Adobe Creative Cloud 3u",                         unidad:"Servicio", cantidad:3,   monto:1500,  periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"LICENCIAMIENTO MXN MENSUAL", desc:"Correos .mx POP 324u",                            unidad:"Servicio", cantidad:324, monto:120,   periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"TELECOMUNICACIONES",         desc:"Internet 7 sitios (Totalplay+Telmex+Megacable)",  unidad:"Servicio", cantidad:1,   monto:8396,  periodicidad:"mensual", mesInicioOpex:1},
+      {cat:"TELECOMUNICACIONES",         desc:"Starlink Business 43 unidades activas",           unidad:"Servicio", cantidad:1,   monto:67725, periodicidad:"mensual", mesInicioOpex:1},
     ],
     nomina:[],
   },
@@ -1821,8 +1823,11 @@ export default function App(){
   // totalOpexAnualCat/totalNomAnual, y es el que alimenta el Resumen mensual (Step 4).
   function totalCat(id,cat){return(costos[id]?.[cat]||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);}
   function totalNom(id){return(costos[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);return s+(p.salario||0)*f*(p.cantidad||1);},0);}
-  function totalOpexAnualCat(id,cat){return(costos[id]?.[cat]||[]).reduce((s,p)=>s+totalOpexPartida(p,12),0);}
-  function totalNomAnual(id){return(costos[id]?.nomina||[]).reduce((s,p)=>s+costoTotalNomina(p,12),0);}
+  // Duración real del proyecto (no siempre 12 meses) — mismo criterio que usa
+  // el Resumen mensual (calcularNumMesesOp), para que el total que se ve en
+  // Captura de costos no quede duplicado/recortado en proyectos != 12 meses.
+  function totalOpexAnualCat(id,cat){const n=calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin);return(costos[id]?.[cat]||[]).reduce((s,p)=>s+totalOpexPartida(p,n),0);}
+  function totalNomAnual(id){const n=calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin);return(costos[id]?.nomina||[]).reduce((s,p)=>s+costoTotalNomina(p,n),0);}
   const capexAreas=areas.reduce((s,id)=>s+totalCat(id,"capex"),0);
   const opexAreas =areas.reduce((s,id)=>s+totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via"),0);
   const capexPMt  =capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
@@ -2009,15 +2014,16 @@ export default function App(){
       if(existing&&existing.estado!=="pendiente"){ c[id]=existing; return; }
       if(idx===0 && plData){
         // Distribuir plantilla completa al primer área con datos reales
-        const capexBase = (plData.capex||[]).map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,mesGasto:p.mesGasto||0}));
+        const capexBase = (plData.capex||[]).map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,mesGasto:p.mesGasto||0,
+          mesGastoMes:p.mesGastoMes||"",mesGastoAnio:p.mesGastoAnio||""}));
         // OPEX: separar nómina de materiales
         const nomBase = (plData.nomina||[]).map(p=>initN({puesto:p.puesto,cantidad:p.cantidad||1,salario:p.salario||0}));
         // Del opex de la plantilla — los que son NOMINA van a nómina, resto a mat
         const opexNom = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("NOMINA"));
         const opexMat = (plData.opex||[]).filter(p=>!p.cat?.toUpperCase().includes("NOMINA")&&!p.cat?.toUpperCase().includes("VIATICO"));
         const opexVia = (plData.opex||[]).filter(p=>p.cat?.toUpperCase().includes("VIATICO"));
-        const matBase = opexMat.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual"}));
-        const viaBase = opexVia.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual"}));
+        const matBase = opexMat.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual",mesInicioOpex:p.mesInicioOpex||1}));
+        const viaBase = opexVia.map(p=>({...initP(),cat:p.cat,desc:p.desc,unidad:p.unidad,cantidad:p.cantidad,monto:p.monto,periodicidad:p.periodicidad||"mensual",mesInicioOpex:p.mesInicioOpex||1}));
         // Si la plantilla tiene nómina propia usarla, si no, convertir las OPEX-NOMINA
         const nomFinal = nomBase.length>0 ? nomBase
           : opexNom.map(p=>initN({puesto:p.desc||"Puesto",cantidad:1,salario:p.monto||0}));
