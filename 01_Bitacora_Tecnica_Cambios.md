@@ -312,4 +312,118 @@ flex/grid en la cadena hacia `<main>` carezca de `min-width:0`.
 
 ---
 
+## Iteración 8 — Backend real: Supabase + catálogo de almacén
+
+**Archivos:** `src/supabaseClient.js`, `src/supabaseApi.js`, `supabase_catalogo.sql`,
+`catalogo_almacen.json` / `catalogo_almacen_500.json` / `.sql`, `_gen_catalogo_almacen.mjs`
+
+La app deja de vivir solo en `localStorage`: se conecta a un proyecto de
+Supabase (Postgres + REST) para persistir presupuestos y consultar el
+catálogo real de artículos de almacén.
+
+### Catálogo de almacén
+
+`_gen_catalogo_almacen.mjs` procesa el Excel real de Geolis
+("Articulos Almacen (3)_todas las categorias.xlsx", 17,312 artículos) y
+genera:
+- `catalogo_almacen_500.json/.sql` — muestra de 500 artículos (1 por cada
+  uno de los 322 pares grupo-subgrupo únicos, completado hasta 500 con tope
+  de 15 por grupo)
+- `catalogo_almacen.json` — jerárquico grupos → subgrupos → artículos
+- `supabase_catalogo.sql` — inserts en lotes para cargar los 44 grupos reales
+  a la tabla `catalogo_almacen` en Supabase
+
+Limpieza aplicada a las descripciones: se eliminan fragmentos duplicados
+separados por coma y se truncan a 150 caracteres.
+
+### `supabaseApi.js` — funciones expuestas
+
+| Función | Uso |
+|---|---|
+| `listarPresupuestos()` | lista de presupuestos guardados en la nube |
+| `eliminarPresupuestoDeNube(id)` | borra un presupuesto remoto |
+| `buscarArticulosAlmacen(query)` | busca por palabra (AND) en descripción o coincidencia directa en grupo/código — usada por los chips "Artículos de esta categoría" en CAPEX/OPEX |
+| `listarGruposAlmacen()` / `listarSubgruposAlmacen(grupo)` / `listarArticulosPorSubgrupo(...)` | quedaron de un intento de cascada Categoría→Subcategoría→Artículo (ver más abajo, revertido); no se usan en la UI actual pero se dejan por si se retoma la cascada |
+| `guardarPresupuestoEnNube({pres, form, areas, costos, ingAdicionales, precioFijo})` | sube un presupuesto completo a Supabase |
+| `cargarPresupuestoDeNube(id, {uid, initP, initN})` | trae un presupuesto guardado y lo reconstruye en el estado de la app |
+
+**Importante:** nunca se cargan los 17,312 artículos completos al navegador —
+cada consulta (grupos, subgrupos de 1 grupo, artículos de 1 grupo+subgrupo)
+trae solo lo necesario.
+
+---
+
+## Iteración 9 — Intento de cascada Categoría→Subcategoría→Artículo (revertido)
+
+Se probaron **tres enfoques distintos** para conectar el catálogo de almacén
+al campo Categoría de una partida, en varias vueltas de retroalimentación:
+
+1. **`e75a1a6`** — Subcategoría y Artículo como columnas propias del grid de
+   la tabla de partidas (revertido en `a675ea2`: rompía el layout cuando la
+   fila ya tenía muchas columnas).
+2. **`a1eedd8`** — cascada Categoría→Subcategoría→Artículo solo en OPEX
+   Materiales, usando el catálogo estático como opciones extra al final del
+   dropdown de Categoría.
+3. **`f8235ea`** — se elimina por completo el componente `CascadaAlmacen`:
+   42 de los 44 grupos del almacén no tienen subcategoría real definida
+   (caían todos en el texto genérico "SUBGRUPO XX"), lo que rompía la UI.
+   Se reemplaza por **chips simples** bajo el campo Categoría
+   ("Artículos de esta categoría:", hasta 6 sugerencias vía
+   `buscarArticulosAlmacen`, estilo gris sin colores nuevos) — al hacer clic
+   autocompleta Descripción y Unidad. Este es el diseño **vigente**.
+
+**Bug relacionado (`7034a4c`):** el dropdown de Categoría mezclaba los 44
+grupos reales del almacén (TUBERIAS, VALVULAS, ELECTRICIDAD...) por igual en
+CAPEX, OPEX Materiales y OPEX Viáticos — aparecían categorías de un rubro en
+otro (ej. TUBERIAS en Viáticos). Se corrigió para que cada sección muestre
+solo su propia lista fija (`CAT_CAPEX` / `CAT_OPEX_MAT` / `CAT_OPEX_VIA`),
+sin nada del almacén mezclado. El buscador de chips no se vio afectado
+porque busca por texto libre, no por lo que esté en el dropdown.
+
+---
+
+## Iteración 10 — Categorías por sección, ancho de captura, resumen expandible
+
+**Commits:** `751cdb2`, `a1eedd8`
+
+- **Categorías personalizadas** ("Crear categoría") ahora se guardan por
+  sección (CAPEX / OPEX Materiales / OPEX Viáticos) en vez de una sola clave
+  global — antes una categoría creada en una sección "contaminaba" el
+  dropdown de las otras.
+- Columna izquierda de captura (`.capture-grid`) más angosta en desktop
+  (248px → 200px), sin tocar el breakpoint `<768px`.
+- Filas CAPEX y OPEX de la Tabla SERVICIO (Resumen mensual) ahora son
+  **expandibles**: muestran el detalle mes a mes por partida sin salir de la
+  tabla.
+- **`src/excelImport.js`** (nuevo, 206 líneas): parser para leer la plantilla
+  real de presupuestos de Geolis (hojas `F00 INVERSIÓN`, `NOMINA/F01 NÓMINA`,
+  `F01 EPP`, `F01 UNIFORMES`, `F02 INMUEBLES Y S`, `F03 COM Y EQ COM`,
+  `F05 VIÁTICOS`, `F06/F07 MAT-SERV-EQUIPO`, `F08 INGRESOS`) y convertirla en
+  la forma que usa la app (`{capex, mat, via, nomina, precioFijoEstimado, avisos}`).
+  No procesa `F04 VEHÍCULOS Y COMB.` (formato por vehículo, no por partida)
+  ni archivos tipo "CONCENTRADO" (reportes multi-proyecto).
+  **Pendiente:** este archivo existe y exporta `parsearPresupuestoExcel` /
+  `esArchivoConcentrado`, pero **todavía no está importado ni llamado desde
+  `src/App.jsx`** — falta conectarlo a un botón/flujo de "importar Excel real"
+  en la UI para que se use.
+
+---
+
+## Iteración 11 — Plantilla depto_ti con datos reales del semestre
+
+**Commit:** `9a007a3` (26-jul-2026)
+
+- La plantilla "depto_ti" (usada al crear un presupuesto de referencia rápido)
+  se reemplazó con los montos, cantidades y fechas reales del archivo
+  `Presupuesto_1er_ semestre2026_Geolis.xlsx` (10 partidas CAPEX, 7 OPEX).
+- `confirmarAreas()` ahora **preserva** `mesGastoMes`/`mesGastoAnio` (CAPEX) y
+  `mesInicioOpex` (OPEX) al distribuir cualquier plantilla a un área — antes
+  se perdían y dejaban las fechas de compra sin llenar.
+- `totalOpexAnualCat` / `totalNomAnual` ahora usan la duración real del
+  proyecto (`calcularNumMesesOp`) en vez de asumir 12 meses fijos, para que
+  el total mostrado en Captura de costos coincida con el que ya calculaba el
+  Resumen mensual.
+
+---
+
 *GEOLIS SA DE CV — Bitácora técnica interna — Módulo de Presupuestos v1.0 MVP*
