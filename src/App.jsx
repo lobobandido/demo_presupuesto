@@ -2107,6 +2107,7 @@ export default function App(){
     {i:2,icon:"○",label:"Áreas"},
     {i:3,icon:"○",label:"Capturar costos"},
     {i:4,icon:"○",label:"Resumen mensual",locked:!areaSaved},
+    {i:5,icon:"○",label:"Mi presupuesto",locked:!areaSaved},
   ];
 
   const wrap=(children,bc="")=>(
@@ -2267,7 +2268,27 @@ export default function App(){
                 Ver Resumen mensual →
               </button>
             )}
-            {pres&&(step===3||step===4)&&(
+            {/* Botón cruzado Resumen ⇄ Mi presupuesto — para saltar entre las dos
+                pantallas de "presentación" sin perder el presupuesto abierto. */}
+            {areaSaved&&step===4&&(
+              <button onClick={()=>setStep(5)}
+                style={{padding:"6px 16px",background:C.yellowLight,
+                  border:`1px solid ${C.yellowBorder}`,borderRadius:7,
+                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.yellowDark,
+                  display:"flex",alignItems:"center",gap:6}}>
+                Mi presupuesto →
+              </button>
+            )}
+            {areaSaved&&step===5&&(
+              <button onClick={()=>setStep(4)}
+                style={{padding:"6px 16px",background:C.yellowLight,
+                  border:`1px solid ${C.yellowBorder}`,borderRadius:7,
+                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.yellowDark,
+                  display:"flex",alignItems:"center",gap:6}}>
+                ← Resumen mensual
+              </button>
+            )}
+            {pres&&(step===3||step===4||step===5)&&(
               <button onClick={async()=>{ await eliminarPresupuesto(pres); setStep(0); }}
                 title="Eliminar este presupuesto (no se puede deshacer)"
                 style={{width:30,height:30,padding:0,background:"transparent",
@@ -3540,6 +3561,147 @@ export default function App(){
         </div>
       </div>
     ,"Resumen mensual");
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // STEP 5 — MI PRESUPUESTO (vista completa, editable, para exponer)
+  // ══════════════════════════════════════════════════════════════════════════
+  // Reutiliza los mismos SCard/PartidaTable/NominaTable y los mismos handlers
+  // (upP/addP/rmP/addN/rmN/guardarArea) que Step 3 — la única diferencia es
+  // que aquí se recorren TODAS las áreas de corrido (sin selector lateral),
+  // en vez de mostrar una a la vez. No se tocó Step 3 ni Step 4.
+  if(step===5){
+    const cats=getAreasCat(pres?.tipo||"instalacion");
+    return wrap(
+      <div>
+        <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
+
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+          <div>
+            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Mi presupuesto</h2>
+            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+            {pres?.fechaElaboracion&&(
+              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                Elaborado: <strong>{pres.fechaElaboracion}</strong>
+                {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
+              </div>
+            )}
+          </div>
+          <div style={{display:"flex",gap:10}} className="noprint">
+            {btn("← Resumen mensual",()=>setStep(4),"secondary")}
+            {btn("⬇ PDF",()=>window.print(),"primary")}
+          </div>
+        </div>
+
+        <div id="rpdf">
+          {areas.length===0?(
+            <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
+              background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`}}>
+              Aún no hay áreas capturadas en este presupuesto.
+            </div>
+          ):areas.map((id,ai)=>{
+            const datos=costos[id];
+            const areaInfo=cats.find(a=>a.id===id);
+            const capexA=totalCat(id,"capex");
+            const nomMes=totalNom(id);
+            const opexA=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
+            return(
+              <div key={id} style={{marginBottom:ai<areas.length-1?36:0,
+                paddingBottom:ai<areas.length-1?28:0,
+                borderBottom:ai<areas.length-1?`2px solid ${C.line}`:"none"}}>
+
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span style={{fontSize:24}}>{areaInfo?.icon}</span>
+                    <div>
+                      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
+                      <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
+                    </div>
+                  </div>
+                  <Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
+                    color={datos?.estado==="guardado"?C.success:C.yellowDark}
+                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>
+                </div>
+
+                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
+                  {[
+                    {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
+                    {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
+                    {l:"Total",           v:capexA+opexA,c:C.grayDark,bg:C.grayLight},
+                  ].map(k=>(
+                    <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
+                      borderRadius:10,padding:"16px 18px"}}>
+                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
+                        textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
+                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
+                  subtitle="Inversiones únicas: maquinaria, equipos, activos"
+                  total={capexA} accentColor="#7c3aed">
+                  <PartidaTable
+                    partidas={datos?.capex||[]}
+                    onUpdate={u=>upP(id,"capex",u.id,u)}
+                    onRemove={rmP(id,"capex")}
+                    onAdd={()=>addP(id,"capex")}
+                    catOptions={CAT_CAPEX}
+                    addLabel="Agregar equipo / inversión"
+                    headerColor="#7c3aed"
+                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}/>
+                </SCard>
+
+                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
+                  subtitle="Costo real por puesto incluyendo cargas sociales"
+                  total={totalNomAnual(id)} accentColor="#059669">
+                  <NominaTable
+                    nomina={datos?.nomina||[]}
+                    onUpdate={u=>upP(id,"nomina",u.id,u)}
+                    onRemove={rmN(id)}
+                    onAdd={()=>addN(id)}/>
+                  {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
+                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
+                  </div>}
+                </SCard>
+
+                <SCard title="OPEX · Materiales" icon="📦"
+                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
+                  total={totalOpexAnualCat(id,"mat")} accentColor="#0891b2">
+                  <PartidaTable
+                    partidas={datos?.mat||[]}
+                    onUpdate={u=>upP(id,"mat",u.id,u)}
+                    onRemove={rmP(id,"mat")}
+                    onAdd={()=>addP(id,"mat")}
+                    catOptions={CAT_OPEX_MAT}
+                    addLabel="Agregar material"
+                    headerColor="#0891b2"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
+                </SCard>
+
+                <SCard title="OPEX · Viáticos" icon="🧳"
+                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
+                  total={totalOpexAnualCat(id,"via")} accentColor="#d97706">
+                  <PartidaTable
+                    partidas={datos?.via||[]}
+                    onUpdate={u=>upP(id,"via",u.id,u)}
+                    onRemove={rmP(id,"via")}
+                    onAdd={()=>addP(id,"via")}
+                    catOptions={CAT_OPEX_VIA}
+                    addLabel="Agregar viático"
+                    headerColor="#d97706"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
+                </SCard>
+
+                <div className="noprint" style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
+                  {btn("Guardar",()=>guardarArea(id),"success")}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ,"Mi presupuesto");
   }
   return null;
 }
