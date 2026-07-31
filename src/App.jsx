@@ -314,6 +314,18 @@ function mesIndexCapex(p, fechaInicio, numMeses=12){
   return Math.min(Math.max(diff,0), numMeses);
 }
 
+// Traduce un mes relativo del proyecto (0=M0) a "Mmm AAAA" real, a partir de
+// la Fecha Inicio del presupuesto — misma fórmula que ya usa el bloque "Cae
+// en:" de abajo, extraída aquí para reutilizarla donde solo hay el mes
+// relativo y no una fecha capturada (ver PartidaTable, mostrarFechaReal).
+function mesLabelReal(offset, fechaInicio){
+  if(!fechaInicio) return null;
+  const d = new Date(fechaInicio+"T00:00:00");
+  d.setMonth(d.getMonth()+offset);
+  const nombresMes=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${nombresMes[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 // Duración real del proyecto en meses operativos (M1..Mn), a partir de las fechas
 // capturadas — soporta desde presupuestos de 6 meses hasta de 20 años (240 meses).
 // Default 12 si no hay fechas (mismo comportamiento de siempre para M0..M12).
@@ -876,7 +888,7 @@ const CATALOGO_CASCADA = {
 
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
-function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12}){
+function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12, mostrarFechaReal=false}){
   // Cascada Subcategoría/Artículo (solo OPEX Materiales) — key=p.id, value=subcategoría elegida
   const [subcatSel, setSubcatSel] = useState({});
   // Rango de años de los selects "Año" — antes fijo 2024-2035; ahora se ajusta
@@ -1101,7 +1113,11 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   </select>
                 </div>
                 {p.mesInicioOpex&&!p.mesGastoMes&&(
-                  <div style={{fontSize:9,color:C.grayMid}}>Inicia M{p.mesInicioOpex} (sin fecha)</div>
+                  <div style={{fontSize:9,color:C.grayMid}}>
+                    {mostrarFechaReal&&mesLabelReal(p.mesInicioOpex,fechaInicioProyecto)
+                      ? `Inicia M${p.mesInicioOpex} · ${mesLabelReal(p.mesInicioOpex,fechaInicioProyecto)}`
+                      : `Inicia M${p.mesInicioOpex} (sin fecha)`}
+                  </div>
                 )}
                 {/* Número de repeticiones — opcional, vacío = sin límite (se repite hasta el fin del proyecto) */}
                 <input type="number" min="1" placeholder="Vacío = durante todo el proyecto"
@@ -3676,7 +3692,8 @@ export default function App(){
                     catOptions={CAT_OPEX_MAT}
                     addLabel="Agregar material"
                     headerColor="#0891b2"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+                    mostrarFechaReal={true}/>
                 </SCard>
 
                 <SCard title="OPEX · Viáticos" icon="🧳"
@@ -3690,7 +3707,8 @@ export default function App(){
                     catOptions={CAT_OPEX_VIA}
                     addLabel="Agregar viático"
                     headerColor="#d97706"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+                    mostrarFechaReal={true}/>
                 </SCard>
 
                 <div className="noprint" style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
