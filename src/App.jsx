@@ -1035,7 +1035,7 @@ const CATALOGO_CASCADA = {
 
 // ─── PARTIDA ROW ─────────────────────────────────────────────────────────────
 // Headers y fila en el mismo componente, dentro del card
-function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12, mostrarFechaReal=false}){
+function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12, mostrarFechaReal=false, readOnly=false}){
   // Cascada Subcategoría/Artículo (solo OPEX Materiales) — key=p.id, value=subcategoría elegida
   const [subcatSel, setSubcatSel] = useState({});
   // Rango de años de los selects "Año" — antes fijo 2024-2035; ahora se ajusta
@@ -1085,6 +1085,38 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
       {/* Filas */}
       {partidas.map((p,idx)=>{
         const total=(p.cantidad||0)*(p.monto||0);
+        // Modo lectura ("Mi presupuesto" antes de presionar Editar) — fila de solo
+        // texto, sin inputs ni widgets de captura (cascada/chips/historial no aplican
+        // sin edición). Es un branch temprano, no toca la fila editable de abajo.
+        if(readOnly){
+          const fechaOPeriodo = showMes
+            ? (p.mesGastoMes&&p.mesGastoAnio
+                ? `${["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][p.mesGastoMes-1]} ${p.mesGastoAnio}`
+                : "—")
+            : showPeriod
+              ? (PERIODICIDADES.find(pd=>pd.id===(p.periodicidad||"mensual"))?.label||p.periodicidad||"—")
+                + (p.mesGastoMes&&p.mesGastoAnio ? ` · desde ${["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][p.mesGastoMes-1]} ${p.mesGastoAnio}`
+                   : p.mesInicioOpex ? ` · desde M${p.mesInicioOpex}` : "")
+              : null;
+          return(
+            <div key={p.id} className="partida-row" style={{display:"grid",
+              gridTemplateColumns:cols,background:idx%2===1?"#FAFBFC":"transparent",
+              gap:16,alignItems:"center",padding:"14px 12px",margin:"0 -12px",
+              borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
+              <div style={{fontSize:12.5,fontWeight:600,color:C.grayDark}}>{p.cat||"—"}</div>
+              <div style={{fontSize:12.5,color:C.grayDark}}>{p.desc||"—"}</div>
+              <div style={{fontSize:12,color:C.grayMid}}>{p.unidad||"—"}</div>
+              <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{p.cantidad||0}</div>
+              {(showMes||showPeriod)&&(
+                <div style={{fontSize:11,color:C.grayMid}}>{fechaOPeriodo}</div>
+              )}
+              <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{fmt(p.monto||0)}</div>
+              <div style={{textAlign:"right",fontSize:13,fontWeight:700,
+                color:total>0?headerColor:C.grayMid}}>{fmt(total)}</div>
+              <div/>
+            </div>
+          );
+        }
         return(
           <div key={p.id} className="partida-row" style={{display:"grid",
             gridTemplateColumns:cols,background:idx%2===1?"#FAFBFC":"transparent",
@@ -1314,26 +1346,28 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
       {partidas.length===0&&(
         <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
           background:"#FAFAFA",borderRadius:10,marginBottom:14}}>
-          Aún no hay partidas capturadas en esta sección.
+          {readOnly?"Sin partidas capturadas en esta sección.":"Aún no hay partidas capturadas en esta sección."}
         </div>
       )}
-      {/* Add row */}
-      <button onClick={onAdd}
-        style={{width:"100%",marginTop:partidas.length===0?0:14,padding:"16px 24px",
-          border:`2px dashed ${headerColor}50`,borderRadius:10,
-          background:`${headerColor}0D`,cursor:"pointer",color:headerColor,
-          fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-          transition:"all 0.15s"}}
-        onMouseEnter={e=>{e.currentTarget.style.borderColor=headerColor;e.currentTarget.style.background=`${headerColor}1A`;}}
-        onMouseLeave={e=>{e.currentTarget.style.borderColor=`${headerColor}50`;e.currentTarget.style.background=`${headerColor}0D`;}}>
-        <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> {addLabel}
-      </button>
+      {/* Add row — no aplica en modo lectura */}
+      {!readOnly&&(
+        <button onClick={onAdd}
+          style={{width:"100%",marginTop:partidas.length===0?0:14,padding:"16px 24px",
+            border:`2px dashed ${headerColor}50`,borderRadius:10,
+            background:`${headerColor}0D`,cursor:"pointer",color:headerColor,
+            fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+            transition:"all 0.15s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=headerColor;e.currentTarget.style.background=`${headerColor}1A`;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=`${headerColor}50`;e.currentTarget.style.background=`${headerColor}0D`;}}>
+          <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> {addLabel}
+        </button>
+      )}
     </div>
   );
 }
 
 // ─── NOMINA TABLE ─────────────────────────────────────────────────────────────
-function NominaTable({nomina,onUpdate,onRemove,onAdd}){
+function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
   return(
     <div>
     <ScrollHint minWidth={720}>
@@ -1354,6 +1388,31 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
         const costo=(p.salario||0)*factor*(p.cantidad||1);
         const meses = mesesNomina(p, 12);
         const costoTotal = costoTotalNomina(p, 12);
+        // Modo lectura — mismo patrón que PartidaTable: fila de solo texto, sin
+        // inputs ni botón de eliminar.
+        if(readOnly){
+          const puestoLabel = p.puesto==="Otro" ? (p.puestoCustom||"Otro") : (p.puesto||"—");
+          return(
+            <div key={p.id} style={{marginBottom:14}}>
+              <div className="partida-row" style={{display:"grid",
+                gridTemplateColumns:"2fr 110px 60px 1fr 80px 80px 120px 34px",background:idx%2===1?"#FAFBFC":"transparent",
+                gap:16,alignItems:"center",padding:"14px 12px",margin:"0 -12px",
+                borderBottom:idx<nomina.length-1?`1px solid ${C.line}`:"none"}}>
+                <div style={{fontSize:12.5,fontWeight:600,color:C.grayDark}}>{puestoLabel}</div>
+                <div style={{fontSize:12,color:C.grayMid,textTransform:"capitalize"}}>{p.tipoPersonal||"fijo"}</div>
+                <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{p.cantidad||1}</div>
+                <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{fmt(p.salario||0)}</div>
+                <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{p.imss}</div>
+                <div style={{fontSize:12,color:C.grayMid,textAlign:"right"}}>{p.prestaciones}</div>
+                <div style={{textAlign:"right"}}>
+                  <div style={{fontSize:13,fontWeight:700,color:C.success}}>{fmt(costoTotal)}</div>
+                  <div style={{fontSize:9,color:C.grayMid}}>{meses} mes(es)</div>
+                </div>
+                <div/>
+              </div>
+            </div>
+          );
+        }
         return(
           <div key={p.id} style={{marginBottom:14}}>
             <div className="partida-row" style={{display:"grid",
@@ -1431,19 +1490,21 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd}){
       {nomina.length===0&&(
         <div style={{padding:"26px 16px",textAlign:"center",color:C.grayMid,fontSize:13,
           background:"#FAFAFA",borderRadius:10,marginBottom:14}}>
-          Aún no hay puestos de nómina capturados en esta área.
+          {readOnly?"Sin puestos de nómina capturados en esta área.":"Aún no hay puestos de nómina capturados en esta área."}
         </div>
       )}
-      <button onClick={onAdd}
-        style={{width:"100%",marginTop:nomina.length===0?0:14,padding:"16px 24px",
-          border:"2px dashed #86e0b8",borderRadius:10,
-          background:"#0596690D",cursor:"pointer",color:"#059669",
-          fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-          transition:"all 0.15s"}}
-        onMouseEnter={e=>{e.currentTarget.style.borderColor="#059669";e.currentTarget.style.background="#0596691A";}}
-        onMouseLeave={e=>{e.currentTarget.style.borderColor="#86e0b8";e.currentTarget.style.background="#0596690D";}}>
-        <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> Agregar puesto
-      </button>
+      {!readOnly&&(
+        <button onClick={onAdd}
+          style={{width:"100%",marginTop:nomina.length===0?0:14,padding:"16px 24px",
+            border:"2px dashed #86e0b8",borderRadius:10,
+            background:"#0596690D",cursor:"pointer",color:"#059669",
+            fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+            transition:"all 0.15s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="#059669";e.currentTarget.style.background="#0596691A";}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor="#86e0b8";e.currentTarget.style.background="#0596690D";}}>
+          <span style={{fontSize:18,fontWeight:800,lineHeight:1}}>+</span> Agregar puesto
+        </button>
+      )}
     </div>
   );
 }
@@ -2018,6 +2079,10 @@ export default function App(){
   const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
+  // Mi presupuesto (Step 5): al abrir un presupuesto existente arranca en modo
+  // lectura (solo texto, sin inputs) — "Editar" lo pasa a modo edición en la
+  // misma pantalla, sin navegar a otro step ni volver a pedir datos.
+  const [modoLectura,setModoLectura] = useState(true);
   // Estado para abrir presupuesto después del render (evita race condition)
   const [presToOpen, setPresToOpen] = useState(null);
   const isOpening = useRef(false); // flag: no guardar en localStorage mientras se abre
@@ -2098,7 +2163,10 @@ export default function App(){
     setIngAd(ingAdicionalesP);
     setAreaSaved(saved);
     setActiva(primera);
-    setStep(3);
+    // Abrir un presupuesto existente ya no aterriza directo en captura (editable) —
+    // aterriza en "Mi presupuesto" en modo lectura; "Editar" ahí habilita los inputs.
+    setModoLectura(true);
+    setStep(5);
     setPresToOpen(null); // limpiar para no re-ejecutar
     // Pequeño delay para que React termine el render antes de reanudar guardado
     setTimeout(()=>{ isOpening.current = false; }, 100);
@@ -2138,6 +2206,7 @@ export default function App(){
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setIntentoGuardar(false);
+    setModoLectura(false); // un presupuesto nuevo siempre arranca editable
     setStep(1);
   }
   function abrirEdit(p){
@@ -2148,6 +2217,7 @@ export default function App(){
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
+    setModoLectura(false); // "Editar" desde la lista siempre entra editable
     setStep(1);
   }
 
@@ -3622,7 +3692,16 @@ export default function App(){
 
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
           <div>
-            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Mi presupuesto</h2>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+              <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>Mi presupuesto</h2>
+              {/* Indicador de modo — que nunca quede ambiguo si se está viendo o editando */}
+              <span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,
+                background:modoLectura?C.grayLight:C.yellowLight,
+                color:modoLectura?C.grayMid:C.yellowDark,
+                border:`1px solid ${modoLectura?C.grayBorder:C.yellowBorder}`}}>
+                {modoLectura?"👁 Viendo":"✎ Editando"}
+              </span>
+            </div>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
             {pres?.fechaElaboracion&&(
               <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
@@ -3632,8 +3711,11 @@ export default function App(){
             )}
           </div>
           <div style={{display:"flex",gap:10}} className="noprint">
+            {modoLectura
+              ? btn("✎ Editar",()=>setModoLectura(false),"primary")
+              : btn("✓ Terminar edición",()=>setModoLectura(true),"success")}
             {btn("← Resumen mensual",()=>setStep(4),"secondary")}
-            {btn("⬇ PDF",()=>window.print(),"primary")}
+            {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
         </div>
 
@@ -3747,7 +3829,8 @@ export default function App(){
                     catOptions={CAT_CAPEX}
                     addLabel="Agregar equipo / inversión"
                     headerColor="#7c3aed"
-                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}/>
+                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}
+                    readOnly={modoLectura}/>
                 </SCard>
 
                 <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
@@ -3757,7 +3840,8 @@ export default function App(){
                     nomina={datos?.nomina||[]}
                     onUpdate={u=>upP(id,"nomina",u.id,u)}
                     onRemove={rmN(id)}
-                    onAdd={()=>addN(id)}/>
+                    onAdd={()=>addN(id)}
+                    readOnly={modoLectura}/>
                   {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
                     Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
                   </div>}
@@ -3775,7 +3859,7 @@ export default function App(){
                     addLabel="Agregar material"
                     headerColor="#0891b2"
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true}/>
+                    mostrarFechaReal={true} readOnly={modoLectura}/>
                 </SCard>
 
                 <SCard title="OPEX · Viáticos" icon="🧳"
@@ -3790,12 +3874,14 @@ export default function App(){
                     addLabel="Agregar viático"
                     headerColor="#d97706"
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true}/>
+                    mostrarFechaReal={true} readOnly={modoLectura}/>
                 </SCard>
 
-                <div className="noprint" style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
-                  {btn("Guardar",()=>guardarArea(id),"success")}
-                </div>
+                {!modoLectura&&(
+                  <div className="noprint" style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
+                    {btn("Guardar",()=>guardarArea(id),"success")}
+                  </div>
+                )}
               </div>
             );
           })}
