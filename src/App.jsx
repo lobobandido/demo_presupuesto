@@ -361,6 +361,153 @@ function costoTotalNomina(puesto, numMeses=12){
   return distribuirNomina(puesto, numMeses).reduce((s,v)=>s+v, 0);
 }
 
+// ─── SERIE MENSUAL DEL PRESUPUESTO COMPLETO ──────────────────────────────────
+// Extraído de Step 4 (Resumen mensual) para poder reutilizarse tal cual en
+// Step 5 (Mi presupuesto) sin duplicar la lógica de cálculo — misma función,
+// mismos resultados, cero cambio de comportamiento en Step 4.
+function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales}){
+  const cats=getAreasCat(pres?.tipo||"instalacion");
+  // Duración real del proyecto (de 6 meses a 20 años) según fechaInicio/fechaFin —
+  // ya no se asume siempre M0..M12.
+  const NUM_MESES_OP=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
+  const NMESES=NUM_MESES_OP+1; // +1 por M0 (instalación)
+  const MESES13=["M0 (Inst.)",...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
+  // Rango de años para selects (ingresos adicionales) — mismo criterio que PartidaTable
+  const anioIniProy=pres?.fechaInicio ? new Date(pres.fechaInicio+"T00:00:00").getFullYear() : 2024;
+  const anioFinProy=pres?.fechaFin ? new Date(pres.fechaFin+"T00:00:00").getFullYear() : anioIniProy+11;
+  const RANGO_ANIOS=Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
+
+  // ── Cálculos mensuales ─────────────────────────────────────────────────
+
+  // CAPEX: cada partida cae en el mes real de compra (fecha vs. fecha de inicio del proyecto)
+  const mCapex=Array(NMESES).fill(0);
+  areas.forEach(id=>{
+    (costos[id]?.capex||[]).forEach(p=>{
+      mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+    });
+  });
+  capexPM.forEach(p=>{
+    mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+  });
+
+  // Detalle por partida CAPEX (para la fila expandible de Tabla SERVICIO) —
+  // no participa en ningún cálculo, solo reutiliza mesIndexCapex por partida.
+  const capexDetalle=[];
+  areas.forEach(id=>{
+    (costos[id]?.capex||[]).forEach(p=>{
+      const datos=Array(NMESES).fill(0);
+      datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+      capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
+    });
+  });
+  capexPM.forEach(p=>{
+    const datos=Array(NMESES).fill(0);
+    datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+    capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
+  });
+
+  // OPEX: cada partida se distribuye según su periodicidad y mes de inicio
+  const mOpex=Array(NMESES).fill(0);
+  areas.forEach(id=>{
+    ["mat","via"].forEach(cat=>{
+      (costos[id]?.[cat]||[]).forEach(p=>{
+        distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+      });
+    });
+    (costos[id]?.nomina||[]).forEach(p=>{
+      distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+    });
+  });
+  opexPM.forEach(p=>{
+    distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
+  });
+
+  // Detalle por partida OPEX (para la fila expandible de Tabla SERVICIO) —
+  // reutiliza distribuirOpex/distribuirNomina por partida, sin afectar mOpex.
+  const opexDetalle=[];
+  areas.forEach(id=>{
+    ["mat","via"].forEach(cat=>{
+      (costos[id]?.[cat]||[]).forEach(p=>{
+        opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
+      });
+    });
+    (costos[id]?.nomina||[]).forEach(p=>{
+      opexDetalle.push({label:p.puesto==="Otro"?(p.puestoCustom||"Puesto"):(p.puesto||"Puesto"),datos:distribuirNomina(p,NUM_MESES_OP)});
+    });
+  });
+  opexPM.forEach(p=>{
+    opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
+  });
+
+  // Partidas sin categoría contable macro asignada (para revisión posterior) —
+  // una categoría "tiene macro" si es ella misma una de las 27 CATS_MACRO_CONTABLE,
+  // o si aparece en SUBCAT_MAPPING (fijo) o geolis_subcat_map (elegido por el usuario).
+  const subcatMapLS=(()=>{ try{ return JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}"); }catch(e){ return {}; } })();
+  function tieneCategoriaMacro(cat){
+    const catUp=(cat||"").trim().toUpperCase();
+    if(!catUp) return false;
+    if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return true;
+    if(SUBCAT_MAPPING[catUp]) return true;
+    if(subcatMapLS[catUp]) return true;
+    return false;
+  }
+  let sinCategoriaMacro=0;
+  areas.forEach(id=>{
+    ["capex","mat","via"].forEach(cat=>{
+      (costos[id]?.[cat]||[]).forEach(p=>{ if(!tieneCategoriaMacro(p.cat)) sinCategoriaMacro++; });
+    });
+  });
+
+  // Egresos totales por mes
+  const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
+
+  // Ingresos (estado editable) + ingresos adicionales del mes correspondiente —
+  // se arma con Array(NMESES) en vez de recortar "ingresos" para que proyectos
+  // más largos que el arreglo guardado (ej. 20 años) no pierdan meses.
+  const mIngresos=Array(NMESES).fill(0)
+    .map((_,i)=>(ingresos[i]||0)+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
+  const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
+
+  // Flujo efectivo mensual = Ingresos - Egresos
+  const mFlujo=Array(NMESES).fill(0).map((_,i)=>mIngresos[i]-mEgresos[i]);
+
+  // Flujo acumulado
+  const mFlujoAcum=Array(NMESES).fill(0);
+  mFlujoAcum[0]=mFlujo[0];
+  for(let i=1;i<NMESES;i++) mFlujoAcum[i]=mFlujoAcum[i-1]+mFlujo[i];
+
+  // OPEX por categoría para Gráfica II — misma distribución real, agrupada por categoría
+  const catOpexData={};
+  function addACat(label,arr){
+    if(!catOpexData[label]) catOpexData[label]=Array(NMESES).fill(0);
+    arr.forEach((v,i)=>catOpexData[label][i]+=v);
+  }
+  areas.forEach(id=>{
+    ["mat","via"].forEach(cat=>{
+      (costos[id]?.[cat]||[]).forEach(p=>{
+        addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
+      });
+    });
+    (costos[id]?.nomina||[]).forEach(p=>{
+      addACat("NOMINA Y ADICIONALES", distribuirNomina(p,NUM_MESES_OP));
+    });
+  });
+  opexPM.forEach(p=>{
+    addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
+  });
+  const catOpexSeries=Object.entries(catOpexData)
+    .filter(([,arr])=>arr.some(v=>v>0))
+    .map(([label,data],i)=>({
+      label,
+      color:["#DDAC00","#374151","#7c3aed","#0891b2","#059669","#d97706","#dc2626","#6366f1"][i%8],
+      data,
+    }));
+
+  return {cats, NUM_MESES_OP, NMESES, MESES13, anioIniProy, anioFinProy, RANGO_ANIOS,
+    mCapex, capexDetalle, mOpex, opexDetalle, sinCategoriaMacro, mEgresos, mIngresos,
+    totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries};
+}
+
 // ─── PERSISTENCIA localStorage (PUNTO 5 — no perder datos al navegar) ────────
 const LS_APP_KEY = "geolis_app_state_v4"; // v4: fix abrir + TI real + validaciones
 function saveAppState(state){ try{ localStorage.setItem(LS_APP_KEY, JSON.stringify(state)); }catch(e){} }
@@ -1418,6 +1565,138 @@ function BarChart({items,height=260}){
   );
 }
 
+// ─── GRÁFICA I: barras + línea para flujo de efectivo ────────────────────────
+// Extraída de Step 4 (Resumen mensual) para poder reutilizarse tal cual en
+// Step 5 (Mi presupuesto). Único cambio de forma respecto al original: recibe
+// `meses` como prop en vez de cerrar sobre NMESES/MESES13 de Step 4 (una
+// función a nivel de módulo no puede cerrar sobre variables locales de un
+// bloque de otra función) — la lógica de dibujo es idéntica.
+function FlowChart({barData,lineData,height=300,meses}){
+  const NMESES=meses.length;
+  const W=960,H=height,pL=90,pR=24,pT=28,pB=44;
+  const cW=W-pL-pR, cH=H-pT-pB;
+  const absMax=Math.max(...[...barData,...lineData].map(Math.abs),1);
+  // Eje Y: de -absMax a +absMax, cero en el centro
+  const yZero=pT+cH/2;
+  const yP=v=>yZero-(v/absMax)*(cH/2);
+  const xP=i=>pL+((i+0.5)/NMESES)*cW;
+  const bW=Math.max(18,(cW/NMESES)*0.55);
+  const fmtA=v=>{
+    if(v===0)return "$0";
+    const abs=Math.abs(v);
+    const s=abs>=1000000?`$${(abs/1000000).toFixed(1)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:`$${abs.toFixed(0)}`;
+    return v<0?`-${s}`:s;
+  };
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      {/* Fondo */}
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      {/* Fondo zona positiva */}
+      <rect x={pL} y={pT} width={cW} height={cH/2} fill="#f0fdf4" rx="3" opacity="0.5"/>
+      {/* Grid lines */}
+      {[-1,-0.5,0,0.5,1].map(p=>{
+        const y=yZero-(p*cH/2);
+        return <g key={p}>
+          <line x1={pL} y1={y} x2={W-pR} y2={y}
+            stroke={p===0?"#888":"#E5E7EB"}
+            strokeWidth={p===0?2:0.8}
+            strokeDasharray={p===0?"none":"4 3"}/>
+          <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
+            fill={p===0?C.grayDark:C.grayMid} fontWeight={p===0?"700":"400"}
+            fontFamily="Inter,sans-serif">
+            {fmtA(absMax*p)}
+          </text>
+        </g>;
+      })}
+      {/* Barras flujo mensual */}
+      {barData.map((v,i)=>{
+        const x=xP(i)-bW/2;
+        const barH=Math.max(1,Math.abs(v)/absMax*(cH/2));
+        const y=v>=0?yZero-barH:yZero;
+        return <g key={i}>
+          <rect x={x} y={y} width={bW} height={barH} rx="3"
+            fill={v>=0?"#DDAC00":"#EF4444"} opacity="0.9"/>
+        </g>;
+      })}
+      {/* Línea flujo acumulado */}
+      {lineData.length>0&&(()=>{
+        const pts=lineData.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+        return <g>
+          <polyline points={pts} fill="none" stroke="#1E40AF" strokeWidth="2.5"
+            strokeLinejoin="round" strokeLinecap="round"/>
+          {lineData.map((v,i)=>(
+            <circle key={i} cx={xP(i)} cy={yP(v)} r="4.5"
+              fill={v>=0?"#059669":"#EF4444"} stroke={C.white} strokeWidth="2"/>
+          ))}
+        </g>;
+      })()}
+      {/* Etiquetas X */}
+      {meses.map((m,i)=>(
+        <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
+          fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
+      ))}
+    </svg>
+  );
+}
+
+// ─── GRÁFICA II: líneas por categoría OPEX ───────────────────────────────────
+// Extraída de Step 4 igual que FlowChart — mismo motivo, mismo único cambio
+// de forma (recibe `meses` como prop en vez de cerrar sobre NMESES/MESES13).
+function CatLinesChart({series,height=300,meses}){
+  if(!series||series.length===0) return(
+    <div style={{padding:"32px 20px",color:C.grayMid,fontSize:13,textAlign:"center",
+      background:"#FAFAFA",borderRadius:8,border:`1px dashed ${C.grayBorder}`}}>
+      Captura partidas OPEX en las áreas para ver esta gráfica.
+    </div>
+  );
+  const NMESES=meses.length;
+  const W=960,H=height,pL=90,pR=130,pT=24,pB=44;
+  const cW=W-pL-pR, cH=H-pT-pB;
+  const allV=series.flatMap(s=>s.data).filter(v=>v>0);
+  const maxV=Math.max(...allV,1);
+  const xP=i=>pL+(i/(NMESES-1))*cW;
+  const yP=v=>pT+cH-Math.max(0,Math.min(1,v/maxV))*cH;
+  const fmtY=v=>v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`;
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      {/* Grid */}
+      {[0,.25,.5,.75,1].map(p=>{
+        const v=maxV*p, y=yP(v);
+        return <g key={p}>
+          <line x1={pL} y1={y} x2={pL+cW} y2={y}
+            stroke={p===0?"#ccc":C.line} strokeWidth={p===0?"1.5":"0.8"} strokeDasharray={p===0?"none":"4 3"}/>
+          <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
+            fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
+        </g>;
+      })}
+      {/* Etiquetas X */}
+      {meses.map((m,i)=>(
+        <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
+          fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
+      ))}
+      {/* Líneas por categoría */}
+      {series.map((s,si)=>{
+        const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
+        const lastV=s.data[s.data.length-1];
+        const lastY=yP(lastV);
+        return <g key={s.label}>
+          <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2.5"
+            strokeLinejoin="round" strokeLinecap="round"/>
+          {s.data.map((v,i)=>(
+            <circle key={i} cx={xP(i)} cy={yP(v)} r="4"
+              fill={s.color} stroke={C.white} strokeWidth="2"/>
+          ))}
+          {/* Label inline al final de la línea */}
+          <text x={pL+cW+8} y={Math.max(pT+10,Math.min(H-pB-4,lastY+4))}
+            fontSize="10" fill={s.color} fontWeight="600" fontFamily="Inter,sans-serif">
+            {s.label.length>16?s.label.slice(0,16)+"…":s.label}
+          </text>
+        </g>;
+      })}
+    </svg>
+  );
+}
 
 // ─── EXPORTAR EXCEL (SheetJS) ────────────────────────────────────────────────
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
@@ -2903,142 +3182,11 @@ export default function App(){
   // STEP 4 — RESUMEN MENSUAL COMPLETO
   // ══════════════════════════════════════════════════════════════════════════
   if(step===4){
-    const cats=getAreasCat(pres?.tipo||"instalacion");
-    // Duración real del proyecto (de 6 meses a 20 años) según fechaInicio/fechaFin —
-    // ya no se asume siempre M0..M12.
-    const NUM_MESES_OP=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
-    const NMESES=NUM_MESES_OP+1; // +1 por M0 (instalación)
-    const MESES13=["M0 (Inst.)",...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
-    // Rango de años para selects (ingresos adicionales) — mismo criterio que PartidaTable
-    const anioIniProy=pres?.fechaInicio ? new Date(pres.fechaInicio+"T00:00:00").getFullYear() : 2024;
-    const anioFinProy=pres?.fechaFin ? new Date(pres.fechaFin+"T00:00:00").getFullYear() : anioIniProy+11;
-    const RANGO_ANIOS=Array.from({length: Math.max(12, anioFinProy-anioIniProy+3)}, (_,i)=>anioIniProy-1+i);
-
-    // ── Cálculos mensuales ─────────────────────────────────────────────────
-
-    // CAPEX: cada partida cae en el mes real de compra (fecha vs. fecha de inicio del proyecto)
-    const mCapex=Array(NMESES).fill(0);
-    areas.forEach(id=>{
-      (costos[id]?.capex||[]).forEach(p=>{
-        mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
-      });
-    });
-    capexPM.forEach(p=>{
-      mCapex[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
-    });
-
-    // Detalle por partida CAPEX (para la fila expandible de Tabla SERVICIO) —
-    // no participa en ningún cálculo, solo reutiliza mesIndexCapex por partida.
-    const capexDetalle=[];
-    areas.forEach(id=>{
-      (costos[id]?.capex||[]).forEach(p=>{
-        const datos=Array(NMESES).fill(0);
-        datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
-        capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
-      });
-    });
-    capexPM.forEach(p=>{
-      const datos=Array(NMESES).fill(0);
-      datos[mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
-      capexDetalle.push({label:p.desc||p.cat||"CAPEX",datos});
-    });
-
-    // OPEX: cada partida se distribuye según su periodicidad y mes de inicio
-    const mOpex=Array(NMESES).fill(0);
-    areas.forEach(id=>{
-      ["mat","via"].forEach(cat=>{
-        (costos[id]?.[cat]||[]).forEach(p=>{
-          distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
-        });
-      });
-      (costos[id]?.nomina||[]).forEach(p=>{
-        distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
-      });
-    });
-    opexPM.forEach(p=>{
-      distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
-    });
-
-    // Detalle por partida OPEX (para la fila expandible de Tabla SERVICIO) —
-    // reutiliza distribuirOpex/distribuirNomina por partida, sin afectar mOpex.
-    const opexDetalle=[];
-    areas.forEach(id=>{
-      ["mat","via"].forEach(cat=>{
-        (costos[id]?.[cat]||[]).forEach(p=>{
-          opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
-        });
-      });
-      (costos[id]?.nomina||[]).forEach(p=>{
-        opexDetalle.push({label:p.puesto==="Otro"?(p.puestoCustom||"Puesto"):(p.puesto||"Puesto"),datos:distribuirNomina(p,NUM_MESES_OP)});
-      });
-    });
-    opexPM.forEach(p=>{
-      opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
-    });
-
-    // Partidas sin categoría contable macro asignada (para revisión posterior) —
-    // una categoría "tiene macro" si es ella misma una de las 27 CATS_MACRO_CONTABLE,
-    // o si aparece en SUBCAT_MAPPING (fijo) o geolis_subcat_map (elegido por el usuario).
-    const subcatMapLS=(()=>{ try{ return JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}"); }catch(e){ return {}; } })();
-    function tieneCategoriaMacro(cat){
-      const catUp=(cat||"").trim().toUpperCase();
-      if(!catUp) return false;
-      if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return true;
-      if(SUBCAT_MAPPING[catUp]) return true;
-      if(subcatMapLS[catUp]) return true;
-      return false;
-    }
-    let sinCategoriaMacro=0;
-    areas.forEach(id=>{
-      ["capex","mat","via"].forEach(cat=>{
-        (costos[id]?.[cat]||[]).forEach(p=>{ if(!tieneCategoriaMacro(p.cat)) sinCategoriaMacro++; });
-      });
-    });
-
-    // Egresos totales por mes
-    const mEgresos=Array(NMESES).fill(0).map((_,i)=>mCapex[i]+mOpex[i]);
-
-    // Ingresos (estado editable) + ingresos adicionales del mes correspondiente —
-    // se arma con Array(NMESES) en vez de recortar "ingresos" para que proyectos
-    // más largos que el arreglo guardado (ej. 20 años) no pierdan meses.
-    const mIngresos=Array(NMESES).fill(0)
-      .map((_,i)=>(ingresos[i]||0)+ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0));
-    const totalIngresosAnual=mIngresos.reduce((s,v)=>s+v,0);
-
-    // Flujo efectivo mensual = Ingresos - Egresos
-    const mFlujo=Array(NMESES).fill(0).map((_,i)=>mIngresos[i]-mEgresos[i]);
-
-    // Flujo acumulado
-    const mFlujoAcum=Array(NMESES).fill(0);
-    mFlujoAcum[0]=mFlujo[0];
-    for(let i=1;i<NMESES;i++) mFlujoAcum[i]=mFlujoAcum[i-1]+mFlujo[i];
-
-    // OPEX por categoría para Gráfica II — misma distribución real, agrupada por categoría
-    const catOpexData={};
-    function addACat(label,arr){
-      if(!catOpexData[label]) catOpexData[label]=Array(NMESES).fill(0);
-      arr.forEach((v,i)=>catOpexData[label][i]+=v);
-    }
-    areas.forEach(id=>{
-      ["mat","via"].forEach(cat=>{
-        (costos[id]?.[cat]||[]).forEach(p=>{
-          addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
-        });
-      });
-      (costos[id]?.nomina||[]).forEach(p=>{
-        addACat("NOMINA Y ADICIONALES", distribuirNomina(p,NUM_MESES_OP));
-      });
-    });
-    opexPM.forEach(p=>{
-      addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
-    });
-    const catOpexSeries=Object.entries(catOpexData)
-      .filter(([,arr])=>arr.some(v=>v>0))
-      .map(([label,data],i)=>({
-        label,
-        color:["#DDAC00","#374151","#7c3aed","#0891b2","#059669","#d97706","#dc2626","#6366f1"][i%8],
-        data,
-      }));
+    // Cálculo mensual del presupuesto completo — compartido con Step 5, ver
+    // calcularSerieMensual (mismos datos, mismos resultados, sin duplicar lógica).
+    const {cats, NUM_MESES_OP, NMESES, MESES13, anioIniProy, anioFinProy, RANGO_ANIOS,
+      mCapex, capexDetalle, mOpex, opexDetalle, sinCategoriaMacro, mEgresos, mIngresos,
+      totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} = calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
 
     // Totales
     const totalCAPEX=mCapex.reduce((s,v)=>s+v,0);
@@ -3067,130 +3215,6 @@ export default function App(){
       const str=abs>=1000000?`$${(abs/1000000).toFixed(2)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:fmt(abs);
       return v<0?`-${str}`:str;
     };
-
-    // ── Gráfica barras+línea para flujo ────────────────────────────────────
-    function FlowChart({barData,lineData,height=300}){
-      const W=960,H=height,pL=90,pR=24,pT=28,pB=44;
-      const cW=W-pL-pR, cH=H-pT-pB;
-      const absMax=Math.max(...[...barData,...lineData].map(Math.abs),1);
-      // Eje Y: de -absMax a +absMax, cero en el centro
-      const yZero=pT+cH/2;
-      const yP=v=>yZero-(v/absMax)*(cH/2);
-      const xP=i=>pL+((i+0.5)/NMESES)*cW;
-      const bW=Math.max(18,(cW/NMESES)*0.55);
-      const fmtA=v=>{
-        if(v===0)return "$0";
-        const abs=Math.abs(v);
-        const s=abs>=1000000?`$${(abs/1000000).toFixed(1)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:`$${abs.toFixed(0)}`;
-        return v<0?`-${s}`:s;
-      };
-      return(
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-          {/* Fondo */}
-          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
-          {/* Fondo zona positiva */}
-          <rect x={pL} y={pT} width={cW} height={cH/2} fill="#f0fdf4" rx="3" opacity="0.5"/>
-          {/* Grid lines */}
-          {[-1,-0.5,0,0.5,1].map(p=>{
-            const y=yZero-(p*cH/2);
-            return <g key={p}>
-              <line x1={pL} y1={y} x2={W-pR} y2={y}
-                stroke={p===0?"#888":"#E5E7EB"}
-                strokeWidth={p===0?2:0.8}
-                strokeDasharray={p===0?"none":"4 3"}/>
-              <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
-                fill={p===0?C.grayDark:C.grayMid} fontWeight={p===0?"700":"400"}
-                fontFamily="Inter,sans-serif">
-                {fmtA(absMax*p)}
-              </text>
-            </g>;
-          })}
-          {/* Barras flujo mensual */}
-          {barData.map((v,i)=>{
-            const x=xP(i)-bW/2;
-            const barH=Math.max(1,Math.abs(v)/absMax*(cH/2));
-            const y=v>=0?yZero-barH:yZero;
-            return <g key={i}>
-              <rect x={x} y={y} width={bW} height={barH} rx="3"
-                fill={v>=0?"#DDAC00":"#EF4444"} opacity="0.9"/>
-            </g>;
-          })}
-          {/* Línea flujo acumulado */}
-          {lineData.length>0&&(()=>{
-            const pts=lineData.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
-            return <g>
-              <polyline points={pts} fill="none" stroke="#1E40AF" strokeWidth="2.5"
-                strokeLinejoin="round" strokeLinecap="round"/>
-              {lineData.map((v,i)=>(
-                <circle key={i} cx={xP(i)} cy={yP(v)} r="4.5"
-                  fill={v>=0?"#059669":"#EF4444"} stroke={C.white} strokeWidth="2"/>
-              ))}
-            </g>;
-          })()}
-          {/* Etiquetas X */}
-          {MESES13.map((m,i)=>(
-            <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
-              fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
-          ))}
-        </svg>
-      );
-    }
-
-    // ── Gráfica II: líneas por categoría OPEX ──────────────────────────────────
-    function CatLinesChart({series,height=300}){
-      if(!series||series.length===0) return(
-        <div style={{padding:"32px 20px",color:C.grayMid,fontSize:13,textAlign:"center",
-          background:"#FAFAFA",borderRadius:8,border:`1px dashed ${C.grayBorder}`}}>
-          Captura partidas OPEX en las áreas para ver esta gráfica.
-        </div>
-      );
-      const W=960,H=height,pL=90,pR=130,pT=24,pB=44;
-      const cW=W-pL-pR, cH=H-pT-pB;
-      const allV=series.flatMap(s=>s.data).filter(v=>v>0);
-      const maxV=Math.max(...allV,1);
-      const xP=i=>pL+(i/(NMESES-1))*cW;
-      const yP=v=>pT+cH-Math.max(0,Math.min(1,v/maxV))*cH;
-      const fmtY=v=>v>=1000000?`$${(v/1000000).toFixed(1)}M`:v>=1000?`$${(v/1000).toFixed(0)}K`:`$${v.toFixed(0)}`;
-      return(
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-          <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
-          {/* Grid */}
-          {[0,.25,.5,.75,1].map(p=>{
-            const v=maxV*p, y=yP(v);
-            return <g key={p}>
-              <line x1={pL} y1={y} x2={pL+cW} y2={y}
-                stroke={p===0?"#ccc":C.line} strokeWidth={p===0?"1.5":"0.8"} strokeDasharray={p===0?"none":"4 3"}/>
-              <text x={pL-10} y={y+4} textAnchor="end" fontSize="11"
-                fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
-            </g>;
-          })}
-          {/* Etiquetas X */}
-          {MESES13.map((m,i)=>(
-            <text key={m} x={xP(i)} y={H-10} textAnchor="middle" fontSize="11"
-              fill={C.grayMid} fontFamily="Inter,sans-serif">{m}</text>
-          ))}
-          {/* Líneas por categoría */}
-          {series.map((s,si)=>{
-            const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
-            const lastV=s.data[s.data.length-1];
-            const lastY=yP(lastV);
-            return <g key={s.label}>
-              <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2.5"
-                strokeLinejoin="round" strokeLinecap="round"/>
-              {s.data.map((v,i)=>(
-                <circle key={i} cx={xP(i)} cy={yP(v)} r="4"
-                  fill={s.color} stroke={C.white} strokeWidth="2"/>
-              ))}
-              {/* Label inline al final de la línea */}
-              <text x={pL+cW+8} y={Math.max(pT+10,Math.min(H-pB-4,lastY+4))}
-                fontSize="10" fill={s.color} fontWeight="600" fontFamily="Inter,sans-serif">
-                {s.label.length>16?s.label.slice(0,16)+"…":s.label}
-              </text>
-            </g>;
-          })}
-        </svg>
-      );
-    }
 
     // ── Tabla mensual genérica ──────────────────────────────────────────────
     function TablaM({filas,showTotal=true,title}){
@@ -3510,7 +3534,7 @@ export default function App(){
                 </div>
               ))}
             </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240}/></div>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13}/></div>
           </>)}
 
           {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
@@ -3526,7 +3550,7 @@ export default function App(){
                     </div>
                   ))}
                 </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240}/></div>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13}/></div>
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
           </>)}
@@ -3588,6 +3612,10 @@ export default function App(){
   // en vez de mostrar una a la vez. No se tocó Step 3 ni Step 4.
   if(step===5){
     const cats=getAreasCat(pres?.tipo||"instalacion");
+    // Panorama del presupuesto completo (todas las áreas) para las gráficas de
+    // arriba — misma función que usa Step 4, cero lógica de cálculo duplicada.
+    const {MESES13, mFlujo, mFlujoAcum, catOpexSeries} =
+      calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
     return wrap(
       <div>
         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
@@ -3610,6 +3638,60 @@ export default function App(){
         </div>
 
         <div id="rpdf">
+          {/* ── Panorama general — mismas gráficas de Resumen mensual, del presupuesto
+              completo, arriba del detalle por área ("panorama primero, detalle después") ── */}
+          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Flujo de efectivo</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado
+              </div>
+            </div>
+            <div style={{display:"flex",gap:20,marginBottom:12}}>
+              {[
+                {label:"Flujo mensual positivo",color:C.yellow},
+                {label:"Flujo mensual negativo",color:C.danger},
+                {label:"Flujo acumulado",       color:"#374151"},
+              ].map(s=>(
+                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
+                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13}/></div>
+          </div>
+
+          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>OPEX por categoría</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Líneas por categoría contable mes a mes
+              </div>
+            </div>
+            {catOpexSeries.length>0?(
+              <>
+                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
+                  {catOpexSeries.map(s=>(
+                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
+                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13}/></div>
+              </>
+            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
+          </div>
+
           {areas.length===0?(
             <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
               background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`}}>
