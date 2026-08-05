@@ -2209,10 +2209,6 @@ export default function App(){
   const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
-  // Mi presupuesto (Step 5): al abrir un presupuesto existente arranca en modo
-  // lectura (solo texto, sin inputs) — "Editar" lo pasa a modo edición en la
-  // misma pantalla, sin navegar a otro step ni volver a pedir datos.
-  const [modoLectura,setModoLectura] = useState(true);
   // Estado para abrir presupuesto después del render (evita race condition)
   const [presToOpen, setPresToOpen] = useState(null);
   const isOpening = useRef(false); // flag: no guardar en localStorage mientras se abre
@@ -3810,28 +3806,30 @@ export default function App(){
   // que aquí se recorren TODAS las áreas de corrido (sin selector lateral),
   // en vez de mostrar una a la vez. No se tocó Step 3 ni Step 4.
   if(step===5){
-    const cats=getAreasCat(pres?.tipo||"instalacion");
-    // Panorama del presupuesto completo (todas las áreas) para las gráficas de
-    // arriba — misma función que usa Step 4, cero lógica de cálculo duplicada.
-    const {MESES13, MESES13_MES, mFlujo, mFlujoAcum, catOpexSeries} =
+    // Panorama del presupuesto completo — misma función que usa Step 4, cero
+    // lógica de cálculo duplicada. Fase día 3 (spec "Separar captura y
+    // visualización"): Información general deja de ser el areas.map() con
+    // SCard/PartidaTable/NominaTable por área y pasa a ser la vista de
+    // verdad — KPIs + TablaServicio + gráficas, cero campos editables.
+    const {NMESES, MESES13, MESES13_MES, mCapex, mOpex, mEgresos, mIngresos,
+      totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} =
       calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
+    const totalCAPEX=mCapex.reduce((s,v)=>s+v,0);
+    const totalOPEX=mOpex.reduce((s,v)=>s+v,0);
+    const totalEgr=totalCAPEX+totalOPEX;
+    const utilidad=totalIngresosAnual-totalEgr;
+    const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
+    const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
+      totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+
     return wrap(
       <div>
         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
 
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
           <div>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-              {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
-              <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
-              {/* Indicador de modo — que nunca quede ambiguo si se está viendo o editando */}
-              <span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,
-                background:modoLectura?C.grayLight:C.yellowLight,
-                color:modoLectura?C.grayMid:C.yellowDark,
-                border:`1px solid ${modoLectura?C.grayBorder:C.yellowBorder}`}}>
-                {modoLectura?"👁 Viendo":"✎ Editando"}
-              </span>
-            </div>
+            {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
+            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
             {/* Fase 1.6.a — línea de periodo */}
             {pres?.fechaInicio&&(()=>{
@@ -3849,20 +3847,53 @@ export default function App(){
               </div>
             )}
           </div>
-          {/* Fase 1.4/1.5 — fila de botones propia, siempre visible; "Editar partidas"
-              en vez de "Editar" para no chocar con los otros dos accesos de edición. */}
+          {/* Día 3 — Información general ya no tiene campos, así que "Editar" pasa
+              a navegar a Capturar costos en vez de habilitar modoLectura in situ. */}
           <div style={{display:"flex",gap:10}} className="noprint">
-            {modoLectura
-              ? btn("✎ Editar partidas",()=>setModoLectura(false),"primary")
-              : btn("✓ Terminar edición",()=>setModoLectura(true),"success")}
+            {btn("✎ Editar",()=>setStep(3),"primary")}
             {btn("Resumen mensual →",()=>setStep(4),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
         </div>
 
         <div id="rpdf">
-          {/* ── Panorama general — mismas gráficas de Resumen mensual, del presupuesto
-              completo, arriba del detalle por área ("panorama primero, detalle después") ── */}
+          {/* ── Los cinco KPIs del presupuesto completo — mismo bloque que Step 4 ── */}
+          <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+            {[
+              {l:"Ingresos",    v:totalIngresosAnual,c:C.success,   b:C.successLight},
+              {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
+              {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
+              {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
+              {l:"Utilidad y margen",v:utilidad,badge:`${margen.toFixed(1)}%`,
+                c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
+            ].map(k=>(
+              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
+                borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
+                  {k.badge&&<div style={{fontSize:11,fontWeight:800,color:k.c}}>{k.badge}</div>}
+                </div>
+                <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── TablaServicio — el centro de la pantalla (día 2 + día 3) ── */}
+          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>CAPEX y OPEX</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Detalle por categoría, agrupado por categoría contable — haz clic en un subtotal para expandir
+              </div>
+            </div>
+            <TablaServicio filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+          </div>
+
+          {/* ── Gráfica: flujo de efectivo ── */}
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{marginBottom:16}}>
@@ -3889,6 +3920,7 @@ export default function App(){
             <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
           </div>
 
+          {/* ── Gráfica: OPEX por categoría ── */}
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{marginBottom:16}}>
@@ -3914,118 +3946,6 @@ export default function App(){
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
           </div>
-
-          {areas.length===0?(
-            <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
-              background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`}}>
-              Aún no hay áreas capturadas en este presupuesto.
-            </div>
-          ):areas.map((id,ai)=>{
-            const datos=costos[id];
-            const areaInfo=cats.find(a=>a.id===id);
-            const capexA=totalCat(id,"capex");
-            const nomMes=totalNom(id);
-            const opexA=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
-            return(
-              <div key={id} style={{marginBottom:ai<areas.length-1?36:0,
-                paddingBottom:ai<areas.length-1?28:0,
-                borderBottom:ai<areas.length-1?`2px solid ${C.line}`:"none"}}>
-
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <span style={{fontSize:24}}>{areaInfo?.icon}</span>
-                    <div>
-                      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
-                      <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
-                    </div>
-                  </div>
-                  <Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
-                    color={datos?.estado==="guardado"?C.success:C.yellowDark}
-                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>
-                </div>
-
-                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
-                  {[
-                    {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
-                    {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
-                    {l:"Total",           v:capexA+opexA,c:C.grayDark,bg:C.grayLight},
-                  ].map(k=>(
-                    <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
-                      borderRadius:10,padding:"16px 18px"}}>
-                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
-                        textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
-                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
-                  subtitle="Inversiones únicas: maquinaria, equipos, activos"
-                  total={capexA} accentColor="#7c3aed">
-                  <PartidaTable
-                    partidas={datos?.capex||[]}
-                    onUpdate={u=>upP(id,"capex",u.id,u)}
-                    onRemove={rmP(id,"capex")}
-                    onAdd={()=>addP(id,"capex")}
-                    catOptions={CAT_CAPEX}
-                    addLabel="Agregar equipo / inversión"
-                    headerColor="#7c3aed"
-                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}
-                    readOnly={modoLectura}/>
-                </SCard>
-
-                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
-                  subtitle="Costo real por puesto incluyendo cargas sociales"
-                  total={totalNomAnual(id)} accentColor="#059669">
-                  <NominaTable
-                    nomina={datos?.nomina||[]}
-                    onUpdate={u=>upP(id,"nomina",u.id,u)}
-                    onRemove={rmN(id)}
-                    onAdd={()=>addN(id)}
-                    readOnly={modoLectura}/>
-                  {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
-                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
-                  </div>}
-                </SCard>
-
-                <SCard title="OPEX · Materiales" icon="📦"
-                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
-                  total={totalOpexAnualCat(id,"mat")} accentColor="#0891b2">
-                  <PartidaTable
-                    partidas={datos?.mat||[]}
-                    onUpdate={u=>upP(id,"mat",u.id,u)}
-                    onRemove={rmP(id,"mat")}
-                    onAdd={()=>addP(id,"mat")}
-                    catOptions={CAT_OPEX_MAT}
-                    addLabel="Agregar material"
-                    headerColor="#0891b2"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true} readOnly={modoLectura}/>
-                </SCard>
-
-                <SCard title="OPEX · Viáticos" icon="🧳"
-                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
-                  total={totalOpexAnualCat(id,"via")} accentColor="#d97706">
-                  <PartidaTable
-                    partidas={datos?.via||[]}
-                    onUpdate={u=>upP(id,"via",u.id,u)}
-                    onRemove={rmP(id,"via")}
-                    onAdd={()=>addP(id,"via")}
-                    catOptions={CAT_OPEX_VIA}
-                    addLabel="Agregar viático"
-                    headerColor="#d97706"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true} readOnly={modoLectura}/>
-                </SCard>
-
-                {!modoLectura&&(
-                  <div className="noprint" style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
-                    {btn("Guardar",()=>guardarArea(id),"success")}
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </div>
     ,"Información general");
