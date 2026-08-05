@@ -326,6 +326,18 @@ function mesLabelReal(offset, fechaInicio){
   return `${nombresMes[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+// Fase 1.6.b (corrección) — versión corta "Mmm AA" para encabezados de columna
+// angostos (55-62px). NO reemplaza a MESES13 (M0/M1/M2...), que sigue
+// alimentando gráficas/Excel tal cual — este arreglo es paralelo, mismo largo,
+// solo para pintar el nombre del mes debajo del código.
+function nombreMesReal(offset, fechaInicio){
+  if(!fechaInicio) return "";
+  const d=new Date(fechaInicio+"T00:00:00");
+  d.setMonth(d.getMonth()+offset);
+  const m=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${m[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+}
+
 // Duración real del proyecto en meses operativos (M1..Mn), a partir de las fechas
 // capturadas — soporta desde presupuestos de 6 meses hasta de 20 años (240 meses).
 // Default 12 si no hay fechas (mismo comportamiento de siempre para M0..M12).
@@ -371,7 +383,18 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   // ya no se asume siempre M0..M12.
   const NUM_MESES_OP=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
   const NMESES=NUM_MESES_OP+1; // +1 por M0 (instalación)
-  const MESES13=["M0 (Inst.)",...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
+  // Fase 1.6.b (corrección 2) — "(Inst.)" solo aplica a instalación/servicio;
+  // un departamental no tiene mes de instalación. Cambia solo el elemento 0,
+  // el arreglo sigue teniendo el mismo largo (NUM_MESES_OP+1) — no mueve
+  // geometría de gráficas ni nada que dependa de MESES13.length.
+  const esProyecto = pres?.tipo==="instalacion" || pres?.tipo==="servicio";
+  const MESES13=[esProyecto?"M0 (Inst.)":"M0",
+    ...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
+  // Fase 1.6.b (corrección) — arreglo paralelo a MESES13, mismo largo, solo con
+  // el nombre real del mes ("Mar 26"). Sin fechaInicio queda de puras cadenas
+  // vacías (mismo comportamiento de hoy: se ve únicamente el código M1/M2...).
+  const MESES13_MES = Array.from({length: NUM_MESES_OP+1},
+    (_,i) => nombreMesReal(i, pres?.fechaInicio));
   // Rango de años para selects (ingresos adicionales) — mismo criterio que PartidaTable
   const anioIniProy=pres?.fechaInicio ? new Date(pres.fechaInicio+"T00:00:00").getFullYear() : 2024;
   const anioFinProy=pres?.fechaFin ? new Date(pres.fechaFin+"T00:00:00").getFullYear() : anioIniProy+11;
@@ -503,7 +526,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
       data,
     }));
 
-  return {cats, NUM_MESES_OP, NMESES, MESES13, anioIniProy, anioFinProy, RANGO_ANIOS,
+  return {cats, NUM_MESES_OP, NMESES, MESES13, MESES13_MES, anioIniProy, anioFinProy, RANGO_ANIOS,
     mCapex, capexDetalle, mOpex, opexDetalle, sinCategoriaMacro, mEgresos, mIngresos,
     totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries};
 }
@@ -1542,7 +1565,7 @@ function SCard({title,subtitle,total,accentColor,icon,children}){
 }
 
 // ─── CHARTS ──────────────────────────────────────────────────────────────────
-function LineChart({series,height=260}){
+function LineChart({series,height=260,meses}){
   if(!series||series.length===0)return null;
   const W=900,H=height,pL=80,pR=24,pT=24,pB=44;
   const cW=W-pL-pR,cH=H-pT-pB;
@@ -1565,9 +1588,10 @@ function LineChart({series,height=260}){
           <text x={pL-10} y={y+4} textAnchor="end" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{fmtY(v)}</text>
         </g>;
       })}
-      {/* Etiquetas X */}
+      {/* Etiquetas X — con `meses` ya no asume arranque en enero (MESES[i%12] mentía
+          en proyectos que no empiezan en enero); sin ese prop, mismo comportamiento de hoy. */}
       {Array.from({length:n},(_,i)=>{
-        const lbl=MESES[i%12]||`M${i}`;
+        const lbl=meses ? (meses[i]||"") : (MESES[i%12]||`M${i}`);
         return <text key={i} x={xP(i)} y={H-12} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily="Inter,sans-serif">{lbl}</text>;
       })}
       {/* Líneas de datos */}
@@ -2064,10 +2088,10 @@ export default function App(){
   const [areaActiva,setActiva] = useState(null);
   const [capexPM,setCapexPM]   = useState([]);
   const [opexPM,setOpexPM]     = useState([]);
-  const [lista,setLista]       = useState([
-    {id:1,nombre:"Monitoreo Cuervito",tipo:"servicio",   estado:"Borrador",   fecha:"2026-02-01"},
-    {id:2,nombre:"BEH Jujo F218358",  tipo:"instalacion",estado:"En revisión",fecha:"2026-01-15"},
-  ]);
+  // Fase 1 (corrección) — cascarones sin _costos que ensuciaban la lista;
+  // listarPresupuestos() y la lógica de mezcla en el useEffect de montaje
+  // siguen exactamente iguales.
+  const [lista,setLista]       = useState([]);
   const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   const [plantKey,setPlantKey]     = useState(null);
@@ -2466,13 +2490,11 @@ export default function App(){
   };
 
   // ── LAYOUT ───────────────────────────────────────────────────────────────────
+  // Fase 1.1 — menú lateral vacío: la navegación vive dentro del presupuesto,
+  // no en steps bloqueados que no llevan a nada. `areaSaved` NO se borra:
+  // sigue usándose en otras condiciones (botones, gráficas de Step 5, etc.).
   const NAV=[
     {i:0,icon:"◉",label:"Presupuestos"},
-    {i:1,icon:"○",label:"Info general"},
-    {i:2,icon:"○",label:"Áreas"},
-    {i:3,icon:"○",label:"Capturar costos"},
-    {i:4,icon:"○",label:"Resumen mensual",locked:!areaSaved},
-    {i:5,icon:"○",label:"Mi presupuesto",locked:!areaSaved},
   ];
 
   const wrap=(children,bc="")=>(
@@ -2590,26 +2612,9 @@ export default function App(){
             );
           })}
         </nav>
-        {pres&&step>0&&(
-          <div style={{padding:"14px 18px",borderTop:"1px solid #1E1E1E"}}>
-            <div style={{fontSize:10,color:"#444",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Activo</div>
-            <div style={{fontSize:12,fontWeight:700,color:C.yellow,lineHeight:1.3,wordBreak:"break-word"}}>{pres.nombre}</div>
-            <div style={{fontSize:10,color:"#555",marginTop:3,textTransform:"capitalize"}}>{pres.tipo}</div>
-            {pres.fechaElaboracion&&(
-              <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #1E1E1E"}}>
-                <div style={{fontSize:9,color:"#444",textTransform:"uppercase",letterSpacing:0.8,marginBottom:3}}>Elaboración</div>
-                <div style={{fontSize:11,color:C.yellow,fontWeight:600}}>{pres.fechaElaboracion}</div>
-              </div>
-            )}
-            {(pres.fechaInicio||pres.fechaFin)&&(
-              <div style={{marginTop:6}}>
-                <div style={{fontSize:9,color:"#444",textTransform:"uppercase",letterSpacing:0.8,marginBottom:3}}>Vigencia</div>
-                <div style={{fontSize:10,color:"#888"}}>{pres.fechaInicio||'—'}</div>
-                <div style={{fontSize:9,color:"#555"}}>→ {pres.fechaFin||'—'}</div>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Fase 1.2 — bloque "Activo" eliminado: nombre/elaboración/vigencia
+            ya viven en el cuerpo de cada pantalla (Información general,
+            Resumen mensual y ahora también Capturar costos). */}
       </aside>
       {/* Main */}
       <div className="main-content" style={{flex:1,minWidth:0,marginLeft:220,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
@@ -2624,35 +2629,10 @@ export default function App(){
               <span style={{color:C.grayDark,fontWeight:600}}>{bc}</span></>}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            {areaSaved&&step===3&&(
-              <button onClick={()=>setStep(4)}
-                style={{padding:"6px 16px",background:C.yellowLight,
-                  border:`1px solid ${C.yellowBorder}`,borderRadius:7,
-                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.yellowDark,
-                  display:"flex",alignItems:"center",gap:6}}>
-                Ver Resumen mensual →
-              </button>
-            )}
-            {/* Botón cruzado Resumen ⇄ Mi presupuesto — para saltar entre las dos
-                pantallas de "presentación" sin perder el presupuesto abierto. */}
-            {areaSaved&&step===4&&(
-              <button onClick={()=>setStep(5)}
-                style={{padding:"6px 16px",background:C.yellowLight,
-                  border:`1px solid ${C.yellowBorder}`,borderRadius:7,
-                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.yellowDark,
-                  display:"flex",alignItems:"center",gap:6}}>
-                Mi presupuesto →
-              </button>
-            )}
-            {areaSaved&&step===5&&(
-              <button onClick={()=>setStep(4)}
-                style={{padding:"6px 16px",background:C.yellowLight,
-                  border:`1px solid ${C.yellowBorder}`,borderRadius:7,
-                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.yellowDark,
-                  display:"flex",alignItems:"center",gap:6}}>
-                ← Resumen mensual
-              </button>
-            )}
+            {/* Fase 1.4 — los tres botones cruzados (Ver Resumen mensual → / Mi
+                presupuesto → / ← Resumen mensual) se quitan de la barra pegajosa:
+                duplicaban la fila de botones propia de cada pantalla. En la barra
+                pegajosa solo quedan el 🗑 y el nombre de la empresa. */}
             {pres&&(step===3||step===4||step===5)&&(
               <button onClick={async()=>{ await eliminarPresupuesto(pres); setStep(0); }}
                 title="Eliminar este presupuesto (no se puede deshacer)"
@@ -2688,17 +2668,19 @@ export default function App(){
       </div>
       <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
         overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+        {/* Fase 1.7 — columna "Estado" oculta de la interfaz (NO se borra del modelo:
+            guardarPres sigue escribiendo estado:"Borrador" tal cual). */}
         {/* Header tabla — oculto en móvil, donde cada fila se muestra como card apilada */}
-        <div className="lista-header" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",gap:0,
+        <div className="lista-header" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 210px",gap:0,
           padding:"10px 20px",background:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
-          {["Proyecto","Tipo","Estado","Acciones"].map((h,i)=>(
+          {["Proyecto","Tipo","Acciones"].map((h,i)=>(
             <div key={h} style={{fontSize:11,fontWeight:700,color:C.grayMid,
               textTransform:"uppercase",letterSpacing:0.5,
-              textAlign:i===3?"center":"left"}}>{h}</div>
+              textAlign:i===2?"center":"left"}}>{h}</div>
           ))}
         </div>
         {lista.map((p,i)=>(
-          <div key={p.id} className="lista-row" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 210px",
+          <div key={p.id} className="lista-row" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 210px",
             gap:0,alignItems:"center",padding:"14px 20px",
             background:i%2===0?C.white:"#FAFAFA",
             borderBottom:i<lista.length-1?`1px solid ${C.line}`:"none",
@@ -2708,7 +2690,6 @@ export default function App(){
               <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{p.fecha}</div>
             </div>
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
-            <div><EstadoBadge estado={p.estado}/></div>
             <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
@@ -2717,12 +2698,14 @@ export default function App(){
                 style={{padding:"6px 14px",background:C.yellow,border:"none",
                   borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
                   boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Abrir</button>
-              {(p.estado==="Borrador"||p.estado==="En revisión")&&(
-                <button onClick={()=>abrirEdit(p)}
-                  style={{padding:"6px 14px",background:C.white,
-                    border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                    cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Editar</button>
-              )}
+              {/* Fase 1.5 — "Datos generales" (antes "Editar"): abre el paso 1 para
+                  cambiar nombre/empresa/tipo/fechas. Ya no depende del estado — se
+                  muestra siempre, y su texto no compite con los otros dos accesos de
+                  edición (Editar partidas / Editar por área). */}
+              <button onClick={()=>abrirEdit(p)}
+                style={{padding:"6px 14px",background:C.white,
+                  border:`1px solid ${C.grayBorder}`,borderRadius:6,
+                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Datos generales</button>
               <button onClick={()=>clonarPresupuesto(p)}
                 title="Crear nuevo presupuesto basado en este"
                 style={{padding:"6px 14px",background:C.white,
@@ -2759,7 +2742,7 @@ export default function App(){
           <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>
             {modoEdit?"Editar presupuesto":"Nuevo presupuesto"}
           </h2>
-          {modoEdit&&pres&&<EstadoBadge estado={pres.estado}/>}
+          {/* Fase 1.7 — badge de Estado oculto (ver nota en Step 0) */}
         </div>
 
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
@@ -2967,7 +2950,8 @@ export default function App(){
                           <div>
                             <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{p.nombre}</div>
                             <div style={{fontSize:11,color:C.grayMid,marginTop:2,textTransform:"capitalize"}}>
-                              {p.tipo} · {p.estado} {p.fechaInicio?`· ${p.fechaInicio}`:""}
+                              {/* Fase 1.7 — se quita "· {p.estado}" de esta línea */}
+                              {p.tipo} {p.fechaInicio?`· ${p.fechaInicio}`:""}
                             </div>
                           </div>
                           <span style={{fontSize:18,color:C.yellow}}>→</span>
@@ -3072,6 +3056,27 @@ export default function App(){
     return wrap(
       <div>
         <style>{`.noprint{}.@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
+        {/* Fase 1.2/1.4 — Capturar costos no tenía encabezado propio: el nombre y el
+            periodo del presupuesto no aparecían en ningún lado de esta pantalla, y
+            tampoco había fila de botones (solo el "Guardar" verde al final). */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20,maxWidth:1320}}>
+          <div>
+            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Capturar costos</h2>
+            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+            {pres?.fechaInicio&&(()=>{
+              const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
+              return(
+                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                  Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
+                </div>
+              );
+            })()}
+          </div>
+          <div style={{display:"flex",gap:10}} className="noprint">
+            {btn("← Información general",()=>setStep(5),"secondary")}
+            {btn("Resumen mensual →",()=>setStep(4),"secondary")}
+          </div>
+        </div>
         <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"200px minmax(0,1fr)",gap:28,maxWidth:1320}}>
 
           {/* Sidebar áreas */}
@@ -3254,7 +3259,7 @@ export default function App(){
   if(step===4){
     // Cálculo mensual del presupuesto completo — compartido con Step 5, ver
     // calcularSerieMensual (mismos datos, mismos resultados, sin duplicar lógica).
-    const {cats, NUM_MESES_OP, NMESES, MESES13, anioIniProy, anioFinProy, RANGO_ANIOS,
+    const {cats, NUM_MESES_OP, NMESES, MESES13, MESES13_MES, anioIniProy, anioFinProy, RANGO_ANIOS,
       mCapex, capexDetalle, mOpex, opexDetalle, sinCategoriaMacro, mEgresos, mIngresos,
       totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} = calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
 
@@ -3296,7 +3301,15 @@ export default function App(){
             <thead>
               <tr style={{background:C.grayDark}}>
                 <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:160,position:"sticky",left:0,background:C.grayDark}}>Concepto</td>
-                {MESES13.map(m=><td key={m} style={{padding:"7px 4px",textAlign:"right",fontWeight:600,color:"#aaa",minWidth:60}}>{m}</td>)}
+                {/* Fase 1.6.b (corrección) — encabezado de dos líneas: código M{i} atenuado
+                    arriba, nombre real del mes prominente abajo. key={i} porque con nombres
+                    de mes puede haber repetidos en presupuestos de 13+ meses. */}
+                {MESES13.map((m,i)=>(
+                  <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:62}}>
+                    <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
+                  </td>
+                ))}
                 <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
               </tr>
             </thead>
@@ -3372,6 +3385,13 @@ export default function App(){
           <div>
             <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+            {/* Fase 1.6.a — línea de periodo, cero cálculo nuevo: reusa mesLabelReal
+                y calcularNumMesesOp, ya existentes. */}
+            {pres?.fechaInicio&&(
+              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(NUM_MESES_OP,pres.fechaInicio)}</strong> · {NUM_MESES_OP+1} meses
+              </div>
+            )}
             {pres?.fechaElaboracion&&(
               <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                 Elaborado: <strong>{pres.fechaElaboracion}</strong>
@@ -3379,8 +3399,12 @@ export default function App(){
               </div>
             )}
           </div>
+          {/* Fase 1.4 — fila de botones propia, sin depender de areaSaved; la barra
+              pegajosa deja de repetir esta navegación. Fase 1.5 — "Editar por área"
+              en vez de "← Captura" (mismo destino, setStep(3), solo cambia el texto). */}
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("← Captura",()=>setStep(3),"secondary")}
+            {btn("← Información general",()=>setStep(5),"secondary")}
+            {btn("Editar por área",()=>setStep(3),"secondary")}
             {btn("⬇ Excel",()=>exportarExcel({
               pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
               mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -3501,7 +3525,13 @@ export default function App(){
                 <thead>
                   <tr style={{background:"#059669"}}>
                     <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
-                    {MESES13.map(m=><td key={m} style={{padding:"6px 4px",textAlign:"right",fontWeight:600,color:"rgba(255,255,255,0.8)",minWidth:55}}>{m}</td>)}
+                    {/* Fase 1.6.b (corrección) — mismo encabezado de dos líneas que TablaM */}
+                    {MESES13.map((m,i)=>(
+                      <td key={i} style={{padding:"4px 4px",textAlign:"right",minWidth:58}}>
+                        <div style={{fontSize:9,fontWeight:600,opacity:0.7,color:"rgba(255,255,255,0.7)"}}>{m}</div>
+                        <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
+                      </td>
+                    ))}
                     <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
                   </tr>
                 </thead>
@@ -3604,7 +3634,7 @@ export default function App(){
                 </div>
               ))}
             </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13}/></div>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
           </>)}
 
           {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
@@ -3620,7 +3650,7 @@ export default function App(){
                     </div>
                   ))}
                 </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13}/></div>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
           </>)}
@@ -3684,7 +3714,7 @@ export default function App(){
     const cats=getAreasCat(pres?.tipo||"instalacion");
     // Panorama del presupuesto completo (todas las áreas) para las gráficas de
     // arriba — misma función que usa Step 4, cero lógica de cálculo duplicada.
-    const {MESES13, mFlujo, mFlujoAcum, catOpexSeries} =
+    const {MESES13, MESES13_MES, mFlujo, mFlujoAcum, catOpexSeries} =
       calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
     return wrap(
       <div>
@@ -3693,7 +3723,8 @@ export default function App(){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
           <div>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-              <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>Mi presupuesto</h2>
+              {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
+              <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
               {/* Indicador de modo — que nunca quede ambiguo si se está viendo o editando */}
               <span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,
                 background:modoLectura?C.grayLight:C.yellowLight,
@@ -3703,6 +3734,15 @@ export default function App(){
               </span>
             </div>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+            {/* Fase 1.6.a — línea de periodo */}
+            {pres?.fechaInicio&&(()=>{
+              const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
+              return(
+                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                  Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
+                </div>
+              );
+            })()}
             {pres?.fechaElaboracion&&(
               <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                 Elaborado: <strong>{pres.fechaElaboracion}</strong>
@@ -3710,11 +3750,13 @@ export default function App(){
               </div>
             )}
           </div>
+          {/* Fase 1.4/1.5 — fila de botones propia, siempre visible; "Editar partidas"
+              en vez de "Editar" para no chocar con los otros dos accesos de edición. */}
           <div style={{display:"flex",gap:10}} className="noprint">
             {modoLectura
-              ? btn("✎ Editar",()=>setModoLectura(false),"primary")
+              ? btn("✎ Editar partidas",()=>setModoLectura(false),"primary")
               : btn("✓ Terminar edición",()=>setModoLectura(true),"success")}
-            {btn("← Resumen mensual",()=>setStep(4),"secondary")}
+            {btn("Resumen mensual →",()=>setStep(4),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
         </div>
@@ -3745,7 +3787,7 @@ export default function App(){
                 </div>
               ))}
             </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13}/></div>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
           </div>
 
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
@@ -3769,7 +3811,7 @@ export default function App(){
                     </div>
                   ))}
                 </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13}/></div>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
           </div>
@@ -3887,7 +3929,7 @@ export default function App(){
           })}
         </div>
       </div>
-    ,"Mi presupuesto");
+    ,"Información general");
   }
   return null;
 }
