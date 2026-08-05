@@ -541,6 +541,14 @@ let _id=1; const uid=()=>++_id;
 
 const fmt=n=>isNaN(n)||n==null?"$0.00":"$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtMiles=n=>isNaN(n)||n==null?"0.00":Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+// Monto compacto para que quepa en columnas angostas de mes ($1.2M, $540K) —
+// movida a nivel de módulo para que TablaServicio (día 2) la use igual que TablaM.
+const fmtK=v=>{
+  if(v===0)return "—";
+  const abs=Math.abs(v);
+  const str=abs>=1000000?`$${(abs/1000000).toFixed(2)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:fmt(abs);
+  return v<0?`-${str}`:str;
+};
 
 const LS_CATS="geolis_cats_v3";
 function getCats(key=LS_CATS){try{return JSON.parse(localStorage.getItem(key)||"[]");}catch{return[];}}
@@ -2099,6 +2107,84 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   XLSX.writeFile(wb,fileName);
 }
 
+// ─── TABLA SERVICIO ───────────────────────────────────────────────────────────
+// Spec "Separar captura y visualización" (día 2). Recibe `filas` ya armadas
+// por construirFilasServicio — no calcula nada, solo pinta. No reemplaza a
+// TablaM, que sigue sirviendo a la tabla FLUJO de Resumen mensual.
+function TablaServicio({filas, MESES13, MESES13_MES}){
+  const [expandidos, setExpandidos] = useState({});
+
+  // Un subtotal "tiene detalle" si algún renglón de detalle comparte su macro —
+  // eso es lo único que decide si lleva ▶/▼ (los casos esUnaSolaIgualAMacro no
+  // generan subtotal propio, así que nunca entran aquí).
+  const macrosConSubtotal = new Set(filas.filter(f=>f.tipo==="subtotal").map(f=>f.macro));
+
+  const ESTILO_TIPO = {
+    seccion:  {bg:C.grayDark,    color:C.white,   bold:800},
+    detalle:  {bg:null,          color:C.grayMid, bold:400},
+    subtotal: {bg:C.yellowLight, color:C.grayDark,bold:800},
+    total:    {bg:C.dangerLight, color:C.danger,  bold:800},
+  };
+
+  return (
+    <ScrollHint>
+      <table style={{width:"100%",borderCollapse:"collapse",fontSize:11,minWidth:900}}>
+        <thead>
+          <tr style={{background:C.grayDark}}>
+            <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:220,position:"sticky",left:0,background:C.grayDark}}>Descripción</td>
+            <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white,minWidth:110}}>Total Presupuestado</td>
+            {MESES13.map((m,i)=>(
+              <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:62}}>
+                <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
+                <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
+              </td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map((f,fi)=>{
+            // Detalle oculto por defecto bajo su subtotal, hasta que se expanda
+            if(f.tipo==="detalle" && f.macro && macrosConSubtotal.has(f.macro) && !expandidos[f.macro]) return null;
+
+            const puedeExpandir = f.tipo==="subtotal" && macrosConSubtotal.has(f.macro)
+              && filas.some(o=>o.tipo==="detalle"&&o.macro===f.macro);
+            const st = ESTILO_TIPO[f.tipo];
+            const bg = f.tipo==="detalle" ? (fi%2===0?C.white:"#FAFAFA") : st.bg;
+
+            return (
+              <tr key={fi} style={{background:bg, borderBottom:`1px solid ${C.line}`,
+                borderTop:f.tipo==="total"?`2px solid ${C.danger}`:undefined}}>
+                <td style={{padding:"7px 14px", paddingLeft:f.tipo==="detalle"?32:14,
+                  position:"sticky", left:0, background:bg,
+                  fontWeight:st.bold, fontStyle:f.tipo==="detalle"?"italic":"normal",
+                  color:st.color, textTransform:f.tipo==="seccion"?"uppercase":"none",
+                  display:"flex", alignItems:"center", gap:8}}>
+                  {puedeExpandir&&(
+                    <span onClick={()=>setExpandidos(prev=>({...prev,[f.macro]:!prev[f.macro]}))}
+                      style={{cursor:"pointer",fontSize:9,width:10,flexShrink:0,userSelect:"none",color:st.color}}>
+                      {expandidos[f.macro]?"▼":"▶"}
+                    </span>
+                  )}
+                  <span>{f.label}</span>
+                </td>
+                <td style={{padding:"7px 12px",textAlign:"right",fontWeight:st.bold,color:st.color}}>
+                  {f.total===""?"":fmtK(f.total)}
+                </td>
+                {f.mensual.map((v,i)=>(
+                  <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:st.bold,
+                    color:v===""?st.color:(v!==0?st.color:C.grayBorder)}}>
+                    {v===""?"":(v!==0?fmtK(v):"—")}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </ScrollHint>
+  );
+}
+
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App(){
   const [step,setStep]         = useState(0);
@@ -3304,13 +3390,6 @@ export default function App(){
         {sub&&<div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>{sub}</div>}
       </div>
     );
-    const fmtK=v=>{
-      if(v===0)return "—";
-      const abs=Math.abs(v);
-      const str=abs>=1000000?`$${(abs/1000000).toFixed(2)}M`:abs>=1000?`$${(abs/1000).toFixed(0)}K`:fmt(abs);
-      return v<0?`-${str}`:str;
-    };
-
     // ── Tabla mensual genérica ──────────────────────────────────────────────
     function TablaM({filas,showTotal=true,title}){
       const totMes=Array(NMESES).fill(0).map((_,i)=>filas.reduce((s,f)=>s+(f.datos[i]||0),0));
