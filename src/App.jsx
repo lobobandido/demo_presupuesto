@@ -1784,6 +1784,83 @@ function CatLinesChart({series,height=300,meses}){
 }
 
 // ─── EXPORTAR EXCEL (SheetJS) ────────────────────────────────────────────────
+// Agrupación de la hoja SERVICIO — extraída tal cual de exportarExcel (spec
+// "Separar captura y visualización", día 1) para poder reutilizarla también
+// en pantalla (TablaServicio, día 2) sin duplicar la lógica de agrupación.
+// Ninguna operación aritmética cambia respecto al bloque original.
+function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, totalCAPEX, totalIngresosAnual, mIngresos, totalEgr}){
+  const NUM_MESES_OP=NMESES-1;
+  const filas=[];
+
+  filas.push({tipo:"seccion", label:"INGRESOS año MXN", macro:null, bloque:null, total:"", mensual:Array(NMESES).fill("")});
+  filas.push({tipo:"detalle", label:"FACTURACIÓN", macro:null, bloque:"ingresos", total:totalIngresosAnual, mensual:mIngresos});
+  filas.push({tipo:"seccion", label:"EGRESOS año", macro:null, bloque:null, total:"", mensual:Array(NMESES).fill("")});
+
+  // CAPEX: 1 renglón por categoría (fecha real de compra), + rollup "ACTIVOS"
+  const capexPorCat={};
+  areas.forEach(id=>{
+    (costos[id]?.capex||[]).forEach(p=>{
+      const k=p.cat||"SIN CATEGORÍA";
+      if(!capexPorCat[k]) capexPorCat[k]=Array(NMESES).fill(0);
+      capexPorCat[k][mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
+    });
+  });
+  Object.entries(capexPorCat).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cat,arr])=>{
+    filas.push({tipo:"detalle", label:cat, macro:"ACTIVOS", bloque:"capex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
+  });
+  if(Object.keys(capexPorCat).length>0){
+    filas.push({tipo:"subtotal", label:"ACTIVOS", macro:"ACTIVOS", bloque:"capex", total:totalCAPEX, mensual:mCapex});
+  }
+
+  // OPEX: 1 renglón por categoría (mat/via con periodicidad real), nómina agregada en un solo renglón
+  const opexPorCat={};
+  areas.forEach(id=>{
+    ["mat","via"].forEach(c=>{
+      (costos[id]?.[c]||[]).forEach(p=>{
+        const k=p.cat||"SIN CATEGORÍA";
+        if(!opexPorCat[k]) opexPorCat[k]=Array(NMESES).fill(0);
+        distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>opexPorCat[k][i]+=v);
+      });
+    });
+  });
+  const nominaArr=Array(NMESES).fill(0);
+  let hayNomina=false;
+  areas.forEach(id=>{
+    (costos[id]?.nomina||[]).forEach(p=>{
+      hayNomina=true;
+      distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>nominaArr[i]+=v);
+    });
+  });
+  if(hayNomina) opexPorCat["NOMINA Y ADICIONALES"]=nominaArr;
+
+  // Agrupar categorías OPEX bajo su categoría contable macro
+  const macroGrupos={};
+  Object.entries(opexPorCat).forEach(([cat,arr])=>{
+    const macro=macroDeCategoria(cat);
+    if(!macroGrupos[macro]) macroGrupos[macro]={};
+    macroGrupos[macro][cat]=arr;
+  });
+  Object.entries(macroGrupos).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([macro,cats])=>{
+    const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
+    const esUnaSolaIgualAMacro=catEntries.length===1 && catEntries[0][0].toUpperCase()===macro.toUpperCase();
+    if(esUnaSolaIgualAMacro){
+      const [cat,arr]=catEntries[0];
+      filas.push({tipo:"detalle", label:cat, macro, bloque:"opex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
+    } else {
+      catEntries.forEach(([cat,arr])=>{
+        filas.push({tipo:"detalle", label:cat, macro, bloque:"opex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
+      });
+      const macroArr=Array(NMESES).fill(0);
+      catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
+      filas.push({tipo:"subtotal", label:macro, macro, bloque:"opex", total:macroArr.reduce((s,v)=>s+v,0), mensual:macroArr});
+    }
+  });
+
+  filas.push({tipo:"total", label:"TOTAL EGRESOS", macro:null, bloque:null, total:totalEgr, mensual:mEgresos});
+
+  return filas;
+}
+
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
   mFlujo: mFlujoBase, mFlujoAcum: mFlujoAcumBase, mIngresos: mIngresosBase, totalCAPEX, totalOPEX, totalEgr,
   totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[]}) {
@@ -1840,72 +1917,15 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   const hdrS=["Descripción","Total Presupuestado",...MESES13];
   const rowsS=[hdrS];
   const seccionRows=[], subtotalRows=[], totalRows=[];
-  function addRowS(desc, total, mensual){
-    rowsS.push([desc, total, ...mensual]);
-    return rowsS.length-1;
-  }
 
-  seccionRows.push(addRowS("INGRESOS año MXN","",Array(NMESES).fill("")));
-  addRowS("FACTURACIÓN", totalIngresosAnual, mIngresos);
-  seccionRows.push(addRowS("EGRESOS año","",Array(NMESES).fill("")));
-
-  // CAPEX: 1 renglón por categoría (fecha real de compra), + rollup "ACTIVOS"
-  const capexPorCat={};
-  areas.forEach(id=>{
-    (costos[id]?.capex||[]).forEach(p=>{
-      const k=p.cat||"SIN CATEGORÍA";
-      if(!capexPorCat[k]) capexPorCat[k]=Array(NMESES).fill(0);
-      capexPorCat[k][mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
-    });
+  const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+  filasServicio.forEach(fila=>{
+    rowsS.push([fila.label, fila.total, ...fila.mensual]);
+    const ri=rowsS.length-1;
+    if(fila.tipo==="seccion") seccionRows.push(ri);
+    else if(fila.tipo==="subtotal") subtotalRows.push(ri);
+    else if(fila.tipo==="total") totalRows.push(ri);
   });
-  Object.entries(capexPorCat).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cat,arr])=>{
-    addRowS(cat, arr.reduce((s,v)=>s+v,0), arr);
-  });
-  if(Object.keys(capexPorCat).length>0) subtotalRows.push(addRowS("ACTIVOS", totalCAPEX, mCapex));
-
-  // OPEX: 1 renglón por categoría (mat/via con periodicidad real), nómina agregada en un solo renglón
-  const opexPorCat={};
-  areas.forEach(id=>{
-    ["mat","via"].forEach(c=>{
-      (costos[id]?.[c]||[]).forEach(p=>{
-        const k=p.cat||"SIN CATEGORÍA";
-        if(!opexPorCat[k]) opexPorCat[k]=Array(NMESES).fill(0);
-        distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>opexPorCat[k][i]+=v);
-      });
-    });
-  });
-  const nominaArr=Array(NMESES).fill(0);
-  let hayNomina=false;
-  areas.forEach(id=>{
-    (costos[id]?.nomina||[]).forEach(p=>{
-      hayNomina=true;
-      distribuirNomina(p,NUM_MESES_OP).forEach((v,i)=>nominaArr[i]+=v);
-    });
-  });
-  if(hayNomina) opexPorCat["NOMINA Y ADICIONALES"]=nominaArr;
-
-  // Agrupar categorías OPEX bajo su categoría contable macro
-  const macroGrupos={};
-  Object.entries(opexPorCat).forEach(([cat,arr])=>{
-    const macro=macroDeCategoria(cat);
-    if(!macroGrupos[macro]) macroGrupos[macro]={};
-    macroGrupos[macro][cat]=arr;
-  });
-  Object.entries(macroGrupos).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([macro,cats])=>{
-    const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
-    const esUnaSolaIgualAMacro=catEntries.length===1 && catEntries[0][0].toUpperCase()===macro.toUpperCase();
-    if(esUnaSolaIgualAMacro){
-      const [cat,arr]=catEntries[0];
-      addRowS(cat, arr.reduce((s,v)=>s+v,0), arr);
-    } else {
-      catEntries.forEach(([cat,arr])=>addRowS(cat, arr.reduce((s,v)=>s+v,0), arr));
-      const macroArr=Array(NMESES).fill(0);
-      catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
-      subtotalRows.push(addRowS(macro, macroArr.reduce((s,v)=>s+v,0), macroArr));
-    }
-  });
-
-  totalRows.push(addRowS("TOTAL EGRESOS", totalEgr, mEgresos));
 
   const wsS=XLSX.utils.aoa_to_sheet(rowsS);
   wsS["!cols"]=[{wch:34},{wch:18},...Array(NMESES).fill({wch:14})];
