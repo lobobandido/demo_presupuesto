@@ -1,5 +1,16 @@
 # Línea base de los cinco KPIs — Resumen mensual
 
+**Ingresos = $0.00 en los dos presupuestos NO es un error de este documento. Es
+el valor real en Supabase: `precio_fijo` e `ingAdicionales` están vacíos en ambos
+registros. La pantalla de Resumen mensual puede mostrar ingresos distintos
+(en Cuervito llegó a mostrar $7,905,600) porque esos datos viven solo en
+localStorage del navegador — se capturan en una pantalla de visualización que
+no tiene botón Guardar. Si se limpia localStorage, se pierden.**
+
+**Por eso el KPI de Ingresos NO sirve todavía como control de regresión: comparar
+contra $0.00 es válido solo mientras la captura de ingresos siga sin persistir.
+Cuando se arregle, hay que re-congelar esta línea base a propósito.**
+
 Congelada el 2026-08-06. Cualquier cambio que pueda mover un monto (distribuirOpex,
 distribuirNomina, mesIndexCapex, calcularNumMesesOp, calcularSerieMensual,
 construirFilasServicio, totalCat, totalNom, totalOpexAnualCat, exportarExcel, etc.)

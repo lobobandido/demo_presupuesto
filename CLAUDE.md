@@ -63,8 +63,9 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   "(1++0.05)".
 - KPI de margen muestra 0.0% con ingresos en cero (división por cero pintada
   como resultado).
-- Ingresos se capturan en Resumen mensual, que es pantalla de visualización y
-  no tiene botón Guardar. Sin confirmar si persisten a Supabase o solo a
+- Ingresos se capturan en Resumen mensual (pantalla de visualización, sin botón
+  Guardar) y NO persisten a Supabase — CONFIRMADO por GET: precio_fijo e
+  ingAdicionales vacíos en Cuervito mientras la pantalla mostraba $7,905,600 desde
   localStorage.
 - Cuervito no cuadra contra docs/guia-capturar-cuervito.html: SERVICIOS da 3K
   contra 1,294,000 esperados, ARRENDA cae en SIN CATEGORÍA, HERRAMIENTA cae en
