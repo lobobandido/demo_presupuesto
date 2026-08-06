@@ -2733,7 +2733,11 @@ export default function App(){
         display:"flex",flexDirection:"column",position:"fixed",overflow:"hidden",
         top:0,left:0,bottom:0,zIndex:50}}>
         <div style={{padding:"22px 20px 18px",borderBottom:"1px solid #222"}}>
-          <div className="sidebar-logo-text" style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5}}>GEOLIS</div>
+          {/* Retro — el logo dice el nombre completo. A 22px/900 "GEOLIS SA DE CV"
+              no cabe en los 220px de la barra, así que se parte en dos líneas:
+              GEOLIS grande arriba, SA DE CV chico debajo. */}
+          <div className="sidebar-logo-text" style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5,lineHeight:1.05}}>GEOLIS</div>
+          <div className="sidebar-logo-text" style={{fontSize:12,fontWeight:700,color:C.yellow,letterSpacing:0.5,marginTop:1}}>SA DE CV</div>
           <div className="sidebar-logo-text" style={{fontSize:11,color:"#555",marginTop:3}}>Módulo de Presupuestos</div>
         </div>
         <nav style={{padding:"8px 0",flex:1}}>
@@ -2795,7 +2799,8 @@ export default function App(){
             {/* Fase 1.4 — los tres botones cruzados (Ver Resumen mensual → / Mi
                 presupuesto → / ← Resumen mensual) se quitan de la barra pegajosa:
                 duplicaban la fila de botones propia de cada pantalla. En la barra
-                pegajosa solo quedan el 🗑 y el nombre de la empresa. */}
+                pegajosa solo queda el 🗑. Retro — se quita el nombre de la empresa
+                de aquí: el logo de la barra lateral ya lo dice completo. */}
             {pres&&(step===3||step===4||step===5)&&(
               <button onClick={async()=>{ await eliminarPresupuesto(pres); setStep(0); }}
                 title="Eliminar este presupuesto (no se puede deshacer)"
@@ -2809,7 +2814,6 @@ export default function App(){
                 🗑
               </button>
             )}
-            <span style={{fontSize:12,color:C.grayMid}}>{form.empresa||pres?.empresa||"GEOLIS SA DE CV"}</span>
           </div>
         </header>
         <main style={{padding:"28px 32px",flex:1,minWidth:0}}>{children}</main>
@@ -3946,8 +3950,16 @@ export default function App(){
                 aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
           </div>
           {/* Punto 5 — se quita "✎ Editar": esa edición ya se llega desde el
-              listado o desde la miga de pan (punto 1), no desde un botón aquí. */}
+              listado o desde la miga de pan (punto 1), no desde un botón aquí.
+              Spec recuperación-datos, paso 4 — se devuelve el acceso a Capturar
+              costos: con "Editar por área" y "✎ Editar" fuera, el asistente
+              completo (con el bug de abrirEdit) era el único camino que quedaba. */}
           <div style={{display:"flex",gap:10}} className="noprint">
+            {btn("Capturar costos",()=>{
+              if(!areaActiva) setActiva(areas[0]||null);
+              setFlujoCreacion(false);
+              setStep(3);
+            },"secondary")}
             {btn("Resumen mensual →",()=>setStep(4),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
