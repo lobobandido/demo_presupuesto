@@ -358,7 +358,7 @@ function mesesNomina(puesto, numMeses=12){
 
 // Distribuye el costo de nómina de un puesto en los meses en que está activo
 function distribuirNomina(puesto, numMeses=12){
-  const f=1+(puesto.imss||F_IMSS)+(puesto.prestaciones||F_PREST)+(puesto.isr||F_ISR);
+  const f=1+(puesto.imss??F_IMSS)+(puesto.prestaciones??F_PREST)+(puesto.isr??F_ISR);
   const costoMes=(puesto.salario||0)*f*(puesto.cantidad||1);
   const duracion = mesesNomina(puesto, numMeses);
   const inicio = puesto.tipoPersonal==="fijo" ? 1 : Math.max(1, puesto.mesInicio||1);
@@ -1415,7 +1415,7 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
         </div>
       )}
       {nomina.map((p,idx)=>{
-        const factor=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);
+        const factor=1+(p.imss??F_IMSS)+(p.prestaciones??F_PREST)+(p.isr??F_ISR);
         const costo=(p.salario||0)*factor*(p.cantidad||1);
         const meses = mesesNomina(p, 12);
         const costoTotal = costoTotalNomina(p, 12);
@@ -1498,7 +1498,7 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
               background:"#f0fdf4",borderRadius:4,marginTop:2,
               display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
               <span>
-                {fmt(p.salario)} × (1+{p.imss}+{p.prestaciones}+{p.isr||F_ISR}) × {p.cantidad} = <strong>{fmt(costo)}/mes</strong>
+                {fmt(p.salario)} × (1+{p.imss}+{p.prestaciones}+{p.isr??F_ISR}) × {p.cantidad} = <strong>{fmt(costo)}/mes</strong>
               </span>
               {(p.tipoPersonal==="contrato"||p.tipoPersonal==="outsourcing")&&(
                 <span style={{display:"flex",alignItems:"center",gap:6}}>
@@ -2030,7 +2030,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   // OPEX por área
   areas.forEach(id=>{
     (costos[id]?.nomina||[]).forEach(p=>{
-      const f=1+(p.imss||0.32)+(p.prestaciones||0.40)+(p.isr||0.05);
+      const f=1+(p.imss??0.32)+(p.prestaciones??0.40)+(p.isr??0.05);
       const costo=(p.salario||0)*f*(p.cantidad||1);
       rowsE.push([row++,"NOMINA Y ADICIONALES",p.puesto||"Puesto","Mes",p.cantidad||1,p.salario||0,costo,"OPEX-NOM"]);
     });
@@ -2319,7 +2319,7 @@ export default function App(){
   // la captura). El total ANUAL real que respeta periodicidad/tipo de personal vive en
   // totalOpexAnualCat/totalNomAnual, y es el que alimenta el Resumen mensual (Step 4).
   function totalCat(id,cat){return(costos[id]?.[cat]||[]).reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);}
-  function totalNom(id){return(costos[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss||F_IMSS)+(p.prestaciones||F_PREST)+(p.isr||F_ISR);return s+(p.salario||0)*f*(p.cantidad||1);},0);}
+  function totalNom(id){return(costos[id]?.nomina||[]).reduce((s,p)=>{const f=1+(p.imss??F_IMSS)+(p.prestaciones??F_PREST)+(p.isr??F_ISR);return s+(p.salario||0)*f*(p.cantidad||1);},0);}
   // Duración real del proyecto (no siempre 12 meses) — mismo criterio que usa
   // el Resumen mensual (calcularNumMesesOp), para que el total que se ve en
   // Captura de costos no quede duplicado/recortado en proyectos != 12 meses.
