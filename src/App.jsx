@@ -2365,7 +2365,12 @@ export default function App(){
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
     setFlujoCreacion(false);
-    setStep(1);
+    // Corrección retro 4:10 — "Editar" del listado lleva a Capturar costos, no a
+    // Datos generales: el cliente decía "formulario de edición" señalando la
+    // pantalla de captura, no el paso 1. Se usa p._areas (recién cargado), no el
+    // estado areas todavía sin actualizar.
+    if(!areaActiva) setActiva((p._areas||[])[0]||null);
+    setStep(3);
   }
 
   // FIX 6 v4: Abrir presupuesto — flag pausa el guardado en localStorage
