@@ -2478,7 +2478,10 @@ export default function App(){
       setLista(prev=>[p,...prev]);
     }
     setPres(p);
-    setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]);
+    // Spec recuperación-datos, paso 5 — redundante: abrirNuevo ya deja areas/costos/
+    // capexPM/opexPM en vacío al crear. Limpiarlos otra vez aquí borraba lo que
+    // "partir de un presupuesto anterior" (partirDePresupuestoAnterior) acababa de
+    // copiar a areas/costos justo antes de Guardar/Continuar.
     setStep(2);
 
     if(supabase){
