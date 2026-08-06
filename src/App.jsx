@@ -2403,7 +2403,19 @@ export default function App(){
   // PUNTO 9: Clonar presupuesto como base de uno nuevo
   // tipoOverride: spec navegación-retro-410 punto 8 — el diálogo de Clonar deja
   // elegir un tipo distinto al del presupuesto de origen antes de continuar.
-  function clonarPresupuesto(p,tipoOverride){
+  // Spec recuperación-datos, paso 3 — mismo bug y mismo arreglo que abrirEdit
+  // (paso 2): p llega ligero del listado, sin _areas/_costos/_capexPM/_opexPM/
+  // _ingresos/_precioFijo/_ingAdicionales. Cargar la versión completa de la nube
+  // antes de copiar; si falla, no continuar con el objeto ligero.
+  async function clonarPresupuesto(p,tipoOverride){
+    if(supabase && typeof p.id === "string"){
+      const remoto = await cargarPresupuestoDeNube(p.id, {uid, initP, initN});
+      if(!remoto){
+        showToast("No se pudo cargar el presupuesto de origen — revisa tu conexión e intenta de nuevo");
+        return;
+      }
+      p = remoto;
+    }
     const hoy = new Date().toISOString().slice(0,10);
     setForm({
       nombre: p.nombre + " (copia)",
