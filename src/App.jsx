@@ -2200,12 +2200,20 @@ export default function App(){
   const [lista,setLista]       = useState([]);
   const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
+  // Diálogo de Clonar (spec navegación-retro-410, punto 8) — presupuesto de
+  // origen y tipo elegido, solo mientras el diálogo está abierto.
+  const [clonarModal,setClonarModal] = useState(null);
+  const [clonarTipo,setClonarTipo]   = useState(null);
   const [plantKey,setPlantKey]     = useState(null);
   // "Partir de un presupuesto anterior" — lista real de Supabase (solo lectura)
   const [presupuestosGuardados,setPresupuestosGuardados] = useState([]);
   const [cargandoGuardados,setCargandoGuardados]         = useState(false);
   const [origenReal,setOrigenReal]                       = useState(null); // {nombre,capex,opex}
   const [modoEdit,setModoEdit]     = useState(false);
+  // Spec navegación-retro-410 punto 7 — distingue "presupuesto nuevo, en el
+  // flujo de creación" (Captura de información) de "presupuesto existente"
+  // (Editar — [nombre]) para el título de Capturar costos.
+  const [flujoCreacion,setFlujoCreacion] = useState(false);
   const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
@@ -2289,9 +2297,9 @@ export default function App(){
     setIngAd(ingAdicionalesP);
     setAreaSaved(saved);
     setActiva(primera);
-    // Fix: modoLectura ya no existe desde el día 3 (Información general dejó
-    // de tener modo lectura/edición in situ) — esta llamada quedó huérfana y
-    // tronaba con ReferenceError en cualquier apertura de presupuesto.
+    setFlujoCreacion(false);
+    // Abrir un presupuesto existente aterriza en Información general (día 3:
+    // esa pantalla ya no tiene modo lectura/edición in situ, ver App.jsx L3812+).
     setStep(5);
     setPresToOpen(null); // limpiar para no re-ejecutar
     // Pequeño delay para que React termine el render antes de reanudar guardado
@@ -2332,6 +2340,7 @@ export default function App(){
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setIntentoGuardar(false);
+    setFlujoCreacion(true);
     setStep(1);
   }
   function abrirEdit(p){
@@ -2342,6 +2351,7 @@ export default function App(){
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
+    setFlujoCreacion(false);
     setStep(1);
   }
 
@@ -2378,11 +2388,13 @@ export default function App(){
   }
 
   // PUNTO 9: Clonar presupuesto como base de uno nuevo
-  function clonarPresupuesto(p){
+  // tipoOverride: spec navegación-retro-410 punto 8 — el diálogo de Clonar deja
+  // elegir un tipo distinto al del presupuesto de origen antes de continuar.
+  function clonarPresupuesto(p,tipoOverride){
     const hoy = new Date().toISOString().slice(0,10);
     setForm({
       nombre: p.nombre + " (copia)",
-      tipo: p.tipo,
+      tipo: tipoOverride||p.tipo,
       empresa: p.empresa||"GEOLIS SA DE CV",
       fechaInicio: p.fechaInicio||hoy,
       fechaFin: p.fechaFin||"",
@@ -2414,6 +2426,7 @@ export default function App(){
     setPres(null); setModoEdit(false);
     setPlantKey(null); setAreaSaved(false);
     setIntentoGuardar(false);
+    setFlujoCreacion(true);
     setStep(1);
   }
 
@@ -2597,7 +2610,11 @@ export default function App(){
     {i:0,icon:"◉",label:"Presupuestos"},
   ];
 
-  const wrap=(children,bc="")=>(
+  // Nombre del proyecto para la miga de pan — pres siempre está poblado desde
+  // Step 2 en adelante (guardarPres/abrirEdit/presToOpen lo fijan antes de
+  // navegar); en Step 1 con un presupuesto nuevo sin guardar aún, cae a form.
+  const nombreProy = pres?.nombre||form?.nombre||"Nuevo presupuesto";
+  const wrap=(children,miga=[])=>(
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"Inter,-apple-system,sans-serif",background:C.contentBg}}>
       <style>{`
         /* ── Dropdowns con marca (flecha propia + hover/focus consistentes) ── */
@@ -2683,7 +2700,6 @@ export default function App(){
         display:"flex",flexDirection:"column",position:"fixed",overflow:"hidden",
         top:0,left:0,bottom:0,zIndex:50}}>
         <div style={{padding:"22px 20px 18px",borderBottom:"1px solid #222"}}>
-          <div className="sidebar-logo-text" style={{fontSize:10,color:"#444",letterSpacing:2.5,textTransform:"uppercase",marginBottom:6,whiteSpace:"nowrap"}}>Corporativo</div>
           <div className="sidebar-logo-text" style={{fontSize:22,fontWeight:900,color:C.yellow,letterSpacing:-0.5}}>GEOLIS</div>
           <div className="sidebar-logo-text" style={{fontSize:11,color:"#555",marginTop:3}}>Módulo de Presupuestos</div>
         </div>
@@ -2723,10 +2739,24 @@ export default function App(){
           justifyContent:"space-between",position:"sticky",top:0,zIndex:40,
           boxShadow:"0 1px 0 rgba(0,0,0,0.06)"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}>
+            {/* Spec navegación-retro-410 punto 1 — la miga de pan es la navegación:
+                cada eslabón salvo el último es clicable. "Inicio" y "Presupuestos"
+                van al mismo lugar por ahora (duda 2 del spec, sin resolver con el
+                cliente); no sustituye a los botones de regreso propios de cada
+                pantalla (punto 6). */}
             <span style={{cursor:"pointer",color:C.yellowDark,fontWeight:600}}
               onClick={()=>setStep(0)}>Inicio</span>
-            {bc&&<><span style={{color:C.grayBorder}}>/</span>
-              <span style={{color:C.grayDark,fontWeight:600}}>{bc}</span></>}
+            {miga.map((seg,i)=>{
+              const esUltimo=i===miga.length-1;
+              return (
+                <Fragment key={i}>
+                  <span style={{color:C.grayBorder}}>/</span>
+                  {esUltimo
+                    ? <span style={{color:C.grayDark,fontWeight:700}}>{seg.label}</span>
+                    : <span style={{cursor:"pointer",color:C.yellowDark,fontWeight:600}} onClick={seg.onClick}>{seg.label}</span>}
+                </Fragment>
+              );
+            })}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
             {/* Fase 1.4 — los tres botones cruzados (Ver Resumen mensual → / Mi
@@ -2787,49 +2817,81 @@ export default function App(){
             transition:"background 0.1s"}}>
             <div>
               <div style={{fontWeight:600,fontSize:14,color:C.grayDark}}>{p.nombre}</div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{p.fecha}</div>
+              {/* Spec navegación-retro-410 punto 3.1 — reemplaza la fecha suelta */}
+              {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:2}}>Inicio del proyecto: {p.fechaInicio}</div>}
+              {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:1}}>Vigencia: {p.fechaInicio} → {p.fechaFin||"—"}</div>}
             </div>
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
+            {/* Punto 3.2 — tres acciones exactas, en este orden: Editar (primario),
+                Información general (antes "Abrir", mismo cableado a abrirPresupuesto),
+                Clonar. "Eliminar" se quita de aquí — el 🗑 de la barra superior
+                (dentro de un presupuesto abierto) sigue siendo la vía para borrar,
+                pendiente de confirmar con el cliente (duda 1 del spec). */}
             <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
+              <button onClick={()=>abrirEdit(p)}
+                style={{padding:"6px 14px",background:C.yellow,border:"none",
+                  borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
+                  boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Editar</button>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
                 abrirPresupuesto(p);
               }}
-                style={{padding:"6px 14px",background:C.yellow,border:"none",
-                  borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
-                  boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Abrir</button>
-              {/* Fase 1.5 — "Datos generales" (antes "Editar"): abre el paso 1 para
-                  cambiar nombre/empresa/tipo/fechas. Ya no depende del estado — se
-                  muestra siempre, y su texto no compite con los otros dos accesos de
-                  edición (Editar partidas / Editar por área). */}
-              <button onClick={()=>abrirEdit(p)}
                 style={{padding:"6px 14px",background:C.white,
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Datos generales</button>
-              <button onClick={()=>clonarPresupuesto(p)}
+                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Información general</button>
+              <button onClick={()=>{setClonarModal(p);setClonarTipo(p.tipo);}}
                 title="Crear nuevo presupuesto basado en este"
                 style={{padding:"6px 14px",background:C.white,
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>
                 Clonar
               </button>
-              <button onClick={()=>eliminarPresupuesto(p)}
-                title="Eliminar presupuesto (no se puede deshacer)"
-                style={{width:30,height:30,padding:0,background:C.white,
-                  border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  cursor:"pointer",fontSize:14,color:C.grayMid,
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  transition:"all 0.15s"}}
-                onMouseEnter={e=>{e.currentTarget.style.background=C.dangerLight;e.currentTarget.style.borderColor=C.danger;e.currentTarget.style.color=C.danger;}}
-                onMouseLeave={e=>{e.currentTarget.style.background=C.white;e.currentTarget.style.borderColor=C.grayBorder;e.currentTarget.style.color=C.grayMid;}}>
-                🗑
-              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Punto 8 — diálogo de Clonar: muestra de cuál presupuesto se copia y deja
+          ajustar el tipo antes de continuar (el tipo ya elegido aquí sigue siendo
+          reactivo en el formulario de edición vía getAreasCat/plantillasSugeridas,
+          sin lógica nueva). Solo Cancelar y Continuar — nada más. */}
+      {clonarModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:200,
+          display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:C.white,borderRadius:12,padding:32,maxWidth:480,width:"90%",
+            boxShadow:"0 16px 48px rgba(0,0,0,0.2)"}}>
+            <h3 style={{margin:"0 0 6px",fontSize:18,fontWeight:800,color:C.grayDark}}>Clonar presupuesto</h3>
+            <p style={{margin:"0 0 20px",fontSize:13,color:C.grayMid}}>
+              Copiando de: <strong style={{color:C.grayDark}}>{clonarModal.nombre}</strong>
+            </p>
+            <div style={{fontSize:11,fontWeight:700,color:C.grayMid,textTransform:"uppercase",letterSpacing:0.5,marginBottom:8}}>
+              Tipo de presupuesto
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:24}}>
+              {[
+                {id:"instalacion", label:"Instalación",  icon:"🏗️"},
+                {id:"servicio",    label:"Servicio",     icon:"🔁"},
+                {id:"departamento",label:"Departamento", icon:"🏢"},
+                {id:"suministro",  label:"Suministro",   icon:"📦"},
+              ].map(t=>(
+                <div key={t.id} onClick={()=>setClonarTipo(t.id)}
+                  style={{border:"2px solid",borderColor:clonarTipo===t.id?C.yellow:C.grayBorder,
+                    borderRadius:10,padding:"12px 10px",cursor:"pointer",textAlign:"center",
+                    background:clonarTipo===t.id?C.yellowLight:C.white,transition:"all 0.15s"}}>
+                  <div style={{fontSize:20,marginBottom:4}}>{t.icon}</div>
+                  <div style={{fontWeight:700,fontSize:12,color:C.grayDark}}>{t.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{display:"flex",justifyContent:"flex-end",gap:10}}>
+              {btn("Cancelar",()=>setClonarModal(null),"secondary")}
+              {btn("Continuar",()=>{clonarPresupuesto(clonarModal,clonarTipo);setClonarModal(null);},"primary")}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  ,"Presupuestos");
+  ,[{label:"Presupuestos"}]);
 
   // ══════════════════════════════════════════════════════════════════════════
   // STEP 1 — INFO GENERAL
@@ -2838,11 +2900,18 @@ export default function App(){
     const sug=plantillasSugeridas(form.tipo);
     return wrap(
       <div style={{maxWidth:740}}>
-        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:28}}>
+        {/* Spec navegación-retro-410 punto 4 — fila de botones arriba, una sola
+            pareja Cancelar/Guardar (se quita la de abajo) más "Información
+            general". Sin PDF: esta pantalla nunca lo tuvo. */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
           <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>
             {modoEdit?"Editar presupuesto":"Nuevo presupuesto"}
           </h2>
-          {/* Fase 1.7 — badge de Estado oculto (ver nota en Step 0) */}
+          <div style={{display:"flex",gap:10}} className="noprint">
+            {btn("Información general",()=>setStep(5),"secondary")}
+            {btn("Cancelar",()=>setStep(0),"secondary")}
+            {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
+          </div>
         </div>
 
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
@@ -2981,12 +3050,6 @@ export default function App(){
             </div>
           </div>
         )}
-        <div style={{display:"flex",justifyContent:"space-between"}}>
-          {btn("Cancelar",()=>setStep(0),"secondary")}
-          {/* Los avisos de campos faltantes van justo debajo de cada input (ver arriba)
-              — solo aparecen tras un intento fallido de Continuar/Guardar */}
-          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
-        </div>
 
         {/* Modal plantillas */}
         {plantModal&&(
@@ -3085,7 +3148,7 @@ export default function App(){
           </div>
         )}
       </div>
-    ,modoEdit?"Editar":"Nuevo presupuesto");
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3139,7 +3202,7 @@ export default function App(){
           {btn("Confirmar",confirmarAreas,"primary",areas.length===0)}
         </div>
       </div>
-    ,"Áreas");
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Áreas"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3161,7 +3224,12 @@ export default function App(){
             tampoco había fila de botones (solo el "Guardar" verde al final). */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20,maxWidth:1320}}>
           <div>
-            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Capturar costos</h2>
+            {/* Spec navegación-retro-410 punto 7 — el título cambia según de dónde
+                se llegue; la miga de pan sigue diciendo "Captura de información"
+                siempre (ver tabla del punto 1). */}
+            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>
+              {flujoCreacion?"Captura de información":`Editar — ${pres?.nombre||form?.nombre||""}`}
+            </h2>
             <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
             {pres?.fechaInicio&&(()=>{
               const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
@@ -3350,7 +3418,7 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,"Capturar costos");
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Captura de información"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3493,11 +3561,12 @@ export default function App(){
             )}
           </div>
           {/* Fase 1.4 — fila de botones propia, sin depender de areaSaved; la barra
-              pegajosa deja de repetir esta navegación. Fase 1.5 — "Editar por área"
-              en vez de "← Captura" (mismo destino, setStep(3), solo cambia el texto). */}
+              pegajosa deja de repetir esta navegación. Spec navegación-retro-410
+              punto 6 — se quita "Editar por área"; el botón de regreso ("←
+              Información general") se queda: es el par recíproco del botón "Resumen
+              mensual" de Información general. */}
           <div style={{display:"flex",gap:10}} className="noprint">
             {btn("← Información general",()=>setStep(5),"secondary")}
-            {btn("Editar por área",()=>setStep(3),"secondary")}
             {btn("⬇ Excel",()=>exportarExcel({
               pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
               mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -3511,7 +3580,8 @@ export default function App(){
 
           {/* ── SECCIÓN: Captura de ingresos ────────────────────────────── */}
           {card(<>
-            {sTitle("Ingresos — Facturación proyectada","Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.")}
+            {/* Spec navegación-retro-410 punto 9 — "Facturación proyectada" → "Ingresos" */}
+            {sTitle("Ingresos","Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.")}
 
             {/* Precio fijo mensual */}
             <div style={{background:C.successLight,border:`1px solid #bbf7d0`,borderRadius:10,padding:18,marginBottom:16}}>
@@ -3546,12 +3616,13 @@ export default function App(){
               </div>
             </div>
 
-            {/* Ingresos adicionales */}
+            {/* Spec navegación-retro-410 punto 9 — "Ingresos adicionales" → "Ingreso
+                por mes"; se quita "se suman al precio fijo" (mal etiquetado). */}
             <div style={{marginBottom:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <div>
-                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingresos adicionales</div>
-                  <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc. Se suman al precio fijo.</div>
+                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingreso por mes</div>
+                  <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc.</div>
                 </div>
                 <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
                   style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
@@ -3793,7 +3864,7 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,"Resumen mensual");
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Información general",onClick:()=>setStep(5)},{label:"Resumen mensual"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3838,17 +3909,12 @@ export default function App(){
                 </div>
               );
             })()}
-            {pres?.fechaElaboracion&&(
-              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                Elaborado: <strong>{pres.fechaElaboracion}</strong>
-                {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
-              </div>
-            )}
+            {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
+                aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
           </div>
-          {/* Día 3 — Información general ya no tiene campos, así que "Editar" pasa
-              a navegar a Capturar costos en vez de habilitar modoLectura in situ. */}
+          {/* Punto 5 — se quita "✎ Editar": esa edición ya se llega desde el
+              listado o desde la miga de pan (punto 1), no desde un botón aquí. */}
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("✎ Editar",()=>setStep(3),"primary")}
             {btn("Resumen mensual →",()=>setStep(4),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
@@ -3946,7 +4012,7 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,"Información general");
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Información general"}]);
   }
   return null;
 }
