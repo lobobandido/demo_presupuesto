@@ -2369,12 +2369,20 @@ export default function App(){
   }
 
   // FIX 6 v4: Abrir presupuesto — flag pausa el guardado en localStorage
+  // Guardarraíl (spec recuperación-datos) — si la carga de Supabase falla, no
+  // continuar con el objeto ligero: mismo criterio que abrirEdit/clonarPresupuesto.
   async function abrirPresupuesto(p){
     isOpening.current = true;
     // Si el presupuesto vive en Supabase (id = UUID), traer siempre la versión más reciente
     if(supabase && typeof p.id === "string"){
       const remoto = await cargarPresupuestoDeNube(p.id, {uid, initP, initN});
-      if(remoto){ setPresToOpen(remoto); return; }
+      if(!remoto){
+        isOpening.current = false;
+        showToast("No se pudo cargar el presupuesto — revisa tu conexión e intenta de nuevo");
+        return;
+      }
+      setPresToOpen(remoto);
+      return;
     }
     setPresToOpen(p);
   }
