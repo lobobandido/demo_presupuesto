@@ -233,3 +233,24 @@ monto por mes) sigue siendo parte del día 4 del otro spec.
    Hoy los dos llevan al mismo lugar.
 3. ~~**Ver sin editar**~~ — **RESUELTA.** El líder confirmó tres botones en el listado: Editar,
    Información general y Clonar. Sí hay acceso directo a la vista de consulta. Ver punto 3.2.
+
+---
+
+## Corrección posterior — 2026-08-06
+
+**Punto 3.2 corregido.** El texto original de este punto dice que "Editar" del listado lleva al
+formulario de edición (Step 1). Al revisar otra vez la transcripción de la retro del 4:10, cuando
+el cliente decía "formulario de edición" estaba señalando la pantalla de captura, no el paso 1 —
+por eso pidió que esa pantalla dijera "Editar — [nombre del proyecto]" (punto 7), un rótulo que
+solo tiene sentido si ahí es donde se aterriza al picar Editar.
+
+**Comportamiento nuevo:** "Editar" del listado navega a **Capturar costos (Step 3)**, no a Datos
+generales (Step 1). Preselecciona la primera área si no hay ninguna activa, y deja `flujoCreacion`
+en `false` para que el título de esa pantalla diga "Editar — [nombre]" y no "Captura de
+información".
+
+**El acceso a Step 1 sigue existiendo:** el eslabón `[nombre del proyecto]` de la miga de pan
+(punto 1) navega ahí, en las pantallas donde aparece. Es la única vía para corregir nombre, tipo o
+fechas — y las fechas gobiernan todas las columnas de mes, así que no puede quedar sin acceso.
+
+Commit: `d2763e1`.
