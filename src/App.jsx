@@ -2343,7 +2343,20 @@ export default function App(){
     setFlujoCreacion(true);
     setStep(1);
   }
-  function abrirEdit(p){
+  // Spec recuperación-datos, paso 2 — p llega ligero (de listarPresupuestos, sin
+  // _areas/_costos); cargar siempre la versión completa de la nube antes de abrir
+  // el formulario, mismo patrón que abrirPresupuesto. Si la carga falla, no
+  // continuar con el objeto ligero (eso fue lo que vació Perdiz y Cuervito el 6
+  // de agosto) — avisar y quedarse en el listado.
+  async function abrirEdit(p){
+    if(supabase && typeof p.id === "string"){
+      const remoto = await cargarPresupuestoDeNube(p.id, {uid, initP, initN});
+      if(!remoto){
+        showToast("No se pudo cargar el presupuesto — revisa tu conexión e intenta de nuevo");
+        return;
+      }
+      p = remoto;
+    }
     setForm({nombre:p.nombre,tipo:p.tipo,empresa:p.empresa||"GEOLIS SA DE CV",
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
     setAreas(p._areas||[]); setCostos(p._costos||{});
