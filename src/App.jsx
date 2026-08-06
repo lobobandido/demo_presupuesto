@@ -2289,9 +2289,9 @@ export default function App(){
     setIngAd(ingAdicionalesP);
     setAreaSaved(saved);
     setActiva(primera);
-    // Abrir un presupuesto existente ya no aterriza directo en captura (editable) —
-    // aterriza en "Mi presupuesto" en modo lectura; "Editar" ahí habilita los inputs.
-    setModoLectura(true);
+    // Fix: modoLectura ya no existe desde el día 3 (Información general dejó
+    // de tener modo lectura/edición in situ) — esta llamada quedó huérfana y
+    // tronaba con ReferenceError en cualquier apertura de presupuesto.
     setStep(5);
     setPresToOpen(null); // limpiar para no re-ejecutar
     // Pequeño delay para que React termine el render antes de reanudar guardado
@@ -2332,7 +2332,6 @@ export default function App(){
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
     setIntentoGuardar(false);
-    setModoLectura(false); // un presupuesto nuevo siempre arranca editable
     setStep(1);
   }
   function abrirEdit(p){
@@ -2343,7 +2342,6 @@ export default function App(){
     setPlantKey(null); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
-    setModoLectura(false); // "Editar" desde la lista siempre entra editable
     setStep(1);
   }
 
