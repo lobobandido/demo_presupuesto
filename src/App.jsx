@@ -3041,8 +3041,10 @@ export default function App(){
           </div>
         </div>
 
-        {/* Cargar presupuesto base — solo si hay tipo seleccionado */}
-        {form.tipo&&(
+        {/* Cargar presupuesto base — solo si hay tipo seleccionado, y solo al crear.
+            Corrección retro 4:10 — cargar una plantilla sobre un presupuesto que ya
+            existe le mete partidas ajenas (es lo que le pasó al clon de Perdiz). */}
+        {!modoEdit && form.tipo&&(
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
             <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
