@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(npx playwright *)",
+      "Bash(playwright *)",
+      "Bash(npm run test *)",
+      "Bash(npm run e2e *)",
+      "Bash(npx puppeteer *)",
+      "Bash(puppeteer *)"
+    ]
+  }
+}
