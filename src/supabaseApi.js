@@ -134,6 +134,17 @@ export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAd
     console.log("[supabase] presupuesto creado con id:", presupuestoId);
   }
 
+  // Guardarraíl (spec recuperación-datos, paso 1) — cero áreas nunca es un estado
+  // legítimo de un presupuesto YA GUARDADO: el botón "Confirmar" del paso de Áreas
+  // está deshabilitado con areas.length===0, así que no hay forma legítima de llegar
+  // aquí con cero. Si llega, es un error (típicamente abrirEdit con el objeto ligero
+  // del listado, sin _areas/_costos) y no una intención de vaciar el presupuesto —
+  // no tocar áreas ni partidas para no repetir la pérdida de datos del 6 de agosto.
+  if(idExistente && (areas||[]).length===0){
+    console.warn("[supabase] guardado con 0 áreas sobre presupuesto existente — se conservan las áreas y partidas ya guardadas");
+    return presupuestoId;
+  }
+
   // Reemplazo completo de áreas/partidas (cascada borra partidas hijas automáticamente)
   const {error:delErr} = await supabase.from("areas_presupuesto").delete().eq("presupuesto_id",presupuestoId);
   if(delErr) console.error("[supabase] delete areas:", delErr.message);
