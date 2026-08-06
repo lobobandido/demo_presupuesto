@@ -23,3 +23,7 @@ Thumbs.db
 
 # Vercel
 .vercel/
+
+# Audios de retro (pesados, no son código)
+*.m4a
+"Imagen pegada.png"
