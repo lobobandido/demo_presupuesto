@@ -71,6 +71,19 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   contra 1,294,000 esperados, ARRENDA cae en SIN CATEGORÍA, HERRAMIENTA cae en
   EQUIPOS Y ENSERES, INSUMOS DE OFICINA da 21K contra 32,400. Sin diagnosticar:
   falta separar dato mal capturado de mapeo incorrecto.
+- Un presupuesto clonado (o nuevo) vive solo en el estado local hasta que se
+  guarda un área: aparece en el listado como si existiera, pero no está en
+  Supabase. Si su id local se promueve a string sin que la fila exista,
+  abrirPresupuesto falla con "No se pudo cargar el presupuesto" y el registro
+  queda inaccesible — el 🗑 tampoco aparece, porque requiere que pres se haya
+  cargado. Se limpia recargando la página. Misma clase de problema que los
+  ingresos que no persisten: la UI aparenta permanencia donde no la hay.
+
+## Pendientes de producto
+
+- No hay forma de eliminar un presupuesto desde el listado (se quitó en
+  spec-navegacion-retro-410). El 🗑 solo existe dentro de un presupuesto que
+  cargó bien. Pregunta abierta con el cliente.
 
 ## Excel de referencia
 
