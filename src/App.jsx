@@ -2655,6 +2655,32 @@ export default function App(){
     }
   }
 
+  // Guarda la sección de ingresos (Precio fijo + Ingreso por mes), movida hoy de
+  // Resumen mensual a Capturar costos. Mismo patrón que guardarArea (snapshot +
+  // guardarPresupuestoEnNube con el estado vigente), pero SIN tocar el estado de
+  // ninguna área — a diferencia de guardarArea, que sí marca la suya como
+  // "guardado". No está ligada a areaActiva ni a ningún id de área.
+  function guardarIngresos(){
+    showToast("Costos guardados correctamente");
+    if(pres){
+      const snap={_areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,
+        _ingresos:ingresos,_precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
+      const actualizado={...pres,...snap};
+      setPres(actualizado);
+      setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
+
+      if(supabase){
+        guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos,
+          ingAdicionales, precioFijo}).then(cloudId=>{
+          if(cloudId && cloudId!==actualizado.id){
+            setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
+            setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+          }
+        }).catch(err=>console.error("[supabase] guardarIngresos:",err));
+      }
+    }
+  }
+
   // ── BTN ──────────────────────────────────────────────────────────────────────
   // Jerarquía visual: primary/success = acción principal (llenas, con sombra),
   // secondary = acción secundaria (borde, sin relleno), danger = destructiva.
@@ -3384,6 +3410,13 @@ export default function App(){
     const capexA=areaActiva?totalCat(areaActiva,"capex"):0;
     const nomMes =areaActiva?totalNom(areaActiva):0;
     const opexA  =areaActiva?totalOpexAnualCat(areaActiva,"mat")+totalNomAnual(areaActiva)+totalOpexAnualCat(areaActiva,"via"):0;
+    // Sección de ingresos movida aquí desde Resumen mensual (día de hoy) — se
+    // necesitan NUM_MESES_OP/RANGO_ANIOS/MESES13/MESES13_MES/mIngresos/
+    // totalIngresosAnual, que antes solo se calculaban en Step 4/5. Se llama a
+    // calcularSerieMensual tal cual (no se toca la función, solo el punto desde
+    // donde se le llama) — mismo patrón que ya usan Step 4 y Step 5.
+    const {NUM_MESES_OP, RANGO_ANIOS, MESES13, MESES13_MES, mIngresos, totalIngresosAnual} =
+      calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
 
     return wrap(
       <div>
@@ -3419,6 +3452,178 @@ export default function App(){
             {btn("Resumen mensual →",()=>setStep(4),"secondary",flujoCreacion)}
           </div>
         </div>
+
+        {/* ── SECCIÓN: Captura de ingresos — movida de Resumen mensual (pantalla de
+            visualización, sin botón Guardar, por eso no persistía) a Capturar
+            costos. Bloque fijo, UNA SOLA VEZ por presupuesto, no por área — por
+            eso vive aquí arriba del selector de áreas, fuera de capture-grid, en
+            vez de dentro del panel que cambia según areaActiva. Mismo JSX que
+            tenía Resumen mensual (incluye el fix de hoy al rótulo del selector de
+            mes); guardarIngresos es propio, no reutiliza guardarArea. */}
+        <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+          padding:24,marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.04)",maxWidth:1320}}>
+          <div style={{marginBottom:16}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+              <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Ingresos</h3>
+            </div>
+            <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+              Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.
+            </div>
+          </div>
+
+          {/* Precio fijo mensual */}
+          <div style={{background:C.successLight,border:`1px solid #bbf7d0`,borderRadius:10,padding:18,marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:13,color:C.success,marginBottom:12}}>
+              Precio fijo del servicio (mensual)
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+              <div style={{width:220,maxWidth:220,flexShrink:0}}>
+                <div style={{fontSize:11,color:C.grayMid,marginBottom:6}}>Monto a facturar por mes</div>
+                <MoneyInput value={precioFijo} onChange={v=>{
+                  setPrecioFijo(v);
+                  // Distribuir automáticamente en M1..Mn (n = duración real del proyecto,
+                  // de 6 meses a 20 años — ya no se recorta a 12)
+                  const meses=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
+                  const n=Array(meses+1).fill(0);
+                  for(let i=1;i<=meses;i++) n[i]=v;
+                  setIngresos(n);
+                }}/>
+              </div>
+              <div style={{textAlign:"center",padding:"10px 20px",background:C.white,borderRadius:8,border:`1px solid #bbf7d0`}}>
+                <div style={{fontSize:10,color:C.grayMid,marginBottom:4}}>Total proyectado</div>
+                <div style={{fontSize:18,fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</div>
+                <div style={{fontSize:10,color:C.grayMid,marginTop:2}}>
+                  {fmt(precioFijo)} × {mIngresos.filter(v=>v>0).length} meses
+                </div>
+              </div>
+              <button onClick={()=>{setPrecioFijo(0);setIngresos(Array(13).fill(0));}}
+                style={{padding:"8px 16px",background:C.white,border:`1px solid ${C.grayBorder}`,
+                  borderRadius:6,cursor:"pointer",fontSize:12,color:C.grayMid}}>
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          {/* Ingreso por mes */}
+          <div style={{marginBottom:16}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <div>
+                <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingreso por mes</div>
+                <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc.</div>
+              </div>
+              <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
+                style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
+                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
+                + Agregar ingreso
+              </button>
+            </div>
+            {ingAdicionales.length===0&&(
+              <div style={{padding:"14px 16px",background:"#F8F8F8",borderRadius:8,
+                border:`1px dashed ${C.grayBorder}`,fontSize:12,color:C.grayMid,textAlign:"center"}}>
+                Sin ingresos adicionales — solo el precio fijo mensual
+              </div>
+            )}
+            {ingAdicionales.map((ing,idx)=>(
+              <div key={ing.id} style={{display:"grid",gridTemplateColumns:"110px 90px 1fr 160px 32px",
+                gap:10,alignItems:"end",padding:"10px 0",
+                borderBottom:idx<ingAdicionales.length-1?`1px solid ${C.line}`:"none"}}>
+                <div>
+                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Mes *</div>
+                  <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
+                    className="sel-brand"
+                    style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
+                    {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>{
+                      const real=nombreMesReal(m,pres?.fechaInicio);
+                      return(
+                        <option key={m} value={m}>M{m}{real?` · ${real}`:""}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Año *</div>
+                  <select value={ing.anio}
+                    onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)}:x))}
+                    className="sel-brand"
+                    style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
+                    {RANGO_ANIOS.map(y=>(
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Descripción</div>
+                  <input value={ing.desc} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,desc:e.target.value}:x))}
+                    placeholder="Ej. Renovación de contrato"
+                    style={{width:"100%",padding:"7px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Monto</div>
+                  <MoneyInput value={ing.monto} onChange={v=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,monto:v}:x))}/>
+                </div>
+                <button onClick={()=>setIngAd(prev=>prev.filter(x=>x.id!==ing.id))}
+                  style={{background:C.dangerLight,color:C.danger,border:"none",borderRadius:6,
+                    padding:"6px 8px",cursor:"pointer",fontSize:16,height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+              </div>
+            ))}
+            {ingAdicionales.length>0&&(
+              <div style={{marginTop:8,textAlign:"right",fontSize:12,color:C.grayMid}}>
+                Total adicionales: <strong style={{color:C.success}}>{fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}</strong>
+              </div>
+            )}
+          </div>
+
+          {/* Tabla resumen M0-M12 */}
+          <ScrollHint minWidth={800}>
+            <table style={{borderCollapse:"collapse",fontSize:11,width:"100%"}}>
+              <thead>
+                <tr style={{background:"#059669"}}>
+                  <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
+                  {MESES13.map((m,i)=>(
+                    <td key={i} style={{padding:"4px 4px",textAlign:"right",minWidth:58}}>
+                      <div style={{fontSize:9,fontWeight:600,opacity:0.7,color:"rgba(255,255,255,0.7)"}}>{m}</div>
+                      <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
+                    </td>
+                  ))}
+                  <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{background:C.successLight}}>
+                  <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
+                  {mIngresos.map((v,i)=>(
+                    <td key={i} style={{padding:"5px 4px",textAlign:"right",
+                      color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
+                      {v>0?fmtK(v):"—"}
+                    </td>
+                  ))}
+                  <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
+                </tr>
+                {ingAdicionales.length>0&&(
+                  <tr style={{background:"#F0FFF4"}}>
+                    <td style={{padding:"8px 14px",fontWeight:600,color:"#065F46"}}>+ Adicionales</td>
+                    {MESES13.map((_,i)=>{
+                      const suma=ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0);
+                      return <td key={i} style={{padding:"5px 4px",textAlign:"right",
+                        color:suma>0?"#065F46":C.grayBorder,fontWeight:suma>0?600:400}}>
+                        {suma>0?fmtK(suma):"—"}
+                      </td>;
+                    })}
+                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:"#065F46"}}>
+                      {fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </ScrollHint>
+
+          <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
+            {btn("Guardar",guardarIngresos,"success")}
+          </div>
+        </div>
+
         <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"200px minmax(0,1fr)",gap:28,maxWidth:1320}}>
 
           {/* Sidebar áreas */}
@@ -3765,118 +3970,14 @@ export default function App(){
             </div>
           </div>
 
-          {/* ── SECCIÓN: Captura de ingresos ────────────────────────────── */}
+          {/* ── SECCIÓN: Ingresos (solo lectura) ──────────────────────────
+              Captura movida hoy a Capturar costos (Step 3) — ahí vive el
+              MoneyInput de precio fijo, el botón "+ Agregar ingreso" y su propio
+              "Guardar" (guardarIngresos). Aquí solo queda la tabla de
+              facturación ya calculada (mIngresos) — visualización pura, cero
+              campo editable, mismo patrón que el resto de Resumen mensual. */}
           {card(<>
-            {/* Spec navegación-retro-410 punto 9 — "Facturación proyectada" → "Ingresos" */}
-            {sTitle("Ingresos","Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.")}
-
-            {/* Precio fijo mensual */}
-            <div style={{background:C.successLight,border:`1px solid #bbf7d0`,borderRadius:10,padding:18,marginBottom:16}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.success,marginBottom:12}}>
-                Precio fijo del servicio (mensual)
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
-                <div style={{width:220,maxWidth:220,flexShrink:0}}>
-                  <div style={{fontSize:11,color:C.grayMid,marginBottom:6}}>Monto a facturar por mes</div>
-                  <MoneyInput value={precioFijo} onChange={v=>{
-                    setPrecioFijo(v);
-                    // Distribuir automáticamente en M1..Mn (n = duración real del proyecto,
-                    // de 6 meses a 20 años — ya no se recorta a 12)
-                    const meses=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
-                    const n=Array(meses+1).fill(0);
-                    for(let i=1;i<=meses;i++) n[i]=v;
-                    setIngresos(n);
-                  }}/>
-                </div>
-                <div style={{textAlign:"center",padding:"10px 20px",background:C.white,borderRadius:8,border:`1px solid #bbf7d0`}}>
-                  <div style={{fontSize:10,color:C.grayMid,marginBottom:4}}>Total proyectado</div>
-                  <div style={{fontSize:18,fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</div>
-                  <div style={{fontSize:10,color:C.grayMid,marginTop:2}}>
-                    {fmt(precioFijo)} × {mIngresos.filter(v=>v>0).length} meses
-                  </div>
-                </div>
-                <button onClick={()=>{setPrecioFijo(0);setIngresos(Array(13).fill(0));}}
-                  style={{padding:"8px 16px",background:C.white,border:`1px solid ${C.grayBorder}`,
-                    borderRadius:6,cursor:"pointer",fontSize:12,color:C.grayMid}}>
-                  Limpiar
-                </button>
-              </div>
-            </div>
-
-            {/* Spec navegación-retro-410 punto 9 — "Ingresos adicionales" → "Ingreso
-                por mes"; se quita "se suman al precio fijo" (mal etiquetado). */}
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                <div>
-                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingreso por mes</div>
-                  <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc.</div>
-                </div>
-                <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
-                  style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
-                    cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
-                  + Agregar ingreso
-                </button>
-              </div>
-              {ingAdicionales.length===0&&(
-                <div style={{padding:"14px 16px",background:"#F8F8F8",borderRadius:8,
-                  border:`1px dashed ${C.grayBorder}`,fontSize:12,color:C.grayMid,textAlign:"center"}}>
-                  Sin ingresos adicionales — solo el precio fijo mensual
-                </div>
-              )}
-              {ingAdicionales.map((ing,idx)=>(
-                <div key={ing.id} style={{display:"grid",gridTemplateColumns:"110px 90px 1fr 160px 32px",
-                  gap:10,alignItems:"end",padding:"10px 0",
-                  borderBottom:idx<ingAdicionales.length-1?`1px solid ${C.line}`:"none"}}>
-                  <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Mes *</div>
-                    <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
-                      className="sel-brand"
-                      style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                      {/* Bug conocido corregido — el rótulo asumía que el proyecto arranca en
-                          enero (MESES[(m-1)%12]). Ahora usa nombreMesReal (mismo criterio que
-                          MESES13_MES en otras pantallas), derivado de pres?.fechaInicio. Solo
-                          cambia el texto visible del <option> — el value sigue siendo el M
-                          numérico, y mIngresos (línea ~490) sigue indexando por ese mismo M. */}
-                      {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>{
-                        const real=nombreMesReal(m,pres?.fechaInicio);
-                        return(
-                          <option key={m} value={m}>M{m}{real?` · ${real}`:""}</option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                  <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Año *</div>
-                    <select value={ing.anio}
-                      onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,anio:parseInt(e.target.value)}:x))}
-                      className="sel-brand"
-                      style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                      {RANGO_ANIOS.map(y=>(
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Descripción</div>
-                    <input value={ing.desc} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,desc:e.target.value}:x))}
-                      placeholder="Ej. Renovación de contrato"
-                      style={{width:"100%",padding:"7px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12}}/>
-                  </div>
-                  <div>
-                    <div style={{fontSize:10,color:C.grayMid,marginBottom:4,textTransform:"uppercase",letterSpacing:0.4}}>Monto</div>
-                    <MoneyInput value={ing.monto} onChange={v=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,monto:v}:x))}/>
-                  </div>
-                  <button onClick={()=>setIngAd(prev=>prev.filter(x=>x.id!==ing.id))}
-                    style={{background:C.dangerLight,color:C.danger,border:"none",borderRadius:6,
-                      padding:"6px 8px",cursor:"pointer",fontSize:16,height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
-                </div>
-              ))}
-              {ingAdicionales.length>0&&(
-                <div style={{marginTop:8,textAlign:"right",fontSize:12,color:C.grayMid}}>
-                  Total adicionales: <strong style={{color:C.success}}>{fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}</strong>
-                </div>
-              )}
-            </div>
+            {sTitle("Ingresos","Precio fijo mensual del servicio × meses del proyecto, más ingresos adicionales por mes. Se captura en Capturar costos.")}
 
             {/* Tabla resumen M0-M12 */}
             <ScrollHint minWidth={800}>
