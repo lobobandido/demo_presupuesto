@@ -2209,6 +2209,11 @@ export default function App(){
   const [presupuestosGuardados,setPresupuestosGuardados] = useState([]);
   const [cargandoGuardados,setCargandoGuardados]         = useState(false);
   const [origenReal,setOrigenReal]                       = useState(null); // {nombre,capex,opex}
+  // Punto 8 spec-navegación-retro-410 — corrección posterior: al entrar a Step 1
+  // desde Clonar, el origen YA está decidido (no tiene sentido el bloque "¿Cómo
+  // quieres iniciar?" con sus dos tarjetas). Distingue ese caso del flujo normal
+  // de "+ Nuevo presupuesto", donde ese bloque sigue teniendo sentido.
+  const [viaClonar,setViaClonar]   = useState(false);
   const [modoEdit,setModoEdit]     = useState(false);
   // Spec navegación-retro-410 punto 7 — distingue "presupuesto nuevo, en el
   // flujo de creación" (Captura de información) de "presupuesto existente"
@@ -2257,7 +2262,9 @@ export default function App(){
   // "Partir de un presupuesto anterior" — al abrir el modal, consultar Supabase (SOLO LECTURA)
   // No modifica el flujo existente de PLANTILLAS (Cuervito/TI), que sigue igual más abajo.
   useEffect(()=>{
-    if(!plantModal || !supabase) return;
+    // También dispara con viaClonar=true — el select de origen del flujo de
+    // Clonar (Step 1) necesita la misma lista, sin duplicar la consulta.
+    if(!(plantModal||viaClonar) || !supabase) return;
     setCargandoGuardados(true);
     console.log("[partir-de] Consultando presupuestos guardados en Supabase (solo lectura)...");
     listarPresupuestos().then(lista=>{
@@ -2268,7 +2275,7 @@ export default function App(){
       console.error("[partir-de] Error consultando Supabase:", err);
       setCargandoGuardados(false);
     });
-  },[plantModal]);
+  },[plantModal,viaClonar]);
   // FIX 6 v3: procesar apertura de presupuesto en useEffect separado
   // Esto garantiza que todos los setState se aplicaron antes de setActiva
   useEffect(()=>{
@@ -2298,6 +2305,7 @@ export default function App(){
     setAreaSaved(saved);
     setActiva(primera);
     setFlujoCreacion(false);
+    setViaClonar(false);
     // Abrir un presupuesto existente aterriza en Información general (día 3:
     // esa pantalla ya no tiene modo lectura/edición in situ, ver App.jsx L3812+).
     setStep(5);
@@ -2338,7 +2346,7 @@ export default function App(){
     setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
-    setPlantKey(null); setOrigenReal(null); setPres(null); setModoEdit(false); setAreaSaved(false);
+    setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
     setIntentoGuardar(false);
     setFlujoCreacion(true);
     setStep(1);
@@ -2361,7 +2369,7 @@ export default function App(){
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
     setAreas(p._areas||[]); setCostos(p._costos||{});
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
-    setPlantKey(null); setPres(p); setModoEdit(true);
+    setPlantKey(null); setViaClonar(false); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
     setFlujoCreacion(false);
@@ -2475,6 +2483,13 @@ export default function App(){
     setPlantKey(null); setAreaSaved(false);
     setIntentoGuardar(false);
     setFlujoCreacion(true);
+    // El origen ya está decidido al clonar (viene del botón "Clonar" del listado,
+    // no de elegir entre "Partir de anterior"/"Iniciar desde cero") — Step 1
+    // muestra el select de origen en vez de esas dos tarjetas. Si mismoTipo es
+    // false, el origen ya no corresponde al tipo elegido: queda sin preseleccionar
+    // hasta que el usuario elija uno del tipo nuevo en el select.
+    setViaClonar(true);
+    setOrigenReal(mismoTipo?{id:p.id,nombre:p.nombre,tipo:p.tipo}:null);
     setStep(1);
   }
 
@@ -3056,8 +3071,64 @@ export default function App(){
 
         {/* Cargar presupuesto base — solo si hay tipo seleccionado, y solo al crear.
             Corrección retro 4:10 — cargar una plantilla sobre un presupuesto que ya
-            existe le mete partidas ajenas (es lo que le pasó al clon de Perdiz). */}
-        {!modoEdit && form.tipo&&(
+            existe le mete partidas ajenas (es lo que le pasó al clon de Perdiz).
+            Punto 8 spec-navegación-retro-410 (corrección posterior) — al entrar por
+            Clonar el origen ya está decidido: "esta no, este cuadro iría. Se
+            eliminaría la parte de la A" — se oculta el bloque "¿Cómo quieres
+            iniciar?" con sus dos tarjetas y en su lugar va un select de origen,
+            filtrado por el tipo elegido arriba. El flujo de "+ Nuevo presupuesto"
+            (viaClonar=false) no cambia. */}
+        {!modoEdit && form.tipo&&(viaClonar?(()=>{
+          const origenesDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo);
+          return(
+          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+            <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
+              borderLeft:`3px solid ${C.yellowDark}`}}>
+              <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Presupuesto de origen</div>
+              <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
+                De cuál presupuesto se está copiando — solo se muestran los de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong>. Si cambias el tipo arriba, estas opciones cambian.
+              </div>
+            </div>
+            <div style={{padding:"16px 24px"}}>
+              {cargandoGuardados&&(
+                <div style={{fontSize:12,color:C.grayMid}}>Cargando…</div>
+              )}
+              {!cargandoGuardados&&origenesDelTipo.length===0&&(
+                <div style={{fontSize:12,color:C.grayMid}}>
+                  No hay presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — elige otro tipo arriba o continúa y captura las áreas manualmente.
+                </div>
+              )}
+              {!cargandoGuardados&&origenesDelTipo.length>0&&(()=>{
+                // partirDePresupuestoAnterior fija origenReal como {nombre,capex,opex}
+                // (sin id) — se empareja por nombre, mismo criterio que ya usa el
+                // modal de plantillas (línea ~3169) para esta misma lista.
+                const seleccionado = origenReal && origenesDelTipo.find(p=>p.nombre===origenReal.nombre);
+                return(
+                <select value={seleccionado?.id||""}
+                  onChange={e=>{
+                    const elegido=origenesDelTipo.find(p=>p.id===e.target.value);
+                    if(elegido) partirDePresupuestoAnterior(elegido);
+                  }}
+                  className="sel-brand"
+                  style={{width:"100%",maxWidth:420,padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
+                    borderRadius:8,fontSize:13,background:C.white}}>
+                  <option value="" disabled>Selecciona un presupuesto de origen…</option>
+                  {origenesDelTipo.map(p=>(
+                    <option key={p.id} value={p.id}>{p.nombre}{p.fechaInicio?` · ${p.fechaInicio}`:""}</option>
+                  ))}
+                </select>
+                );
+              })()}
+              {origenReal&&origenesDelTipo.some(p=>p.nombre===origenReal.nombre)&&(
+                <div style={{marginTop:10,fontSize:11,color:C.yellowDark,fontWeight:600}}>
+                  ✓ Copiando de "{origenReal.nombre}" — editable antes de guardar
+                </div>
+              )}
+            </div>
+          </div>
+          );
+        })():(
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
             <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
@@ -3109,7 +3180,7 @@ export default function App(){
               </div>
             </div>
           </div>
-        )}
+        ))}
 
         {/* Modal plantillas */}
         {plantModal&&(
