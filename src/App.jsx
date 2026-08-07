@@ -2430,9 +2430,17 @@ export default function App(){
       p = remoto;
     }
     const hoy = new Date().toISOString().slice(0,10);
+    const tipoFinal = tipoOverride||p.tipo;
+    // Punto 8 spec-navegación-retro-410 — "si usted cambia la plantilla a una de
+    // departamento, tiene que cambiar sus opciones": las áreas y sus costos están
+    // capturados bajo las categorías del tipo de ORIGEN (getAreasCat); si el
+    // diálogo de Clonar elige un tipo distinto, esas áreas ya no aplican al nuevo
+    // tipo — arrancan vacías (igual que un presupuesto nuevo de ese tipo) en vez
+    // de arrastrar partidas de categorías que no existen ahí.
+    const mismoTipo = tipoFinal===p.tipo;
     setForm({
       nombre: p.nombre + " (copia)",
-      tipo: tipoOverride||p.tipo,
+      tipo: tipoFinal,
       empresa: p.empresa||"GEOLIS SA DE CV",
       fechaInicio: p.fechaInicio||hoy,
       fechaFin: p.fechaFin||"",
@@ -2441,22 +2449,24 @@ export default function App(){
     // Copiar partidas con nuevos IDs
     setCapexPM((p._capexPM||[]).map(x=>({...x,id:uid()})));
     setOpexPM((p._opexPM||[]).map(x=>({...x,id:uid()})));
-    // Copiar costos de áreas con nuevos IDs
+    // Copiar costos de áreas con nuevos IDs — solo si el tipo no cambió
     const nuevosCostos={};
-    (p._areas||[]).forEach(id=>{
-      if(p._costos?.[id]){
-        const ac=p._costos[id];
-        nuevosCostos[id]={
-          ...ac,
-          capex:(ac.capex||[]).map(x=>({...x,id:uid()})),
-          mat:(ac.mat||[]).map(x=>({...x,id:uid()})),
-          nomina:(ac.nomina||[]).map(x=>({...x,id:uid()})),
-          via:(ac.via||[]).map(x=>({...x,id:uid()})),
-          estado:"pendiente",
-        };
-      }
-    });
-    setAreas(p._areas||[]);
+    if(mismoTipo){
+      (p._areas||[]).forEach(id=>{
+        if(p._costos?.[id]){
+          const ac=p._costos[id];
+          nuevosCostos[id]={
+            ...ac,
+            capex:(ac.capex||[]).map(x=>({...x,id:uid()})),
+            mat:(ac.mat||[]).map(x=>({...x,id:uid()})),
+            nomina:(ac.nomina||[]).map(x=>({...x,id:uid()})),
+            via:(ac.via||[]).map(x=>({...x,id:uid()})),
+            estado:"pendiente",
+          };
+        }
+      });
+    }
+    setAreas(mismoTipo?(p._areas||[]):[]);
     setCostos(nuevosCostos);
     setIngresos(p._ingresos||Array(13).fill(0));
     setPrecioFijo(p._precioFijo||0);
