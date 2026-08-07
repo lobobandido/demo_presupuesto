@@ -2916,16 +2916,12 @@ export default function App(){
               {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:1}}>Vigencia: {p.fechaInicio} → {p.fechaFin||"—"}</div>}
             </div>
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
-            {/* Punto 3.2 — tres acciones exactas, en este orden: Editar (primario),
-                Información general (antes "Abrir", mismo cableado a abrirPresupuesto),
-                Clonar. "Eliminar" se quita de aquí — el 🗑 de la barra superior
-                (dentro de un presupuesto abierto) sigue siendo la vía para borrar,
-                pendiente de confirmar con el cliente (duda 1 del spec). */}
+            {/* Punto 3.2, corrección posterior (Luis, WhatsApp) — orden invertido de
+                los primeros dos: Información general, Editar, Clonar. Los destinos
+                no cambian, solo el orden — ver "Corrección posterior" en
+                docs/specs/spec-navegacion-retro-410.md. "Eliminar" se quita de aquí
+                (ver duda 1 del spec) — y del breadcrumb, ver CLAUDE.md. */}
             <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button onClick={()=>abrirEdit(p)}
-                style={{padding:"6px 14px",background:C.yellow,border:"none",
-                  borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
-                  boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Editar</button>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
                 abrirPresupuesto(p);
@@ -2933,6 +2929,10 @@ export default function App(){
                 style={{padding:"6px 14px",background:C.white,
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Información general</button>
+              <button onClick={()=>abrirEdit(p)}
+                style={{padding:"6px 14px",background:C.yellow,border:"none",
+                  borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
+                  boxShadow:"0 1px 6px rgba(221,172,0,0.25)"}}>Editar</button>
               <button onClick={()=>{setClonarModal(p);setClonarTipo(p.tipo);}}
                 title="Crear nuevo presupuesto basado en este"
                 style={{padding:"6px 14px",background:C.white,

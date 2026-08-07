@@ -285,3 +285,24 @@ editarse** una vez guardado. Pregunta abierta con el cliente — no se resolvió
 documenta.
 
 Commit: este mismo (ver historial de git — Tarea 4, "cambio de navegación pedido hoy").
+
+---
+
+## Corrección posterior — punto 3.2 (reversión del orden, pedido de Luis)
+
+**El orden de los primeros dos botones se invierte.** El punto 3.2 (arriba) fijó el orden
+"Editar, Información general, Clonar" por instrucción explícita de la retro: "vamos a dejar editar
+aquí, como primer botón". Luis pidió hoy lo contrario, por WhatsApp:
+
+> "aquí que vaya primero información general y después el botón de editar"
+
+**Comportamiento nuevo:** el orden de las tres acciones pasa a ser **Información general, Editar,
+Clonar**. Los destinos y el cableado no cambian — sigue siendo `abrirPresupuesto(p)` para
+Información general, `abrirEdit(p)` para Editar, `clonarPresupuesto(p)` para Clonar; solo se
+reordenaron los `<button>` en el JSX. El estilo de cada botón (primario para Editar, secundario
+para los otros dos) tampoco cambió.
+
+La tabla del punto 3.2 arriba **no se corrige** — queda como registro de la decisión original de la
+retro. Esta sección documenta que quedó revertida.
+
+Commit: ver historial de git (mismo día que esta sección).
