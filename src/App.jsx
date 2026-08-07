@@ -3917,7 +3917,10 @@ export default function App(){
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
               {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
               {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
-              {l:"Utilidad y margen",v:utilidad,badge:`${margen.toFixed(1)}%`,
+              /* Bug conocido corregido — con ingresos en cero, margen=utilidad/0 no es
+                     "0.0%", es indefinido: se muestra "—" en vez de fingir un resultado.
+                     Solo cambia la presentación; la fórmula de margen no se toca. */
+              {l:"Utilidad y margen",v:utilidad,badge:totalIngresosAnual===0?"—":`${margen.toFixed(1)}%`,
                 c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
             ].map(k=>(
               <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
@@ -4105,7 +4108,10 @@ export default function App(){
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
               {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
               {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
-              {l:"Utilidad y margen",v:utilidad,badge:`${margen.toFixed(1)}%`,
+              /* Bug conocido corregido — con ingresos en cero, margen=utilidad/0 no es
+                     "0.0%", es indefinido: se muestra "—" en vez de fingir un resultado.
+                     Solo cambia la presentación; la fórmula de margen no se toca. */
+              {l:"Utilidad y margen",v:utilidad,badge:totalIngresosAnual===0?"—":`${margen.toFixed(1)}%`,
                 c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
             ].map(k=>(
               <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,

@@ -59,8 +59,6 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 - Tira verde de nómina línea 1501: interpola {p.imss} y {p.prestaciones} crudos
   mientras {p.isr??F_ISR} sí usa ??. Si alguno queda undefined imprime
   "(1++0.05)".
-- KPI de margen muestra 0.0% con ingresos en cero (división por cero pintada
-  como resultado).
 - Ingresos se capturan en Resumen mensual (pantalla de visualización, sin botón
   Guardar) y NO persisten a Supabase — CONFIRMADO por GET: precio_fijo e
   ingAdicionales vacíos en Cuervito mientras la pantalla mostraba $7,905,600 desde
