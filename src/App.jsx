@@ -3035,6 +3035,117 @@ export default function App(){
                   style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
+
+              {/* Punto 8 spec-navegación-retro-410 — "debajo de fecha": el bloque de
+                  origen (select de Clonar, o las dos tarjetas de +Nuevo presupuesto)
+                  va debajo de las fechas y antes de Tipo de presupuesto. Cero lógica
+                  nueva — mismo JSX que antes, solo reubicado dentro de la rejilla. */}
+              <div style={{gridColumn:"1 / -1"}}>
+                {!modoEdit && form.tipo&&(viaClonar?(()=>{
+                  const origenesDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo);
+                  return(
+                  <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+                    overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+                    <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
+                      borderLeft:`3px solid ${C.yellowDark}`}}>
+                      <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Presupuesto de origen</div>
+                      <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
+                        De cuál presupuesto se está copiando — solo se muestran los de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong>. Si cambias el tipo abajo, estas opciones cambian.
+                      </div>
+                    </div>
+                    <div style={{padding:"16px 24px"}}>
+                      {cargandoGuardados&&(
+                        <div style={{fontSize:12,color:C.grayMid}}>Cargando…</div>
+                      )}
+                      {!cargandoGuardados&&origenesDelTipo.length===0&&(
+                        <div style={{fontSize:12,color:C.grayMid}}>
+                          No hay presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — elige otro tipo abajo o continúa y captura las áreas manualmente.
+                        </div>
+                      )}
+                      {!cargandoGuardados&&origenesDelTipo.length>0&&(()=>{
+                        // partirDePresupuestoAnterior fija origenReal como {nombre,capex,opex}
+                        // (sin id) — se empareja por nombre, mismo criterio que ya usa el
+                        // modal de plantillas para esta misma lista.
+                        const seleccionado = origenReal && origenesDelTipo.find(p=>p.nombre===origenReal.nombre);
+                        return(
+                        <select value={seleccionado?.id||""}
+                          onChange={e=>{
+                            const elegido=origenesDelTipo.find(p=>p.id===e.target.value);
+                            if(elegido) partirDePresupuestoAnterior(elegido);
+                          }}
+                          className="sel-brand"
+                          style={{width:"100%",maxWidth:420,padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
+                            borderRadius:8,fontSize:13,background:C.white}}>
+                          <option value="" disabled>Selecciona un presupuesto de origen…</option>
+                          {origenesDelTipo.map(p=>(
+                            <option key={p.id} value={p.id}>{p.nombre}{p.fechaInicio?` · ${p.fechaInicio}`:""}</option>
+                          ))}
+                        </select>
+                        );
+                      })()}
+                      {origenReal&&origenesDelTipo.some(p=>p.nombre===origenReal.nombre)&&(
+                        <div style={{marginTop:10,fontSize:11,color:C.yellowDark,fontWeight:600}}>
+                          ✓ Copiando de "{origenReal.nombre}" — editable antes de guardar
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  );
+                })():(
+                  <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+                    overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+                    <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
+                      borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div>
+                        <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>¿Cómo quieres iniciar este presupuesto?</div>
+                        <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
+                          Parte de un presupuesto anterior o comienza con secciones vacías.
+                        </div>
+                      </div>
+                    </div>
+                    <div className="base-opciones" style={{padding:"16px 24px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                      {/* Opción A: partir de presupuesto anterior */}
+                      <div onClick={()=>setPlantModal(true)}
+                        style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
+                          border:`2px solid`,borderColor:(plantKey||origenReal)?C.yellow:C.grayBorder,
+                          borderRadius:10,cursor:"pointer",background:(plantKey||origenReal)?C.yellowLight:C.white,
+                          transition:"all 0.15s"}}
+                        onMouseEnter={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.yellow;}}
+                        onMouseLeave={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.grayBorder;}}>
+                        <span style={{fontSize:28}}>📋</span>
+                        <div>
+                          <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>
+                            {plantKey?`✓ ${PLANTILLAS[plantKey]?.nombre}`:origenReal?`✓ ${origenReal.nombre}`:"Partir de un presupuesto anterior"}
+                          </div>
+                          <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>
+                            {plantKey
+                              ?`${PLANTILLAS[plantKey]?.capex?.length} CAPEX · ${PLANTILLAS[plantKey]?.opex?.length} OPEX cargados — editables`
+                              :origenReal
+                                ?`${origenReal.capex} CAPEX · ${origenReal.opex} OPEX copiados — editables`
+                                :"Carga partidas de Cuervito, TI u otro proyecto existente"}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Opción B: desde cero */}
+                      <div onClick={()=>{setCapexPM([]);setOpexPM([]);setPlantKey(null);setOrigenReal(null);
+                        setAreas([]);setCostos({});setIngresos(Array(13).fill(0));setPrecioFijo(0);setIngAd([]);}}
+                        style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
+                          border:`2px solid`,borderColor:!plantKey&&form.tipo?C.grayDark:C.grayBorder,
+                          borderRadius:10,cursor:"pointer",background:!plantKey&&form.tipo?"#F8F8F8":C.white,
+                          transition:"all 0.15s"}}
+                        onMouseEnter={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayDark;}}
+                        onMouseLeave={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayBorder;}}>
+                        <span style={{fontSize:28}}>✏️</span>
+                        <div>
+                          <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Iniciar desde cero</div>
+                          <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>Secciones vacías — agregas cada partida manualmente</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
@@ -3068,119 +3179,6 @@ export default function App(){
             </div>
           </div>
         </div>
-
-        {/* Cargar presupuesto base — solo si hay tipo seleccionado, y solo al crear.
-            Corrección retro 4:10 — cargar una plantilla sobre un presupuesto que ya
-            existe le mete partidas ajenas (es lo que le pasó al clon de Perdiz).
-            Punto 8 spec-navegación-retro-410 (corrección posterior) — al entrar por
-            Clonar el origen ya está decidido: "esta no, este cuadro iría. Se
-            eliminaría la parte de la A" — se oculta el bloque "¿Cómo quieres
-            iniciar?" con sus dos tarjetas y en su lugar va un select de origen,
-            filtrado por el tipo elegido arriba. El flujo de "+ Nuevo presupuesto"
-            (viaClonar=false) no cambia. */}
-        {!modoEdit && form.tipo&&(viaClonar?(()=>{
-          const origenesDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo);
-          return(
-          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-            <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
-              borderLeft:`3px solid ${C.yellowDark}`}}>
-              <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Presupuesto de origen</div>
-              <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
-                De cuál presupuesto se está copiando — solo se muestran los de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong>. Si cambias el tipo arriba, estas opciones cambian.
-              </div>
-            </div>
-            <div style={{padding:"16px 24px"}}>
-              {cargandoGuardados&&(
-                <div style={{fontSize:12,color:C.grayMid}}>Cargando…</div>
-              )}
-              {!cargandoGuardados&&origenesDelTipo.length===0&&(
-                <div style={{fontSize:12,color:C.grayMid}}>
-                  No hay presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — elige otro tipo arriba o continúa y captura las áreas manualmente.
-                </div>
-              )}
-              {!cargandoGuardados&&origenesDelTipo.length>0&&(()=>{
-                // partirDePresupuestoAnterior fija origenReal como {nombre,capex,opex}
-                // (sin id) — se empareja por nombre, mismo criterio que ya usa el
-                // modal de plantillas (línea ~3169) para esta misma lista.
-                const seleccionado = origenReal && origenesDelTipo.find(p=>p.nombre===origenReal.nombre);
-                return(
-                <select value={seleccionado?.id||""}
-                  onChange={e=>{
-                    const elegido=origenesDelTipo.find(p=>p.id===e.target.value);
-                    if(elegido) partirDePresupuestoAnterior(elegido);
-                  }}
-                  className="sel-brand"
-                  style={{width:"100%",maxWidth:420,padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
-                    borderRadius:8,fontSize:13,background:C.white}}>
-                  <option value="" disabled>Selecciona un presupuesto de origen…</option>
-                  {origenesDelTipo.map(p=>(
-                    <option key={p.id} value={p.id}>{p.nombre}{p.fechaInicio?` · ${p.fechaInicio}`:""}</option>
-                  ))}
-                </select>
-                );
-              })()}
-              {origenReal&&origenesDelTipo.some(p=>p.nombre===origenReal.nombre)&&(
-                <div style={{marginTop:10,fontSize:11,color:C.yellowDark,fontWeight:600}}>
-                  ✓ Copiando de "{origenReal.nombre}" — editable antes de guardar
-                </div>
-              )}
-            </div>
-          </div>
-          );
-        })():(
-          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-            <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.line}`,
-              borderLeft:`3px solid ${C.yellowDark}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div>
-                <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>¿Cómo quieres iniciar este presupuesto?</div>
-                <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
-                  Parte de un presupuesto anterior o comienza con secciones vacías.
-                </div>
-              </div>
-            </div>
-            <div className="base-opciones" style={{padding:"16px 24px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              {/* Opción A: partir de presupuesto anterior */}
-              <div onClick={()=>setPlantModal(true)}
-                style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
-                  border:`2px solid`,borderColor:(plantKey||origenReal)?C.yellow:C.grayBorder,
-                  borderRadius:10,cursor:"pointer",background:(plantKey||origenReal)?C.yellowLight:C.white,
-                  transition:"all 0.15s"}}
-                onMouseEnter={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.yellow;}}
-                onMouseLeave={e=>{if(!plantKey&&!origenReal)e.currentTarget.style.borderColor=C.grayBorder;}}>
-                <span style={{fontSize:28}}>📋</span>
-                <div>
-                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>
-                    {plantKey?`✓ ${PLANTILLAS[plantKey]?.nombre}`:origenReal?`✓ ${origenReal.nombre}`:"Partir de un presupuesto anterior"}
-                  </div>
-                  <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>
-                    {plantKey
-                      ?`${PLANTILLAS[plantKey]?.capex?.length} CAPEX · ${PLANTILLAS[plantKey]?.opex?.length} OPEX cargados — editables`
-                      :origenReal
-                        ?`${origenReal.capex} CAPEX · ${origenReal.opex} OPEX copiados — editables`
-                        :"Carga partidas de Cuervito, TI u otro proyecto existente"}
-                  </div>
-                </div>
-              </div>
-              {/* Opción B: desde cero */}
-              <div onClick={()=>{setCapexPM([]);setOpexPM([]);setPlantKey(null);setOrigenReal(null);
-                setAreas([]);setCostos({});setIngresos(Array(13).fill(0));setPrecioFijo(0);setIngAd([]);}}
-                style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",
-                  border:`2px solid`,borderColor:!plantKey&&form.tipo?C.grayDark:C.grayBorder,
-                  borderRadius:10,cursor:"pointer",background:!plantKey&&form.tipo?"#F8F8F8":C.white,
-                  transition:"all 0.15s"}}
-                onMouseEnter={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayDark;}}
-                onMouseLeave={e=>{if(plantKey)e.currentTarget.style.borderColor=C.grayBorder;}}>
-                <span style={{fontSize:28}}>✏️</span>
-                <div>
-                  <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Iniciar desde cero</div>
-                  <div style={{fontSize:11,color:C.grayMid,marginTop:3}}>Secciones vacías — agregas cada partida manualmente</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
 
         {/* Modal plantillas */}
         {plantModal&&(
