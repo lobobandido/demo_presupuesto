@@ -2863,26 +2863,15 @@ export default function App(){
               );
             })}
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
-            {/* Fase 1.4 — los tres botones cruzados (Ver Resumen mensual → / Mi
-                presupuesto → / ← Resumen mensual) se quitan de la barra pegajosa:
-                duplicaban la fila de botones propia de cada pantalla. En la barra
-                pegajosa solo queda el 🗑. Retro — se quita el nombre de la empresa
-                de aquí: el logo de la barra lateral ya lo dice completo. */}
-            {pres&&(step===3||step===4||step===5)&&(
-              <button onClick={async()=>{ await eliminarPresupuesto(pres); setStep(0); }}
-                title="Eliminar este presupuesto (no se puede deshacer)"
-                style={{width:30,height:30,padding:0,background:"transparent",
-                  border:`1px solid ${C.grayBorder}`,borderRadius:7,
-                  cursor:"pointer",fontSize:13,color:C.grayMid,
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  transition:"all 0.15s"}}
-                onMouseEnter={e=>{e.currentTarget.style.background=C.dangerLight;e.currentTarget.style.borderColor=C.danger;e.currentTarget.style.color=C.danger;}}
-                onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=C.grayBorder;e.currentTarget.style.color=C.grayMid;}}>
-                🗑
-              </button>
-            )}
-          </div>
+          {/* Fase 1.4 — los tres botones cruzados (Ver Resumen mensual → / Mi
+              presupuesto → / ← Resumen mensual) se quitaron de la barra pegajosa:
+              duplicaban la fila de botones propia de cada pantalla.
+              Cambio pedido por Luis (WhatsApp) — "en el breadcrumb quite el
+              botecito de eliminar en todas las pantallas": se quita el 🗑 que
+              vivía aquí (Capturar costos, Resumen mensual, Información general —
+              único lugar donde aparecía). Con esto no queda NINGÚN camino de UI
+              para eliminar un presupuesto — ver "Pendientes de producto" en
+              CLAUDE.md. */}
         </header>
         <main style={{padding:"28px 32px",flex:1,minWidth:0}}>{children}</main>
       </div>

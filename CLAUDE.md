@@ -77,9 +77,10 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 
 ## Pendientes de producto
 
-- No hay forma de eliminar un presupuesto desde el listado (se quitó en
-  spec-navegacion-retro-410). El 🗑 solo existe dentro de un presupuesto que
-  cargó bien. Pregunta abierta con el cliente.
+- No hay forma de eliminar un presupuesto desde ninguna parte de la UI (se quitó
+  del listado en spec-navegacion-retro-410, y del breadcrumb hoy, por pedido de
+  Luis). Si se necesita, hoy solo es posible por Supabase directo. Confirmado
+  por Luis (hoy): intencional por ahora, sin fecha de revisión.
 
 ## Excel de referencia
 
