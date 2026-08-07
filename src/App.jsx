@@ -3417,6 +3417,11 @@ export default function App(){
     // donde se le llama) — mismo patrón que ya usan Step 4 y Step 5.
     const {NUM_MESES_OP, RANGO_ANIOS, MESES13, MESES13_MES, mIngresos, totalIngresosAnual} =
       calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
+    // PASO C — visibilidad por tipo: mismo criterio que ya usa esProyecto dentro
+    // de calcularSerieMensual (línea ~390, no exportado en su return, así que se
+    // recalcula aquí en vez de tocar esa función) — Servicio/Instalación sí,
+    // Departamento/Suministro no.
+    const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";
 
     return wrap(
       <div>
@@ -3459,7 +3464,10 @@ export default function App(){
             eso vive aquí arriba del selector de áreas, fuera de capture-grid, en
             vez de dentro del panel que cambia según areaActiva. Mismo JSX que
             tenía Resumen mensual (incluye el fix de hoy al rótulo del selector de
-            mes); guardarIngresos es propio, no reutiliza guardarArea. */}
+            mes); guardarIngresos es propio, no reutiliza guardarArea.
+            PASO C — oculta por completo para Departamento/Suministro
+            (mostrarIngresos), que no facturan. */}
+        {mostrarIngresos&&(
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
           padding:24,marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.04)",maxWidth:1320}}>
           <div style={{marginBottom:16}}>
@@ -3623,6 +3631,7 @@ export default function App(){
             {btn("Guardar",guardarIngresos,"success")}
           </div>
         </div>
+        )}
 
         <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"200px minmax(0,1fr)",gap:28,maxWidth:1320}}>
 
@@ -3818,6 +3827,10 @@ export default function App(){
     const totalEgr=totalCAPEX+totalOPEX;
     const utilidad=totalIngresosAnual-totalEgr;
     const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
+    // PASO C — mismo criterio que Step 3 (esProyecto no sale del return de
+    // calcularSerieMensual, se recalcula aquí en vez de tocar esa función):
+    // Servicio/Instalación sí facturan, Departamento/Suministro no.
+    const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";
 
     // ── Helpers de render ──────────────────────────────────────────────────
     // 3er parámetro opcional className — hoy solo lo usan las dos tarjetas de
@@ -3975,8 +3988,10 @@ export default function App(){
               MoneyInput de precio fijo, el botón "+ Agregar ingreso" y su propio
               "Guardar" (guardarIngresos). Aquí solo queda la tabla de
               facturación ya calculada (mIngresos) — visualización pura, cero
-              campo editable, mismo patrón que el resto de Resumen mensual. */}
-          {card(<>
+              campo editable, mismo patrón que el resto de Resumen mensual.
+              PASO C — oculta por completo para Departamento/Suministro
+              (mostrarIngresos), que no facturan. */}
+          {mostrarIngresos&&card(<>
             {sTitle("Ingresos","Precio fijo mensual del servicio × meses del proyecto, más ingresos adicionales por mes. Se captura en Capturar costos.")}
 
             {/* Tabla resumen M0-M12 */}
