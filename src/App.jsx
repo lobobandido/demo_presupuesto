@@ -3961,17 +3961,12 @@ export default function App(){
             {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
                 aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
           </div>
-          {/* Punto 5 — se quita "✎ Editar": esa edición ya se llega desde el
-              listado o desde la miga de pan (punto 1), no desde un botón aquí.
-              Spec recuperación-datos, paso 4 — se devuelve el acceso a Capturar
-              costos: con "Editar por área" y "✎ Editar" fuera, el asistente
-              completo (con el bug de abrirEdit) era el único camino que quedaba. */}
+          {/* Corrección posterior al paso 4 de spec-recuperación-datos — el cliente
+              dijo "Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?":
+              se quita el botón. No queda hueco de navegación: "Editar" del listado
+              (abrirEdit, commit d2763e1) ya manda directo a Capturar costos (Step 3),
+              y la miga de pan también permite volver a Información general desde ahí. */}
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("Capturar costos",()=>{
-              if(!areaActiva) setActiva(areas[0]||null);
-              setFlujoCreacion(false);
-              setStep(3);
-            },"secondary")}
             {btn("Resumen mensual →",()=>setStep(4),"secondary")}
             {btn("⬇ PDF",()=>window.print(),"secondary")}
           </div>
