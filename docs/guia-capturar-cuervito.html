@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ficha de captura · Monitoreo Cuervito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarillo:#DDAC00;
+  --amarillo-pal:#FFF6D6;
+  --tinta:#141310;
+  --papel:#F4F2ED;
+  --linea:#D9D5CB;
+  --gris:#6E6A60;
+  --alerta:#B3311F;
+  --alerta-pal:#FBEDEA;
+  --ok:#1B6E3C;
+  --ok-pal:#E7F3EA;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--papel); color:var(--tinta);
+  font-family:Inter,system-ui,sans-serif; font-size:15px; line-height:1.6;
+}
+.hoja{max-width:920px;margin:0 auto;padding:0 28px 96px}
+
+/* ── Cabecera ───────────────────────────────────────── */
+.cab{padding:56px 0 32px;border-bottom:3px solid var(--tinta)}
+.marca{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:13px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gris);
+}
+.cab h1{
+  font-family:Archivo,sans-serif;font-weight:800;
+  font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.02em;
+  margin:14px 0 0;
+}
+.cab h1 em{font-style:normal;display:block;color:var(--amarillo)}
+.meta{
+  display:flex;flex-wrap:wrap;gap:0 40px;margin-top:26px;
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--gris);
+}
+.meta b{display:block;color:var(--tinta);font-weight:600;font-size:14px;letter-spacing:-.01em}
+
+/* ── Aviso ──────────────────────────────────────────── */
+.aviso{
+  margin:34px 0 0;padding:18px 22px;background:var(--amarillo-pal);
+  border-left:4px solid var(--amarillo);font-size:14.5px;
+}
+.aviso b{font-weight:600}
+
+/* ── Pasos ──────────────────────────────────────────── */
+.paso{display:grid;grid-template-columns:64px 1fr;gap:26px;padding:46px 0 0}
+.paso + .paso{border-top:1px solid var(--linea);margin-top:46px}
+.num{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:44px;line-height:.85;
+  color:var(--amarillo);letter-spacing:-.04em;padding-top:4px;
+}
+.paso h2{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:25px;
+  letter-spacing:-.015em;margin:0 0 4px;
+}
+.sub{color:var(--gris);font-size:14px;margin:0 0 20px}
+.cuerpo > p{margin:0 0 14px}
+.cuerpo > p:last-child{margin-bottom:0}
+
+/* ── Tablas de datos ────────────────────────────────── */
+.tabla{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:13.5px}
+.tabla th{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:10.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--gris);
+  text-align:left;padding:0 10px 8px;border-bottom:1.5px solid var(--tinta);
+}
+.tabla td{padding:8px 10px;border-bottom:1px solid var(--linea);vertical-align:top}
+.tabla tr:last-child td{border-bottom:none}
+.tabla .cat{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500}
+.num-c,.tabla th.num-c{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.tabla tfoot td{
+  border-top:1.5px solid var(--tinta);border-bottom:none;padding-top:10px;
+  font-weight:600;font-family:"IBM Plex Mono",monospace;
+}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── Bloques de nota ────────────────────────────────── */
+.nota{
+  margin:16px 0;padding:14px 18px;font-size:14px;
+  border-left:3px solid var(--gris);background:#EEEBE4;color:#403C34;
+}
+.nota.ojo{border-left-color:var(--alerta);background:var(--alerta-pal);color:#6E2015}
+.nota strong{font-weight:600}
+
+/* ── Caja de verificación ───────────────────────────── */
+.check{background:var(--ok-pal);border:1px solid #BEDDC7;padding:22px 24px;margin:18px 0}
+.check h3{font-family:Archivo,sans-serif;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;margin:0 0 14px;color:var(--ok)}
+.check .tabla td{border-color:#C9E2D0}
+.check .tabla th{border-bottom-color:var(--ok);color:#4A7358}
+
+/* ── Diagramas ──────────────────────────────────────── */
+figure{margin:26px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--gris);
+  margin-top:10px;line-height:1.5;
+}
+
+/* ── Cierre ─────────────────────────────────────────── */
+.cierre{margin-top:56px;padding-top:32px;border-top:3px solid var(--tinta)}
+.cierre h2{font-family:Archivo,sans-serif;font-weight:800;font-size:25px;margin:0 0 6px}
+
+@media (max-width:640px){
+  .hoja{padding:0 18px 64px}
+  .paso{grid-template-columns:1fr;gap:0}
+  .num{font-size:32px;margin-bottom:8px}
+  .meta{gap:0 24px}
+}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .hoja{max-width:100%;padding:0}
+  .paso{break-inside:avoid;page-break-inside:avoid}
+  figure,.check,table{break-inside:avoid;page-break-inside:avoid}
+  .cab{padding-top:0}
+}
+</style>
+</head>
+<body>
+<div class="hoja">
+
+<header class="cab">
+  <div class="marca">Geolis SA de CV · Módulo de Presupuestos</div>
+  <h1>Ficha de captura<em>Monitoreo Cuervito</em></h1>
+  <div class="meta">
+    <div><span>Tipo</span><b>Servicio</b></div>
+    <div><span>Periodo</span><b>Feb 2026 – Feb 2027</b></div>
+    <div><span>Partidas</span><b>17 CAPEX · 12 OPEX · 2 nómina</b></div>
+    <div><span>Fuente</span><b>01022026 Cuervito.xlsx</b></div>
+  </div>
+</header>
+
+<div class="aviso">
+  <b>Los montos de esta ficha ya están en pesos.</b> La hoja <code>F00 INVERSIÓN</code> del Excel
+  trae el precio unitario dos veces, en dólares y en pesos, con paridad&nbsp;18. Captura siempre
+  la cifra de esta ficha, no la del Excel, o el CAPEX te va a salir dieciocho veces más chico.
+</div>
+
+<!-- ══ DIAGRAMA: el flujo ══ -->
+<figure>
+<svg viewBox="0 0 880 132" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo de captura en seis etapas">
+  <defs>
+    <marker id="fl" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#D9D5CB"/>
+    </marker>
+  </defs>
+  <g font-family="Archivo,sans-serif">
+    <!-- conectores -->
+    <line x1="126" y1="46" x2="152" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="274" y1="46" x2="300" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="422" y1="46" x2="448" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="570" y1="46" x2="596" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="718" y1="46" x2="744" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+
+    <!-- 1 -->
+    <rect x="4" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="14" y="42" font-size="10" font-weight="800" fill="#DDAC00">01</text>
+    <text x="14" y="58" font-size="12.5" font-weight="600" fill="#141310">Datos generales</text>
+    <!-- 2 -->
+    <rect x="152" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="162" y="42" font-size="10" font-weight="800" fill="#DDAC00">02</text>
+    <text x="162" y="58" font-size="12.5" font-weight="600" fill="#141310">Áreas</text>
+    <!-- 3 -->
+    <rect x="300" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="310" y="42" font-size="10" font-weight="800" fill="#DDAC00">03</text>
+    <text x="310" y="58" font-size="12.5" font-weight="600" fill="#141310">Capturar costos</text>
+    <!-- 4 GUARDAR -->
+    <rect x="448" y="22" width="122" height="48" fill="#141310"/>
+    <text x="458" y="42" font-size="10" font-weight="800" fill="#DDAC00">04</text>
+    <text x="458" y="58" font-size="12.5" font-weight="600" fill="#fff">Guardar</text>
+    <!-- 5 -->
+    <rect x="596" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="606" y="42" font-size="10" font-weight="800" fill="#DDAC00">05</text>
+    <text x="606" y="58" font-size="12.5" font-weight="600" fill="#141310">Ingresos</text>
+    <!-- 6 -->
+    <rect x="744" y="22" width="132" height="48" fill="#fff" stroke="#141310" stroke-width="1.5"/>
+    <text x="754" y="42" font-size="10" font-weight="800" fill="#DDAC00">06</text>
+    <text x="754" y="58" font-size="12.5" font-weight="600" fill="#141310">Verificar cifras</text>
+
+    <!-- retorno guardar -->
+    <path d="M657 74 L657 96 L509 96 L509 74" fill="none" stroke="#B3311F" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#fl)"/>
+    <text x="583" y="115" font-size="10.5" font-weight="600" fill="#B3311F" text-anchor="middle" font-family="IBM Plex Mono,monospace">vuelve a Guardar</text>
+  </g>
+</svg>
+<figcaption>El paso 04 es el único que sube a la nube. Después de capturar los ingresos hay que
+volver a él, o se pierden.</figcaption>
+</figure>
+
+<!-- ══ 01 ══ -->
+<section class="paso">
+  <div class="num">01</div>
+  <div class="cuerpo">
+    <h2>Datos generales</h2>
+    <p class="sub">La fecha de inicio define las columnas de toda la app.</p>
+    <div class="scroll"><table class="tabla">
+      <tbody>
+        <tr><td style="width:190px;color:var(--gris)">Nombre del proyecto</td><td class="cat">Monitoreo Cuervito</td></tr>
+        <tr><td style="color:var(--gris)">Empresa</td><td class="cat">GEOLIS SA DE CV</td></tr>
+        <tr><td style="color:var(--gris)">Fecha inicio</td><td class="cat"><strong>01/02/2026</strong></td></tr>
+        <tr><td style="color:var(--gris)">Fecha fin</td><td class="cat"><strong>01/02/2027</strong></td></tr>
+        <tr><td style="color:var(--gris)">Tipo</td><td class="cat"><strong>Servicio</strong></td></tr>
+        <tr><td style="color:var(--gris)">Cómo iniciar</td><td class="cat">Iniciar desde cero</td></tr>
+      </tbody>
+    </table></div>
+    <p>Febrero es el arranque porque ahí cae toda la inversión: es el mes cero del Excel. Con esas
+    dos fechas la app genera trece columnas, de <code>M0 Feb 26</code> a <code>M12 Feb 27</code>.</p>
+    <div class="nota"><strong>No cargues plantilla.</strong> La de Cuervito trae los precios en
+    dólares y es justo lo que estamos corrigiendo.</div>
+  </div>
+</section>
+
+<!-- ══ 02 ══ -->
+<section class="paso">
+  <div class="num">02</div>
+  <div class="cuerpo">
+    <h2>Áreas</h2>
+    <p class="sub">Marca solo Operaciones.</p>
+    <p>Las áreas son <em>quién captura</em>, no una clasificación contable. Cuervito es una sola
+    operación; si marcas nueve, ocho quedan vacías y estorban en toda la app.</p>
+  </div>
+</section>
+
+<!-- ══ DIAGRAMA SIGNATURE ══ -->
+<figure>
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparación entre capturar mal y bien la categoría">
+  <g font-family="Inter,sans-serif">
+    <!-- ── izquierda: mal ── -->
+    <text x="0" y="14" font-family="Archivo,sans-serif" font-size="11" font-weight="800" letter-spacing="1.6" fill="#B3311F">ASÍ NO</text>
+
+    <rect x="0" y="26" width="410" height="70" fill="#FBEDEA" stroke="#E8C4BD"/>
+    <text x="14" y="46" font-size="9.5" font-weight="600" letter-spacing="1" fill="#8A5449" font-family="Archivo,sans-serif">CATEGORÍA</text>
+    <text x="200" y="46" font-size="9.5" font-weight="600" letter-spacing="1" fill="#8A5449" font-family="Archivo,sans-serif">DESCRIPCIÓN</text>
+    <text x="14" y="66" font-size="12" font-family="IBM Plex Mono,monospace" fill="#6E2015">MATERIALES</text>
+    <text x="200" y="66" font-size="12" font-family="IBM Plex Mono,monospace" fill="#6E2015">MATERIALES</text>
+    <text x="14" y="86" font-size="12" font-family="IBM Plex Mono,monospace" fill="#6E2015">MATERIALES</text>
+    <text x="200" y="86" font-size="12" font-family="IBM Plex Mono,monospace" fill="#6E2015">MATERIALES</text>
+
+    <path d="M205 104 L205 126" stroke="#B3311F" stroke-width="1.4" marker-end="url(#fl)"/>
+
+    <text x="0" y="150" font-size="11" fill="#6E6A60" font-family="IBM Plex Mono,monospace">en la tabla se ve así:</text>
+    <rect x="0" y="160" width="410" height="94" fill="#fff" stroke="#D9D5CB"/>
+    <text x="14" y="182" font-size="12.5" font-family="IBM Plex Mono,monospace" fill="#141310">MATERIALES</text>
+    <text x="14" y="204" font-size="12.5" font-family="IBM Plex Mono,monospace" fill="#141310">MATERIALES</text>
+    <text x="14" y="226" font-size="12.5" font-family="IBM Plex Mono,monospace" fill="#141310">MATERIALES</text>
+    <text x="14" y="246" font-size="11.5" font-style="italic" fill="#B3311F">sin jerarquía · sin subtotal · ilegible</text>
+
+    <!-- divisor -->
+    <line x1="440" y1="0" x2="440" y2="300" stroke="#D9D5CB" stroke-width="1"/>
+
+    <!-- ── derecha: bien ── -->
+    <text x="470" y="14" font-family="Archivo,sans-serif" font-size="11" font-weight="800" letter-spacing="1.6" fill="#1B6E3C">ASÍ SÍ</text>
+
+    <rect x="470" y="26" width="410" height="70" fill="#E7F3EA" stroke="#BEDDC7"/>
+    <text x="484" y="46" font-size="9.5" font-weight="600" letter-spacing="1" fill="#4A7358" font-family="Archivo,sans-serif">CATEGORÍA</text>
+    <text x="670" y="46" font-size="9.5" font-weight="600" letter-spacing="1" fill="#4A7358" font-family="Archivo,sans-serif">DESCRIPCIÓN</text>
+    <text x="484" y="66" font-size="12" font-family="IBM Plex Mono,monospace" fill="#14512C">POSTE DE TELEMETRIA</text>
+    <text x="670" y="66" font-size="12" font-family="IBM Plex Mono,monospace" fill="#14512C">Poste de telemetría</text>
+    <text x="484" y="86" font-size="12" font-family="IBM Plex Mono,monospace" fill="#14512C">ACEITES Y LUBRICANTES</text>
+    <text x="670" y="86" font-size="12" font-family="IBM Plex Mono,monospace" fill="#14512C">Lubricante maquinaria</text>
+
+    <path d="M675 104 L675 126" stroke="#1B6E3C" stroke-width="1.4" marker-end="url(#fl)"/>
+
+    <text x="470" y="150" font-size="11" fill="#6E6A60" font-family="IBM Plex Mono,monospace">en la tabla se ve así:</text>
+    <rect x="470" y="160" width="410" height="94" fill="#fff" stroke="#D9D5CB"/>
+    <text x="498" y="182" font-size="12.5" font-family="IBM Plex Mono,monospace" font-style="italic" fill="#6E6A60">POSTE DE TELEMETRIA</text>
+    <text x="498" y="204" font-size="12.5" font-family="IBM Plex Mono,monospace" font-style="italic" fill="#6E6A60">ACEITES Y LUBRICANTES</text>
+    <rect x="470" y="214" width="410" height="26" fill="#FFF6D6"/>
+    <text x="484" y="232" font-size="12.5" font-family="IBM Plex Mono,monospace" font-weight="600" fill="#141310">MATERIALES</text>
+    <text x="484" y="252" font-size="11.5" font-style="italic" fill="#1B6E3C">detalle indentado + subtotal por cuenta</text>
+  </g>
+</svg>
+<figcaption>La app conoce las 27 cuentas contables de Geolis y agrupa sola. Solo necesita que la
+categoría sea el concepto, no el nombre de la cuenta.</figcaption>
+</figure>
+
+<!-- ══ 03 CAPEX ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>CAPEX · Equipos e inversiones</h2>
+    <p class="sub">Diecisiete partidas, todas con fecha de compra <strong>Feb 2026</strong>. Unidad: Unidad.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr>
+        <th>Categoría</th><th>Descripción</th>
+        <th class="num-c">Cant.</th><th class="num-c">Monto unit.</th><th class="num-c">Total</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="cat">EQUIPO DE TRANSPORTE</td><td>Camionetas</td><td class="num-c">1</td><td class="num-c">550,000</td><td class="num-c">550,000</td></tr>
+        <tr><td class="cat">EQUIPO DE ADQUISICION</td><td>Sensores de presión</td><td class="num-c">360</td><td class="num-c">2,970</td><td class="num-c">1,069,200</td></tr>
+        <tr><td class="cat">EQUIPO DE ADQUISICION</td><td>Gateway</td><td class="num-c">180</td><td class="num-c">3,150</td><td class="num-c">567,000</td></tr>
+        <tr><td class="cat">EQUIPO DE ADQUISICION</td><td>PLC</td><td class="num-c">50</td><td class="num-c">5,400</td><td class="num-c">270,000</td></tr>
+        <tr><td class="cat">EQUIPO DE ADQUISICION</td><td>Arreglos y accesorios</td><td class="num-c">180</td><td class="num-c">11,700</td><td class="num-c">2,106,000</td></tr>
+        <tr><td class="cat">GABINETE Y ENERGIA</td><td>Panel solar</td><td class="num-c">180</td><td class="num-c">1,080</td><td class="num-c">194,400</td></tr>
+        <tr><td class="cat">GABINETE Y ENERGIA</td><td>Controlador de carga</td><td class="num-c">180</td><td class="num-c">630</td><td class="num-c">113,400</td></tr>
+        <tr><td class="cat">GABINETE Y ENERGIA</td><td>Batería ciclo profundo</td><td class="num-c">360</td><td class="num-c">1,440</td><td class="num-c">518,400</td></tr>
+        <tr><td class="cat">GABINETE Y ENERGIA</td><td>Gabinete</td><td class="num-c">180</td><td class="num-c">1,620</td><td class="num-c">291,600</td></tr>
+        <tr><td class="cat">GABINETE Y ENERGIA</td><td>Cableado, clemas y riel</td><td class="num-c">180</td><td class="num-c">1,080</td><td class="num-c">194,400</td></tr>
+        <tr><td class="cat">TRANSMISION</td><td>Kit Starlink mini</td><td class="num-c">40</td><td class="num-c">4,986</td><td class="num-c">199,440</td></tr>
+        <tr><td class="cat">TRANSMISION</td><td>Antenas repetidoras</td><td class="num-c">40</td><td class="num-c">19,800</td><td class="num-c">792,000</td></tr>
+        <tr><td class="cat">CENTRO DE MONITOREO</td><td>Monitores</td><td class="num-c">6</td><td class="num-c">8,100</td><td class="num-c">48,600</td></tr>
+        <tr><td class="cat">CENTRO DE MONITOREO</td><td>Workstation</td><td class="num-c">1</td><td class="num-c">32,400</td><td class="num-c">32,400</td></tr>
+        <tr><td class="cat">CENTRO DE MONITOREO</td><td>UPS</td><td class="num-c">1</td><td class="num-c">4,500</td><td class="num-c">4,500</td></tr>
+        <tr><td class="cat">CENTRO DE MONITOREO</td><td>Accesorios</td><td class="num-c">1</td><td class="num-c">3,600</td><td class="num-c">3,600</td></tr>
+        <tr><td class="cat">EQUIPO DE COMPUTO</td><td>Equipo de cómputo adquisición</td><td class="num-c">1</td><td class="num-c">84,000</td><td class="num-c">84,000</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">CAPEX total</td><td class="num-c">7,038,940</td></tr></tfoot>
+    </table></div>
+    <div class="nota">El renglón de <strong>equipo de cómputo</strong> en el Excel está en el bloque
+    de OPEX. Va aquí porque el cliente lo pidió: <em>«equipos de cómputo debería ir acá, en CAPEX»</em>.</div>
+  </div>
+</section>
+
+<!-- ══ 03 NÓMINA ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>OPEX · Nómina</h2>
+    <p class="sub">Dos puestos, los dos de tipo Fijo.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr>
+        <th>Puesto</th><th class="num-c">Cant.</th><th class="num-c">Salario</th>
+        <th class="num-c">IMSS</th><th class="num-c">Prestaciones</th><th class="num-c">Costo/mes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Especialista telemetría</td><td class="num-c">1</td><td class="num-c">25,000</td><td class="num-c">0.40</td><td class="num-c">0.00</td><td class="num-c">36,250</td></tr>
+        <tr><td>Técnico instrumentista</td><td class="num-c">1</td><td class="num-c">20,000</td><td class="num-c">0.40</td><td class="num-c">0.00</td><td class="num-c">29,000</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="5">Nómina anual · 12 meses</td><td class="num-c">783,000</td></tr></tfoot>
+    </table></div>
+    <p>El 0.40 más el 5% de ISR que la app agrega sola dan el <strong>45%</strong> que usa la hoja
+    <code>F01 NÓMINA</code>.</p>
+  </div>
+</section>
+
+<!-- ══ 03 MATERIALES ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>OPEX · Materiales</h2>
+    <p class="sub">Doce partidas. Viáticos se queda vacío: Cuervito no tiene.</p>
+
+    <p><strong>Recurrentes</strong> — periodicidad Mensual, inicio Mar 2026, repeticiones vacío:</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr><th>Categoría</th><th>Descripción</th><th class="num-c">Monto/mes</th><th class="num-c">12 meses</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">ARRENDAMIENTO DE INMUEBLES</td><td>Renta de oficina</td><td class="num-c">10,000</td><td class="num-c">120,000</td></tr>
+        <tr><td class="cat">SERVICIOS DE LUZ, AGUA E INTERNET</td><td>Luz, agua e internet</td><td class="num-c">3,000</td><td class="num-c">36,000</td></tr>
+        <tr><td class="cat">PAPELERIA Y UTILES DE OFICINA</td><td>Papelería y útiles</td><td class="num-c">500</td><td class="num-c">6,000</td></tr>
+        <tr><td class="cat">ARTICULOS DE ASEO Y SANITARIOS</td><td>Aseo y sanitarios</td><td class="num-c">1,200</td><td class="num-c">14,400</td></tr>
+        <tr><td class="cat">ARTICULOS DE CAFETERIA</td><td>Cafetería</td><td class="num-c">1,000</td><td class="num-c">12,000</td></tr>
+        <tr><td class="cat">INSUMOS OPERATIVOS</td><td>Insumos operativos varios</td><td class="num-c">2,700</td><td class="num-c">32,400</td></tr>
+        <tr><td class="cat">SERV TELEFONIA CELULAR (PARA TRANSMITIR)</td><td>Telefonía celular</td><td class="num-c">28,000</td><td class="num-c">336,000</td></tr>
+        <tr><td class="cat">SERVICIO DE RADIOCOMUNICACION (PARA TRANSMITIR)</td><td>Radiocomunicación</td><td class="num-c">38,000</td><td class="num-c">456,000</td></tr>
+      </tbody>
+    </table></div>
+
+    <p><strong>Con tope de repeticiones y de una sola vez</strong> — todas inician Mar 2026:</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr><th>Categoría</th><th>Descripción</th><th>Periodicidad</th><th class="num-c">Rep.</th><th class="num-c">Monto</th><th class="num-c">Total</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">CUADRILLA DE INSTALACION</td><td>Cuadrilla de instalación</td><td>Mensual</td><td class="num-c">3</td><td class="num-c">288,000</td><td class="num-c">864,000</td></tr>
+        <tr><td class="cat">HERRAMIENTA</td><td>Herramienta</td><td>Anual</td><td class="num-c">1</td><td class="num-c">430,000</td><td class="num-c">430,000</td></tr>
+        <tr><td class="cat">ROPA Y ARTICULOS DE PROTECCION</td><td>EPP y ropa de protección</td><td>Anual</td><td class="num-c">1</td><td class="num-c">40,000</td><td class="num-c">40,000</td></tr>
+        <tr><td class="cat">POSTE DE TELEMETRIA</td><td>Poste de telemetría</td><td>Anual</td><td class="num-c">1</td><td class="num-c">810,000</td><td class="num-c">810,000</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="5">OPEX materiales</td><td class="num-c">2,292,800</td></tr></tfoot>
+    </table></div>
+
+    <div class="nota ojo"><strong>Ojo con EPP y poste de telemetría.</strong> En el Excel caen en
+    <strong>febrero</strong>, el mes de instalación. La app no acepta gasto operativo ahí y los
+    empuja a marzo. El total no cambia, solo el mes. Es una de las preguntas abiertas con el cliente.</div>
+  </div>
+</section>
+
+<!-- ══ DIAGRAMA: línea de tiempo ══ -->
+<figure>
+<svg viewBox="0 0 880 236" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Distribución de los gastos a lo largo de los trece meses">
+  <g font-family="Inter,sans-serif">
+    <!-- encabezado meses -->
+    <text x="0" y="12" font-size="9.5" font-weight="600" letter-spacing="1.2" fill="#6E6A60" font-family="Archivo,sans-serif">LÍNEA DE TIEMPO · 13 COLUMNAS</text>
+    <g font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#6E6A60" text-anchor="middle">
+      <text x="196" y="36">M0</text><text x="248" y="36">M1</text><text x="300" y="36">M2</text>
+      <text x="352" y="36">M3</text><text x="404" y="36">M4</text><text x="456" y="36">M5</text>
+      <text x="508" y="36">M6</text><text x="560" y="36">M7</text><text x="612" y="36">M8</text>
+      <text x="664" y="36">M9</text><text x="716" y="36">M10</text><text x="768" y="36">M11</text>
+      <text x="820" y="36">M12</text>
+    </g>
+    <g font-family="IBM Plex Mono,monospace" font-size="9" fill="#A29C90" text-anchor="middle">
+      <text x="196" y="48">feb</text><text x="248" y="48">mar</text><text x="300" y="48">abr</text>
+      <text x="352" y="48">may</text><text x="404" y="48">jun</text><text x="456" y="48">jul</text>
+      <text x="508" y="48">ago</text><text x="560" y="48">sep</text><text x="612" y="48">oct</text>
+      <text x="664" y="48">nov</text><text x="716" y="48">dic</text><text x="768" y="48">ene</text>
+      <text x="820" y="48">feb</text>
+    </g>
+    <line x1="170" y1="56" x2="846" y2="56" stroke="#D9D5CB"/>
+
+    <!-- CAPEX -->
+    <text x="0" y="80" font-size="12" font-weight="600" fill="#141310">CAPEX · 17 partidas</text>
+    <rect x="170" y="68" width="52" height="20" fill="#DDAC00"/>
+    <text x="196" y="82" font-size="9.5" font-weight="600" fill="#141310" text-anchor="middle" font-family="IBM Plex Mono,monospace">7.0M</text>
+
+    <!-- recurrentes -->
+    <text x="0" y="112" font-size="12" font-weight="600" fill="#141310">Recurrentes · 8 partidas</text>
+    <text x="0" y="126" font-size="10" fill="#6E6A60">renta, servicios, insumos, telefonía</text>
+    <rect x="222" y="100" width="624" height="20" fill="#141310"/>
+    <text x="534" y="114" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle" font-family="IBM Plex Mono,monospace">84,400 / mes · 12 meses</text>
+
+    <!-- nómina -->
+    <text x="0" y="152" font-size="12" font-weight="600" fill="#141310">Nómina · 2 puestos</text>
+    <rect x="222" y="140" width="624" height="20" fill="#4A4438"/>
+    <text x="534" y="154" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle" font-family="IBM Plex Mono,monospace">65,250 / mes</text>
+
+    <!-- cuadrilla -->
+    <text x="0" y="184" font-size="12" font-weight="600" fill="#141310">Cuadrilla · repeticiones 3</text>
+    <rect x="222" y="172" width="156" height="20" fill="#B3311F"/>
+    <text x="300" y="186" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle" font-family="IBM Plex Mono,monospace">288,000 × 3</text>
+    <line x1="378" y1="182" x2="846" y2="182" stroke="#E8C4BD" stroke-width="1.4" stroke-dasharray="3 4"/>
+    <text x="612" y="197" font-size="9.5" fill="#B3311F" text-anchor="middle" font-family="IBM Plex Mono,monospace">cero de junio en adelante</text>
+
+    <!-- ingresos -->
+    <text x="0" y="222" font-size="12" font-weight="600" fill="#1B6E3C">Ingresos</text>
+    <rect x="222" y="210" width="624" height="20" fill="#E7F3EA" stroke="#BEDDC7"/>
+    <text x="534" y="224" font-size="9.5" font-weight="600" fill="#14512C" text-anchor="middle" font-family="IBM Plex Mono,monospace">648,000 – 669,600 / mes · total 6,609,600</text>
+    <text x="196" y="224" font-size="9.5" fill="#A29C90" text-anchor="middle" font-family="IBM Plex Mono,monospace">—</text>
+  </g>
+</svg>
+<figcaption>El mes cero solo lleva inversión: no se factura porque todavía no hay servicio. La
+cuadrilla es la prueba de que el campo Repeticiones funciona.</figcaption>
+</figure>
+
+<!-- ══ 05 ══ -->
+<section class="paso">
+  <div class="num">05</div>
+  <div class="cuerpo">
+    <h2>Ingresos</h2>
+    <p class="sub">Se capturan en Resumen mensual, un renglón por mes.</p>
+    <p>Agrega un ingreso por cada mes con su monto, leyéndolos del renglón <code>FACTURACION</code>
+    de la hoja SERVICIO. Empieza en <strong>M1 Mar 26</strong>: febrero va en cero porque es el mes
+    de instalación y no se factura. Los montos alternan según los días: 669,600 en los de 31 días y
+    648,000 en los de 30.</p>
+    <div class="nota"><strong>Al terminar, regresa a Capturar costos y pica Guardar otra vez.</strong>
+    Es lo único que sube los ingresos a la nube.</div>
+    <p>Cuando esté lista la captura por tipo, esto será un solo dato: 200 pozos × 6&nbsp;USD × 18 =
+    <strong>21,600 por día</strong>, y la app multiplicará por los días de cada mes.</p>
+  </div>
+</section>
+
+<!-- ══ 06 ══ -->
+<section class="paso">
+  <div class="num">06</div>
+  <div class="cuerpo">
+    <h2>Verificar</h2>
+    <p class="sub">Si estas cifras coinciden, el presupuesto quedó bien capturado.</p>
+
+    <div class="check">
+      <h3>Indicadores en Información general</h3>
+      <table class="tabla">
+        <tbody>
+          <tr><td>Ingresos</td><td class="num-c">6,609,600</td></tr>
+          <tr><td>CAPEX</td><td class="num-c">7,038,940</td></tr>
+          <tr><td>OPEX</td><td class="num-c">3,076,082</td></tr>
+          <tr><td>Total egresos</td><td class="num-c">10,115,022</td></tr>
+          <tr><td>Utilidad</td><td class="num-c">−3,505,422</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="check">
+      <h3>Subtotales por cuenta contable</h3>
+      <table class="tabla">
+        <tbody>
+          <tr><td class="cat">ACTIVOS</td><td class="num-c">7,038,940</td></tr>
+          <tr><td class="cat">ARRENDA DE INMUEBLES Y SERV</td><td class="num-c">156,000</td></tr>
+          <tr><td class="cat">ARTICULOS DE SEGURIDAD</td><td class="num-c">40,000</td></tr>
+          <tr><td class="cat">INSUMOS DE OFICINA</td><td class="num-c">32,400</td></tr>
+          <tr><td class="cat">INSUMOS OPERATIVOS</td><td class="num-c">32,400</td></tr>
+          <tr><td class="cat">MATERIALES</td><td class="num-c">810,000</td></tr>
+          <tr><td class="cat">NOMINA Y ADICIONALES</td><td class="num-c">783,000</td></tr>
+          <tr><td class="cat">SERV TELEFONIA CELULAR Y RADIO</td><td class="num-c">792,000</td></tr>
+          <tr><td class="cat">SERVICIOS</td><td class="num-c">1,294,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota"><strong>La prueba de fuego.</strong> Expande <code>SERVICIOS</code> en la tabla
+    y confirma que la cuadrilla aparece con 288,000 en marzo, abril y mayo, y cero de junio en
+    adelante. Eso es lo que el Excel hace a mano y la app calcula sola.</div>
+  </div>
+</section>
+
+<!-- ══ CIERRE ══ -->
+<section class="cierre">
+  <h2>Lo que no va a cuadrar contra el Excel</h2>
+  <p class="sub">Tres diferencias, las tres explicadas. Ninguna es error de la app.</p>
+  <div class="scroll"><table class="tabla">
+    <thead><tr><th>Concepto</th><th class="num-c">App</th><th class="num-c">Excel</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="cat">ACTIVOS</td><td class="num-c">7,038,940</td><td class="num-c">7,169,660</td>
+        <td>El Excel usa la cifra <strong>con IVA</strong> en transporte (550,000 × 1.16) mientras
+        los otros cuatro rubros van sin IVA, y su renglón de transmisión trae 126,720 que no salen
+        de ninguna partida. Además aquí equipo de cómputo se movió a CAPEX, +84,000.</td>
+      </tr>
+      <tr>
+        <td class="cat">NOMINA Y ADICIONALES</td><td class="num-c">783,000</td><td class="num-c">881,882</td>
+        <td>Aguinaldo, fondo de ahorro y otros conceptos que viven en columnas de
+        <code>F01 NÓMINA</code> que quedaron por revisar.</td>
+      </tr>
+      <tr>
+        <td class="cat">EPP y poste</td><td class="num-c">marzo</td><td class="num-c">febrero</td>
+        <td>La app no acepta gasto operativo en el mes de instalación. Pendiente de decidir con el
+        cliente: su Excel dice que sí debería aceptarlo.</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+</div>
+</body>
+</html>

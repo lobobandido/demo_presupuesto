@@ -415,7 +415,7 @@ a 11,324,742.
 
 # APÉNDICE C — Texto para pegarle a Claude Code al arrancar el día 1
 
-> Lee `docs/spec-dos-sistemas-semana.md` completo, incluidos los apéndices, antes de escribir nada.
+> Lee `docs/specs/spec-dos-sistemas-semana.md` completo, incluidos los apéndices, antes de escribir nada.
 >
 > Aclaración importante: **la app no lee ningún archivo de Excel.** El diagrama de la sección
 > "estructura objetivo" y el apéndice B son referencia de formato y prueba de aceptación. La tabla
