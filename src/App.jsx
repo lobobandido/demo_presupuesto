@@ -2947,13 +2947,16 @@ export default function App(){
       <div style={{maxWidth:740}}>
         {/* Spec navegación-retro-410 punto 4 — fila de botones arriba, una sola
             pareja Cancelar/Guardar (se quita la de abajo) más "Información
-            general". Sin PDF: esta pantalla nunca lo tuvo. */}
+            general". Sin PDF: esta pantalla nunca lo tuvo.
+            Citas del cliente — "La información general cuando ya esté creado",
+            "Tampoco activa": mientras flujoCreacion es true (presupuesto que aún
+            no existe) este acceso va atenuado y no clicable. */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
           <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>
             {modoEdit?"Editar presupuesto":"Nuevo presupuesto"}
           </h2>
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("Información general",()=>setStep(5),"secondary")}
+            {btn("Información general",()=>setStep(5),"secondary",flujoCreacion)}
             {btn("Cancelar",()=>setStep(0),"secondary")}
             {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
           </div>
@@ -3287,9 +3290,14 @@ export default function App(){
               );
             })()}
           </div>
+          {/* Citas del cliente — "Tampoco activa", "Estos dos tampoco": mientras
+              flujoCreacion es true (presupuesto que aún no existe) estos dos
+              accesos van atenuados y no clicables; se activan en cuanto el
+              presupuesto está guardado (abrirEdit/abrirPresupuesto ponen
+              flujoCreacion en false). */}
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("← Información general",()=>setStep(5),"secondary")}
-            {btn("Resumen mensual →",()=>setStep(4),"secondary")}
+            {btn("← Información general",()=>setStep(5),"secondary",flujoCreacion)}
+            {btn("Resumen mensual →",()=>setStep(4),"secondary",flujoCreacion)}
           </div>
         </div>
         <div className="capture-grid" style={{display:"grid",gridTemplateColumns:"200px minmax(0,1fr)",gap:28,maxWidth:1320}}>
