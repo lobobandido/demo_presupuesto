@@ -3058,7 +3058,13 @@ export default function App(){
                   nueva — mismo JSX que antes, solo reubicado dentro de la rejilla. */}
               <div style={{gridColumn:"1 / -1"}}>
                 {!modoEdit && form.tipo&&(viaClonar?(()=>{
-                  const origenesDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo);
+                  // El tipo ya no se puede cambiar aquí (hereda del origen, ver bloque
+                  // de Tipo de presupuesto) — el texto ya no habla de "cambiar el tipo".
+                  // El select tampoco se ofrece a sí mismo: excluye el presupuesto que
+                  // ya es el origen actual (origenReal), para no permitir "copiar de
+                  // Cuervito (copia)" mientras ya se está copiando de Cuervito (copia) —
+                  // evita encadenar copias de copias sin darse cuenta.
+                  const origenesDelTipo = presupuestosGuardados.filter(p=>p.tipo===form.tipo && p.nombre!==origenReal?.nombre);
                   return(
                   <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
                     overflow:"hidden",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
@@ -3066,7 +3072,7 @@ export default function App(){
                       borderLeft:`3px solid ${C.yellowDark}`}}>
                       <div style={{fontWeight:700,fontSize:14,color:C.grayDark}}>Presupuesto de origen</div>
                       <div style={{fontSize:12,color:C.grayMid,marginTop:3}}>
-                        De cuál presupuesto se está copiando — solo se muestran los de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong>. Si cambias el tipo abajo, estas opciones cambian.
+                        De cuál presupuesto se está copiando — solo se muestran otros presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong>.
                       </div>
                     </div>
                     <div style={{padding:"16px 24px"}}>
@@ -3075,16 +3081,11 @@ export default function App(){
                       )}
                       {!cargandoGuardados&&origenesDelTipo.length===0&&(
                         <div style={{fontSize:12,color:C.grayMid}}>
-                          No hay presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — elige otro tipo abajo o continúa y captura las áreas manualmente.
+                          No hay otros presupuestos guardados de tipo <strong style={{textTransform:"capitalize"}}>{form.tipo}</strong> — continúa y captura las áreas manualmente.
                         </div>
                       )}
-                      {!cargandoGuardados&&origenesDelTipo.length>0&&(()=>{
-                        // partirDePresupuestoAnterior fija origenReal como {nombre,capex,opex}
-                        // (sin id) — se empareja por nombre, mismo criterio que ya usa el
-                        // modal de plantillas para esta misma lista.
-                        const seleccionado = origenReal && origenesDelTipo.find(p=>p.nombre===origenReal.nombre);
-                        return(
-                        <select value={seleccionado?.id||""}
+                      {!cargandoGuardados&&origenesDelTipo.length>0&&(
+                        <select value=""
                           onChange={e=>{
                             const elegido=origenesDelTipo.find(p=>p.id===e.target.value);
                             if(elegido) partirDePresupuestoAnterior(elegido);
@@ -3092,14 +3093,13 @@ export default function App(){
                           className="sel-brand"
                           style={{width:"100%",maxWidth:420,padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                             borderRadius:8,fontSize:13,background:C.white}}>
-                          <option value="" disabled>Selecciona un presupuesto de origen…</option>
+                          <option value="" disabled>Cambiar a otro presupuesto de origen…</option>
                           {origenesDelTipo.map(p=>(
                             <option key={p.id} value={p.id}>{p.nombre}{p.fechaInicio?` · ${p.fechaInicio}`:""}</option>
                           ))}
                         </select>
-                        );
-                      })()}
-                      {origenReal&&origenesDelTipo.some(p=>p.nombre===origenReal.nombre)&&(
+                      )}
+                      {origenReal&&(
                         <div style={{marginTop:10,fontSize:11,color:C.yellowDark,fontWeight:600}}>
                           ✓ Copiando de "{origenReal.nombre}" — editable antes de guardar
                         </div>
@@ -3164,6 +3164,20 @@ export default function App(){
 
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
+                {/* Confirmado en producción — el tipo lo hereda el clon del origen y NO
+                    debe poder cambiarse ahí: cambiar un clon de Servicio a Departamento
+                    produce partidas que ese tipo no admite. form.tipo no se toca — solo
+                    se quita la edición mientras viaClonar es true. En "+ Nuevo
+                    presupuesto" las cuatro tarjetas siguen igual. */}
+                {viaClonar?(()=>{
+                  const tipoLabel={"instalacion":"Instalación","servicio":"Servicio","departamento":"Departamento","suministro":"Suministro"};
+                  return(
+                    <div style={{padding:"9px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
+                      fontSize:14,background:C.grayLight,color:C.grayDark}}>
+                      Tipo: <strong>{tipoLabel[form.tipo]||form.tipo}</strong> — heredado del presupuesto de origen
+                    </div>
+                  );
+                })():(
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
                   {[
                     {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
@@ -3190,6 +3204,7 @@ export default function App(){
                     </div>
                   ))}
                 </div>
+                )}
               </div>
 
             </div>
