@@ -3832,9 +3832,17 @@ export default function App(){
                     <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
                       className="sel-brand"
                       style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                      {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>(
-                        <option key={m} value={m}>M{m} · {MESES[(m-1)%12]}</option>
-                      ))}
+                      {/* Bug conocido corregido — el rótulo asumía que el proyecto arranca en
+                          enero (MESES[(m-1)%12]). Ahora usa nombreMesReal (mismo criterio que
+                          MESES13_MES en otras pantallas), derivado de pres?.fechaInicio. Solo
+                          cambia el texto visible del <option> — el value sigue siendo el M
+                          numérico, y mIngresos (línea ~490) sigue indexando por ese mismo M. */}
+                      {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>{
+                        const real=nombreMesReal(m,pres?.fechaInicio);
+                        return(
+                          <option key={m} value={m}>M{m}{real?` · ${real}`:""}</option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div>
