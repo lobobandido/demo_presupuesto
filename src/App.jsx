@@ -3665,7 +3665,11 @@ export default function App(){
                     </td>
                   ))}
                   <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:f.color}}>
-                    {fmtK(f.datos.reduce((s,v)=>s+v,0))}
+                    {/* Bug conocido corregido — una serie acumulada (f.acumulado=true,
+                        ej. FLUJO ACUMULADO) no se "totaliza" sumando la serie: su total
+                        es el último valor de la serie. Solo afecta filas marcadas así;
+                        el resto sigue sumando igual que siempre. */}
+                    {fmtK(f.acumulado ? f.datos[f.datos.length-1] : f.datos.reduce((s,v)=>s+v,0))}
                   </td>
                 </tr>
                 {abierto&&f.detalle.map((d,di)=>(
@@ -3946,7 +3950,7 @@ export default function App(){
               {label:"EGRESOS TOTALES",   color:C.danger,    datos:mEgresos},
               {label:"INGRESOS",          color:C.success,   datos:mIngresos},
               {label:"FLUJO EFECTIVO",    color:"#7c3aed",   datos:mFlujo},
-              {label:"FLUJO ACUMULADO",   color:"#0891b2",   datos:mFlujoAcum},
+              {label:"FLUJO ACUMULADO",   color:"#0891b2",   datos:mFlujoAcum, acumulado:true},
             ]} showTotal={false}/>
           </>)}
 

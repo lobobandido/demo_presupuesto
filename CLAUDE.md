@@ -54,8 +54,6 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   derivar de fechaInicio; la distribución usa el índice M y descarta mes y año.
   En Cuervito corrió doce ingresos dos meses, dejó Ago 26 vacío y apiló dos
   renglones en M1.
-- Total de FLUJO ACUMULADO en TablaM: reduce() suma la serie en vez de tomar
-  el último valor (-76.43M donde debía dar -9.71M).
 - exportarExcel línea 2033 usa los literales 0.32/0.40/0.05 en vez de F_IMSS/
   F_PREST/F_ISR: si finanzas cambia un factor, pantalla y Excel se despegan.
 - Tira verde de nómina línea 1501: interpola {p.imss} y {p.prestaciones} crudos
