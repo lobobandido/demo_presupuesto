@@ -2680,6 +2680,17 @@ export default function App(){
   // Step 2 en adelante (guardarPres/abrirEdit/presToOpen lo fijan antes de
   // navegar); en Step 1 con un presupuesto nuevo sin guardar aún, cae a form.
   const nombreProy = pres?.nombre||form?.nombre||"Nuevo presupuesto";
+  // Cambio de navegación pedido hoy — citas: "De acá pues debería de mandarlo no
+  // aquí, sino al formulario de captura" · "de la ventana de información general,
+  // cuando le dé a presupuesto TI, que mande al formulario de captura". El
+  // eslabón [nombre del proyecto] de la miga de pan deja de ir a Datos generales
+  // (Step 1) y pasa a ir a Capturar costos (Step 3) — mismo patrón que ya usa
+  // abrirEdit para preseleccionar área y avisar que no es flujo de creación.
+  const irACapturarCostos=()=>{
+    if(!areaActiva) setActiva(areas[0]||null);
+    setFlujoCreacion(false);
+    setStep(3);
+  };
   const wrap=(children,miga=[])=>(
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"Inter,-apple-system,sans-serif",background:C.contentBg}}>
       <style>{`
@@ -2818,12 +2829,17 @@ export default function App(){
               onClick={()=>setStep(0)}>Inicio</span>
             {miga.map((seg,i)=>{
               const esUltimo=i===miga.length-1;
+              // Cambio de navegación pedido hoy, punto (b) — "aquí no debería de
+              // aparecer... o sea, sí, pero no debería de tener acción": un eslabón
+              // sin onClick (aunque no sea el último) se ve igual que el último —
+              // sin cursor de mano, sin acción — en vez de solo depender de esUltimo.
+              const clicable=!esUltimo&&!!seg.onClick;
               return (
                 <Fragment key={i}>
                   <span style={{color:C.grayBorder}}>/</span>
-                  {esUltimo
-                    ? <span style={{color:C.grayDark,fontWeight:700}}>{seg.label}</span>
-                    : <span style={{cursor:"pointer",color:C.yellowDark,fontWeight:600}} onClick={seg.onClick}>{seg.label}</span>}
+                  {clicable
+                    ? <span style={{cursor:"pointer",color:C.yellowDark,fontWeight:600}} onClick={seg.onClick}>{seg.label}</span>
+                    : <span style={{color:C.grayDark,fontWeight:700}}>{seg.label}</span>}
                 </Fragment>
               );
             })}
@@ -3331,7 +3347,7 @@ export default function App(){
           {btn("Confirmar",confirmarAreas,"primary",areas.length===0)}
         </div>
       </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Áreas"}]);
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Áreas"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3552,7 +3568,9 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Captura de información"}]);
+    // Punto (b) — ya estamos en Capturar costos: [nombre] se muestra sin acción
+    // (sin onClick), no ir a Step 3 sobre Step 3 mismo.
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy},{label:"Captura de información"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -3998,7 +4016,7 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Información general",onClick:()=>setStep(5)},{label:"Resumen mensual"}]);
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general",onClick:()=>setStep(5)},{label:"Resumen mensual"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -4262,7 +4280,7 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:()=>setStep(1)},{label:"Información general"}]);
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general"}]);
   }
   return null;
 }

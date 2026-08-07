@@ -254,3 +254,34 @@ información".
 fechas — y las fechas gobiernan todas las columnas de mes, así que no puede quedar sin acceso.
 
 Commit: `d2763e1`.
+
+---
+
+## Corrección posterior — 2026-08-06 (segunda)
+
+**Punto 1 corregido otra vez.** El párrafo anterior de esta misma sección decía que el eslabón
+`[nombre del proyecto]` de la miga de pan era "la única vía" a Datos generales (Step 1) y que "no
+puede quedar sin acceso". El cliente pidió lo contrario hoy mismo, sobre el mismo eslabón:
+
+> "De acá pues debería de mandarlo no aquí, sino al formulario de captura" · "de la ventana de
+> información general, cuando le dé a presupuesto TI, que mande al formulario de captura" · "aquí
+> no debería de aparecer... o sea, sí, pero no debería de tener acción" → "deshabilitado"
+
+**Comportamiento nuevo:** `[nombre del proyecto]` deja de navegar a Datos generales (Step 1) y pasa
+a navegar a **Capturar costos (Step 3)** — mismo patrón que ya usa "Editar" del listado
+(`irACapturarCostos`: preselecciona la primera área si no hay ninguna activa, `flujoCreacion` en
+`false`). Esto aplica en todas las pantallas donde aparece (Áreas, Resumen mensual, Información
+general). **Excepción:** estando ya en Capturar costos, el eslabón se muestra igual pero sin
+`onClick` — se ve sin cursor de mano y sin acción (el cliente pidió expresamente que no se oculte,
+solo que no haga nada ahí).
+
+**Consecuencia sin resolver:** con este cambio, **no queda ningún camino de UI a Datos generales
+(Step 1) para un presupuesto ya existente.** Los únicos `setStep(1)` que sobreviven en el código son
+`abrirNuevo()` y `clonarPresupuesto()` (aterrizan ahí porque el presupuesto todavía no existe) y el
+botón "Atrás" de Áreas (Step 2), que solo es alcanzable a mitad de esa misma creación inicial —
+ninguno sirve para reabrir Step 1 sobre un presupuesto ya guardado. Nombre, tipo y fechas de un
+presupuesto existente (las fechas gobiernan todas las columnas de mes) quedan **sin forma de
+editarse** una vez guardado. Pregunta abierta con el cliente — no se resolvió hoy, solo se
+documenta.
+
+Commit: este mismo (ver historial de git — Tarea 4, "cambio de navegación pedido hoy").
