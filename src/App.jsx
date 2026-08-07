@@ -2987,17 +2987,18 @@ export default function App(){
     return wrap(
       <div style={{maxWidth:740}}>
         {/* Spec navegación-retro-410 punto 4 — fila de botones arriba, una sola
-            pareja Cancelar/Guardar (se quita la de abajo) más "Información
-            general". Sin PDF: esta pantalla nunca lo tuvo.
-            Citas del cliente — "La información general cuando ya esté creado",
-            "Tampoco activa": mientras flujoCreacion es true (presupuesto que aún
-            no existe) este acceso va atenuado y no clicable. */}
+            pareja Cancelar/Guardar (se quita la de abajo). Sin PDF: esta pantalla
+            nunca lo tuvo.
+            Cambio pedido por Luis (WhatsApp) — en esta pantalla (Nuevo presupuesto,
+            flujoCreacion en su fase inicial) "Información general" ya NO aparece,
+            ni siquiera atenuado: solo quedan Cancelar y Continuar. Distinto del
+            mismo eslabón en Capturar costos (Step 3, línea ~3409), que sigue
+            visible-pero-atenuado — ese no se toca. */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
           <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>
             {modoEdit?"Editar presupuesto":"Nuevo presupuesto"}
           </h2>
           <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("Información general",()=>setStep(5),"secondary",flujoCreacion)}
             {btn("Cancelar",()=>setStep(0),"secondary")}
             {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
           </div>
