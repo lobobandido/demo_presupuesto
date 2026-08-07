@@ -2259,6 +2259,20 @@ export default function App(){
     }
   },[]);
 
+  // PDF — F1 (Fernando): document.title dinámico al nombre del presupuesto en
+  // Resumen mensual/Información general, para que el título que imprime el
+  // navegador (si el usuario deja "Encabezados y pies de página" activado) diga
+  // de cuál presupuesto es, no el genérico de index.html. La función de limpieza
+  // de useEffect restaura el título anterior exacto al salir de Step 4/5 (o si
+  // cambia de presupuesto/step), sin necesidad de guardar el original aparte.
+  useEffect(()=>{
+    if((step===4||step===5) && pres?.nombre){
+      const original=document.title;
+      document.title=`${pres.nombre} — ${step===4?"Resumen mensual":"Información general"}`;
+      return ()=>{ document.title=original; };
+    }
+  },[step,pres?.nombre]);
+
   // "Partir de un presupuesto anterior" — al abrir el modal, consultar Supabase (SOLO LECTURA)
   // No modifica el flujo existente de PLANTILLAS (Cuervito/TI), que sigue igual más abajo.
   useEffect(()=>{
@@ -2769,6 +2783,11 @@ export default function App(){
           #rpdf, #rpdf * { visibility: visible; }
           body * { visibility: hidden; }
           #rpdf { position: absolute; left: 0; top: 0; width: 100%; }
+          /* F1 (Fernando) — que ninguna gráfica se corte entre dos páginas al
+             imprimir/exportar PDF. Solo las 2 tarjetas de gráfica por pantalla
+             (Resumen mensual, Información general) llevan className="chart-card";
+             tablas y KPIs no la llevan y siguen partiéndose normal entre páginas. */
+          .chart-card { break-inside: avoid; page-break-inside: avoid; }
         }
       `}</style>
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
@@ -3607,8 +3626,12 @@ export default function App(){
     const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
 
     // ── Helpers de render ──────────────────────────────────────────────────
-    const card=(children,mb=16)=>(
-      <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+    // 3er parámetro opcional className — hoy solo lo usan las dos tarjetas de
+    // gráfica (className="chart-card"), para el break-inside:avoid del PDF (F1).
+    // No cambia nada para el resto de las tarjetas (tablas, KPIs), que siguen
+    // llamando card(children) o card(children,mb) igual que siempre.
+    const card=(children,mb=16,className)=>(
+      <div className={className} style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
         padding:24,marginBottom:mb,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>{children}</div>
     );
     const sTitle=(t,sub)=>(
@@ -3713,42 +3736,45 @@ export default function App(){
       <div>
         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
 
-        {/* Header */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
-          <div>
-            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
-            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
-            {/* Fase 1.6.a — línea de periodo, cero cálculo nuevo: reusa mesLabelReal
-                y calcularNumMesesOp, ya existentes. */}
-            {pres?.fechaInicio&&(
-              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(NUM_MESES_OP,pres.fechaInicio)}</strong> · {NUM_MESES_OP+1} meses
-              </div>
-            )}
-            {pres?.fechaElaboracion&&(
-              <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                Elaborado: <strong>{pres.fechaElaboracion}</strong>
-                {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
-              </div>
-            )}
-          </div>
-          {/* Fase 1.4 — fila de botones propia, sin depender de areaSaved; la barra
-              pegajosa deja de repetir esta navegación. Spec navegación-retro-410
-              punto 6 — se quita "Editar por área"; el botón de regreso ("←
-              Información general") se queda: es el par recíproco del botón "Resumen
-              mensual" de Información general. */}
-          <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("← Información general",()=>setStep(5),"secondary")}
-            {btn("⬇ Excel",()=>exportarExcel({
-              pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
-              mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
-              totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales
-            }),"secondary")}
-            {btn("⬇ PDF",()=>window.print(),"primary")}
-          </div>
-        </div>
-
         <div id="rpdf">
+          {/* Header — movido DENTRO de #rpdf (antes era hermano, fuera): con
+              body *{visibility:hidden} + #rpdf,#rpdf *{visibility:visible}, todo lo
+              que no fuera descendiente de #rpdf quedaba invisible al imprimir — el
+              PDF exportado no traía nombre, periodo ni fechas. Los botones (dentro
+              de la misma fila) siguen sin imprimirse porque ya tienen .noprint. */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+            <div>
+              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+              {/* Fase 1.6.a — línea de periodo, cero cálculo nuevo: reusa mesLabelReal
+                  y calcularNumMesesOp, ya existentes. */}
+              {pres?.fechaInicio&&(
+                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                  Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(NUM_MESES_OP,pres.fechaInicio)}</strong> · {NUM_MESES_OP+1} meses
+                </div>
+              )}
+              {pres?.fechaElaboracion&&(
+                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                  Elaborado: <strong>{pres.fechaElaboracion}</strong>
+                  {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
+                </div>
+              )}
+            </div>
+            {/* Fase 1.4 — fila de botones propia, sin depender de areaSaved; la barra
+                pegajosa deja de repetir esta navegación. Spec navegación-retro-410
+                punto 6 — se quita "Editar por área"; el botón de regreso ("←
+                Información general") se queda: es el par recíproco del botón "Resumen
+                mensual" de Información general. */}
+            <div style={{display:"flex",gap:10}} className="noprint">
+              {btn("← Información general",()=>setStep(5),"secondary")}
+              {btn("⬇ Excel",()=>exportarExcel({
+                pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
+                mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
+                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales
+              }),"secondary")}
+              {btn("⬇ PDF",()=>window.print(),"primary")}
+            </div>
+          </div>
 
           {/* ── SECCIÓN: Captura de ingresos ────────────────────────────── */}
           {card(<>
@@ -3974,7 +4000,7 @@ export default function App(){
               ))}
             </div>
             <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
-          </>)}
+          </>,16,"chart-card")}
 
           {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
           {card(<>
@@ -3992,7 +4018,7 @@ export default function App(){
                 <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
               </>
             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
-          </>)}
+          </>,16,"chart-card")}
 
           {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
           {areas.length>0&&card(<>
@@ -4072,35 +4098,38 @@ export default function App(){
       <div>
         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
 
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
-          <div>
-            {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
-            <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
-            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
-            {/* Fase 1.6.a — línea de periodo */}
-            {pres?.fechaInicio&&(()=>{
-              const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
-              return(
-                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                  Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
-                </div>
-              );
-            })()}
-            {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
-                aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
-          </div>
-          {/* Corrección posterior al paso 4 de spec-recuperación-datos — el cliente
-              dijo "Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?":
-              se quita el botón. No queda hueco de navegación: "Editar" del listado
-              (abrirEdit, commit d2763e1) ya manda directo a Capturar costos (Step 3),
-              y la miga de pan también permite volver a Información general desde ahí. */}
-          <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("Resumen mensual →",()=>setStep(4),"secondary")}
-            {btn("⬇ PDF",()=>window.print(),"secondary")}
-          </div>
-        </div>
-
         <div id="rpdf">
+          {/* Header — movido DENTRO de #rpdf (antes era hermano, fuera): igual que en
+              Resumen mensual, sin esto el PDF exportado no traía nombre ni periodo.
+              Los botones siguen sin imprimirse por .noprint. */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+            <div>
+              {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
+              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+              {/* Fase 1.6.a — línea de periodo */}
+              {pres?.fechaInicio&&(()=>{
+                const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
+                return(
+                  <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                    Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
+                  </div>
+                );
+              })()}
+              {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
+                  aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
+            </div>
+            {/* Corrección posterior al paso 4 de spec-recuperación-datos — el cliente
+                dijo "Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?":
+                se quita el botón. No queda hueco de navegación: "Editar" del listado
+                (abrirEdit, commit d2763e1) ya manda directo a Capturar costos (Step 3),
+                y la miga de pan también permite volver a Información general desde ahí. */}
+            <div style={{display:"flex",gap:10}} className="noprint">
+              {btn("Resumen mensual →",()=>setStep(4),"secondary")}
+              {btn("⬇ PDF",()=>window.print(),"secondary")}
+            </div>
+          </div>
+
           {/* ── Los cinco KPIs del presupuesto completo — mismo bloque que Step 4 ── */}
           <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
             {[
@@ -4252,7 +4281,7 @@ export default function App(){
           })}
 
           {/* ── Gráfica: flujo de efectivo ── */}
-          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{marginBottom:16}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -4279,7 +4308,7 @@ export default function App(){
           </div>
 
           {/* ── Gráfica: OPEX por categoría ── */}
-          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             <div style={{marginBottom:16}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
