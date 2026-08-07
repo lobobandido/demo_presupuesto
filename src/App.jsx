@@ -3922,11 +3922,13 @@ export default function App(){
   // que aquí se recorren TODAS las áreas de corrido (sin selector lateral),
   // en vez de mostrar una a la vez. No se tocó Step 3 ni Step 4.
   if(step===5){
+    // Corrección posterior al día 3 (spec dos-sistemas-semana) — el cliente pidió
+    // cambiar CÓMO se edita (a Capturar costos), no borrar el detalle por área de
+    // esta pantalla de consulta. KPIs + TablaServicio + gráficas se quedan igual;
+    // debajo vuelve el detalle por área en texto plano (sin inputs, sin Guardar).
+    const cats=getAreasCat(pres?.tipo||"instalacion");
     // Panorama del presupuesto completo — misma función que usa Step 4, cero
-    // lógica de cálculo duplicada. Fase día 3 (spec "Separar captura y
-    // visualización"): Información general deja de ser el areas.map() con
-    // SCard/PartidaTable/NominaTable por área y pasa a ser la vista de
-    // verdad — KPIs + TablaServicio + gráficas, cero campos editables.
+    // lógica de cálculo duplicada.
     const {NMESES, MESES13, MESES13_MES, mCapex, mOpex, mEgresos, mIngresos,
       totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} =
       calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
@@ -4011,6 +4013,117 @@ export default function App(){
             </div>
             <TablaServicio filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
           </div>
+
+          {/* ── Detalle por área, en texto plano (recuperado — el cliente pidió cambiar
+              el mecanismo de edición, no borrar esta consulta). Solo lectura: SCard,
+              PartidaTable y NominaTable con readOnly={true} — sin inputs, sin agregar/
+              quitar fila, sin botón Guardar. Editar de verdad se hace en Capturar
+              costos (Step 3). ── */}
+          {areas.length===0?(
+            <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
+              background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`,marginBottom:20}}>
+              Aún no hay áreas capturadas en este presupuesto.
+            </div>
+          ):areas.map((id,ai)=>{
+            const datos=costos[id];
+            const areaInfo=cats.find(a=>a.id===id);
+            const capexA=totalCat(id,"capex");
+            const nomMes=totalNom(id);
+            const opexA=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
+            return(
+              <div key={id} style={{marginBottom:ai<areas.length-1?36:20,
+                paddingBottom:ai<areas.length-1?28:0,
+                borderBottom:ai<areas.length-1?`2px solid ${C.line}`:"none"}}>
+
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span style={{fontSize:24}}>{areaInfo?.icon}</span>
+                    <div>
+                      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
+                      <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
+                    </div>
+                  </div>
+                  <Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
+                    color={datos?.estado==="guardado"?C.success:C.yellowDark}
+                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>
+                </div>
+
+                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
+                  {[
+                    {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
+                    {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
+                    {l:"Total",           v:capexA+opexA,c:C.grayDark,bg:C.grayLight},
+                  ].map(k=>(
+                    <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
+                      borderRadius:10,padding:"16px 18px"}}>
+                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
+                        textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
+                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
+                  subtitle="Inversiones únicas: maquinaria, equipos, activos"
+                  total={capexA} accentColor="#7c3aed">
+                  <PartidaTable
+                    partidas={datos?.capex||[]}
+                    onUpdate={u=>upP(id,"capex",u.id,u)}
+                    onRemove={rmP(id,"capex")}
+                    onAdd={()=>addP(id,"capex")}
+                    catOptions={CAT_CAPEX}
+                    addLabel="Agregar equipo / inversión"
+                    headerColor="#7c3aed"
+                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}
+                    readOnly={true}/>
+                </SCard>
+
+                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
+                  subtitle="Costo real por puesto incluyendo cargas sociales"
+                  total={totalNomAnual(id)} accentColor="#059669">
+                  <NominaTable
+                    nomina={datos?.nomina||[]}
+                    onUpdate={u=>upP(id,"nomina",u.id,u)}
+                    onRemove={rmN(id)}
+                    onAdd={()=>addN(id)}
+                    readOnly={true}/>
+                  {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
+                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
+                  </div>}
+                </SCard>
+
+                <SCard title="OPEX · Materiales" icon="📦"
+                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
+                  total={totalOpexAnualCat(id,"mat")} accentColor="#0891b2">
+                  <PartidaTable
+                    partidas={datos?.mat||[]}
+                    onUpdate={u=>upP(id,"mat",u.id,u)}
+                    onRemove={rmP(id,"mat")}
+                    onAdd={()=>addP(id,"mat")}
+                    catOptions={CAT_OPEX_MAT}
+                    addLabel="Agregar material"
+                    headerColor="#0891b2"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+                    mostrarFechaReal={true} readOnly={true}/>
+                </SCard>
+
+                <SCard title="OPEX · Viáticos" icon="🧳"
+                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
+                  total={totalOpexAnualCat(id,"via")} accentColor="#d97706">
+                  <PartidaTable
+                    partidas={datos?.via||[]}
+                    onUpdate={u=>upP(id,"via",u.id,u)}
+                    onRemove={rmP(id,"via")}
+                    onAdd={()=>addP(id,"via")}
+                    catOptions={CAT_OPEX_VIA}
+                    addLabel="Agregar viático"
+                    headerColor="#d97706"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+                    mostrarFechaReal={true} readOnly={true}/>
+                </SCard>
+              </div>
+            );
+          })}
 
           {/* ── Gráfica: flujo de efectivo ── */}
           <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
