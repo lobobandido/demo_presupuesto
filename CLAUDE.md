@@ -59,10 +59,6 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 - Tira verde de nómina línea 1501: interpola {p.imss} y {p.prestaciones} crudos
   mientras {p.isr??F_ISR} sí usa ??. Si alguno queda undefined imprime
   "(1++0.05)".
-- Ingresos se capturan en Resumen mensual (pantalla de visualización, sin botón
-  Guardar) y NO persisten a Supabase — CONFIRMADO por GET: precio_fijo e
-  ingAdicionales vacíos en Cuervito mientras la pantalla mostraba $7,905,600 desde
-  localStorage.
 - Cuervito no cuadra contra docs/guia-capturar-cuervito.html: SERVICIOS da 3K
   contra 1,294,000 esperados, ARRENDA cae en SIN CATEGORÍA, HERRAMIENTA cae en
   EQUIPOS Y ENSERES, INSUMOS DE OFICINA da 21K contra 32,400. Sin diagnosticar:
@@ -72,8 +68,19 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   Supabase. Si su id local se promueve a string sin que la fila exista,
   abrirPresupuesto falla con "No se pudo cargar el presupuesto" y el registro
   queda inaccesible — el 🗑 tampoco aparece, porque requiere que pres se haya
-  cargado. Se limpia recargando la página. Misma clase de problema que los
-  ingresos que no persisten: la UI aparenta permanencia donde no la hay.
+  cargado. Se limpia recargando la página. Misma clase de problema que tenían
+  los ingresos antes de moverlos a Capturar costos: la UI aparenta permanencia
+  donde no la hay.
+- guardarArea y guardarIngresos pueden solaparse: ambos hacen delete+insert
+  completo de ingresos_adicionales/áreas sin candado ni merge — el que resuelva
+  último sobrescribe al otro. Baja probabilidad (requiere clics casi
+  simultáneos), sin arreglar. Opción A (deshabilitar botones mientras hay
+  guardado en tránsito) es la más simple si se decide corregir.
+- La sección de Ingresos se oculta por tipo solo en la UI — calcularSerieMensual
+  sigue sumando ingAdicionales sin filtrar por tipo. Si se insertan datos
+  directo en Supabase (o quedan de antes de ocultar la sección), un Departamento
+  puede mostrar ingresos igual. Confirmado hoy en TI H1 2026 ($10M de ingresos
+  de prueba, limpiados).
 
 ## Pendientes de producto
 
