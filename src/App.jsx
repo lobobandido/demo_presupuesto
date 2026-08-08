@@ -2383,6 +2383,15 @@ export default function App(){
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
     setAreas(p._areas||[]); setCostos(p._costos||{});
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
+    // Bug confirmado hoy — abrirEdit era la única de las cuatro funciones que
+    // cargan un presupuesto completo (junto con el effect de presToOpen,
+    // clonarPresupuesto y partirDePresupuestoAnterior) que NO hidrataba
+    // ingresos/precioFijo/ingAdicionales: Cuervito mostraba $0.00 en pantalla
+    // pese a tener las 12 filas correctas en Supabase. Mismo patrón que esas
+    // tres — p ya es remoto en este punto si vino de Supabase.
+    setIngresos(p._ingresos||[]);
+    setPrecioFijo(p._precioFijo||0);
+    setIngAd(p._ingAdicionales||[]);
     setPlantKey(null); setViaClonar(false); setPres(p); setModoEdit(true);
     setAreaSaved((p._areas||[]).some(id=>(p._costos||{})[id]?.estado==="guardado"));
     setIntentoGuardar(false);
