@@ -2633,7 +2633,6 @@ export default function App(){
     const nuevoCostos={...costos,[id]:{...costos[id],estado:"guardado"}};
     setCostos(nuevoCostos);
     setAreaSaved(true);
-    showToast("Costos guardados correctamente");
 
     if(pres){
       const snap={_areas:areas,_costos:nuevoCostos,_capexPM:capexPM,_opexPM:opexPM,
@@ -2643,15 +2642,34 @@ export default function App(){
       setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
 
       if(supabase){
+        // El toast ya NO se dispara optimista — se mueve dentro del .then(), y
+        // solo dice "guardado" si guardarPresupuestoEnNube en efecto resolvió
+        // con un id real. cloudId===null es la propia función reportando un
+        // error interno (insert/update fallido) sin lanzar excepción, así que
+        // no basta con el .catch(): hay que revisar el valor resuelto.
         guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos:nuevoCostos,
           ingAdicionales, precioFijo}).then(cloudId=>{
-          if(cloudId && cloudId!==actualizado.id){
-            // Presupuesto local (id numérico) recién promovido a la nube: adoptar el UUID real
-            setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
-            setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+          if(cloudId){
+            if(cloudId!==actualizado.id){
+              // Presupuesto local (id numérico) recién promovido a la nube: adoptar el UUID real
+              setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
+              setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+            }
+            showToast("Costos guardados correctamente");
+          } else {
+            showToast("No se pudo guardar — intenta de nuevo");
           }
-        }).catch(err=>console.error("[supabase] guardarArea:",err));
+        }).catch(err=>{
+          console.error("[supabase] guardarArea:",err);
+          showToast("No se pudo guardar — intenta de nuevo");
+        });
+      } else {
+        // Sin Supabase configurado, el guardado es solo local — no hay nada
+        // async que esperar, el toast de éxito es inmediato como antes.
+        showToast("Costos guardados correctamente");
       }
+    } else {
+      showToast("Costos guardados correctamente");
     }
   }
 
@@ -2661,7 +2679,6 @@ export default function App(){
   // ninguna área — a diferencia de guardarArea, que sí marca la suya como
   // "guardado". No está ligada a areaActiva ni a ningún id de área.
   function guardarIngresos(){
-    showToast("Costos guardados correctamente");
     if(pres){
       const snap={_areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,
         _ingresos:ingresos,_precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
@@ -2670,14 +2687,29 @@ export default function App(){
       setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
 
       if(supabase){
+        // Mismo criterio que guardarArea — el toast de éxito espera a que la
+        // promesa resuelva con un id real; cloudId===null o .catch() muestran
+        // error en vez de fingir que se guardó.
         guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos,
           ingAdicionales, precioFijo}).then(cloudId=>{
-          if(cloudId && cloudId!==actualizado.id){
-            setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
-            setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+          if(cloudId){
+            if(cloudId!==actualizado.id){
+              setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
+              setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
+            }
+            showToast("Costos guardados correctamente");
+          } else {
+            showToast("No se pudo guardar — intenta de nuevo");
           }
-        }).catch(err=>console.error("[supabase] guardarIngresos:",err));
+        }).catch(err=>{
+          console.error("[supabase] guardarIngresos:",err);
+          showToast("No se pudo guardar — intenta de nuevo");
+        });
+      } else {
+        showToast("Costos guardados correctamente");
       }
+    } else {
+      showToast("Costos guardados correctamente");
     }
   }
 
