@@ -3554,12 +3554,14 @@ export default function App(){
             </div>
           </div>
 
-          {/* Ingreso por mes */}
+          {/* Ingresos — este es el mecanismo principal de facturación, no un
+              extra; se renombró hoy (antes "Ingreso por mes", con subtítulo de
+              ejemplos de "extraordinarios" que ya no aplica). */}
           <div style={{marginBottom:16}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <div>
-                <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingreso por mes</div>
-                <div style={{fontSize:11,color:C.grayMid}}>Renovaciones de contrato, pagos extraordinarios, etc.</div>
+                <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingresos</div>
+                <div style={{fontSize:11,color:C.grayMid}}>Captura el ingreso de cada mes. Si el monto es igual todos los meses, usa el precio fijo de arriba; si varía, agrega cada mes por separado aquí.</div>
               </div>
               <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
                 style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
