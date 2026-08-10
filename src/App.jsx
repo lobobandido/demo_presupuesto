@@ -3641,8 +3641,14 @@ export default function App(){
                 </tr>
               </thead>
               <tbody>
+                {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
+                    ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
+                    Con precioFijo=0 daba el mismo total que esta fila, aparentando
+                    una suma duplicada sin serlo. Renombrada FACTURACIÓN → INGRESOS
+                    para combinar con el título de sección. mIngresos/
+                    totalIngresosAnual sin cambios. */}
                 <tr style={{background:C.successLight}}>
-                  <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
+                  <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>INGRESOS</td>
                   {mIngresos.map((v,i)=>(
                     <td key={i} style={{padding:"5px 4px",textAlign:"right",
                       color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
@@ -3651,21 +3657,6 @@ export default function App(){
                   ))}
                   <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
                 </tr>
-                {ingAdicionales.length>0&&(
-                  <tr style={{background:"#F0FFF4"}}>
-                    <td style={{padding:"8px 14px",fontWeight:600,color:"#065F46"}}>+ Adicionales</td>
-                    {MESES13.map((_,i)=>{
-                      const suma=ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0);
-                      return <td key={i} style={{padding:"5px 4px",textAlign:"right",
-                        color:suma>0?"#065F46":C.grayBorder,fontWeight:suma>0?600:400}}>
-                        {suma>0?fmtK(suma):"—"}
-                      </td>;
-                    })}
-                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:"#065F46"}}>
-                      {fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </ScrollHint>
@@ -4054,8 +4045,15 @@ export default function App(){
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
+                      ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
+                      Con precioFijo=0 daba el mismo total que esta fila, aparentando
+                      una suma duplicada sin serlo. Renombrada FACTURACIÓN → INGRESOS
+                      para combinar con el título de sección. mIngresos/
+                      totalIngresosAnual sin cambios. Mismo patrón que Capturar
+                      costos. */}
                   <tr style={{background:C.successLight}}>
-                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
+                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>INGRESOS</td>
                     {mIngresos.map((v,i)=>(
                       <td key={i} style={{padding:"5px 4px",textAlign:"right",
                         color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
@@ -4064,21 +4062,6 @@ export default function App(){
                     ))}
                     <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
                   </tr>
-                  {ingAdicionales.length>0&&(
-                    <tr style={{background:"#F0FFF4"}}>
-                      <td style={{padding:"8px 14px",fontWeight:600,color:"#065F46"}}>+ Adicionales</td>
-                      {MESES13.map((_,i)=>{
-                        const suma=ingAdicionales.filter(x=>x.mes===i).reduce((s,x)=>s+x.monto,0);
-                        return <td key={i} style={{padding:"5px 4px",textAlign:"right",
-                          color:suma>0?"#065F46":C.grayBorder,fontWeight:suma>0?600:400}}>
-                          {suma>0?fmtK(suma):"—"}
-                        </td>;
-                      })}
-                      <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:"#065F46"}}>
-                        {fmt(ingAdicionales.reduce((s,x)=>s+x.monto,0))}
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </ScrollHint>
