@@ -1,3 +1,27 @@
+> **ESTADO AL 2026-08-11** — ARCHIVO HISTÓRICO. No es la referencia de
+> implementación; para eso está docs/MD/ESTADO-ACTUAL.md.
+>
+> **Implementado:** paso 1 el guardarraíl de cero áreas sobre presupuesto existente
+> (`supabaseApi.js:151-154`) — es la red de seguridad que impide repetir la pérdida del 6 de agosto ·
+> paso 2 `abrirEdit` es `async`, carga la versión completa de la nube y **aborta con aviso** si la
+> carga falla, en vez de continuar con el objeto ligero (`App.jsx:2382-2390`) · paso 3 el mismo
+> arreglo en `clonarPresupuesto` (`App.jsx:2463-2471`) · paso 5 `guardarPres` ya no limpia
+> `areas`/`costos`/`capexPM`/`opexPM` — las cuatro asignaciones se quitaron (`App.jsx:2543-2547`).
+>
+> **Superado por:** paso 4, el botón "Capturar costos" en Información general → pedido posterior del
+> cliente, documentado en el propio código (`App.jsx:4244-4248`): *"Capturar el costo pues no va
+> aquí, ¿por qué lo pondría aquí?"*. El acceso a Capturar costos no quedó huérfano: lo cubren el
+> botón "Editar" del listado (`App.jsx:2981-2984`) y el eslabón `[nombre]` de la miga de pan vía
+> `irACapturarCostos` (`App.jsx:2752-2756`).
+>
+> **Nunca implementado:** paso 6 apagar las plantillas del código poniendo su campo `tipos` en `[]` —
+> las tres siguen pobladas y alcanzables desde la UI (`App.jsx:171`, `212`, `231`), con los tres
+> defectos que este spec les atribuye sin corregir · paso 0 borrar los tres registros basura de
+> Supabase: **no verificable desde el código**, es una operación de base de datos que no deja rastro
+> en el repositorio.
+
+---
+
 # Spec — Recuperación: proteger los datos y restaurar los accesos
 
 App: `demo-presupuesto` · `src/App.jsx` y `src/supabaseApi.js`
