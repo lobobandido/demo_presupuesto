@@ -42,6 +42,24 @@ En celular o tablet el menú se colapsa a solo íconos, y por debajo de 768px se
 
 ## 3. Crear un presupuesto nuevo
 
+> ## ⚠ Captura bien el nombre, el tipo y las fechas a la primera
+>
+> **Una vez guardado un presupuesto, no hay forma de cambiar estos cinco campos desde la app:** nombre del proyecto, empresa, tipo, **fecha inicio** y **fecha fin**.
+>
+> La pantalla de Datos generales (sección 4) solo es alcanzable mientras estás **creando** el presupuesto. En cuanto lo guardas, ningún botón ni eslabón de la ruta de arriba vuelve a llevarte ahí: "Editar" del listado va a Capturar costos, y el nombre del proyecto en la ruta también.
+>
+> **Por qué importa más de lo que parece:** la **fecha de inicio** es el origen de todo el eje de tiempo. De ella salen cuántas columnas de mes tienen las tablas, qué mes es M0, en qué mes cae cada compra de CAPEX, desde cuándo corre cada gasto recurrente y desde cuándo se factura. Una fecha mal capturada no desacomoda un dato: **desacomoda el presupuesto entero**, y no se puede corregir sin volver a capturarlo.
+>
+> **Antes de picar Continuar, revisa:**
+>
+> - **Fecha inicio** — el mes del **primer** movimiento del proyecto. En instalación y servicio es el mes de instalación (M0), que no factura.
+> - **Fecha fin** — define la duración. Confírmala contando los meses que esperas ver en las tablas.
+> - **Tipo** — decide qué áreas se ofrecen y si el presupuesto tiene ingresos. Cambiarlo después no es posible, y en Departamento y Suministro la sección de Ingresos ni siquiera aparece.
+>
+> Si ya guardaste uno con las fechas mal, hay dos salidas: **clonarlo** con las fechas correctas y recapturar lo que no se copie bien, o pedir al equipo técnico que lo corrija directo en Supabase. Ninguna de las dos es cómoda — de ahí la advertencia.
+>
+> *(Es una limitación conocida y sin resolver; está registrada como A1 en `docs/MD/DECISIONES.md`.)*
+
 Desde la pantalla **Presupuestos**, botón **+ Nuevo presupuesto**. En esa pantalla eliges entre **dos** formas de arrancar (3.1 y 3.2). Hay una tercera vía que no pasa por ahí: clonar desde el listado (3.3).
 
 ### 3.1 Iniciar desde cero
@@ -70,7 +88,7 @@ En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presu
 | Fecha fin | Define cuántos meses dura el proyecto |
 | Fecha elaboración | Cuándo se está armando el presupuesto (por defecto, hoy) |
 
-> **Importante:** la fecha de inicio es la referencia contra la que se calculan todas las distribuciones mensuales de CAPEX y OPEX más adelante — no la cambies después de haber capturado costos, o los meses se recalculan.
+> **Importante:** la fecha de inicio es la referencia contra la que se calculan todas las distribuciones mensuales de CAPEX y OPEX. **Esta pantalla solo existe mientras creas el presupuesto** — una vez guardado no hay forma de volver a ella desde la app, así que estos campos hay que dejarlos bien a la primera. Ver la advertencia al inicio de la sección 3.
 
 > **Duración del proyecto:** el Resumen mensual se ajusta automáticamente a la diferencia real entre fecha inicio y fecha fin — desde presupuestos de **6 meses** hasta de **20 años**. No hay un número fijo de columnas; si tu proyecto dura 3 años, verás 36+ meses en las tablas (con scroll horizontal). Los selectores de Año en CAPEX/OPEX/ingresos también se ajustan a ese rango.
 
@@ -360,6 +378,9 @@ Usa el campo **Repeticiones** (ver 6.3) — sin él, cualquier gasto recurrente 
 
 **No me aparece Subcategoría ni Artículo al elegir una Categoría, ¿por qué?**
 La cascada solo funciona en **OPEX · Materiales** y solo con los grupos que la tienen (ver 6.4). En CAPEX y Viáticos no aparece; ahí usa las sugerencias del historial y los artículos del almacén.
+
+**Me equivoqué en la fecha de inicio y ya guardé, ¿dónde la corrijo?**
+Hoy no se puede desde la app: la pantalla de Datos generales solo es alcanzable durante la creación. Las dos salidas son clonar el presupuesto con las fechas correctas, o pedir al equipo técnico que lo corrija en Supabase. Ver la advertencia al inicio de la sección 3.
 
 **¿Dónde capturo los ingresos? En Resumen mensual ya no me deja.**
 En **Capturar costos**, en el bloque verde de hasta arriba (ver 6.0). Resumen mensual solo los muestra ya calculados. Si no ves esa sección, revisa el tipo del presupuesto: en Departamento y Suministro está oculta a propósito.
