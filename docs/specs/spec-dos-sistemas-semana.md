@@ -1,3 +1,42 @@
+> **ESTADO AL 2026-08-11** — ARCHIVO HISTÓRICO. No es la referencia de
+> implementación; para eso está docs/MD/ESTADO-ACTUAL.md.
+>
+> **Implementado:** día 1 `construirFilasServicio` extraída a nivel de módulo y consumida por
+> `exportarExcel` (`App.jsx:1799-1870`, consumo en `1929`) · día 2 componente `TablaServicio` con
+> primera columna pegajosa, `ScrollHint`, estilos por `tipo` y expandir/colapsar por subtotal
+> (`App.jsx:2114-2186`) · día 3 Información general con encabezado + cinco KPIs + `TablaServicio` +
+> las dos gráficas al final, en ese orden (`App.jsx:4227-4457`) · día 4 la captura de Ingresos salió
+> de Resumen mensual y vive en Capturar costos, una sola vez por presupuesto y solo para
+> instalación/servicio (`App.jsx:3447`, `3495-3648`); en Resumen mensual queda solo la tabla en
+> lectura (`App.jsx:4002-4051`) · E.1 CAPEX antes de OPEX (`App.jsx:1807-1865`) · D.2 parcial: la
+> columna dice "Total Presupuestado" en pantalla y en el Excel (`App.jsx:2135`, `1925`).
+>
+> **Superado por:** día 3, en la parte que ordena borrar el `areas.map()` de Step 5 → corrección
+> posterior documentada en el propio código (`App.jsx:4201-4204`): el cliente pidió cambiar **cómo**
+> se edita, no borrar el detalle por área de la pantalla de consulta. Hoy ese detalle sigue ahí, en
+> solo lectura con `readOnly={true}` (`App.jsx:4299-4403`).
+>
+> **Nunca implementado:** día 2 ocultar renglones en cero con interruptor "Mostrar categorías sin
+> monto" · día 4 la sección de Ingresos como `SCard` con ícono 💵 y título "Ingresos · Facturación
+> proyectada" (es un `div` con `<h3>Ingresos</h3>`, `App.jsx:3496-3506`) · día 5 cargar Cuervito
+> completo con ~45 subcategorías (la plantilla sigue con 16 CAPEX y 10 OPEX agregados,
+> `App.jsx:174-204`) · toda la sección de Limpieza: `LineChart` (`1576`), `BarChart` (`1621`),
+> `distMeses` (`570`), `vecesEnProyecto` (`280`), `HISTORIAL_NOMINA` (`76`), `fmtMiles` (`543`),
+> campo `factor` de `PERIODICIDADES` (`269-275`), campo `mesGasto` de `initP` (`558`),
+> `PLANTILLAS.instalacion` (`211-229`) y `EstadoBadge` (`673`) siguen todos en el archivo · D.1 las
+> leyendas de `FlowChart` siguen sin corresponder a lo que se dibuja (la leyenda dice `#C0392B` y se
+> pinta `#EF4444`, `4115` vs `1711`; dice `#374151` y se pinta `#1E40AF`, `4116` vs `1718`), las
+> constantes `COLOR_FLUJO_POS`/`COLOR_FLUJO_NEG`/`COLOR_ACUM` no existen y falta el cuarto elemento
+> de leyenda · D.2 en sus otros dos rótulos ("Cifras presupuestadas — no incluye gasto ejecutado" y
+> "EGRESOS PRESUPUESTADOS": sigue diciendo "EGRESOS año", `App.jsx:1805`) · D.3 aviso de meses
+> iniciales sin movimiento · D.4 validación que impida capturar nómina en Materiales/Viáticos —
+> `CAT_OPEX_MAT` la excluye del dropdown (`App.jsx:870-872`) pero `CatalogInput` acepta texto libre
+> (`App.jsx:763`) y no hay validación al guardar · D.7 Gantt (declarado fuera de alcance) · E.2 la
+> decisión de que equipo de cómputo es CAPEX está tomada, pero no hay datos cargados que la reflejen:
+> depende del día 5, que no ocurrió.
+
+---
+
 # Spec — Separar captura y visualización · plan de una semana
 
 App: `demo-presupuesto` · React + Supabase · `src/App.jsx`
