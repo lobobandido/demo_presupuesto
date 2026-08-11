@@ -1,8 +1,8 @@
 ## Arquitectura
 
 - App React + Supabase, deploy en Vercel (demo-presupuesto.vercel.app).
-- TODO el código vive en src/App.jsx (~3,700 líneas), más src/supabaseApi.js y
-  src/supabaseClient.js. No hay más archivos de aplicación.
+- TODO el código vive en src/App.jsx (4,462 líneas), más src/supabaseApi.js
+  (279) y src/supabaseClient.js (6). No hay más archivos de aplicación.
 - Dos sistemas separados a propósito: CAPTURA (Datos generales · Áreas ·
   Capturar costos) y VISUALIZACIÓN (Información general · Resumen mensual).
   No mezclar captura dentro de pantallas de visualización.
@@ -10,6 +10,28 @@
   que se cobra) · Servicio (precio unitario diario × días del mes) ·
   Departamento (sin ingresos) · Suministro (otro modelo: requisiciones con
   orden de compra).
+
+## Dónde está cada cosa
+
+- **Qué hace la app hoy:** `docs/MD/ESTADO-ACTUAL.md`. Derivado del código, con
+  referencia archivo:línea en cada afirmación — pantallas y navegación por step,
+  secciones de captura, reglas de cálculo, estado de PLANTILLAS, y una sección E
+  con lo que los specs piden y el código no implementa. **Es la referencia de
+  estado.** Los cuatro specs de `docs/specs/` NO lo son: son actas históricas y
+  se contradicen entre sí. Cada uno lleva al inicio un bloque que dice qué de él
+  se implementó, qué quedó superado y por cuál spec, y qué nunca se hizo.
+- **Por qué la app es así:** `docs/MD/DECISIONES.md`. Una fila por decisión de
+  producto con su cita textual, su fecha, el spec de origen y su firmeza
+  (CERRADA · CERRADA-PENDIENTE · REABIERTA · ABIERTA). Antes de "arreglar" algo
+  que parece inconsistente, búscalo ahí: nueve decisiones son REABIERTA (el
+  cliente cambió de criterio) y lo que parece un bug puede ser lo último que
+  pidió. Las ABIERTA son preguntas sin responder — no las resuelvas por tu
+  cuenta.
+- **Contra qué se verifica un monto:** `docs/MD/KPIS-LINEA-BASE.md`.
+- **Cómo se usa la app:** `docs/MD/04_Manual_Usuario_Final.md`.
+
+Al cambiar comportamiento, actualiza `ESTADO-ACTUAL.md`; al cerrar o reabrir una
+decisión de producto, actualiza `DECISIONES.md`.
 
 ## Reglas duras
 
