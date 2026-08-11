@@ -1,7 +1,7 @@
 # Manual de Usuario Final — Módulo de Presupuestos GEOLIS
 **Para:** cualquier persona que vaya a capturar o revisar un presupuesto en la app | **Versión:** MVP
 
-> Este manual explica **cómo usar la app, pantalla por pantalla**. Si buscas cómo leer el Resumen mensual para tomar decisiones de negocio (KPIs, márgenes, flujo de efectivo), revisa `02_Guia_Negocio_Toma_Decisiones.md`. Si quieres ver un ejemplo completo capturado de principio a fin, revisa `docs/MD/Guia_Crear_Presupuesto_Cuervito.md`.
+> Este manual explica **cómo usar la app, pantalla por pantalla**. Si quieres ver un ejemplo completo capturado de principio a fin, revisa `docs/MD/Guia_Crear_Presupuesto_Cuervito.md` o `docs/MD/guia-capturar-perdiz.md`.
 
 ---
 
@@ -42,7 +42,7 @@ En celular o tablet el menú se colapsa a solo íconos, y por debajo de 768px se
 
 ## 3. Crear un presupuesto nuevo
 
-Desde la pantalla **Presupuestos**, botón **+ Nuevo presupuesto**. Ahí eliges una de tres formas de arrancar:
+Desde la pantalla **Presupuestos**, botón **+ Nuevo presupuesto**. En esa pantalla eliges entre **dos** formas de arrancar (3.1 y 3.2). Hay una tercera vía que no pasa por ahí: clonar desde el listado (3.3).
 
 ### 3.1 Iniciar desde cero
 Empiezas con todo vacío. Úsalo cuando el proyecto no se parece a ninguno anterior.
@@ -52,7 +52,7 @@ Eliges un presupuesto ya guardado **del mismo tipo** (instalación, servicio, de
 
 > Úsalo para: "Perdiz tiene un alcance nuevo, necesito un presupuesto parecido al anterior pero con bombas adicionales."
 
-En esa misma ventana aparecen también las **bases predefinidas** que trae la app para tu tipo de presupuesto (ver sección 12). Ojo: para tipo **Suministro** todavía no hay ninguna base predefinida — ahí solo puedes partir de un presupuesto guardado o iniciar desde cero.
+En esa misma ventana aparecen también las **bases predefinidas** que trae la app para tu tipo de presupuesto (ver sección 13). Ojo: para tipo **Suministro** todavía no hay ninguna base predefinida — ahí solo puedes partir de un presupuesto guardado o iniciar desde cero.
 
 ### 3.3 Clonar desde la lista
 En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presupuesto directamente (sin pasar por el asistente de "Nuevo presupuesto"). Hace lo mismo que la opción 3.2, pero más rápido cuando ya sabes exactamente cuál quieres copiar.
@@ -173,7 +173,7 @@ Botón **Guardar** (verde, abajo a la derecha del panel de captura). Aparece la 
 
 ## 7. Resumen mensual
 
-Aquí se ve todo lo capturado convertido en tablas financieras: KPIs (Ingresos, CAPEX, OPEX, Egresos totales, Utilidad y Margen), la tabla SERVICIO, la tabla FLUJO, y dos gráficas. Para aprender a **interpretar** estos números y tomar decisiones de negocio con ellos, ve `02_Guia_Negocio_Toma_Decisiones.md`.
+Aquí se ve todo lo capturado convertido en tablas financieras: KPIs (Ingresos, CAPEX, OPEX, Egresos totales, Utilidad y Margen), la tabla SERVICIO, la tabla FLUJO, y dos gráficas.
 
 En las tablas SERVICIO y FLUJO, los renglones de CAPEX y OPEX tienen una flechita **▶** a la izquierda: al picarla se despliega el detalle partida por partida de ese renglón, con su distribución mensual.
 
@@ -297,7 +297,7 @@ En **Capturar costos**, en el bloque verde de hasta arriba (ver 6.0). Resumen me
 Estás **creando** un presupuesto nuevo y todavía no lo has guardado — no hay nada que mostrar en Información general ni en Resumen mensual. Se activan solos en cuanto guardas. Si abriste un presupuesto existente y aun así están grises, eso sí es una falla: repórtalo.
 
 **¿Qué significan las columnas M0, M1, M2… en las tablas?**
-Son los meses del proyecto contados desde tu fecha de inicio: M0 es el primero (el de instalación en proyectos de campo), M1 el siguiente, y así. Está pendiente un cambio para que digan el mes real ("Ene 2026") en lugar del código.
+Son los meses del proyecto contados desde tu fecha de inicio: M0 es el primero (el de instalación en proyectos de campo), M1 el siguiente, y así. **Ya no hay que descifrarlas:** cada columna trae el código arriba en gris chiquito y el mes real debajo en grande ("Feb 26", "Mar 26"). En presupuestos de tipo Departamento y Suministro el M0 no dice "(Inst.)", porque no tienen mes de instalación.
 
 ---
 
@@ -321,10 +321,11 @@ La lista de Presupuestos **no trae renglones de ejemplo**: arranca vacía y se l
 
 ## 14. Ver también
 
-- `02_Guia_Negocio_Toma_Decisiones.md` — cómo interpretar el Resumen mensual para tomar decisiones
-- `docs/MD/Guia_Crear_Presupuesto_Cuervito.md` — ejemplo real completo, capturado de principio a fin
-- `01_Bitacora_Tecnica_Cambios.md` — historial técnico de cambios (para el equipo de desarrollo)
-- `05_Manual_Vista_Lectura.md` — detalle del cambio de modo consulta/edición y sus pendientes
+- `docs/MD/ESTADO-ACTUAL.md` — qué hace la app hoy, derivado del código, con referencia archivo:línea
+- `docs/MD/DECISIONES.md` — decisiones de producto, con su cita, su fecha y si siguen abiertas
+- `docs/MD/KPIS-LINEA-BASE.md` — la línea base de los cinco indicadores, para verificar regresiones
+- `docs/MD/Guia_Crear_Presupuesto_Cuervito.md` y `docs/MD/guia-capturar-perdiz.md` — ejemplos reales completos, capturados de principio a fin
+- `docs/MD/03_Diagrama_Flujo_Trabajo.md` — el flujo de trabajo en diagrama
 
 ---
 
