@@ -1,3 +1,35 @@
+> **ESTADO AL 2026-08-11** — ARCHIVO HISTÓRICO. No es la referencia de
+> implementación; para eso está docs/MD/ESTADO-ACTUAL.md.
+>
+> **Implementado:** 1 la miga de pan es la navegación, con "Inicio" fijo y eslabones clicables solo
+> si no son el último y tienen `onClick` (`App.jsx:2890-2914`) · 2 la barra lateral ya no dice
+> "CORPORATIVO" (`App.jsx:2851-2853`) · 3.1 "Inicio del proyecto:" y "Vigencia:" bajo el nombre de
+> cada renglón (`App.jsx:2964-2965`) · 3.2 el listado tiene exactamente tres acciones, sin "Eliminar"
+> (`App.jsx:2973-2992`) · 6 Resumen mensual con `← Información general`, `⬇ Excel` y `⬇ PDF`, sin
+> "Editar por área" (`App.jsx:3991-3999`) · 5 Información general sin botón "Editar" y sin la línea
+> de elaboración/vigencia (`App.jsx:4249-4252`, `4241-4242`) · 7 el título de Capturar costos cambia
+> según el origen (`App.jsx:3460-3462`) · 8 el diálogo de Clonar muestra el origen y deja elegir
+> tipo, con solo Cancelar y Continuar (`App.jsx:3001-3035`) · 9 rótulos de ingresos corregidos
+> (`App.jsx:3501`, `3547`).
+>
+> **Superado por:** 3.2 el orden de los botones → "Corrección posterior — punto 3.2 (reversión del
+> orden, pedido de Luis)", al final de este mismo archivo: hoy es Información general, Editar, Clonar
+> (`App.jsx:2974-2991`) · 3.2 el destino de "Editar" → "Corrección posterior — 2026-08-06": lleva a
+> Capturar costos (Step 3), no al formulario de Datos generales (`App.jsx:2413`) · 1 el destino del
+> eslabón `[nombre del proyecto]` → "Corrección posterior — 2026-08-06 (segunda)": lleva a Capturar
+> costos, y en Capturar costos se muestra sin acción (`App.jsx:2752-2756`, `3825-3827`) · 4 el botón
+> "Información general" del formulario de edición → pedido posterior de Luis, documentado en el
+> propio código (`App.jsx:3049-3053`).
+>
+> **Nunca implementado:** 4 el botón "Información general" en el formulario de edición nunca llegó a
+> existir — esa pantalla solo tiene Cancelar y Guardar/Continuar (`App.jsx:3058-3061`) · duda 1
+> quedó resuelta en contra de lo que este spec suponía: al quitarse también el 🗑 del breadcrumb, hoy
+> **no queda ningún camino de UI para eliminar un presupuesto** (`App.jsx:2915-2923`), aunque
+> `eliminarPresupuesto` (`App.jsx:2436-2454`) sigue definida e inalcanzable · duda 2 "Inicio" y
+> "Presupuestos" siguen llevando al mismo lugar (`App.jsx:2896-2897`, `3037`).
+
+---
+
 # Spec — Navegación y rótulos (retro 4:10)
 
 App: `demo-presupuesto` · `src/App.jsx`
