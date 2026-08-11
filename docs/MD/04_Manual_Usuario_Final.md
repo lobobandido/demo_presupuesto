@@ -160,7 +160,9 @@ Al escribir en **Categoría** pasa esto:
 1. Si eliges una opción de la lista fija de categorías comunes, sigue al paso 3.
 2. Si escribes algo que no está en la lista, aparece **"Crear categoría..."** — al confirmar, si el texto no coincide con ninguna de las 27 categorías contables oficiales de Geolis, se abre una ventana preguntando **"¿A qué categoría contable pertenece?"**. Eliges una (o "No sé / Dejar sin categoría contable"), y la próxima vez que escribas ese mismo texto ya no te preguntará — queda memorizado.
 3. **Sugerencias del historial** — si ya capturaste partidas parecidas en otros presupuestos, aparecen como botones amarillos debajo del campo. Al picar uno, se llenan descripción, unidad, cantidad y monto de un jalón.
-4. **Artículos del almacén** — la app consulta el catálogo real de almacén de Geolis y te muestra los artículos de esa categoría como botones grises. Al picar uno, se llenan Descripción y Unidad con los datos reales del almacén.
+4. **Artículos del almacén** — la app consulta el catálogo de almacén de Geolis (a partir de 3 letras escritas) y te muestra hasta 6 artículos de esa categoría como botones grises. Al picar uno, se llenan Descripción y Unidad con los datos del almacén.
+
+> **Pendiente de confirmar:** cuántos artículos tiene hoy cargado ese catálogo. Si la consulta no devuelve nada, no aparece ningún botón y no hay mensaje de error — se ve igual que si el catálogo estuviera vacío o que si fallara la conexión. Si nunca te aparecen artículos, confírmalo con el equipo técnico antes de darlo por roto.
 
 #### Solo en OPEX · Materiales: cascada Categoría → Subcategoría → Artículo
 
