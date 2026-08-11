@@ -1,3 +1,33 @@
+> **ESTADO AL 2026-08-11** — ARCHIVO HISTÓRICO. No es la referencia de
+> implementación; para eso está docs/MD/ESTADO-ACTUAL.md.
+>
+> **Implementado:** 1.1 menú lateral con una sola entrada (`App.jsx:2738-2740`) · 1.2 bloque
+> "Activo" fuera de la barra lateral, y nombre + periodo en el encabezado de Capturar costos
+> (`App.jsx:3460-3471`) · 1.3 ningún texto dice "Mi presupuesto" (`App.jsx:4230`) · 1.4 barra
+> pegajosa sin botones de navegación (`App.jsx:2915-2923`) y fila de botones propia en cada pantalla
+> (`App.jsx:3478-3481`, `3991-3999`, `4249-4252`) · 1.6.a línea de periodo (`App.jsx:3974-3978`,
+> `4233-4240`) · 1.6.b `MESES13_MES` con el mes real en encabezado de dos líneas
+> (`App.jsx:396-397`, `3882-3887`) · 1.7 columna "Estado" oculta sin borrar del modelo
+> (`App.jsx:2944-2945`) · 3.3 Suministro sin base predefinida (`App.jsx:171`, `212`, `231`).
+>
+> **Superado por:** 1.4 y 1.5, en lo que toca a los botones de edición → `spec-navegacion-retro-410.md`
+> §5 (quitar "✎ Editar" de Información general) y §6 (quitar "Editar por área" de Resumen mensual);
+> el botón del listado se llama "Editar" y va a Capturar costos, no "Datos generales" a Step 1 →
+> `spec-navegacion-retro-410.md` §3.2 y sus dos correcciones posteriores. · 2.2, 2.3 y 2.4 →
+> `spec-dos-sistemas-semana.md` día 3, que eliminó el modo edición in situ de Información general y
+> con él las gráficas condicionales, el modal de Cancelar y el chip de modo.
+>
+> **Nunca implementado:** 2.1 indicador de 3 pasos — el estado `flujoCreacion` sí existe
+> (`App.jsx:2221`) y gobierna el título y los botones, pero no hay JSX de indicador · 3.1 eliminar
+> `PLANTILLAS.instalacion` (sigue en `App.jsx:211-229`) ni dejar `cuervito.tipos` en `["servicio"]`
+> (sigue con dos tipos, `App.jsx:171`) · 3.2 unificar las dos listas del modal en una sola con chip
+> de origen (siguen separadas, `App.jsx:3283-3301` y `3325-3341`) · 1.6.b para `LineChart`: acepta el
+> prop `meses` (`App.jsx:1576`) pero el componente nunca se renderiza, es código muerto · 3.4
+> correcciones de datos (fechas de "Los Soldados", facturación duplicada) — es contenido de Supabase,
+> no código.
+
+---
+
 # Spec final — Retro de UX (4 de agosto) · 3 fases
 
 App: `demo-presupuesto` · React + Supabase · archivo único `src/App.jsx`
