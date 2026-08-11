@@ -52,7 +52,7 @@ Eliges un presupuesto ya guardado **del mismo tipo** (instalación, servicio, de
 
 > Úsalo para: "Perdiz tiene un alcance nuevo, necesito un presupuesto parecido al anterior pero con bombas adicionales."
 
-En esa misma ventana aparecen también las **bases predefinidas** que trae la app para tu tipo de presupuesto (ver sección 13). Ojo: para tipo **Suministro** todavía no hay ninguna base predefinida — ahí solo puedes partir de un presupuesto guardado o iniciar desde cero.
+En esa misma ventana aparecen también las **bases predefinidas** que trae la app para tu tipo de presupuesto (ver sección 14). Ojo: para tipo **Suministro** todavía no hay ninguna base predefinida — ahí solo puedes partir de un presupuesto guardado o iniciar desde cero.
 
 ### 3.3 Clonar desde la lista
 En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presupuesto directamente (sin pasar por el asistente de "Nuevo presupuesto"). Hace lo mismo que la opción 3.2, pero más rápido cuando ya sabes exactamente cuál quieres copiar.
@@ -240,7 +240,78 @@ Botones de arriba a la derecha:
 
 ---
 
-## 10. Gestionar presupuestos existentes
+## 10. Cómo verificar que un presupuesto capturado es correcto
+
+Capturar sin verificar es la forma más común de entregar un presupuesto con un error de miles de pesos. Esta sección es el repaso mínimo antes de dar uno por bueno.
+
+### 10.1 Compara los cinco indicadores contra el documento fuente
+
+Con el presupuesto abierto en **Información general** (o en Resumen mensual: son los mismos cinco), anota los indicadores y compáralos uno por uno contra el Excel, la cotización o el documento de donde saliste:
+
+| Indicador | Qué debe cuadrar |
+|---|---|
+| **Ingresos** | El total facturado del proyecto. Si usaste precio fijo, revisa que el número de meses con monto sea el que esperas — **M0 nunca lleva ingreso** |
+| **CAPEX** | La suma de las compras únicas. Si te sale bajo, casi siempre es una partida sin fecha de compra |
+| **OPEX** | Nómina + materiales + viáticos, ya distribuidos en el tiempo. Es el que más se desvía |
+| **Total egresos** | CAPEX + OPEX. No es un dato aparte: si los dos de arriba cuadran, este cuadra solo |
+| **Utilidad y margen** | Ingresos − Total egresos. Con ingresos en cero el margen se muestra como "—", no como 0% |
+
+**Cuadra primero Ingresos y CAPEX.** Son los más fáciles de verificar y los que suelen dar exacto. Si esos dos cuadran y el OPEX no, el problema está en el tiempo (periodicidad, mes de inicio, repeticiones), no en los montos.
+
+> Los indicadores de los presupuestos ya verificados están congelados en `docs/MD/KPIS-LINEA-BASE.md`. Si estás revisando uno de esos y te da distinto, algo se movió: repórtalo antes de guardar.
+
+### 10.2 Nómina — qué modela la app y qué NO
+
+Por cada puesto, la app calcula:
+
+```
+costo mensual = salario × (1 + IMSS + Prestaciones + ISR) × cantidad de personas
+```
+
+Los tres factores arrancan en **IMSS 0.32**, **Prestaciones 0.40** e **ISR 0.05**, y vienen del área de finanzas.
+
+**Solo puedes editar dos de los tres.** La tabla de nómina tiene campos para IMSS y Prestaciones, pero **no hay campo para el ISR**: se queda fijo en 0.05 y no hay forma de cambiarlo desde la app. Si tu fuente usa un ISR distinto, ajústalo dentro del factor de Prestaciones y **anótalo**, porque el número que se ve en pantalla no va a explicar de dónde salió.
+
+**Lo que la app NO modela** — y por lo tanto nunca va a aparecer en el OPEX aunque tu Excel sí lo traiga:
+
+- **Aguinaldo**
+- **Fondo de ahorro**
+- **Utilidades (PTU)**
+
+En los Excel de Geolis estos tres viven en columnas propias de la hoja `F01 NÓMINA`. La app solo tiene los tres factores de arriba, así que **su costo se pierde**. Es un hueco conocido, no una falla de captura: en Perdiz - Papán CS produjo una diferencia de **$23,042.75** contra la cifra de control, documentada en `docs/MD/guia-capturar-perdiz.md`.
+
+> Si tu presupuesto da un OPEX ligeramente **por debajo** del esperado y todo lo demás cuadra, revisa si la diferencia son estos tres conceptos antes de buscar un error de captura. Si el monto importa, la salida por ahora es meterlo como una partida de OPEX · Materiales aparte, con su propia descripción — y decirlo en el presupuesto.
+
+**Otras dos cosas que conviene revisar en nómina:**
+
+- Un puesto con **cantidad 0** se calcula como **1 persona**, sumando un sueldo que nadie cobra. Si un puesto no aplica, bórralo en vez de ponerle cero.
+- El **tipo de personal** decide la duración: *Fijo* corre todos los meses del proyecto; *Contrato* y *Outsourcing* corren solo los meses que pusiste en "Meses de contrato", desde el mes de inicio. Revisa la tira verde debajo de cada fila: dice el costo mensual y el total.
+
+### 10.3 Repeticiones — el campo que más se olvida
+
+**Sin repeticiones, cualquier gasto recurrente se repite hasta el último mes del proyecto.** Es el comportamiento por diseño, y es la causa número uno de un OPEX inflado.
+
+Ponle un número cuando el gasto **para antes** de que acabe el proyecto: una cuadrilla de instalación que cobra mensual pero solo trabaja 3 meses va con periodicidad **Mensual** + Repeticiones **3** → aparece en esos tres meses y en $0.00 después.
+
+Cómo verificarlo sin hacer cuentas: cuando la periodicidad **no** es mensual, debajo de los campos aparece el renglón **"Cae en: …"** con los meses exactos y cuántas veces. Si es mensual, ábrelo en la tabla de Información general: pica el **▶** del subtotal y revisa la fila mes por mes.
+
+> **Ojo — defecto conocido:** el campo Repeticiones **solo se guarda en OPEX · Materiales**. En **OPEX · Viáticos** el campo aparece y lo puedes llenar, pero **no se persiste**: al guardar y volver a entrar, la partida vuelve a repetirse todo el proyecto. Mientras no se corrija, si necesitas topar un viático, captúralo en Materiales con su categoría de viático, o revisa el total después de recargar la página.
+
+### 10.4 Repaso rápido antes de dar por bueno un presupuesto
+
+1. ¿Los cinco indicadores cuadran contra el documento fuente? (10.1)
+2. ¿Aparece el aviso **"⚠ N partidas sin fecha de compra"**? Si sí, ese CAPEX está cayendo todo en M0.
+3. ¿Aparece el aviso **"⚠ N partidas sin categoría contable asignada"**? Si sí, esas partidas no van a agrupar bien en la tabla ni en el Excel.
+4. ¿Cada partida recurrente tiene la periodicidad correcta? Una renta **anual** capturada como mensual da 12 veces el monto real.
+5. ¿Los gastos que paran antes del fin del proyecto tienen Repeticiones? (10.3)
+6. ¿Hay algún puesto de nómina con cantidad 0? (10.2)
+7. ¿Guardaste, **saliste y volviste a entrar**? Es la única forma de confirmar que lo que ves quedó en la nube y no solo en tu navegador.
+
+> El punto 7 no es paranoia: encontró dos fallas reales este mes. Si al reabrir un número cambió, no lo vuelvas a capturar encima — repórtalo.
+
+---
+
+## 11. Gestionar presupuestos existentes
 
 En la lista de **Presupuestos**, cada fila tiene **tres** botones, en este orden:
 
@@ -258,13 +329,13 @@ En la lista de **Presupuestos**, cada fila tiene **tres** botones, en este orden
 
 ---
 
-## 11. Uso en celular / tablet
+## 12. Uso en celular / tablet
 
 La app es responsive: en pantallas angostas, las tablas con muchas columnas (partidas, meses) se pueden deslizar horizontalmente con el dedo — busca la sombra en el borde derecho de la tabla, indica que hay más columnas si sigues deslizando.
 
 ---
 
-## 12. Preguntas frecuentes
+## 13. Preguntas frecuentes
 
 **Piqué "Información general" y no puedo escribir nada, ¿está roto?**
 No. Esa pantalla es de consulta pura y no tiene modo edición (ver 8.1). Para capturar o corregir, pica **Editar** en el listado, o el nombre del proyecto en la ruta de arriba: los dos te llevan a Capturar costos.
@@ -301,7 +372,7 @@ Son los meses del proyecto contados desde tu fecha de inicio: M0 es el primero (
 
 ---
 
-## 13. Bases predefinidas incluidas
+## 14. Bases predefinidas incluidas
 
 Al crear un presupuesto nuevo, la app te ofrece estas bases según el tipo que elegiste:
 
@@ -331,7 +402,7 @@ La lista de Presupuestos **no trae renglones de ejemplo**: arranca vacía y se l
 
 ---
 
-## 14. Ver también
+## 15. Ver también
 
 - `docs/MD/ESTADO-ACTUAL.md` — qué hace la app hoy, derivado del código, con referencia archivo:línea
 - `docs/MD/DECISIONES.md` — decisiones de producto, con su cita, su fecha y si siguen abiertas
