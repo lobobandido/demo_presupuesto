@@ -2219,6 +2219,14 @@ export default function App(){
   // flujo de creación" (Captura de información) de "presupuesto existente"
   // (Editar — [nombre]) para el título de Capturar costos.
   const [flujoCreacion,setFlujoCreacion] = useState(false);
+  // Candado de guardado (Opción A, pedido de hoy) — true desde que guardarArea
+  // o guardarIngresos disparan guardarPresupuestoEnNube hasta que resuelve o
+  // falla. Ambos botones "Guardar" (área e Ingresos) se deshabilitan mientras
+  // esté en true, para que no puedan solaparse dos guardados del mismo
+  // presupuesto (el que resuelve último pisaba al otro — ver CLAUDE.md). No
+  // toca clonarPresupuesto/abrirNuevo/flujos de creación, solo estos dos
+  // botones de la pantalla de edición.
+  const [guardando,setGuardando] = useState(false);
   const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
   const [areaSaved,setAreaSaved]   = useState(false); // al menos un área guardada
@@ -2656,6 +2664,10 @@ export default function App(){
         // con un id real. cloudId===null es la propia función reportando un
         // error interno (insert/update fallido) sin lanzar excepción, así que
         // no basta con el .catch(): hay que revisar el valor resuelto.
+        // Candado (Opción A) — guardando=true bloquea el botón de este guardado
+        // y el de Ingresos hasta que la promesa resuelva o falle, para que no
+        // puedan solaparse dos escrituras del mismo presupuesto.
+        setGuardando(true);
         guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos:nuevoCostos,
           ingAdicionales, precioFijo}).then(cloudId=>{
           if(cloudId){
@@ -2671,7 +2683,7 @@ export default function App(){
         }).catch(err=>{
           console.error("[supabase] guardarArea:",err);
           showToast("No se pudo guardar — intenta de nuevo");
-        });
+        }).finally(()=>setGuardando(false));
       } else {
         // Sin Supabase configurado, el guardado es solo local — no hay nada
         // async que esperar, el toast de éxito es inmediato como antes.
@@ -2698,7 +2710,9 @@ export default function App(){
       if(supabase){
         // Mismo criterio que guardarArea — el toast de éxito espera a que la
         // promesa resuelva con un id real; cloudId===null o .catch() muestran
-        // error en vez de fingir que se guardó.
+        // error en vez de fingir que se guardó. Candado (Opción A) — igual que
+        // en guardarArea, comparten el mismo flag guardando.
+        setGuardando(true);
         guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos,
           ingAdicionales, precioFijo}).then(cloudId=>{
           if(cloudId){
@@ -2713,7 +2727,7 @@ export default function App(){
         }).catch(err=>{
           console.error("[supabase] guardarIngresos:",err);
           showToast("No se pudo guardar — intenta de nuevo");
-        });
+        }).finally(()=>setGuardando(false));
       } else {
         showToast("Costos guardados correctamente");
       }
@@ -3662,7 +3676,7 @@ export default function App(){
           </ScrollHint>
 
           <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
-            {btn("Guardar",guardarIngresos,"success")}
+            {btn(guardando?"Guardando…":"Guardar",guardarIngresos,"success",guardando)}
           </div>
         </div>
         )}
@@ -3833,7 +3847,7 @@ export default function App(){
                 </SCard>
 
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
-                  {btn("Guardar",()=>guardarArea(areaActiva),"success")}
+                  {btn(guardando?"Guardando…":"Guardar",()=>guardarArea(areaActiva),"success",guardando)}
                 </div>
               </div>
             )}
