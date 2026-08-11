@@ -59,7 +59,7 @@ En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presu
 
 ---
 
-## 4. Paso 1 — Info general
+## 4. Datos generales
 
 | Campo | Notas |
 |---|---|
@@ -78,7 +78,7 @@ En la pantalla **Presupuestos**, cada fila tiene un botón para clonar ese presu
 
 ---
 
-## 5. Paso 2 — Áreas / Participantes
+## 5. Áreas / Participantes
 
 Marca qué áreas van a capturar costos en este presupuesto. La lista cambia según el tipo:
 
@@ -86,11 +86,11 @@ Marca qué áreas van a capturar costos en este presupuesto. La lista cambia seg
 - **Departamento:** Tecnología (TI), Innovación y Tecnología, Finanzas
 - **Suministro:** Seguridad, Staff de Dirección, Dirección General, Comunicación, Innovación y Tecnología, Almacén
 
-Cada área capturará sus propios costos por separado en el paso 3, y el sistema los suma todos en el Resumen.
+Cada área capturará sus propios costos por separado en Capturar costos (sección 6), y el sistema los suma todos en el Resumen.
 
 ---
 
-## 6. Paso 3 — Capturar costos
+## 6. Capturar costos
 
 Esta pantalla tiene dos partes:
 
@@ -171,7 +171,7 @@ Botón **Guardar** (verde, abajo a la derecha del panel de captura). Aparece la 
 
 ---
 
-## 7. Paso 4 — Resumen mensual
+## 7. Resumen mensual
 
 Aquí se ve todo lo capturado convertido en tablas financieras: KPIs (Ingresos, CAPEX, OPEX, Egresos totales, Utilidad y Margen), la tabla SERVICIO, la tabla FLUJO, y dos gráficas. Para aprender a **interpretar** estos números y tomar decisiones de negocio con ellos, ve `02_Guia_Negocio_Toma_Decisiones.md`.
 
@@ -199,14 +199,19 @@ Aquí **no se capturan** los ingresos: esta pantalla solo muestra la tabla ya ca
 
 ---
 
-## 8. Paso 5 — Mi presupuesto (vista de consulta)
+## 8. Información general (vista de consulta)
 
-Es la pantalla a la que llegas cuando picas **Abrir** en la lista. Muestra el presupuesto completo de un jalón:
+Es la pantalla a la que llegas cuando picas **Información general** en la lista. Muestra el presupuesto completo de un jalón, **en este orden de arriba hacia abajo**:
 
-- Arriba, las dos gráficas del presupuesto entero: **flujo de efectivo** (barras del flujo mensual, línea del acumulado) y **OPEX por categoría**.
-- Debajo, **todas las áreas una tras otra**, cada una con sus tres indicadores (CAPEX, OPEX, total) y sus cuatro secciones de partidas con sus totales.
+1. **Encabezado** — nombre del proyecto, empresa y el periodo (`Periodo: Feb 2026 – Feb 2027 · 13 meses`).
+2. **Los cinco indicadores** del presupuesto entero: Ingresos, CAPEX, OPEX, Total egresos, y Utilidad con su margen.
+3. **Tabla CAPEX y OPEX** — el centro de la pantalla. Cada categoría contable en su renglón, con su distribución mes a mes. Los subtotales llevan **▶** a la izquierda: al picarlos se abren las subcategorías que los componen. Arrancan colapsados.
+4. **Todas las áreas una tras otra**, cada una con sus tres indicadores (CAPEX, OPEX, total) y sus cuatro secciones de partidas.
+5. **Las dos gráficas** del presupuesto entero: **flujo de efectivo** (barras del flujo mensual, línea del acumulado) y **OPEX por categoría**.
 
-A diferencia del paso 3, aquí no hay selector lateral de áreas: las ves todas seguidas, ideal para revisar o presentar.
+A diferencia de Capturar costos, aquí no hay selector lateral de áreas: las ves todas seguidas, ideal para revisar o presentar.
+
+> **Nota:** las gráficas van **abajo**, después de las tablas, no arriba.
 
 ### 8.1 Esta pantalla es solo de consulta
 
@@ -230,8 +235,8 @@ Botones de arriba a la derecha:
 
 ## 9. Exportar
 
-- **Excel** (desde el paso 4) — genera un `.xlsx` con hojas SERVICIO, FLUJO, EGRESOS (detalle de partidas) e INFO (resumen ejecutivo), con formato de moneda. La hoja SERVICIO lista cada subcategoría en su propio renglón con un subtotal por categoría contable macro (igual que los presupuestos reales de Geolis), y la hoja FLUJO incluye las filas con IVA (16%).
-- **PDF** (desde el paso 4 o el 5) — versión imprimible, útil para presentar al director o enviar al cliente. Desde el paso 4 imprime el Resumen mensual; desde el paso 5, la vista completa con el detalle de todas las áreas.
+- **Excel** (desde Resumen mensual) — genera un `.xlsx` con hojas SERVICIO, FLUJO, EGRESOS (detalle de partidas) e INFO (resumen ejecutivo), con formato de moneda. La hoja SERVICIO lista cada subcategoría en su propio renglón con un subtotal por categoría contable macro (igual que los presupuestos reales de Geolis), y la hoja FLUJO incluye las filas con IVA (16%).
+- **PDF** (desde Resumen mensual o desde Información general) — versión imprimible, útil para presentar al director o enviar al cliente. Desde Resumen mensual imprime las tablas y gráficas; desde Información general, la vista completa con el detalle de todas las áreas.
 
 ---
 
@@ -310,7 +315,7 @@ Al crear un presupuesto nuevo, la app te ofrece estas bases según el tipo que e
 
 > Las cifras de la base **Depto. TI 2026** están agrupadas y aproximadas respecto al Excel original (varios modelos de laptop con precios distintos quedaron colapsados en un renglón con precio promedio). Revísalas contra la fuente antes de usarla como cifra oficial.
 
-Además, la lista de Presupuestos arranca con dos renglones de muestra —**Monitoreo Cuervito** y **BEH Jujo F218358**— que son solo encabezados de ejemplo: al abrirlos vas a ver un presupuesto sin áreas ni partidas. Los presupuestos reales son los que tú guardas.
+La lista de Presupuestos **no trae renglones de ejemplo**: arranca vacía y se llena con lo que hay guardado en la nube (más lo que tengas a medias en tu navegador). Todo lo que veas ahí es un presupuesto real.
 
 ---
 
