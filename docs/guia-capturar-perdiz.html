@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ficha de captura · Perdiz - Papán CS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarillo:#DDAC00;
+  --amarillo-pal:#FFF6D6;
+  --tinta:#141310;
+  --papel:#F4F2ED;
+  --linea:#D9D5CB;
+  --gris:#6E6A60;
+  --alerta:#B3311F;
+  --alerta-pal:#FBEDEA;
+  --ok:#1B6E3C;
+  --ok-pal:#E7F3EA;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--papel); color:var(--tinta);
+  font-family:Inter,system-ui,sans-serif; font-size:15px; line-height:1.6;
+}
+.hoja{max-width:920px;margin:0 auto;padding:0 28px 96px}
+
+/* ── Cabecera ───────────────────────────────────────── */
+.cab{padding:56px 0 32px;border-bottom:3px solid var(--tinta)}
+.marca{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:13px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gris);
+}
+.cab h1{
+  font-family:Archivo,sans-serif;font-weight:800;
+  font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.02em;
+  margin:14px 0 0;
+}
+.cab h1 em{font-style:normal;display:block;color:var(--amarillo)}
+.meta{
+  display:flex;flex-wrap:wrap;gap:0 40px;margin-top:26px;
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--gris);
+}
+.meta b{display:block;color:var(--tinta);font-weight:600;font-size:14px;letter-spacing:-.01em}
+
+/* ── Aviso ──────────────────────────────────────────── */
+.aviso{
+  margin:34px 0 0;padding:18px 22px;background:var(--amarillo-pal);
+  border-left:4px solid var(--amarillo);font-size:14.5px;
+}
+.aviso b{font-weight:600}
+.aviso + .aviso{margin-top:14px}
+
+/* ── Pasos ──────────────────────────────────────────── */
+.paso{display:grid;grid-template-columns:64px 1fr;gap:26px;padding:46px 0 0}
+.paso + .paso{border-top:1px solid var(--linea);margin-top:46px}
+.num{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:44px;line-height:.85;
+  color:var(--amarillo);letter-spacing:-.04em;padding-top:4px;
+}
+.paso h2{
+  font-family:Archivo,sans-serif;font-weight:800;font-size:25px;
+  letter-spacing:-.015em;margin:0 0 4px;
+}
+.sub{color:var(--gris);font-size:14px;margin:0 0 20px}
+.cuerpo > p{margin:0 0 14px}
+.cuerpo > p:last-child{margin-bottom:0}
+
+/* ── Tablas de datos ────────────────────────────────── */
+.tabla{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:13.5px}
+.tabla th{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:10.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--gris);
+  text-align:left;padding:0 10px 8px;border-bottom:1.5px solid var(--tinta);
+}
+.tabla td{padding:8px 10px;border-bottom:1px solid var(--linea);vertical-align:top}
+.tabla tr:last-child td{border-bottom:none}
+.tabla .cat{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500}
+.num-c,.tabla th.num-c{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.tabla tfoot td{
+  border-top:1.5px solid var(--tinta);border-bottom:none;padding-top:10px;
+  font-weight:600;font-family:"IBM Plex Mono",monospace;
+}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── Bloques de nota ────────────────────────────────── */
+.nota{
+  margin:16px 0;padding:14px 18px;font-size:14px;
+  border-left:3px solid var(--gris);background:#EEEBE4;color:#403C34;
+}
+.nota.ojo{border-left-color:var(--alerta);background:var(--alerta-pal);color:#6E2015}
+.nota strong{font-weight:600}
+
+/* ── Caja de verificación ───────────────────────────── */
+.check{background:var(--ok-pal);border:1px solid #BEDDC7;padding:22px 24px;margin:18px 0}
+.check h3{font-family:Archivo,sans-serif;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;margin:0 0 14px;color:var(--ok)}
+.check .tabla td{border-color:#C9E2D0}
+.check .tabla th{border-bottom-color:var(--ok);color:#4A7358}
+
+/* ── Diagramas ──────────────────────────────────────── */
+figure{margin:26px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--gris);
+  margin-top:10px;line-height:1.5;
+}
+
+/* ── Cierre ─────────────────────────────────────────── */
+.cierre{margin-top:56px;padding-top:32px;border-top:3px solid var(--tinta)}
+.cierre h2{font-family:Archivo,sans-serif;font-weight:800;font-size:25px;margin:0 0 6px}
+
+@media (max-width:640px){
+  .hoja{padding:0 18px 64px}
+  .paso{grid-template-columns:1fr;gap:0}
+  .num{font-size:32px;margin-bottom:8px}
+  .meta{gap:0 24px}
+}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .hoja{max-width:100%;padding:0}
+  .paso{break-inside:avoid;page-break-inside:avoid}
+  figure,.check,table{break-inside:avoid;page-break-inside:avoid}
+  .cab{padding-top:0}
+}
+</style>
+</head>
+<body>
+<div class="hoja">
+
+<header class="cab">
+  <div class="marca">Geolis SA de CV · Módulo de Presupuestos</div>
+  <h1>Ficha de captura<em>Perdiz - Papán CS</em></h1>
+  <div class="meta">
+    <div><span>Tipo</span><b>Instalación</b></div>
+    <div><span>Periodo</span><b>Ene 2026 – Feb 2027</b></div>
+    <div><span>Partidas</span><b>9 CAPEX · 16 OPEX · 8 nómina</b></div>
+    <div><span>Fuente</span><b>PERDIZ - PAPAN CS.xlsx</b></div>
+  </div>
+</header>
+
+<div class="aviso">
+  <b>Los montos de esta ficha ya están en pesos.</b> La hoja <code>F00 INVERSIÓN</code> del Excel
+  trae el precio unitario dos veces, en dólares y en pesos, con paridad&nbsp;18.07. Captura siempre
+  la cifra <code>[MN]</code>, no la de <code>[USD]</code>.
+</div>
+<div class="aviso">
+  <b>Este flujo ya no es el de la ficha de Cuervito.</b> Los ingresos se capturan aquí mismo, en
+  Capturar costos, y hay un solo botón <strong>Guardar</strong> para toda la pantalla — ya no hace
+  falta ir a Resumen mensual ni guardar dos veces.
+</div>
+
+<!-- ══ DIAGRAMA: el flujo ══ -->
+<figure>
+<svg viewBox="0 0 880 132" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo de captura en cinco etapas">
+  <defs>
+    <marker id="fl" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#D9D5CB"/>
+    </marker>
+  </defs>
+  <g font-family="Archivo,sans-serif">
+    <line x1="126" y1="46" x2="152" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="274" y1="46" x2="300" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="546" y1="46" x2="572" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+    <line x1="694" y1="46" x2="720" y2="46" stroke="#D9D5CB" stroke-width="1.5" marker-end="url(#fl)"/>
+
+    <!-- 1 -->
+    <rect x="4" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="14" y="42" font-size="10" font-weight="800" fill="#DDAC00">01</text>
+    <text x="14" y="58" font-size="12.5" font-weight="600" fill="#141310">Datos generales</text>
+    <!-- 2 -->
+    <rect x="152" y="22" width="122" height="48" fill="#fff" stroke="#D9D5CB"/>
+    <text x="162" y="42" font-size="10" font-weight="800" fill="#DDAC00">02</text>
+    <text x="162" y="58" font-size="12.5" font-weight="600" fill="#141310">Áreas</text>
+    <!-- 3 CAPTURAR (incluye ingresos) -->
+    <rect x="300" y="16" width="246" height="60" fill="#fff" stroke="#141310" stroke-width="1.5"/>
+    <text x="310" y="36" font-size="10" font-weight="800" fill="#DDAC00">03</text>
+    <text x="310" y="52" font-size="12.5" font-weight="600" fill="#141310">Capturar costos</text>
+    <text x="310" y="68" font-size="10" fill="#6E6A60">CAPEX · Nómina · Materiales · Viáticos · Ingresos</text>
+    <!-- 4 GUARDAR -->
+    <rect x="572" y="22" width="122" height="48" fill="#141310"/>
+    <text x="582" y="42" font-size="10" font-weight="800" fill="#DDAC00">04</text>
+    <text x="582" y="58" font-size="12.5" font-weight="600" fill="#fff">Guardar</text>
+    <!-- 5 -->
+    <rect x="720" y="22" width="132" height="48" fill="#fff" stroke="#141310" stroke-width="1.5"/>
+    <text x="730" y="42" font-size="10" font-weight="800" fill="#DDAC00">05</text>
+    <text x="730" y="58" font-size="12.5" font-weight="600" fill="#141310">Verificar cifras</text>
+  </g>
+</svg>
+<figcaption>Un solo paso de captura (03) reúne costos e ingresos; un solo botón (04) sube todo junto
+a la nube. Ya no hay ida y vuelta entre pantallas para que los ingresos se guarden.</figcaption>
+</figure>
+
+<!-- ══ 01 ══ -->
+<section class="paso">
+  <div class="num">01</div>
+  <div class="cuerpo">
+    <h2>Datos generales</h2>
+    <p class="sub">La fecha de inicio define las columnas de toda la app.</p>
+    <div class="scroll"><table class="tabla">
+      <tbody>
+        <tr><td style="width:190px;color:var(--gris)">Nombre del proyecto</td><td class="cat">Perdiz - Papán CS</td></tr>
+        <tr><td style="color:var(--gris)">Empresa</td><td class="cat">GEOLIS SA DE CV</td></tr>
+        <tr><td style="color:var(--gris)">Fecha inicio</td><td class="cat"><strong>01/01/2026</strong></td></tr>
+        <tr><td style="color:var(--gris)">Fecha fin</td><td class="cat"><strong>01/02/2027</strong></td></tr>
+        <tr><td style="color:var(--gris)">Tipo</td><td class="cat"><strong>Instalación</strong></td></tr>
+        <tr><td style="color:var(--gris)">Cómo iniciar</td><td class="cat">Iniciar desde cero</td></tr>
+      </tbody>
+    </table></div>
+    <p>Con esas dos fechas la app genera catorce columnas, de <code>M0 Ene 26</code> a
+    <code>M13 Feb 27</code> — el mismo largo que las 14 columnas mensuales de la hoja SERVICIO.</p>
+  </div>
+</section>
+
+<!-- ══ 02 ══ -->
+<section class="paso">
+  <div class="num">02</div>
+  <div class="cuerpo">
+    <h2>Áreas</h2>
+    <p class="sub">Marca solo Construcción.</p>
+    <p>Los puestos de <code>F01 NÓMINA</code> — Cabo, Soldador, Tubero, Ayudante general,
+    Supervisores — son una sola cuadrilla de campo. No hay razón para repartir la captura en más de
+    un área.</p>
+  </div>
+</section>
+
+<!-- ══ 03 CAPEX ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>CAPEX · Equipos e inversiones</h2>
+    <p class="sub">Nueve partidas, todas Unidad, repartidas en cuatro meses reales.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr>
+        <th>Categoría</th><th>Descripción</th>
+        <th class="num-c">Cant.</th><th class="num-c">Monto [MN]</th><th>Fecha de compra</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="cat">MAQUINARIA Y EQUIPO</td><td>Servicios (RICCSSA)</td><td class="num-c">1</td><td class="num-c">2,668,500.00</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">MAQUINARIA Y EQUIPO</td><td>Servicio de obra (RICCSSA)</td><td class="num-c">1</td><td class="num-c">1,440,000.00</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">OTROS ACTIVOS</td><td>Obra mecánica (Geolis)</td><td class="num-c">1</td><td class="num-c">2,513,689.87</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">OTROS ACTIVOS</td><td>Válvulas (Geolis)</td><td class="num-c">1</td><td class="num-c">6,243,907.98</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">OTROS ACTIVOS</td><td>Servicios (Geolis)</td><td class="num-c">1</td><td class="num-c">1,602,728.59</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">OTROS ACTIVOS</td><td>Obra civil (RICCSSA)</td><td class="num-c">1</td><td class="num-c">309,000.00</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">OTROS ACTIVOS</td><td>Obra mecánica suministro (RICCSSA)</td><td class="num-c">1</td><td class="num-c">7,246,756.66</td><td>Ene 2026</td></tr>
+        <tr><td class="cat">MAQUINARIA Y EQUIPO</td><td>Controladores C1</td><td class="num-c">4</td><td class="num-c">62,999.97</td><td>Feb 2026</td></tr>
+        <tr><td class="cat">MAQUINARIA Y EQUIPO</td><td>Válvula SDV (mitad 1)</td><td class="num-c">1</td><td class="num-c">1,537,683.36</td><td>Mar 2026</td></tr>
+        <tr><td class="cat">MAQUINARIA Y EQUIPO</td><td>Válvula SDV (mitad 2)</td><td class="num-c">1</td><td class="num-c">1,537,683.36</td><td>Abr 2026</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4">CAPEX total</td><td class="num-c">25,351,949.71</td></tr></tfoot>
+    </table></div>
+    <div class="nota">La <strong>Válvula SDV</strong> es un solo activo de 3,075,366.73 que el Excel
+    reparte en dos meses iguales — captúrala como dos renglones de 1,537,683.36, uno en marzo y otro
+    en abril, no como uno solo.</div>
+    <div class="nota">Enero se lleva 22,024,583.10 de los 25.35M. A diferencia de la nómina y el
+    OPEX, <strong>CAPEX sí puede capturarse en M0</strong> — el bloqueo de mes cero (Math.max(1,…))
+    solo aplica a distribuirOpex, no a CAPEX.</div>
+  </div>
+</section>
+
+<!-- ══ 03 NÓMINA ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>OPEX · Nómina</h2>
+    <p class="sub">Ocho puestos, todos tipo Contrato, 3 meses.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr>
+        <th>Puesto</th><th class="num-c">Cant.</th><th class="num-c">Salario</th>
+        <th class="num-c">IMSS</th><th class="num-c">Prest.</th><th class="num-c">ISR</th><th class="num-c">Costo/mes</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Cabo</td><td class="num-c">1</td><td class="num-c">220,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">440,000</td></tr>
+        <tr><td>Soldador</td><td class="num-c">3</td><td class="num-c">20,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">120,000</td></tr>
+        <tr><td>Tubero</td><td class="num-c">2</td><td class="num-c">20,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">80,000</td></tr>
+        <tr><td>Ayudante general</td><td class="num-c">4</td><td class="num-c">12,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">96,000</td></tr>
+        <tr><td>Sup. Op</td><td class="num-c">1</td><td class="num-c">30,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">60,000</td></tr>
+        <tr><td>Seguridad</td><td class="num-c">1</td><td class="num-c">25,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">50,000</td></tr>
+        <tr><td>Sup Obra</td><td class="num-c">1</td><td class="num-c">24,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">48,000</td></tr>
+        <tr><td>Cadista</td><td class="num-c">1</td><td class="num-c">20,000</td><td class="num-c">0.32</td><td class="num-c">0.63</td><td class="num-c">0.05</td><td class="num-c">40,000</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="6">Nómina · 3 meses</td><td class="num-c">2,802,000</td></tr></tfoot>
+    </table></div>
+    <p>IMSS + Prestaciones + ISR = 1.00 (factor 2.00×) — es lo que da <code>F01 NÓMINA</code> en su
+    columna "COSTO REAL C/IMP.", siempre el doble del salario. El Excel no separa ese 100% en tres
+    columnas; 0.32/0.63/0.05 es una repartición razonable, no un dato literal de la hoja.</p>
+    <div class="nota ojo"><strong>Arranca en M1 (Feb 2026), no en Enero.</strong> El Excel paga la
+    cuadrilla desde enero, pero la app no acepta OPEX —tampoco nómina— en el mes cero. El total en 3
+    meses es el mismo, solo se recorre un mes completo.</div>
+  </div>
+</section>
+
+<!-- ══ 03 MATERIALES ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>OPEX · Materiales</h2>
+    <p class="sub">Doce partidas de insumos y equipo, más ocho de servicios y combustible — todo lo
+    que no es viático va aquí.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr><th>Categoría</th><th>Descripción</th><th class="num-c">Monto [MN]</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">HERRAMIENTAS MANUALES</td><td>Herramienta</td><td class="num-c">1,520,389.81</td></tr>
+        <tr><td class="cat">PINTURA Y OTROS RECUBRIMIENTOS</td><td>Pintura y recubrimientos</td><td class="num-c">350,951.75</td></tr>
+        <tr><td class="cat">ROPA Y ARTICULOS DE PROTECCION</td><td>EPP y ropa de protección</td><td class="num-c">218,207.90</td></tr>
+        <tr><td class="cat">TUBERIAS</td><td>Tuberías</td><td class="num-c">105,000.07</td></tr>
+        <tr><td class="cat">ABRASIVOS</td><td>Abrasivos</td><td class="num-c">20,997.34</td></tr>
+        <tr><td class="cat">FIBRAS HILOS Y TELAS</td><td>Fibras, hilos y telas</td><td class="num-c">20,000.00</td></tr>
+        <tr><td class="cat">PAPELERIA Y UTILES DE OFICINA</td><td>Papelería y útiles</td><td class="num-c">20,000.00</td></tr>
+        <tr><td class="cat">ARTICULOS DE ASEO Y SANITARIOS</td><td>Aseo y sanitarios</td><td class="num-c">9,999.99</td></tr>
+        <tr><td class="cat">ARTICULOS DE CAFETERIA</td><td>Cafetería</td><td class="num-c">9,999.99</td></tr>
+        <tr><td class="cat">ARTICULOS DIGITALES Y DE COMPUTO</td><td>Artículos digitales y de cómputo</td><td class="num-c">8,000.00</td></tr>
+        <tr><td class="cat">ENSERES MENORES DIVERSOS</td><td>Enseres menores (acond. de casas)</td><td class="num-c">10,057.52</td></tr>
+        <tr><td class="cat">MATERIAL PRIMEROS AUXILIOS</td><td>Primeros auxilios</td><td class="num-c">8,800.00</td></tr>
+        <tr><td class="cat">MANIOBRAS</td><td>Maniobras</td><td class="num-c">1,362,713.85</td></tr>
+        <tr><td class="cat">CERTIFICACION</td><td>Certificación</td><td class="num-c">225,499.14</td></tr>
+        <tr><td class="cat">ANALISIS DE RIESGO</td><td>Análisis de riesgo</td><td class="num-c">186,114.91</td></tr>
+        <tr><td class="cat">COMBUSTIBLES</td><td>Combustibles</td><td class="num-c">475,264.00</td></tr>
+        <tr><td class="cat">RECARGA DE GASES INDUSTRIALES</td><td>Recarga de gases industriales</td><td class="num-c">34,110.38</td></tr>
+        <tr><td class="cat">HIELO Y AGUA</td><td>Hielo y agua</td><td class="num-c">6,432.92</td></tr>
+        <tr><td class="cat">SERVICIO DE AUTOLAVADO</td><td>Autolavado</td><td class="num-c">800.00</td></tr>
+        <tr><td class="cat">ADQUISICION TARJET COMBUSTIBLE</td><td>Tarjeta de combustible</td><td class="num-c">903.50</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">OPEX materiales</td><td class="num-c">4,594,243.10</td></tr></tfoot>
+    </table></div>
+    <p>Casi todas arrancan en Enero en el Excel y corren 2 o 3 meses. Igual que la nómina, captúralas
+    con inicio en <strong>M1 (Feb 2026)</strong>, periodicidad Mensual, con 2 o 3 repeticiones según
+    la partida.</p>
+    <div class="nota">Algunas (Alimentación, Combustibles, Maniobras) no reparten el mismo monto los
+    tres meses en el Excel — el total de la partida es exacto; repetir "monto × repeticiones" en la
+    app aproxima el reparto mes a mes, no lo copia centavo a centavo.</div>
+  </div>
+</section>
+
+<!-- ══ 03 VIÁTICOS ══ -->
+<section class="paso">
+  <div class="num">03</div>
+  <div class="cuerpo">
+    <h2>OPEX · Viáticos</h2>
+    <p class="sub">Cuatro partidas — la cuenta VIATICOS completa de la hoja SERVICIO.</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr><th>Categoría</th><th>Descripción</th><th class="num-c">Monto [MN]</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">SERVICIOS DE HOSPEDAJE</td><td>Hospedaje</td><td class="num-c">1,353,740.25</td></tr>
+        <tr><td class="cat">ALIMENTACION</td><td>Alimentación</td><td class="num-c">1,070,647.50</td></tr>
+        <tr><td class="cat">CASETAS PUENTES Y PEAJES</td><td>Casetas y peajes</td><td class="num-c">28,079.70</td></tr>
+        <tr><td class="cat">REEMBOLSOS</td><td>Reembolsos</td><td class="num-c">14,456.00</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">OPEX viáticos</td><td class="num-c">2,466,923.45</td></tr></tfoot>
+    </table></div>
+    <p>Igual patrón: inicio <strong>M1 (Feb 2026)</strong>, mensual, 3 repeticiones (Reembolsos solo
+    2).</p>
+  </div>
+</section>
+
+<!-- ══ 04 GUARDAR ══ -->
+<section class="paso">
+  <div class="num">04</div>
+  <div class="cuerpo">
+    <h2>Guardar</h2>
+    <p class="sub">Un solo botón, después de Viáticos.</p>
+    <p>Con la área Construcción mostrando sus cuatro secciones y el bloque de Ingresos arriba de
+    todo, pica el único botón verde <strong>Guardar</strong>. Debe salir "✓ Costos guardados
+    correctamente". No hace falta ir a otra pantalla ni guardar una segunda vez.</p>
+  </div>
+</section>
+
+<!-- ══ 05 INGRESOS ══ -->
+<section class="paso">
+  <div class="num">05</div>
+  <div class="cuerpo">
+    <h2>Ingresos</h2>
+    <p class="sub">Renglón manual por mes, en Capturar costos — no en Resumen mensual.</p>
+    <p><strong>No uses "Precio fijo del servicio".</strong> Ese campo reparte un monto igual entre
+    todos los meses; Perdiz factura por entregable, casi todo en los primeros dos meses. Usa
+    "Ingreso por mes" y agrega un renglón por cada mes con facturación real, leyendo el renglón
+    <code>FACTURACION</code> de la hoja SERVICIO:</p>
+    <div class="scroll"><table class="tabla">
+      <thead><tr><th>Mes</th><th>Descripción</th><th class="num-c">Monto</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">M0 · Ene 2026</td><td>Diseño, interconexión eléctrica, pruebas y puesta en operación</td><td class="num-c">1,613,971.29</td></tr>
+        <tr><td class="cat">M1 · Feb 2026</td><td>Variador de frecuencia + patín con bomba electrocentrífuga</td><td class="num-c">69,593,781.40</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">Ingresos total</td><td class="num-c">71,207,752.69</td></tr></tfoot>
+    </table></div>
+    <p>El resto de los meses queda en cero: Perdiz no factura nada después de febrero en este
+    presupuesto.</p>
+  </div>
+</section>
+
+<!-- ══ 06 ══ -->
+<section class="paso">
+  <div class="num">06</div>
+  <div class="cuerpo">
+    <h2>Verificar</h2>
+    <p class="sub">Ingresos y CAPEX cuadran al peso. OPEX queda con un hueco identificado.</p>
+
+    <div class="check">
+      <h3>Indicadores en Información general</h3>
+      <table class="tabla">
+        <thead><tr><th></th><th class="num-c">Esperado (spec)</th><th class="num-c">Con esta captura</th></tr></thead>
+        <tbody>
+          <tr><td>Ingresos</td><td class="num-c">71,207,752.69</td><td class="num-c">71,207,752.69</td></tr>
+          <tr><td>CAPEX</td><td class="num-c">25,351,949.71</td><td class="num-c">25,351,949.70</td></tr>
+          <tr><td>OPEX</td><td class="num-c">9,886,209.30</td><td class="num-c">9,863,166.55</td></tr>
+          <tr><td>Total egresos</td><td class="num-c">35,238,159.02</td><td class="num-c">35,215,116.25</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nota">La diferencia en OPEX y Total egresos (23,042.75) es un solo hueco, explicado
+    abajo — no varios sueltos.</div>
+  </div>
+</section>
+
+<!-- ══ CIERRE ══ -->
+<section class="cierre">
+  <h2>Lo que no va a cuadrar contra el Excel, y por qué</h2>
+  <p class="sub">Cuatro diferencias, las cuatro explicadas. Ninguna es error de la app.</p>
+  <div class="scroll"><table class="tabla">
+    <thead><tr><th>Concepto</th><th class="num-c">App</th><th class="num-c">Excel/spec</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="cat">NOMINA Y ADICIONALES</td><td class="num-c">2,802,000.00</td><td class="num-c">2,825,042.76</td>
+        <td>La diferencia (23,042.76) son aguinaldo, fondo de ahorro y utilidades de columnas de
+        <code>F01 NÓMINA</code> que el modelo de nómina de la app no captura — mismo tipo de hueco
+        que ya está documentado para Cuervito.</td>
+      </tr>
+      <tr>
+        <td class="cat">Mes de inicio (nómina, materiales, viáticos)</td><td class="num-c">M1 · Feb 26</td><td class="num-c">Enero 26</td>
+        <td>La app no acepta OPEX en el mes cero (Math.max(1,…) en distribuirOpex). El total en el
+        mismo número de meses no cambia, solo se recorre un mes completo.</td>
+      </tr>
+      <tr>
+        <td class="cat">IMSS / Prestaciones / ISR</td><td class="num-c">0.32 / 0.63 / 0.05</td><td class="num-c">100% agregado</td>
+        <td><code>F01 NÓMINA</code> solo da el factor total (2.00×) en "COSTO REAL C/IMP.", sin
+        desglosar en IMSS/Prestaciones/ISR. La repartición usada suma 1.00, no es un dato literal.</td>
+      </tr>
+      <tr>
+        <td class="cat">Detalle mes a mes de Materiales/Viáticos</td><td class="num-c">monto × repeticiones</td><td class="num-c">monto real por mes</td>
+        <td>Varias partidas (Alimentación, Combustibles, Maniobras) no reparten el mismo monto cada
+        mes en el Excel. El total de la partida es exacto; el desglose mensual en la app es una
+        aproximación uniforme.</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+</div>
+</body>
+</html>
