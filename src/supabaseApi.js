@@ -22,12 +22,14 @@ function capexToRow(p){
     mes_gasto_anio: p.mesGastoAnio ? parseInt(p.mesGastoAnio) : null,
   };
 }
-// incluirRepeticiones: solo partidas_opex_mat tiene esa columna hoy
-// (partidas_opex_via no) — opexToRow es compartida entre las dos, así que el
-// campo se agrega condicionalmente para no romper el insert de viáticos con
-// una columna que esa tabla no tiene. p.repeticiones||null: vacío/0 en memoria
-// significa "sin tope, se repite todo el proyecto" — mismo criterio que ya usa
-// distribuirOpex (App.jsx), no se toca esa lógica, solo el transporte del dato.
+// incluirRepeticiones: hoy las DOS tablas (partidas_opex_mat y partidas_opex_via)
+// tienen la columna, así que las dos llaman con true. El parámetro se conserva
+// porque opexToRow es compartida: si mañana se agrega una tercera tabla OPEX sin
+// esa columna, el default en false la deja fuera sin romper su insert — que es
+// exactamente lo que pasó con viáticos entre los commits 3a1b3af y este.
+// p.repeticiones||null: vacío/0 en memoria significa "sin tope, se repite todo el
+// proyecto" — mismo criterio que ya usa distribuirOpex (App.jsx), no se toca esa
+// lógica, solo el transporte del dato.
 function opexToRow(p, incluirRepeticiones=false){
   const row = {
     categoria: p.cat||"", descripcion: p.desc||"", unidad: p.unidad||"Servicio",
@@ -172,7 +174,7 @@ export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAd
     const matRows=(datosArea.mat||[]).map((p,i)=>({...opexToRow(p,true),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(matRows.length){ const {error} = await supabase.from("partidas_opex_mat").insert(matRows); if(error) console.error("[supabase] insert mat:",error.message); }
 
-    const viaRows=(datosArea.via||[]).map((p,i)=>({...opexToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
+    const viaRows=(datosArea.via||[]).map((p,i)=>({...opexToRow(p,true),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(viaRows.length){ const {error} = await supabase.from("partidas_opex_via").insert(viaRows); if(error) console.error("[supabase] insert via:",error.message); }
 
     const nomRows=(datosArea.nomina||[]).map((p,i)=>({...nominaToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
@@ -228,8 +230,7 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       id:uid(), cat:r.categoria, desc:r.descripcion, unidad:r.unidad,
       cantidad:Number(r.cantidad), monto:Number(r.monto),
       periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
-      // Solo partidas_opex_mat tiene esta columna (ver opexToRow) — null/ausente
-      // significa "sin tope", mismo criterio que ya usa distribuirOpex.
+      // null/ausente significa "sin tope", mismo criterio que ya usa distribuirOpex.
       repeticiones:r.repeticiones||null,
     }));
   });
@@ -239,6 +240,8 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       id:uid(), cat:r.categoria, desc:r.descripcion, unidad:r.unidad,
       cantidad:Number(r.cantidad), monto:Number(r.monto),
       periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
+      // Mismo criterio que mat (arriba): null/ausente = "sin tope".
+      repeticiones:r.repeticiones||null,
     }));
   });
   (nomRows||[]).forEach(r=>{
