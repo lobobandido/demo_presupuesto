@@ -313,7 +313,19 @@ Al crear un presupuesto nuevo, la app te ofrece estas bases según el tipo que e
 
 > Para tipo **Suministro** no hay base predefinida todavía.
 
-> Las cifras de la base **Depto. TI 2026** están agrupadas y aproximadas respecto al Excel original (varios modelos de laptop con precios distintos quedaron colapsados en un renglón con precio promedio). Revísalas contra la fuente antes de usarla como cifra oficial.
+### ⚠ Las tres bases predefinidas tienen defectos conocidos — no confíes en sus cifras
+
+**Las tres siguen disponibles en la app, y las tres están mal.** Sirven para no partir de una hoja en blanco —te dan la estructura de categorías ya escrita—, pero **ninguna de sus cifras es confiable**. Si cargas una, revisa partida por partida contra el Excel de origen antes de guardar.
+
+| Base | Defecto |
+|---|---|
+| **Monitoreo Cuervito** | Los montos de CAPEX están **en dólares, no en pesos**. Se tomó la columna `IMPORTE [USD]` del Excel en vez de `IMPORTE [MN]` (paridad 18). Todo el CAPEX que cargues de aquí sale ~18 veces más bajo de lo real |
+| **Depto. TI 2026 — Geolis** | **Subestima el CAPEX en ~230,000 pesos**: varios modelos de laptop con precios distintos quedaron colapsados en un solo renglón con precio promedio |
+| **Proyecto de Instalación** | Es un **esqueleto en ceros**: trae las categorías escritas pero todos los montos en `$0.00`. No es un error, es su propósito — pero no sirve para copiar cifras |
+
+> **Contexto:** el paso 6 de `docs/specs/spec-recuperacion-datos.md` pide desactivar las tres bases justamente por esto, y dejar como única base los presupuestos ya guardados en Supabase (que sí están capturados en pesos y verificados). **Ese cambio nunca se hizo**, así que las tres siguen apareciendo en el modal. Mientras tanto: prefiere **"Partir de un presupuesto anterior"** (opción 3.2) sobre cualquiera de estas tres.
+
+> Cuando necesites una base confiable de Cuervito o de Perdiz, parte del presupuesto **guardado** con ese nombre, no de la plantilla del mismo nombre. No son lo mismo.
 
 La lista de Presupuestos **no trae renglones de ejemplo**: arranca vacía y se llena con lo que hay guardado en la nube (más lo que tengas a medias en tu navegador). Todo lo que veas ahí es un presupuesto real.
 
