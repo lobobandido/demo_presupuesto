@@ -2219,13 +2219,14 @@ export default function App(){
   // flujo de creación" (Captura de información) de "presupuesto existente"
   // (Editar — [nombre]) para el título de Capturar costos.
   const [flujoCreacion,setFlujoCreacion] = useState(false);
-  // Candado de guardado (Opción A, pedido de hoy) — true desde que guardarArea
-  // o guardarIngresos disparan guardarPresupuestoEnNube hasta que resuelve o
-  // falla. Ambos botones "Guardar" (área e Ingresos) se deshabilitan mientras
-  // esté en true, para que no puedan solaparse dos guardados del mismo
-  // presupuesto (el que resuelve último pisaba al otro — ver CLAUDE.md). No
-  // toca clonarPresupuesto/abrirNuevo/flujos de creación, solo estos dos
-  // botones de la pantalla de edición.
+  // Candado de guardado (Opción A) — true desde que guardarTodo dispara
+  // guardarPresupuestoEnNube hasta que resuelve o falla; el único botón
+  // "Guardar" de Capturar costos se deshabilita mientras esté en true. Antes
+  // protegía contra el solapamiento de DOS botones (área e Ingresos) que
+  // hacían llamadas independientes — con la fusión de hoy en un solo botón
+  // (guardarTodo) ya no hay un segundo botón con el que solaparse, pero se
+  // deja por si en el futuro se agrega otro punto de guardado en esta
+  // pantalla. No toca clonarPresupuesto/abrirNuevo/flujos de creación.
   const [guardando,setGuardando] = useState(false);
   const [intentoGuardar,setIntentoGuardar] = useState(false); // true tras un intento fallido de Continuar/Guardar — recién ahí se muestran los avisos de campos faltantes
   const [toast,setToast]           = useState(null);
@@ -2646,8 +2647,18 @@ export default function App(){
   function addN(id){setCostos(prev=>({...prev,[id]:{...prev[id],nomina:[...(prev[id].nomina||[]),initN()]}}));}
   function rmN(id){return pid=>setCostos(prev=>({...prev,[id]:{...prev[id],nomina:prev[id].nomina.filter(p=>p.id!==pid)}}));}
 
-  function guardarArea(id){
-    const nuevoCostos={...costos,[id]:{...costos[id],estado:"guardado"}};
+  // Único botón "Guardar" de Capturar costos — fusiona lo que antes eran
+  // guardarArea + guardarIngresos (pedido de hoy: dejar de tener dos llamadas
+  // a guardarPresupuestoEnNube con snapshots independientes, que podían
+  // solaparse o desincronizarse entre sí — bug documentado en CLAUDE.md). Una
+  // sola llamada, con TODO el estado vigente al momento del clic: areas,
+  // costos (marcando la área activa como "guardado", igual que hacía
+  // guardarArea), ingAdicionales, precioFijo. Ya no hay snapshot parcial de
+  // solo-ingresos ni de solo-un-área.
+  function guardarTodo(){
+    const nuevoCostos = areaActiva
+      ? {...costos,[areaActiva]:{...costos[areaActiva],estado:"guardado"}}
+      : costos;
     setCostos(nuevoCostos);
     setAreaSaved(true);
 
@@ -2659,14 +2670,13 @@ export default function App(){
       setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
 
       if(supabase){
-        // El toast ya NO se dispara optimista — se mueve dentro del .then(), y
-        // solo dice "guardado" si guardarPresupuestoEnNube en efecto resolvió
-        // con un id real. cloudId===null es la propia función reportando un
-        // error interno (insert/update fallido) sin lanzar excepción, así que
-        // no basta con el .catch(): hay que revisar el valor resuelto.
-        // Candado (Opción A) — guardando=true bloquea el botón de este guardado
-        // y el de Ingresos hasta que la promesa resuelva o falle, para que no
-        // puedan solaparse dos escrituras del mismo presupuesto.
+        // El toast solo dice "guardado" si guardarPresupuestoEnNube en efecto
+        // resolvió con un id real. cloudId===null es la propia función
+        // reportando un error interno (insert/update fallido) sin lanzar
+        // excepción, así que no basta con el .catch(): hay que revisar el
+        // valor resuelto. Candado (Opción A) — sigue existiendo, aunque con un
+        // solo botón ya no hay un segundo botón con el que solaparse; se deja
+        // por si en el futuro hay otro punto de guardado en esta pantalla.
         setGuardando(true);
         guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos:nuevoCostos,
           ingAdicionales, precioFijo}).then(cloudId=>{
@@ -2681,54 +2691,12 @@ export default function App(){
             showToast("No se pudo guardar — intenta de nuevo");
           }
         }).catch(err=>{
-          console.error("[supabase] guardarArea:",err);
+          console.error("[supabase] guardarTodo:",err);
           showToast("No se pudo guardar — intenta de nuevo");
         }).finally(()=>setGuardando(false));
       } else {
         // Sin Supabase configurado, el guardado es solo local — no hay nada
         // async que esperar, el toast de éxito es inmediato como antes.
-        showToast("Costos guardados correctamente");
-      }
-    } else {
-      showToast("Costos guardados correctamente");
-    }
-  }
-
-  // Guarda la sección de ingresos (Precio fijo + Ingreso por mes), movida hoy de
-  // Resumen mensual a Capturar costos. Mismo patrón que guardarArea (snapshot +
-  // guardarPresupuestoEnNube con el estado vigente), pero SIN tocar el estado de
-  // ninguna área — a diferencia de guardarArea, que sí marca la suya como
-  // "guardado". No está ligada a areaActiva ni a ningún id de área.
-  function guardarIngresos(){
-    if(pres){
-      const snap={_areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,
-        _ingresos:ingresos,_precioFijo:precioFijo,_ingAdicionales:ingAdicionales};
-      const actualizado={...pres,...snap};
-      setPres(actualizado);
-      setLista(prev=>prev.map(x=>x.id===pres.id?{...x,...snap}:x));
-
-      if(supabase){
-        // Mismo criterio que guardarArea — el toast de éxito espera a que la
-        // promesa resuelva con un id real; cloudId===null o .catch() muestran
-        // error en vez de fingir que se guardó. Candado (Opción A) — igual que
-        // en guardarArea, comparten el mismo flag guardando.
-        setGuardando(true);
-        guardarPresupuestoEnNube({pres:actualizado, form:actualizado, areas, costos,
-          ingAdicionales, precioFijo}).then(cloudId=>{
-          if(cloudId){
-            if(cloudId!==actualizado.id){
-              setPres(prevPres=>prevPres&&prevPres.id===actualizado.id?{...prevPres,id:cloudId}:prevPres);
-              setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
-            }
-            showToast("Costos guardados correctamente");
-          } else {
-            showToast("No se pudo guardar — intenta de nuevo");
-          }
-        }).catch(err=>{
-          console.error("[supabase] guardarIngresos:",err);
-          showToast("No se pudo guardar — intenta de nuevo");
-        }).finally(()=>setGuardando(false));
-      } else {
         showToast("Costos guardados correctamente");
       }
     } else {
@@ -3518,8 +3486,10 @@ export default function App(){
             costos. Bloque fijo, UNA SOLA VEZ por presupuesto, no por área — por
             eso vive aquí arriba del selector de áreas, fuera de capture-grid, en
             vez de dentro del panel que cambia según areaActiva. Mismo JSX que
-            tenía Resumen mensual (incluye el fix de hoy al rótulo del selector de
-            mes); guardarIngresos es propio, no reutiliza guardarArea.
+            tenía Resumen mensual (incluye el fix del rótulo del selector de
+            mes). Ya NO tiene su propio botón "Guardar" — se guarda junto con
+            el resto de la pantalla en el único botón guardarTodo, después de
+            Viáticos (fusión de hoy).
             PASO C — oculta por completo para Departamento/Suministro
             (mostrarIngresos), que no facturan. */}
         {mostrarIngresos&&(
@@ -3674,10 +3644,6 @@ export default function App(){
               </tbody>
             </table>
           </ScrollHint>
-
-          <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
-            {btn(guardando?"Guardando…":"Guardar",guardarIngresos,"success",guardando)}
-          </div>
         </div>
         )}
 
@@ -3846,8 +3812,10 @@ export default function App(){
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                 </SCard>
 
+                {/* Único botón "Guardar" de la pantalla (fusión de hoy) — junta
+                    ingresos + esta área + todo lo demás en una sola llamada. */}
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
-                  {btn(guardando?"Guardando…":"Guardar",()=>guardarArea(areaActiva),"success",guardando)}
+                  {btn(guardando?"Guardando…":"Guardar",guardarTodo,"success",guardando)}
                 </div>
               </div>
             )}
@@ -4032,11 +4000,12 @@ export default function App(){
           </div>
 
           {/* ── SECCIÓN: Ingresos (solo lectura) ──────────────────────────
-              Captura movida hoy a Capturar costos (Step 3) — ahí vive el
-              MoneyInput de precio fijo, el botón "+ Agregar ingreso" y su propio
-              "Guardar" (guardarIngresos). Aquí solo queda la tabla de
-              facturación ya calculada (mIngresos) — visualización pura, cero
-              campo editable, mismo patrón que el resto de Resumen mensual.
+              Captura movida a Capturar costos (Step 3) — ahí vive el
+              MoneyInput de precio fijo, el botón "+ Agregar ingreso" y el único
+              botón "Guardar" de esa pantalla (guardarTodo). Aquí solo queda la
+              tabla de facturación ya calculada (mIngresos) — visualización
+              pura, cero campo editable, mismo patrón que el resto de Resumen
+              mensual.
               PASO C — oculta por completo para Departamento/Suministro
               (mostrarIngresos), que no facturan. */}
           {mostrarIngresos&&card(<>
