@@ -13,22 +13,30 @@ Es el módulo digital donde Geolis captura sus presupuestos de proyecto (instala
 
 ## 2. Navegación general
 
-Del lado izquierdo siempre ves el mismo menú, con 6 entradas:
+Del lado izquierdo hay un menú con **una sola entrada**: **Presupuestos**, que siempre te regresa al listado. No hay más renglones, ni bloqueados ni atenuados.
 
-| Paso | Nombre | Qué haces ahí |
-|---|---|---|
-| — | **Presupuestos** | Lista de todos tus presupuestos guardados — aquí abres uno existente, lo clonas, lo eliminas, o creas uno nuevo |
-| 1 | **Info general** | Nombre del proyecto, empresa, fechas, tipo |
-| 2 | **Áreas** | Quién participa (Operaciones, Construcción, TI, etc.) |
-| 3 | **Capturar costos** | CAPEX, Nómina, Materiales, Viáticos por cada área |
-| 4 | **Resumen mensual** | Tablas, gráficas y KPIs calculados automáticamente |
-| 5 | **Mi presupuesto** | Vista completa de consulta: gráficas del presupuesto entero y todas las áreas de corrido |
+**La navegación real es la ruta de arriba** (la "miga de pan"), que va cambiando según dónde estés:
 
-Un círculo con palomita ✓ en el menú indica un paso ya completado. El paso en el que estás parado se resalta en amarillo.
+| Pantalla | Ruta que ves arriba |
+|---|---|
+| Listado | `Inicio / Presupuestos` |
+| Datos generales | `Inicio / Presupuestos / [nombre]` |
+| Áreas | `Inicio / Presupuestos / [nombre] / Áreas` |
+| Capturar costos | `Inicio / Presupuestos / [nombre] / Captura de información` |
+| Información general | `Inicio / Presupuestos / [nombre] / Información general` |
+| Resumen mensual | `Inicio / Presupuestos / [nombre] / Información general / Resumen mensual` |
 
-> **Los pasos 4 y 5 arrancan bloqueados** (atenuados y sin poder picarlos) hasta que hayas guardado al menos un área en el paso 3. Es normal: no hay nada que resumir hasta que haya costos guardados.
+Cada eslabón te lleva a donde dice, **menos el último**, que es la pantalla en la que ya estás (se ve en negritas y no se puede picar). Destinos:
 
-En celular o tablet el menú se colapsa a solo íconos para ahorrar espacio — sigue funcionando igual, solo toca el ícono correspondiente.
+- **Inicio** y **Presupuestos** → los dos van al listado
+- **[nombre del proyecto]** → Capturar costos
+- **Información general** → la vista de consulta
+
+Además, cada pantalla tiene su propia fila de botones arriba a la derecha, con la navegación hacia adelante y hacia atrás.
+
+> **Ninguna pantalla está bloqueada.** Puedes entrar a Información general y a Resumen mensual desde el primer momento; si no hay costos capturados, simplemente los verás en cero. La única excepción son los dos botones de navegación de Capturar costos, que están atenuados mientras estás **creando** un presupuesto nuevo (todavía no hay nada que mostrar) y se activan en cuanto lo guardas.
+
+En celular o tablet el menú se colapsa a solo íconos, y por debajo de 768px se oculta — la ruta de arriba sigue funcionando igual.
 
 ---
 
@@ -84,7 +92,25 @@ Cada área capturará sus propios costos por separado en el paso 3, y el sistema
 
 ## 6. Paso 3 — Capturar costos
 
-Para cada área seleccionada verás 4 secciones: **CAPEX**, **OPEX · Nómina**, **OPEX · Materiales**, **OPEX · Viáticos**.
+Esta pantalla tiene dos partes:
+
+1. **Ingresos**, hasta arriba — se captura **una sola vez por presupuesto**, no por área (ver 6.0).
+2. **Las cuatro secciones por área**, en el panel de la derecha: **CAPEX**, **OPEX · Nómina**, **OPEX · Materiales**, **OPEX · Viáticos**. Cambias de área con la lista de participantes de la izquierda.
+
+### 6.0 Ingresos — dónde se capturan
+
+**Los ingresos se capturan aquí, en Capturar costos**, en el bloque verde de hasta arriba. No en Resumen mensual: esa pantalla solo los muestra ya calculados, sin campos.
+
+> Esta sección **solo aparece en presupuestos de tipo Instalación y Servicio**. En Departamento y Suministro está oculta por completo, porque no facturan.
+
+Dos formas de capturar, y se pueden combinar:
+
+- **Precio fijo del servicio (mensual)** — si el cliente paga lo mismo todos los meses, captura un solo monto y la app lo reparte automáticamente en M1 hasta el último mes del proyecto. **M0 no lleva ingreso**: es el mes de instalación. El botón **Limpiar** pone en cero el precio fijo y todo el reparto.
+- **Ingresos** (botón **+ Agregar ingreso**) — para meses con montos distintos. Cada renglón lleva mes, año, descripción y monto. Úsalo cuando la facturación varía mes a mes, o para conceptos sueltos como una renovación de contrato.
+
+Debajo hay una tabla de M0 a Mn con el ingreso de cada mes y el total proyectado — sirve para confirmar que quedó como esperabas antes de guardar.
+
+> Los ingresos se guardan con el mismo botón **Guardar** que el resto de la pantalla (ver 6.5). No tienen botón propio.
 
 ### 6.1 CAPEX — Equipos e inversiones
 Compras únicas (equipos, vehículos, activos). Por cada partida capturas Categoría, Descripción, Unidad, Cantidad, **Fecha de compra real** (mes y año) y Monto unitario.
@@ -133,9 +159,15 @@ Al elegir el artículo, **Descripción** y **Unidad** se llenan solas (editables
 > Las 27 categorías contables oficiales no se pueden modificar libremente — vienen directamente del área de finanzas de Geolis. El catálogo de almacén es un catálogo aparte, más operativo — cuando eliges uno, la app lo mapea a su categoría contable la primera vez que lo usas.
 
 ### 6.5 Guardar
-Botón **Guardar** (verde, abajo a la derecha de cada área). Aparece la notificación "✓ Costos guardados". Puedes ir y volver entre áreas y guardar cada una por separado, no es necesario terminar todo de un jalón.
+Botón **Guardar** (verde, abajo a la derecha del panel de captura). Aparece la notificación "✓ Costos guardados correctamente".
 
-> Este botón es el único que sube tu trabajo a la nube. Mientras capturas, la app guarda en tu navegador automáticamente, pero eso solo vive en esa computadora.
+> **Hay un solo botón Guardar en esta pantalla, y guarda TODO el presupuesto**, no solo el área que tienes abierta: todas las áreas con sus cuatro secciones, más los ingresos. Puedes ir y volver entre áreas cuantas veces quieras y guardar una sola vez al final — no se pierde lo de las otras.
+
+> El área que tenías abierta al picar Guardar es la que queda marcada como **"✓ Guardado"** en la lista de participantes. Esa marca es solo un recordatorio visual de por dónde ibas: **no significa que las otras áreas no se hayan guardado.** Todas se guardaron.
+
+> Mientras se guarda, el botón dice "Guardando…" y queda deshabilitado. Espera a que aparezca la notificación: si dice **"No se pudo guardar — intenta de nuevo"**, tu trabajo NO subió a la nube.
+
+> Este botón es el único de esta pantalla que sube tu trabajo a la nube. Mientras capturas, la app guarda en tu navegador automáticamente, pero eso solo vive en esa computadora.
 
 ---
 
@@ -152,14 +184,18 @@ Dos avisos que puedes ver aquí y qué significan:
 | ⚠ N partidas sin fecha de compra | Alguna partida CAPEX no tiene mes/año capturado — se está contando en M0 por defecto | Ve a Capturar costos y completa la fecha real |
 | ⚠ N partidas sin categoría contable asignada | Alguna partida quedó sin mapear a una de las 27 categorías oficiales (elegiste "No sé" o nunca la confirmaste) | Ve a Capturar costos, vuelve a escribir esa categoría y confírmala en la ventana de mapeo |
 
-### Ingresos
-Esta pantalla es donde se capturan. Dos formas:
-- **Precio fijo mensual** — si el cliente paga lo mismo todos los meses, captura un solo monto y se multiplica automáticamente
-- **Ingresos adicionales** — para meses con montos distintos (ej. facturación variable), agrega uno por uno con su mes, año, descripción y monto
+### Ingresos (solo lectura)
+Aquí **no se capturan** los ingresos: esta pantalla solo muestra la tabla ya calculada, mes por mes, sin ningún campo editable. Para capturarlos ve a **Capturar costos** (ver 6.0).
 
-> En presupuestos de tipo Departamento y Suministro no hay ingresos, así que esta sección se deja en cero y los indicadores de Utilidad y Margen no aplican.
+> En presupuestos de tipo Departamento y Suministro esta tabla no aparece, y los indicadores de Utilidad y Margen no aplican (el margen se muestra como "—").
 
-Desde aquí puedes brincar a **Mi presupuesto →** con el botón de la barra superior.
+### Botones de esta pantalla
+
+| Botón | Qué hace |
+|---|---|
+| **← Información general** | Regresa a la vista de consulta |
+| **⬇ Excel** | Descarga el `.xlsx` (ver sección 9) |
+| **⬇ PDF** | Abre el diálogo de impresión |
 
 ---
 
@@ -172,29 +208,23 @@ Es la pantalla a la que llegas cuando picas **Abrir** en la lista. Muestra el pr
 
 A diferencia del paso 3, aquí no hay selector lateral de áreas: las ves todas seguidas, ideal para revisar o presentar.
 
-### 8.1 Modo consulta y modo edición
+### 8.1 Esta pantalla es solo de consulta
 
-Junto al título hay un distintivo que te dice en qué modo estás. Nunca queda ambiguo:
+**Información general no tiene campos editables en ninguna parte.** Todo es texto plano: no hay dropdowns, ni botones de agregar o eliminar filas, ni botón Guardar. Es imposible modificar algo por accidente desde aquí.
 
-| Distintivo | Qué significa |
-|---|---|
-| **👁 Viendo** (gris) | Todo es texto plano. No hay campos, dropdowns, botones de agregar ni de eliminar filas, y no hay "Guardar". Es imposible modificar algo por accidente. |
-| **✎ Editando** (amarillo) | Las mismas filas, en el mismo lugar, se convierten en los campos de captura de siempre. Reaparece el "Guardar" de cada área. |
+No hay ningún interruptor de modo: no existe un botón "✎ Editar" ni un distintivo "👁 Viendo / ✎ Editando".
+
+**Para editar, ve a Capturar costos.** Dos caminos:
+
+- Desde el listado, el botón **Editar** de ese presupuesto
+- Desde aquí, picando el **nombre del proyecto** en la ruta de arriba
 
 Botones de arriba a la derecha:
 
 | Botón | Qué hace |
 |---|---|
-| **✎ Editar** | Habilita la edición **en la misma pantalla**. No navega, no recarga, no vuelve a pedir datos. |
-| **✓ Terminar edición** | Regresa a modo consulta. Aparece en lugar de "Editar" cuando estás editando. |
-| **← Resumen mensual** | Va a la pantalla del paso 4. |
-| **⬇ PDF** | Imprime o guarda en PDF. |
-
-Los números y las gráficas son idénticos en los dos modos — son exactamente los mismos cálculos.
-
-> **El modo no se recuerda.** Si estás editando y recargas la página, vuelve a abrir en modo consulta. Es lo esperado, no una falla.
-
-> **"Terminar edición" no sube nada a la nube.** Solo el botón **Guardar** de cada área lo hace. Si editas, picas "Terminar edición" y cierras sin guardar, el cambio se queda solo en tu computadora.
+| **Resumen mensual →** | Va a la pantalla de tablas y gráficas |
+| **⬇ PDF** | Abre el diálogo de impresión |
 
 ---
 
@@ -207,16 +237,19 @@ Los números y las gráficas son idénticos en los dos modos — son exactamente
 
 ## 10. Gestionar presupuestos existentes
 
-En la lista de **Presupuestos**, cada fila tiene:
+En la lista de **Presupuestos**, cada fila tiene **tres** botones, en este orden:
 
 | Botón | Qué hace |
 |---|---|
-| **Abrir** | Te lleva a **Mi presupuesto en modo consulta** (paso 5). Trae la versión más reciente desde la nube. Para modificar algo, pica "Editar" ahí dentro. |
-| **Editar** | Te lleva a **Info general** (paso 1) para cambiar nombre, empresa, fechas o tipo. Solo aparece en presupuestos en Borrador o En revisión. |
+| **Información general** | Te lleva a la vista de consulta (sección 8). Trae la versión más reciente desde la nube. |
+| **Editar** | Te lleva a **Capturar costos** (sección 6), con la primera área ya seleccionada. Trae la versión más reciente desde la nube. Se muestra siempre, en todos los presupuestos. |
 | **Clonar** | Crea una copia como presupuesto nuevo (ver 3.3). El original no se toca. |
-| **🗑** | Borra el presupuesto permanentemente, de la app y de la base de datos. **No se puede deshacer** — pide confirmación. |
 
-> **Cambio reciente:** antes "Abrir" te dejaba directamente en la captura de costos, con todos los campos editables y sin avisarte. Ahora aterriza en modo consulta y hay que pedir la edición explícitamente. Es un clic más, a propósito: evita modificar un presupuesto sin darte cuenta.
+> **"Editar" NO te lleva a los datos generales.** Va directo a la captura de costos, y el título de esa pantalla dice "Editar — [nombre del proyecto]". Para cambiar nombre, empresa, tipo o fechas, lee la advertencia de la sección 3.
+
+> **No hay forma de eliminar un presupuesto desde la app.** No existe botón de eliminar en el listado, ni en la ruta de arriba, ni dentro de ninguna pantalla. Es intencional por ahora. Si necesitas borrar uno, se hace directo en Supabase — pídelo al equipo técnico.
+
+> Si al picar **Información general** o **Editar** aparece el mensaje *"No se pudo cargar el presupuesto — revisa tu conexión e intenta de nuevo"*, el presupuesto **no se abrió**. Es a propósito: la app prefiere no abrirlo a abrirlo vacío y arriesgar que guardes ese vacío encima de tus datos. Revisa la conexión y vuelve a intentar.
 
 ---
 
@@ -228,8 +261,8 @@ La app es responsive: en pantallas angostas, las tablas con muchas columnas (par
 
 ## 12. Preguntas frecuentes
 
-**Piqué "Abrir" y no puedo escribir nada, ¿está roto?**
-No. "Abrir" ahora entra en modo consulta, para que puedas revisar sin riesgo de mover algo. Pica **✎ Editar** arriba a la derecha y los mismos renglones se vuelven editables.
+**Piqué "Información general" y no puedo escribir nada, ¿está roto?**
+No. Esa pantalla es de consulta pura y no tiene modo edición (ver 8.1). Para capturar o corregir, pica **Editar** en el listado, o el nombre del proyecto en la ruta de arriba: los dos te llevan a Capturar costos.
 
 **¿Por qué mi gasto anual aparece 12 veces más alto de lo que debería?**
 Revisa la periodicidad de esa partida — probablemente está en "Mensual" cuando debería ser "Anual" (ver 6.3).
@@ -252,8 +285,11 @@ Usa el campo **Repeticiones** (ver 6.3) — sin él, cualquier gasto recurrente 
 **No me aparece Subcategoría ni Artículo al elegir una Categoría, ¿por qué?**
 La cascada solo funciona en **OPEX · Materiales** y solo con los grupos que la tienen (ver 6.4). En CAPEX y Viáticos no aparece; ahí usa las sugerencias del historial y los artículos del almacén.
 
-**Los pasos 4 y 5 están grises y no puedo entrar.**
-Necesitas guardar al menos un área en el paso 3 primero (ver sección 2).
+**¿Dónde capturo los ingresos? En Resumen mensual ya no me deja.**
+En **Capturar costos**, en el bloque verde de hasta arriba (ver 6.0). Resumen mensual solo los muestra ya calculados. Si no ves esa sección, revisa el tipo del presupuesto: en Departamento y Suministro está oculta a propósito.
+
+**Los botones de navegación de Capturar costos están grises.**
+Estás **creando** un presupuesto nuevo y todavía no lo has guardado — no hay nada que mostrar en Información general ni en Resumen mensual. Se activan solos en cuanto guardas. Si abriste un presupuesto existente y aun así están grises, eso sí es una falla: repórtalo.
 
 **¿Qué significan las columnas M0, M1, M2… en las tablas?**
 Son los meses del proyecto contados desde tu fecha de inicio: M0 es el primero (el de instalación en proyectos de campo), M1 el siguiente, y así. Está pendiente un cambio para que digan el mes real ("Ene 2026") en lugar del código.
