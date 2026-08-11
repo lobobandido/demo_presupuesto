@@ -22,13 +22,21 @@ function capexToRow(p){
     mes_gasto_anio: p.mesGastoAnio ? parseInt(p.mesGastoAnio) : null,
   };
 }
-function opexToRow(p){
-  return {
+// incluirRepeticiones: solo partidas_opex_mat tiene esa columna hoy
+// (partidas_opex_via no) — opexToRow es compartida entre las dos, así que el
+// campo se agrega condicionalmente para no romper el insert de viáticos con
+// una columna que esa tabla no tiene. p.repeticiones||null: vacío/0 en memoria
+// significa "sin tope, se repite todo el proyecto" — mismo criterio que ya usa
+// distribuirOpex (App.jsx), no se toca esa lógica, solo el transporte del dato.
+function opexToRow(p, incluirRepeticiones=false){
+  const row = {
     categoria: p.cat||"", descripcion: p.desc||"", unidad: p.unidad||"Servicio",
     cantidad: p.cantidad||0, monto: p.monto||0,
     periodicidad: p.periodicidad||"mensual",
     mes_inicio_opex: p.mesInicioOpex||1,
   };
+  if(incluirRepeticiones) row.repeticiones = p.repeticiones||null;
+  return row;
 }
 function nominaToRow(p){
   return {
@@ -161,7 +169,7 @@ export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAd
     const capexRows=(datosArea.capex||[]).map((p,i)=>({...capexToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(capexRows.length){ const {error} = await supabase.from("partidas_capex").insert(capexRows); if(error) console.error("[supabase] insert capex:",error.message); }
 
-    const matRows=(datosArea.mat||[]).map((p,i)=>({...opexToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
+    const matRows=(datosArea.mat||[]).map((p,i)=>({...opexToRow(p,true),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(matRows.length){ const {error} = await supabase.from("partidas_opex_mat").insert(matRows); if(error) console.error("[supabase] insert mat:",error.message); }
 
     const viaRows=(datosArea.via||[]).map((p,i)=>({...opexToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
@@ -220,6 +228,9 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       id:uid(), cat:r.categoria, desc:r.descripcion, unidad:r.unidad,
       cantidad:Number(r.cantidad), monto:Number(r.monto),
       periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
+      // Solo partidas_opex_mat tiene esta columna (ver opexToRow) — null/ausente
+      // significa "sin tope", mismo criterio que ya usa distribuirOpex.
+      repeticiones:r.repeticiones||null,
     }));
   });
   (viaRows||[]).forEach(r=>{
