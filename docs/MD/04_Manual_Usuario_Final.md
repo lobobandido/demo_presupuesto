@@ -307,7 +307,41 @@ En los Excel de Geolis estos tres viven en columnas propias de la hoja `F01 NÓM
 - Un puesto con **cantidad 0** se calcula como **1 persona**, sumando un sueldo que nadie cobra. Si un puesto no aplica, bórralo en vez de ponerle cero.
 - El **tipo de personal** decide la duración: *Fijo* corre todos los meses del proyecto; *Contrato* y *Outsourcing* corren solo los meses que pusiste en "Meses de contrato", desde el mes de inicio. Revisa la tira verde debajo de cada fila: dice el costo mensual y el total.
 
-### 10.3 Repeticiones — el campo que más se olvida
+### 10.3 El monto que capturas es UNITARIO, no el total de la partida
+
+La columna se llama **"Monto unit."** y así se calcula. La regla, para toda partida de Materiales y Viáticos:
+
+```
+monto × cantidad × repeticiones = el total que dice tu documento fuente
+```
+
+**Es el error más común y el más caro**, porque no se ve: pegar por equivocación el *total* de una partida en el campo de monto no dispara ningún aviso — la app lo acepta y lo multiplica por las repeticiones.
+
+**Ejemplo real (Cuervito, cuadrilla de instalación).** El documento fuente dice que la cuadrilla cuesta **864,000** en total: 288,000 al mes durante 3 meses.
+
+| Lo que capturas en Monto | Cant | Rep | Lo que calcula la app | |
+|---:|---:|---:|---:|---|
+| **288,000** (unitario, correcto) | 1 | 3 | **864,000** | ✅ cuadra |
+| **864,000** (el total, pegado por error) | 1 | 3 | **2,592,000** | ❌ tres veces de más |
+
+El segundo caso no se ve raro en la fila —dice 864,000, que es el número que traías en la cabeza— y solo aparece como un OPEX inflado en el resumen. **Verifícalo al revés:** toma el total de la fila en la tabla de Información general y compáralo contra tu documento. Si da un múltiplo exacto de lo esperado (2×, 3×, 12×), es esto.
+
+> La misma regla aplica cuando la Cantidad no es 1: 30 días de viático a 800 pesos van como monto **800**, cantidad **30** — no como monto 24,000.
+
+### 10.4 Un gasto de una sola vez necesita Repeticiones = 1
+
+**Periodicidad "Anual" no significa "una sola vez".** Significa "cada 12 meses". Si el proyecto abarca más de 12 meses, **dispara dos veces**.
+
+**Ejemplo real (Perdiz, M0..M13 — 14 meses).** Una herramienta de 430,000 que se compra una sola vez:
+
+| Periodicidad | Rep | Cae en | Total calculado | |
+|---|---:|---|---:|---|
+| Anual | *(vacío)* | **M1 y M13** | **860,000** | ❌ el doble |
+| Anual | **1** | M1 | **430,000** | ✅ correcto |
+
+En un proyecto de 12 meses o menos el descuido no se nota —"Anual" sin repeticiones cae una sola vez y da el número correcto—, y por eso pasa desapercibido hasta que alguien clona ese presupuesto a uno más largo. **Regla simple: si el gasto ocurre una sola vez, pon Repeticiones 1 aunque el proyecto sea corto.** No cuesta nada y lo vuelve inmune a que el proyecto se alargue o se clone.
+
+### 10.5 Repeticiones — el campo que más se olvida
 
 **Sin repeticiones, cualquier gasto recurrente se repite hasta el último mes del proyecto.** Es el comportamiento por diseño, y es la causa número uno de un OPEX inflado.
 
@@ -317,17 +351,19 @@ Cómo verificarlo sin hacer cuentas: cuando la periodicidad **no** es mensual, d
 
 > El campo funciona **igual en OPEX · Materiales y en OPEX · Viáticos**: se captura igual, se guarda igual y sobrevive igual al salir y volver a entrar. No hay que capturar un viático topado en Materiales para que aguante.
 
-### 10.4 Repaso rápido antes de dar por bueno un presupuesto
+### 10.6 Repaso rápido antes de dar por bueno un presupuesto
 
 1. ¿Los cinco indicadores cuadran contra el documento fuente? (10.1)
 2. ¿Aparece el aviso **"⚠ N partidas sin fecha de compra"**? Si sí, ese CAPEX está cayendo todo en M0.
 3. ¿Aparece el aviso **"⚠ N partidas sin categoría contable asignada"**? Si sí, esas partidas no van a agrupar bien en la tabla ni en el Excel.
 4. ¿Cada partida recurrente tiene la periodicidad correcta? Una renta **anual** capturada como mensual da 12 veces el monto real.
-5. ¿Los gastos que paran antes del fin del proyecto tienen Repeticiones? (10.3)
-6. ¿Hay algún puesto de nómina con cantidad 0? (10.2)
-7. ¿Guardaste, **saliste y volviste a entrar**? Es la única forma de confirmar que lo que ves quedó en la nube y no solo en tu navegador.
+5. ¿Cada monto es **unitario**? `monto × cantidad × repeticiones` debe dar el total del documento fuente. (10.3)
+6. ¿Los gastos de una sola vez tienen Repeticiones **1**? "Anual" no basta si el proyecto pasa de 12 meses. (10.4)
+7. ¿Los gastos que paran antes del fin del proyecto tienen Repeticiones? (10.5)
+8. ¿Hay algún puesto de nómina con cantidad 0? (10.2)
+9. ¿Guardaste, **saliste y volviste a entrar**? Es la única forma de confirmar que lo que ves quedó en la nube y no solo en tu navegador.
 
-> El punto 7 no es paranoia: encontró dos fallas reales este mes. Si al reabrir un número cambió, no lo vuelvas a capturar encima — repórtalo.
+> El punto 9 no es paranoia: encontró dos fallas reales este mes. Si al reabrir un número cambió, no lo vuelvas a capturar encima — repórtalo.
 
 ---
 
