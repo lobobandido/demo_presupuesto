@@ -146,7 +146,7 @@ El sistema calcula el costo real (salario + IMSS + prestaciones + ISR) automáti
 Gastos recurrentes. Por cada partida defines:
 - **Periodicidad**: mensual, bimestral, trimestral, semestral o anual
 - **Mes de inicio**: eliges un mes/año de calendario real (igual que en CAPEX) y el sistema calcula automáticamente en qué mes del proyecto arranca
-- **Repeticiones** (opcional): cuántas veces ocurre este gasto antes de parar. Déjalo vacío si el gasto se repite hasta el fin del proyecto (comportamiento normal). Ponle un número si el gasto **para antes** — por ejemplo, una cuadrilla de instalación que cobra mensual pero solo trabaja 3 meses: periodicidad Mensual + Repeticiones **3** → aparece en esos 3 meses y $0 después, en vez de repetirse todo el proyecto.
+- **Repeticiones** (opcional): cuántas veces ocurre este gasto antes de parar. Déjalo vacío si el gasto se repite hasta el fin del proyecto (comportamiento normal). Ponle un número si el gasto **para antes** — por ejemplo, una cuadrilla de instalación que cobra mensual pero solo trabaja 3 meses: periodicidad Mensual + Repeticiones **3** → aparece en esos 3 meses y $0 después, en vez de repetirse todo el proyecto. **Funciona idéntico en Materiales y en Viáticos.**
 
 > **Aquí no capturas una fecha por cada vez que ocurre el gasto.** Capturas cuándo empieza y cada cuánto se repite; la app calcula el resto. El internet de $8,396 al mes no se captura seis veces: se captura una, con periodicidad Mensual desde enero.
 
@@ -315,7 +315,7 @@ Ponle un número cuando el gasto **para antes** de que acabe el proyecto: una cu
 
 Cómo verificarlo sin hacer cuentas: cuando la periodicidad **no** es mensual, debajo de los campos aparece el renglón **"Cae en: …"** con los meses exactos y cuántas veces. Si es mensual, ábrelo en la tabla de Información general: pica el **▶** del subtotal y revisa la fila mes por mes.
 
-> **Ojo — defecto conocido:** el campo Repeticiones **solo se guarda en OPEX · Materiales**. En **OPEX · Viáticos** el campo aparece y lo puedes llenar, pero **no se persiste**: al guardar y volver a entrar, la partida vuelve a repetirse todo el proyecto. Mientras no se corrija, si necesitas topar un viático, captúralo en Materiales con su categoría de viático, o revisa el total después de recargar la página.
+> El campo funciona **igual en OPEX · Materiales y en OPEX · Viáticos**: se captura igual, se guarda igual y sobrevive igual al salir y volver a entrar. No hay que capturar un viático topado en Materiales para que aguante.
 
 ### 10.4 Repaso rápido antes de dar por bueno un presupuesto
 
