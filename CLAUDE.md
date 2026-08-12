@@ -103,6 +103,26 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   directo en Supabase (o quedan de antes de ocultar la sección), un Departamento
   puede mostrar ingresos igual. Confirmado hoy en TI H1 2026 ($10M de ingresos
   de prueba, limpiados).
+- El listado no reconcilia borrados: presupuestos fantasma. El useEffect de
+  montaje (App.jsx:2246-2269) fusiona el caché de localStorage con el resultado
+  de listarPresupuestos(), pero `soloLocales` conserva todo lo que está en caché
+  y NO viene del remoto — que es exactamente la firma de un registro borrado.
+  Un presupuesto eliminado directo en Supabase sigue apareciendo en la app hasta
+  que se limpia el localStorage del navegador (clave `geolis_app_state_v4`).
+  Confirmado el 2026-08-12 con dos registros borrados desde el dashboard.
+  Agravante encontrado al verificarlo: el `if(remotos.length===0) return;` de la
+  línea 2262 corta antes de fusionar, así que si se borran TODOS los
+  presupuestos del remoto no se reconcilia ninguno — la app sigue mostrando el
+  listado completo del caché, como si nada se hubiera borrado.
+  Al abrir un fantasma, cargarPresupuestoDeNube devuelve null y sale
+  "No se pudo cargar el presupuesto" (misma pantalla que un fallo de red, así
+  que el usuario no puede distinguir "esto ya no existe" de "revisa tu
+  conexión"). Misma clase que el fantasma del presupuesto clonado ya listado
+  arriba: la UI aparenta permanencia donde no la hay.
+  **Agrava el A1 de docs/MD/DECISIONES.md**: como no hay ningún botón de
+  eliminar en la UI, el dashboard de Supabase es el único camino para borrar —
+  y es justo el que deja fantasmas. Cualquier arreglo de A1 (devolver el borrado
+  a la UI) debería resolver los dos de una vez.
 
 ## Pendientes de producto
 
