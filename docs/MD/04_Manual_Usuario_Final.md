@@ -189,6 +189,8 @@ Botón **Guardar** (verde, abajo a la derecha del panel de captura). Aparece la 
 
 > Este botón es el único de esta pantalla que sube tu trabajo a la nube. Mientras capturas, la app guarda en tu navegador automáticamente, pero eso solo vive en esa computadora.
 
+> **Si vas a probar un arreglo recién hecho:** `localhost` y la app desplegada escriben en la **misma** base de Supabase, pero corren **código distinto** — localhost corre lo que tienes local, y el desplegado lo que esté en `origin/main`. Usa localhost, o empuja los cambios primero; si no, el dato se guarda con el código viejo.
+
 ---
 
 ## 7. Resumen mensual
