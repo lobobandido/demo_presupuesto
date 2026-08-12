@@ -417,6 +417,17 @@ Usa el campo **Repeticiones** (ver 6.3) — sin él, cualquier gasto recurrente 
 **No me aparece Subcategoría ni Artículo al elegir una Categoría, ¿por qué?**
 La cascada solo funciona en **OPEX · Materiales** y solo con los grupos que la tienen (ver 6.4). En CAPEX y Viáticos no aparece; ahí usa las sugerencias del historial y los artículos del almacén.
 
+**Borré un presupuesto en Supabase y sigue apareciendo en la lista.**
+Es el caché de tu navegador, no la base. La app mezcla lo que trae de Supabase con lo que guardó localmente y **no reconcilia borrados**: lo que está en el caché y ya no está en la nube se queda en pantalla. Es un defecto conocido, anotado en `CLAUDE.md`.
+
+Cómo se ve: el presupuesto aparece en el listado, pero al picar **Información general** o **Editar** sale *"No se pudo cargar el presupuesto — revisa tu conexión e intenta de nuevo"*. Ese mensaje es el mismo de un fallo de red, así que no te dice que ya no existe.
+
+Para limpiarlo, con la app abierta: **F12** → pestaña **Application** (en Firefox, **Almacenamiento**) → **Local Storage** → el dominio de la app. Borra **todas las claves que empiecen con `geolis`**, no solo una. Hoy son seis: `geolis_app_state_v4`, `geolis_cats_v3`, `geolis_cats_capex`, `geolis_cats_mat`, `geolis_cats_via` y `geolis_subcat_map` — y pueden quedar versiones viejas de deploys anteriores (`geolis_app_state_v3`, etc.), que también hay que borrar. Recarga con **Ctrl+F5**.
+
+> **Cada dominio tiene su propio caché.** Si usas `localhost` y la app desplegada, son dos almacenamientos distintos: limpiar uno no limpia el otro. Si el fantasma aparece en los dos, hay que repetir la limpieza en cada uno.
+
+> Borrar estas claves también borra las categorías que hayas creado tú y sus mapeos contables — la próxima vez que escribas una categoría nueva, la app volverá a preguntarte a qué categoría contable pertenece. No se pierde ningún presupuesto: todo lo guardado vive en Supabase.
+
 **Me equivoqué en la fecha de inicio y ya guardé, ¿dónde la corrijo?**
 Hoy no se puede desde la app: la pantalla de Datos generales solo es alcanzable durante la creación. Las dos salidas son clonar el presupuesto con las fechas correctas, o pedir al equipo técnico que lo corrija en Supabase. Ver la advertencia al inicio de la sección 3.
 
