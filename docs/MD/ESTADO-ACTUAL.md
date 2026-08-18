@@ -344,10 +344,20 @@ número N, ocurre N veces y después queda en cero. Se captura en un input opcio
 columna de periodicidad (`src/App.jsx:1333-1338`), visible solo cuando `showPeriod` es `true` —
 o sea, en Materiales y Viáticos, no en CAPEX.
 
-**Solo se persiste en `partidas_opex_mat`.** `opexToRow` agrega el campo únicamente cuando se le
-pasa `incluirRepeticiones=true` (`src/supabaseApi.js:31-40`), y eso solo ocurre para materiales
-(`src/supabaseApi.js:172`), no para viáticos (`src/supabaseApi.js:175`). Al leer, se recupera con
-`repeticiones:r.repeticiones||null` solo para materiales (`src/supabaseApi.js:233`).
+**Se persiste en las dos tablas OPEX.** `opexToRow` agrega el campo cuando se le pasa
+`incluirRepeticiones=true` (`src/supabaseApi.js:33-42`), y hoy lo reciben tanto materiales
+(`src/supabaseApi.js:174`) como viáticos (`src/supabaseApi.js:177`). Al leer se recupera con
+`repeticiones:r.repeticiones||null` en los dos casos (`src/supabaseApi.js:234` para materiales,
+`:244` para viáticos). El parámetro conserva su default en `false` a propósito: si mañana se
+agrega una tercera tabla OPEX sin esa columna, queda fuera sin romper su insert
+(`src/supabaseApi.js:25-29`).
+
+> **Corrección posterior (2026-08-18).** Este párrafo decía «Solo se persiste en
+> `partidas_opex_mat`» y que viáticos no recibía el campo. Fue cierto entre `3a1b3af` (que lo
+> transportó solo para materiales) y `2f01427` (que lo corrigió para viáticos). Esta auditoría,
+> fechada el 2026-08-11, no se actualizó al corregirse. El comportamiento vigente es el descrito
+> arriba: **Repeticiones funciona igual en Materiales y en Viáticos**, tanto al guardar como al
+> recuperar.
 
 ### Nómina
 
