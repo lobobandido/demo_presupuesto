@@ -2409,7 +2409,16 @@ export default function App(){
     // Datos generales: el cliente decía "formulario de edición" señalando la
     // pantalla de captura, no el paso 1. Se usa p._areas (recién cargado), no el
     // estado areas todavía sin actualizar.
-    if(!areaActiva) setActiva((p._areas||[])[0]||null);
+    // Antes: `if(!areaActiva) setActiva(...)` — solo asignaba si areaActiva
+    // estaba vacío, así que al abrir un presupuesto con "Editar" se conservaba el
+    // área activa del presupuesto ANTERIOR de la sesión. Si ese id no existe en
+    // el presupuesto que se abre, costos[areaActiva] es undefined: el panel de
+    // captura se pinta igual (datos?.capex||[] da []) pero "+ Agregar" truena en
+    // silencio, porque addP hace prev[id][cat] sobre ese undefined. Ahora el área
+    // activa siempre sale del presupuesto que se está abriendo — mismo criterio
+    // que ya usaban confirmarAreas (setActiva(areas[0]||null)) y el effect de
+    // presToOpen (setActiva(primera)).
+    setActiva((p._areas||[])[0]||null);
     setStep(3);
   }
 
