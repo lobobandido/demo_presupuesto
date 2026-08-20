@@ -3416,7 +3416,16 @@ export default function App(){
           )}
         </div>
         <div style={{display:"flex",justifyContent:"space-between"}}>
-          {btn("Atrás",()=>setStep(1),"secondary")}
+          {/* "Atrás" depende de cómo se llegó aquí. Durante la creación
+              (flujoCreacion) el paso anterior es Datos generales, como siempre.
+              Pero ahora también se llega desde Capturar costos, con el botón
+              "Elegir participantes" de un presupuesto YA guardado: ahí el paso
+              anterior es Capturar costos, no Datos generales — mandar a Step 1 un
+              presupuesto guardado abriría la edición de nombre/tipo/fechas, que
+              hoy es inalcanzable a propósito (A1 en docs/MD/DECISIONES.md) y
+              cambiar fechaInicio recorre todas las columnas de mes de lo ya
+              capturado. */}
+          {btn("Atrás",()=>setStep(flujoCreacion?1:3),"secondary")}
           {btn("Confirmar",confirmarAreas,"primary",areas.length===0)}
         </div>
       </div>
@@ -3706,7 +3715,30 @@ export default function App(){
 
           {/* Panel captura */}
           <div style={{minWidth:0}}>
-            {!areaActiva?(
+            {/* Presupuesto guardado con CERO áreas — antes esta pantalla no lo
+                distinguía de "no has seleccionado un área todavía": el sidebar
+                salía vacío y no había ningún camino de UI para agregarlas
+                (setStep(2) solo existía en guardarPres, o sea únicamente durante
+                la creación). Un presupuesto que se abandonaba en el paso de
+                Participantes quedaba inservible para siempre. Esta rama va ANTES
+                que la de !areaActiva a propósito: con areas vacío, un areaActiva
+                heredado de otro presupuesto pintaba las cuatro secciones como si
+                todo estuviera bien y "+ Agregar" tronaba en silencio (addP hace
+                prev[id][cat] sobre un costos[areaActiva] inexistente). */}
+            {areas.length===0?(
+              <div style={{padding:"48px 40px",textAlign:"center",
+                background:C.white,borderRadius:10,border:`1px solid ${C.yellowBorder}`}}>
+                <div style={{fontSize:36,marginBottom:14}}>👥</div>
+                <div style={{fontSize:15,fontWeight:700,color:C.grayDark,marginBottom:8}}>
+                  Este presupuesto todavía no tiene participantes
+                </div>
+                <div style={{fontSize:13,color:C.grayMid,marginBottom:20,lineHeight:1.6}}>
+                  No se puede capturar ningún costo hasta elegir al menos un área.<br/>
+                  Elígelas y regresas aquí a capturar.
+                </div>
+                {btn("Elegir participantes",()=>setStep(2),"primary")}
+              </div>
+            ):!areaActiva?(
               <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
                 background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`}}>
                 <div style={{fontSize:36,marginBottom:12,opacity:0.3}}>←</div>
