@@ -124,6 +124,30 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   y es justo el que deja fantasmas. Cualquier arreglo de A1 (devolver el borrado
   a la UI) debería resolver los dos de una vez.
 
+- Un presupuesto se persiste en la nube al picar **Continuar** en Datos
+  generales, ANTES de tener áreas: guardarPres llama a
+  guardarPresupuestoEnNube con areas=[] y ese INSERT crea la fila
+  (supabaseApi.js:141-143). El guardarraíl de cero áreas
+  (supabaseApi.js:153-156) NO protege aquí — su condición es
+  `idExistente && areas.length===0`, y en un INSERT idExistente es null; solo
+  cubre presupuestos que ya existían. Si el usuario abandona en el paso de
+  Participantes, el registro queda con cero áreas y sin partidas. Confirmado
+  por GET el 2026-08-20: tres registros así (`605f3173…`, `1a4871eb…`,
+  `93bb737b…`), los tres con created_at igual a updated_at.
+  **La única protección hoy es el aviso de Step 3** («Este presupuesto todavía
+  no tiene participantes» + botón `Elegir participantes`, App.jsx:3737-3749),
+  que hace el estado recuperable desde la UI pero no evita que se produzca. La
+  causa raíz —persistir antes de tener áreas— sigue abierta: arreglarla implica
+  tocar `guardarPres`, protegida por la regla 4, y ese INSERT es el que promueve
+  el id local al UUID real. No tocar sin autorización explícita.
+  Nota sobre el arreglo: el `Atrás` del paso de Áreas quedó condicionado a
+  `flujoCreacion` (App.jsx:3437) **a propósito**. El camino nuevo hacia Step 2
+  abriría transitivamente Step 1 para un presupuesto guardado, o sea la edición
+  de nombre/tipo/fechas — eso es justo lo que **A1 de docs/MD/DECISIONES.md**
+  tiene sin resolver, y mover `fechaInicio` recorre todas las columnas de mes de
+  lo ya capturado. Si algún día se decide reabrir A1, esa condición es el punto
+  exacto donde se destraba, y es una decisión de producto, no un bug.
+
 ## Pendientes de producto
 
 - No hay forma de eliminar un presupuesto desde ninguna parte de la UI (se quitó

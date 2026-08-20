@@ -493,6 +493,18 @@ Revisa el tipo del presupuesto. En **Departamento** y **Suministro** está ocult
 **Estoy en Resumen mensual y no me deja capturar los ingresos.**
 Ahí solo se ven. Se capturan en **Captura de información**, en el bloque de hasta arriba.
 
+**No me deja capturar: la lista de participantes sale vacía y no veo las secciones de CAPEX ni OPEX.**
+A ese presupuesto le faltan los participantes. Pasa cuando se crea el presupuesto y se sale antes de elegirlos: queda guardado, pero sin ningún área a la cual cargarle costos.
+
+Tiene salida y no se pierde nada. En el panel verás el aviso **"Este presupuesto todavía no tiene participantes"** con el botón **Elegir participantes**:
+
+1. Pica **Elegir participantes**.
+2. Marca las áreas que van a capturar y pica **Confirmar**.
+3. Regresas a Captura de información con la primera área ya seleccionada y las cuatro secciones listas.
+4. Captura y pica **Guardar**. Si eliges participantes y te sales sin guardar, el presupuesto se queda igual que estaba.
+
+Para que no vuelva a pasar: cuando crees un presupuesto nuevo, no te salgas en la pantalla de Participantes — elige al menos un área y pica **Confirmar** antes de irte a otra cosa.
+
 **Piqué Información general y no puedo escribir nada, ¿está roto?**
 No. Esa pantalla es solo de consulta: no tiene ni un campo editable, para que nadie mueva algo sin querer. Para capturar o corregir, pica **Editar** en la lista de presupuestos.
 

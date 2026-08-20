@@ -144,10 +144,21 @@ El eslabón `[nombre]` **sí** es clicable aquí y va a `irACapturarCostos` → 
 
 | Botón | Handler | Destino | Referencia |
 |---|---|---|---|
-| `Atrás` | `()=>setStep(1)` | Step 1 | `src/App.jsx:3419` |
-| `Confirmar` | `confirmarAreas` | Step 3 | `src/App.jsx:3420` · handler `2608-2642` |
+| `Atrás` | `()=>setStep(flujoCreacion?1:3)` | Step 1 **o** Step 3, según cómo se llegó | `src/App.jsx:3437` |
+| `Confirmar` | `confirmarAreas` | Step 3 | `src/App.jsx:3438` · handler `2608-2642` |
 
-`Confirmar` está deshabilitado mientras `areas.length===0` (`src/App.jsx:3420`).
+`Confirmar` está deshabilitado mientras `areas.length===0` (`src/App.jsx:3438`).
+
+**`Atrás` es condicional** (`src/App.jsx:3437`): con `flujoCreacion` en `true` va a Step 1, como
+siempre. Con un presupuesto **ya guardado** —que ahora puede llegar aquí desde el botón
+`Elegir participantes` de Step 3, ver abajo— va a Step 3. Es deliberado: mandar un presupuesto
+guardado a Step 1 abriría la edición de nombre/tipo/fechas, hoy inalcanzable a propósito
+(**A1** de `docs/MD/DECISIONES.md`), y cambiar `fechaInicio` recorre todas las columnas de mes de
+lo ya capturado.
+
+**Step 2 ya no es exclusivo del flujo de creación.** `setStep(2)` aparece hoy en dos lugares:
+`guardarPres` (`src/App.jsx:2547`) y el botón `Elegir participantes` de Step 3
+(`src/App.jsx:3748`).
 
 Las áreas ofrecidas dependen del tipo, vía `getAreasCat` (`src/App.jsx:41-45`): campo
 (`AREAS_CAMPO`, 9 áreas, `src/App.jsx:17-27`), departamento (`AREAS_DEPTO`, 3,
@@ -178,9 +189,26 @@ Los dos están **deshabilitados mientras `flujoCreacion` es `true`** (`src/App.j
 
 | Botón | Handler | Referencia |
 |---|---|---|
-| `Guardar` / `Guardando…` | `guardarTodo` | `src/App.jsx:3818` · handler `2658-2705` |
+| `Guardar` / `Guardando…` | `guardarTodo` | `src/App.jsx:3859` · handler `2658-2705` |
 
-Se deshabilita mientras `guardando` es `true` (`src/App.jsx:3818`, estado en `2230`).
+Se deshabilita mientras `guardando` es `true` (`src/App.jsx:3859`, estado en `2230`).
+
+**Qué pinta el panel de captura, en este orden de precedencia** (`src/App.jsx:3737-3757`):
+
+| Condición | Qué se ve |
+|---|---|
+| `areas.length===0` | Aviso «Este presupuesto todavía no tiene participantes» + botón `Elegir participantes` → Step 2 (`src/App.jsx:3737-3749`) |
+| `!areaActiva` | «Selecciona un participante para capturar sus costos» (`src/App.jsx:3750-3756`) |
+| resto | Las cuatro secciones de captura del área activa |
+
+La rama de `areas.length===0` va **antes** que la de `!areaActiva` a propósito. Con `areas` vacío y
+un `areaActiva` heredado de otro presupuesto, el panel pintaba las cuatro secciones como si todo
+estuviera bien y `+ Agregar` lanzaba un `TypeError` en silencio (`addP` hace `prev[id][cat]` sobre
+un `costos[areaActiva]` inexistente, `src/App.jsx:2645`; no hay `ErrorBoundary` en el proyecto).
+
+Ese `areaActiva` heredado ya no se produce al abrir con `Editar`: `abrirEdit` asigna el área activa
+sin condición desde `p._areas` (`src/App.jsx:2421`), igual que `confirmarAreas` (`:2641`) y el
+effect de `presToOpen` (`:2329`).
 
 ---
 
