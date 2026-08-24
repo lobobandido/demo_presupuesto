@@ -677,7 +677,7 @@ function EstadoBadge({estado}){
 }
 
 // ─── CATALOG INPUT (CatInput + PuestoInput — mismo patrón) ───────────────────
-function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,onPartidaSelect,storageKey=LS_CATS,extraOptions=[],extraLabel=""}){
+function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribir",allowCustom=true,storageKey=LS_CATS,extraOptions=[],extraLabel=""}){
   const [open,setOpen]=useState(false);
   const [txt,setTxt]=useState(value||"");
   const [macroModal,setMacroModal]=useState(false);
@@ -717,13 +717,20 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
     };
   },[open]);
 
+  // Elegir una categoría del desplegable cambia SOLO la categoría. Antes esto
+  // también disparaba onPartidaSelect(hist[0]), que rellenaba descripción,
+  // unidad, cantidad y monto con una copia de otra partida ya capturada — sin
+  // que el usuario lo pidiera y sin decir de cuál la copiaba. Esa fue la causa
+  // de las partidas duplicadas de "Cambio de servicio" (98 filas de Materiales
+  // donde había 29 reales, $160,588,772.90 contra $127,156,439.29): al capturar
+  // la siguiente partida se escribía la categoría, la fila se autollenaba con la
+  // anterior y quedaba una copia exacta. Las copias se reconocían porque traían
+  // los cinco campos que este autollenado copiaba y perdían los que no
+  // (repeticiones, mes/año). Sugerir sigue estando bien; decidir por el usuario,
+  // no — para eso están los chips "Sugerencias del historial" de PartidaTable,
+  // que copian lo mismo pero con un clic explícito sobre la partida elegida.
   function pick(v){
     setTxt(v);onChange(v);setOpen(false);
-    // Si hay historial para esta categoría, notificar
-    if(onPartidaSelect){
-      const hist=buscarHistorial(v,"capex");
-      if(hist.length>0) onPartidaSelect(hist[0]);
-    }
   }
 
   function handleNewCat(rawTxt){
@@ -1160,11 +1167,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                 // El dropdown de sugerencias se activa cuando hay historial
               }} options={catOptions} placeholder="Categoría" storageKey={catStorageKey}
                 extraOptions={addLabel==="Agregar material"?Object.keys(CATALOGO_CASCADA):[]}
-                extraLabel="── catálogo almacén ──"
-                onPartidaSelect={hist=>{
-                  if(hist) onUpdate({...p,cat:hist.cat,desc:hist.desc,unidad:hist.unidad,cantidad:hist.cantidad,monto:hist.monto,
-                    periodicidad:hist.periodicidad||p.periodicidad});
-                }}/>
+                extraLabel="── catálogo almacén ──"/>
               {/* Cascada Subcategoría/Artículo — solo OPEX Materiales, solo si la
                   categoría elegida tiene entrada en CATALOGO_CASCADA. p.cat nunca
                   cambia aquí: solo se autocompletan desc/unidad al elegir artículo. */}

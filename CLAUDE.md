@@ -155,6 +155,32 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   Luis). Si se necesita, hoy solo es posible por Supabase directo. Confirmado
   por Luis (hoy): intencional por ahora, sin fecha de revisión.
 
+- **La app no puede expresar un gasto recurrente en meses IRREGULARES.**
+  `distribuirOpex` solo sabe de `mesInicioOpex` + `periodicidad` (intervalo fijo
+  de PM_INTERVALO) + `repeticiones`. Ene-Mar-Jul-Oct no es mensual, ni
+  bimestral, ni trimestral: no hay periodicidad que lo describa. El workaround
+  correcto —y el que el usuario ya está usando— es **una fila por ocurrencia**,
+  cada una con su propio mes de inicio. Verificado el 2026-08-24 en «Cambio de
+  servicio» contra el Excel del usuario: PINTURA Y OTROS RECUBRIMIENTOS
+  (1,403,806.98 = 350,951.75 × 4, en Ene/Mar/Jul/Oct) y CERTIFICACION
+  (325,499.14 = 50,000 en Mayo + 50,000 en Septiembre + 225,499.14 en otro mes).
+  **Esas filas repetidas NO son duplicados** — no confundirlas con las que
+  fabricaba el autollenado de `pick()` (arreglado hoy).
+  **Hoy el workaround no sobrevive**, por el defecto A de este mismo día: el mes
+  de inicio de OPEX se captura en los selectores Mes/Año, pero `mesGastoMes`/
+  `mesGastoAnio` no se persisten —`partidas_opex_mat` y `partidas_opex_via` ni
+  siquiera tienen esas columnas, y `opexToRow` (supabaseApi.js:33-42) no las
+  escribe—, así que al recargar todas las filas vuelven con `mes_inicio_opex=1`.
+  Medido: las 2 filas de PINTURA y las 3 de CERTIFICACION están hoy todas en
+  `mes_inicio_opex=1`. **El total anual sale correcto; el flujo mensual no** —
+  las 4 ocurrencias de PINTURA caen en M1 y M3 en vez de Ene/Mar/Jul/Oct, y las
+  3 de CERTIFICACION caen todas en M1.
+  Agrava esto el `Math.max(1,…)` de `distribuirOpex` (App.jsx:289) y el del
+  onChange del selector de mes (App.jsx:1297,1312): aunque el mes persistiera,
+  una ocurrencia que caiga en M0 se empuja a M1 y se apila con la primera. Es el
+  bug de M0 ya listado arriba, y cualquier arreglo del mes de inicio de OPEX
+  tiene que resolverlo a la vez o el workaround sigue sin dar el flujo correcto.
+
 ## Excel de referencia
 
 En docs/. La hoja SERVICIO de cada uno es el resumen contra el que se verifica.

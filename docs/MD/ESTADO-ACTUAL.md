@@ -290,6 +290,25 @@ Se oculta por completo cuando el tipo no factura:
 const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";  // src/App.jsx:3447
 ```
 
+### Qué autocompleta la columna «Categoría»
+
+Elegir una categoría del desplegable de `CatalogInput` cambia **solo la categoría**
+(`src/App.jsx:720-734`). Descripción, unidad, cantidad y monto se copian de otra partida
+únicamente cuando el usuario da clic en uno de los chips **«Sugerencias del historial»**
+(`src/App.jsx:1209-1225`), que aparecen debajo del campo cuando ya hay categoría y todavía no hay
+descripción.
+
+Hasta el 2026-08-24, `pick()` disparaba además `onPartidaSelect(hist[0])` y rellenaba esos cuatro
+campos solo, al elegir la categoría. Eso producía partidas duplicadas exactas sin que el usuario lo
+advirtiera —«Cambio de servicio» llegó a 98 filas de Materiales donde había 29 reales, y su total de
+OPEX·Materiales daba `$160,588,772.90` en vez de `$127,156,439.29`. Las copias se reconocían porque
+traían los cinco campos que ese autollenado copiaba y perdían los que no (`repeticiones`,
+mes/año). Eliminado; los chips se conservan.
+
+Las sugerencias salen de `buscarHistorial` (`src/App.jsx:124-144`), que mezcla el histórico fijo del
+Excel con las partidas de **todos** los presupuestos que haya en el `localStorage`
+(`getHistorialLS`, `src/App.jsx:102-122`) — incluido el que se está capturando.
+
 ### Dónde vive hoy la captura de Ingresos
 
 **En Capturar costos (Step 3), y solo ahí.** Sus tres controles editables:
