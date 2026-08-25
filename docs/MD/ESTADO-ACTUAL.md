@@ -375,6 +375,23 @@ mes o sin año capturados, devuelve `0`** — la partida cae en M0 (`src/App.jsx
 - El monto por ocurrencia es `(p.monto||0)*(p.cantidad||1)` (`src/App.jsx:290`).
 - Un mes lleva monto solo si `i>=inicio` y `(i-inicio)%intervalo===0` (`src/App.jsx:296-297`).
 
+**`mesGastoMes`/`mesGastoAnio` NO entran en el cálculo de OPEX.** Los dos selectores de Mes y Año
+de Materiales y Viáticos (`src/App.jsx:1296-1315`) son la etiqueta de calendario; quien decide en
+qué mes cae el gasto es `mesInicioOpex`, y es el único de los dos que lee `distribuirOpex`. La
+relación entre ambos existe en un solo sentido y en un solo lugar: el `onChange` de esos selectores
+recalcula `mesInicioOpex` como `Math.max(1, mesIndexCapex(...))`. La carga desde Supabase
+**no** lo deriva (`supabaseApi.js:242-264`) — hacerlo reubicaría cada partida ya guardada.
+
+Los cinco usos de `mesIndexCapex` en cálculo (`src/App.jsx:409,413,422,428,1816`) son todos sobre
+`costos[id].capex` y `capexPM`; ninguno toca `mat` ni `via`.
+
+Desde el 2026-08-24 las dos columnas **sí se persisten** en `partidas_opex_mat` y
+`partidas_opex_via` (`opexToRow`, `supabaseApi.js:33-52`; lectura en `supabaseApi.js:242-264`).
+Antes de esa fecha no existían en el esquema: los selectores se vaciaban al reentrar al
+presupuesto y la fila mostraba «Inicia M1 (sin fecha)» aunque su mes de inicio guardado fuera
+correcto. Las partidas guardadas antes de esa fecha tienen las dos columnas en `null` y siguen
+mostrándose sin fecha hasta que se recapturen; sus montos no cambian por eso.
+
 ### Qué hace `repeticiones`
 
 Es el **tope de ocurrencias** de una partida OPEX:

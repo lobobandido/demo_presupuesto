@@ -166,20 +166,27 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   (325,499.14 = 50,000 en Mayo + 50,000 en Septiembre + 225,499.14 en otro mes).
   **Esas filas repetidas NO son duplicados** — no confundirlas con las que
   fabricaba el autollenado de `pick()` (arreglado hoy).
-  **Hoy el workaround no sobrevive**, por el defecto A de este mismo día: el mes
-  de inicio de OPEX se captura en los selectores Mes/Año, pero `mesGastoMes`/
-  `mesGastoAnio` no se persisten —`partidas_opex_mat` y `partidas_opex_via` ni
-  siquiera tienen esas columnas, y `opexToRow` (supabaseApi.js:33-42) no las
-  escribe—, así que al recargar todas las filas vuelven con `mes_inicio_opex=1`.
-  Medido: las 2 filas de PINTURA y las 3 de CERTIFICACION están hoy todas en
-  `mes_inicio_opex=1`. **El total anual sale correcto; el flujo mensual no** —
-  las 4 ocurrencias de PINTURA caen en M1 y M3 en vez de Ene/Mar/Jul/Oct, y las
-  3 de CERTIFICACION caen todas en M1.
-  Agrava esto el `Math.max(1,…)` de `distribuirOpex` (App.jsx:289) y el del
-  onChange del selector de mes (App.jsx:1297,1312): aunque el mes persistiera,
-  una ocurrencia que caiga en M0 se empuja a M1 y se apila con la primera. Es el
-  bug de M0 ya listado arriba, y cualquier arreglo del mes de inicio de OPEX
-  tiene que resolverlo a la vez o el workaround sigue sin dar el flujo correcto.
+  **El workaround ya se puede capturar, pero sigue sin dar el flujo correcto en
+  lo ya guardado.** El defecto que lo impedía —`mesGastoMes`/`mesGastoAnio` no
+  se persistían en OPEX— quedó arreglado el 2026-08-24: las columnas se
+  agregaron a `partidas_opex_mat`/`partidas_opex_via` y `opexToRow` ya las
+  escribe. De aquí en adelante, capturar una fila por ocurrencia con su Mes/Año
+  sobrevive a salir y reentrar.
+  Lo que NO se arregló, porque son cosas distintas: las partidas guardadas
+  **antes** de esa fecha tienen las dos columnas en `null` y su
+  `mes_inicio_opex` sigue en 1. Medido en «Cambio de servicio»: las 2 filas de
+  PINTURA y las 3 de CERTIFICACION están todas en `mes_inicio_opex=1`. **El
+  total anual sale correcto; el flujo mensual no** — las 4 ocurrencias de
+  PINTURA caen en M1 y M3 en vez de Ene/Mar/Jul/Oct, y las 3 de CERTIFICACION
+  caen todas en M1. Para corregirlas hay que reelegir su Mes/Año en la UI, lo
+  que sí recalcula `mesInicioOpex` (App.jsx:1300,1315) — y eso **mueve montos de
+  mes**, así que es una acción deliberada del usuario, no algo que la app deba
+  hacer sola al cargar.
+  Sigue abierto el `Math.max(1,…)` de `distribuirOpex` (App.jsx:289) y el del
+  onChange del selector de mes (App.jsx:1300,1315): una ocurrencia que caiga en
+  M0 se empuja a M1 y se apila con la primera. Es el bug de M0 ya listado
+  arriba. Mientras siga, el workaround no puede expresar un gasto que ocurra en
+  el mes cero del proyecto.
 
 ## Excel de referencia
 

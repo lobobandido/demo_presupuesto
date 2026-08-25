@@ -30,12 +30,22 @@ function capexToRow(p){
 // p.repeticiones||null: vacío/0 en memoria significa "sin tope, se repite todo el
 // proyecto" — mismo criterio que ya usa distribuirOpex (App.jsx), no se toca esa
 // lógica, solo el transporte del dato.
+// mes_gasto_mes/mes_gasto_anio: la fecha real que el usuario elige en los dos
+// selectores de OPEX. Es SOLO la etiqueta de calendario — quien decide en qué
+// mes cae el gasto es mes_inicio_opex, el único que lee distribuirOpex. Se
+// transportan con el mismo parseInt/null de capexToRow (arriba). Antes no se
+// escribían y las columnas ni existían en partidas_opex_mat/via (agregadas el
+// 2026-08-24): el dato moría al salir de la pantalla y al reentrar los dos
+// selectores salían vacíos con la leyenda "Inicia M1 (sin fecha)", aunque el
+// mes de inicio guardado fuera correcto.
 function opexToRow(p, incluirRepeticiones=false){
   const row = {
     categoria: p.cat||"", descripcion: p.desc||"", unidad: p.unidad||"Servicio",
     cantidad: p.cantidad||0, monto: p.monto||0,
     periodicidad: p.periodicidad||"mensual",
     mes_inicio_opex: p.mesInicioOpex||1,
+    mes_gasto_mes: p.mesGastoMes ? parseInt(p.mesGastoMes) : null,
+    mes_gasto_anio: p.mesGastoAnio ? parseInt(p.mesGastoAnio) : null,
   };
   if(incluirRepeticiones) row.repeticiones = p.repeticiones||null;
   return row;
@@ -232,6 +242,12 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
       // null/ausente significa "sin tope", mismo criterio que ya usa distribuirOpex.
       repeticiones:r.repeticiones||null,
+      // Etiqueta de calendario, igual que en capex (arriba). mesInicioOpex NO se
+      // recalcula a partir de esto: es el dato que ya decidió en qué mes cae el
+      // gasto y el único que lee distribuirOpex. Derivarlo aquí reubicaría cada
+      // partida ya guardada y movería todos los montos mensuales.
+      mesGastoMes:r.mes_gasto_mes?String(r.mes_gasto_mes):"",
+      mesGastoAnio:r.mes_gasto_anio?String(r.mes_gasto_anio):"",
     }));
   });
   (viaRows||[]).forEach(r=>{
@@ -242,6 +258,9 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
       // Mismo criterio que mat (arriba): null/ausente = "sin tope".
       repeticiones:r.repeticiones||null,
+      // Etiqueta de calendario, mismo criterio que mat: no deriva mesInicioOpex.
+      mesGastoMes:r.mes_gasto_mes?String(r.mes_gasto_mes):"",
+      mesGastoAnio:r.mes_gasto_anio?String(r.mes_gasto_anio):"",
     }));
   });
   (nomRows||[]).forEach(r=>{
