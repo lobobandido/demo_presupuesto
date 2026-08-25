@@ -120,12 +120,20 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   que el usuario no puede distinguir "esto ya no existe" de "revisa tu
   conexión"). Misma clase que el fantasma del presupuesto clonado ya listado
   arriba: la UI aparenta permanencia donde no la hay.
-  **Parcialmente cerrado el 2026-08-25**: el botón `🗑 Eliminar` volvió al
-  listado y `eliminarPresupuesto` sí reescribe localStorage, así que **borrar
-  desde la UI ya no deja fantasma**. Lo que sigue abierto es el otro camino:
-  borrar directo en el dashboard de Supabase sigue dejando el registro en el
-  caché, porque la causa raíz —`soloLocales` conserva todo lo que no viene del
-  remoto, y el `if(remotos.length===0) return;` de la línea 2262— no se tocó.
+  **El botón `🗑 Eliminar` (2026-08-25) NO cierra este bug.** `eliminarPresupuesto`
+  reescribe localStorage (App.jsx:2458), pero **localStorage es por origen**:
+  limpia el caché únicamente del navegador y el dominio donde se picó el botón.
+  Verificado el 2026-08-25: se borró desde `localhost:5173` y los mismos
+  registros **siguen apareciendo** en `demo-presupuesto.vercel.app`, que tiene
+  su propio `geolis_app_state_v4`. Cada combinación navegador × dominio arrastra
+  su propia colección de fantasmas, y ninguna se entera de los borrados hechas
+  desde otra.
+  La causa raíz sigue intacta y es la única que cerraría el bug de verdad:
+  `soloLocales` conserva todo lo que está en caché y no viene del remoto
+  (App.jsx:2246-2269), más el `if(remotos.length===0) return;` de la línea 2262.
+  Mientras eso no se arregle, el borrado desde el dashboard de Supabase y el
+  borrado desde otro origen dejan fantasma igual; el botón solo evita crear uno
+  nuevo en el origen donde se usó.
 
 - Un presupuesto se persiste en la nube al picar **Continuar** en Datos
   generales, ANTES de tener áreas: guardarPres llama a
@@ -157,13 +165,14 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   2026-08-07 Luis dijo "ahorita no" a un botón de eliminar y se quitó del
   listado y del breadcrumb. El 2026-08-25 volvió al listado (`🗑 Eliminar`,
   App.jsx:3009-3016) — **no está aprobado por él todavía**. Argumento para
-  cuando se le pregunte: (a) cierra el fantasma de localStorage, porque borrar
-  desde el dashboard de Supabase deja el registro en el caché
-  `geolis_app_state_v4` y el presupuesto sigue listado, mientras que
-  `eliminarPresupuesto` reescribe ese caché (App.jsx:2458); (b) **no requirió
-  código nuevo** — `eliminarPresupuesto` ya existía completa y solo estaba
-  inalcanzable, el diff es el botón más una frase en el `window.confirm` que ya
-  traía. Si dice que no, revertir es quitar el botón y nada más.
+  cuando se le pregunte: (a) **no requirió código nuevo** —
+  `eliminarPresupuesto` ya existía completa y solo estaba inalcanzable, el diff
+  es el botón más el texto del `window.confirm` que ya traía; (b) devuelve un
+  camino de borrado que no obliga a entrar al dashboard de Supabase.
+  **NO usar el argumento de que "cierra el fantasma de localStorage": es falso.**
+  Solo limpia el caché del navegador y dominio donde se picó el botón — ver el
+  bug del fantasma arriba. Si Luis dice que no, revertir es quitar el botón y
+  nada más.
 
 - **La app no puede expresar un gasto recurrente en meses IRREGULARES.**
   `distribuirOpex` solo sabe de `mesInicioOpex` + `periodicidad` (intervalo fijo

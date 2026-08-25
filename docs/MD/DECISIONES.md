@@ -78,17 +78,32 @@ El botón **🗑 Eliminar** volvió al listado (`App.jsx:3009-3016`). Luis habí
 
 Argumento a favor de dejarlo, para cuando se le pregunte:
 
-1. **Cierra el fantasma de localStorage.** Sin botón, el único camino de borrado era el dashboard
-   de Supabase, que borra la fila pero deja el registro en el caché `geolis_app_state_v4` del
-   navegador. El `useEffect` de montaje (`App.jsx:2246-2269`) lo conserva en `soloLocales` y el
-   presupuesto sigue apareciendo en el listado; al abrirlo sale "No se pudo cargar el presupuesto".
-   `eliminarPresupuesto` reescribe ese caché (`saveAppState`, `App.jsx:2458`), así que borrar desde
-   la UI no deja fantasma.
-2. **No requirió código nuevo.** `eliminarPresupuesto` ya existía completa desde antes; solo estaba
-   inalcanzable. El cambio es el botón, más una frase agregada al `window.confirm` que ya traía.
-3. **La confirmación nombra el presupuesto y advierte la cascada** — el borrado se lleva áreas y
-   partidas vía `ON DELETE CASCADE`, y ese diálogo es el único punto del flujo donde el usuario se
-   entera.
+1. **No requirió código nuevo.** `eliminarPresupuesto` ya existía completa desde antes; solo estaba
+   inalcanzable. El cambio es el botón, más el texto del `window.confirm` que ya traía.
+2. **Devuelve un camino de borrado que no obliga a entrar al dashboard de Supabase**, que hasta
+   hoy era el único y no está al alcance de un usuario normal.
+3. **La confirmación identifica el presupuesto y advierte la cascada** — nombre y fecha de inicio
+   (la fecha se agregó porque había tres registros con nombre casi idéntico: `Cambio de servicio`,
+   `CAMBIO DE SERVICIO` y `PRUEBA CAMBIO DE SERVICIO`), más el aviso de que se van las áreas y
+   partidas por `ON DELETE CASCADE`. Ese diálogo es el único punto del flujo donde el usuario se
+   entera de la cascada.
+
+### Corrección del 2026-08-25 — el argumento del fantasma era parcialmente falso
+
+La primera versión de esta nota decía que el botón "cierra el fantasma de localStorage". **No es
+cierto y no debe usarse con Luis.** `eliminarPresupuesto` sí reescribe el caché
+(`saveAppState`, `App.jsx:2458`), pero **localStorage es por origen**: limpia solo el navegador y
+el dominio donde se picó el botón.
+
+Verificado el mismo día: se borraron registros desde `localhost:5173` y **siguen apareciendo** en
+`demo-presupuesto.vercel.app`, que tiene su propio `geolis_app_state_v4`. El `soloLocales` del
+`useEffect` de montaje (`App.jsx:2246-2269`) conserva ahí todo lo que está en caché y no viene del
+remoto, que es exactamente la firma de un registro borrado desde otro lado.
+
+O sea: el botón **evita crear un fantasma nuevo en el origen donde se usa**, y nada más. El bug
+sigue abierto para el dashboard de Supabase y para cualquier otro navegador o dominio. Cerrarlo
+de verdad exige tocar `soloLocales` y el `if(remotos.length===0) return;` de la línea 2262 — ver
+"Bugs conocidos abiertos" en `CLAUDE.md`.
 
 Si Luis dice que no otra vez, revertir es quitar el botón: `eliminarPresupuesto` vuelve a quedar
 inalcanzable sin tocar nada más.

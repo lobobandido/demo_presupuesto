@@ -84,12 +84,18 @@ hace `setStep(5)` (`src/App.jsx:2304-2339`, el `setStep(5)` en `2334`). `abrirEd
 
 **Eliminar (desde 2026-08-25).** El cuarto botón del renglón llama a `eliminarPresupuesto`
 (`src/App.jsx:2448-2466`), que hasta entonces era código vivo e inalcanzable. La secuencia es:
-`window.confirm` con el nombre del presupuesto y la advertencia de que se borran sus áreas y
-partidas (`src/App.jsx:2449`) → `lista.filter` → `setPres(null)` si el borrado es el abierto →
-`saveAppState` con la lista nueva (`src/App.jsx:2458`, esto es lo que evita el fantasma de
-localStorage) → `eliminarPresupuestoDeNube(p.id)` (`src/supabaseApi.js:69-75`) solo si el `id` ya
-es `string` (un presupuesto que nunca llegó a la nube se borra únicamente del estado local).
+`window.confirm` con el nombre y la fecha de inicio del presupuesto, más la advertencia de que se
+borran sus áreas y partidas (`src/App.jsx:2449`) → `lista.filter` → `setPres(null)` si el borrado
+es el abierto → `saveAppState` con la lista nueva (`src/App.jsx:2458`) →
+`eliminarPresupuestoDeNube(p.id)` (`src/supabaseApi.js:69-75`) solo si el `id` ya es `string`
+(un presupuesto que nunca llegó a la nube se borra únicamente del estado local).
 El borrado en cascada de áreas y partidas lo hace la base por `ON DELETE CASCADE`, no la app.
+
+El `saveAppState` de la línea 2458 **no cierra el bug del presupuesto fantasma**: localStorage es
+por origen, así que limpia el caché solo del navegador y dominio donde se picó el botón. Un borrado
+hecho en `localhost:5173` deja el registro visible en `demo-presupuesto.vercel.app` y viceversa —
+verificado el 2026-08-25. Ver "Bugs conocidos abiertos" en `CLAUDE.md`.
+
 **No está reconfirmado con Luis** — ver R4 en `DECISIONES.md`.
 
 **Modal de Clonar** (`src/App.jsx:3026-3060`): muestra de cuál presupuesto se copia

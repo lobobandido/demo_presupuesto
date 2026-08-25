@@ -2446,7 +2446,7 @@ export default function App(){
 
   // Eliminar presupuesto — acción destructiva, requiere confirmación explícita
   async function eliminarPresupuesto(p){
-    const ok = window.confirm(`¿Eliminar el presupuesto "${p.nombre}"? Se borrarán también todas sus áreas y partidas. Esta acción no se puede deshacer.`);
+    const ok = window.confirm(`¿Eliminar el presupuesto "${p.nombre}" (inicio ${p.fechaInicio})? Se borrarán también todas sus áreas y partidas. Esta acción no se puede deshacer.`);
     if(!ok) return;
     const nuevaLista = lista.filter(x=>x.id!==p.id);
     setLista(nuevaLista);
@@ -2982,11 +2982,14 @@ export default function App(){
                 no cambian, solo el orden — ver "Corrección posterior" en
                 docs/specs/spec-navegacion-retro-410.md.
                 "Eliminar" se había quitado de aquí (duda 1 del spec, R4 de
-                docs/MD/DECISIONES.md) y vuelve hoy: es el único camino de borrado
-                que reescribe localStorage, y sin él el dashboard de Supabase deja
-                presupuestos fantasma en el listado. R4 queda pendiente de
-                reconfirmar con Luis — ver CLAUDE.md. La confirmación es el
-                window.confirm que eliminarPresupuesto ya traía (App.jsx:2449). */}
+                docs/MD/DECISIONES.md) y vuelve hoy, para no obligar a entrar al
+                dashboard de Supabase. R4 queda pendiente de reconfirmar con Luis
+                — ver CLAUDE.md. La confirmación es el window.confirm que
+                eliminarPresupuesto ya traía (App.jsx:2449); identifica por nombre
+                Y fecha de inicio porque hay registros con nombre casi idéntico.
+                OJO: esto NO cierra el bug del presupuesto fantasma. localStorage
+                es por origen — borrar en localhost no limpia el caché de
+                demo-presupuesto.vercel.app. Ver CLAUDE.md. */}
             <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
