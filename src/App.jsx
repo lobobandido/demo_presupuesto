@@ -2446,7 +2446,7 @@ export default function App(){
 
   // Eliminar presupuesto — acción destructiva, requiere confirmación explícita
   async function eliminarPresupuesto(p){
-    const ok = window.confirm(`¿Eliminar el presupuesto "${p.nombre}"? Esta acción no se puede deshacer.`);
+    const ok = window.confirm(`¿Eliminar el presupuesto "${p.nombre}"? Se borrarán también todas sus áreas y partidas. Esta acción no se puede deshacer.`);
     if(!ok) return;
     const nuevaLista = lista.filter(x=>x.id!==p.id);
     setLista(nuevaLista);
@@ -2956,7 +2956,7 @@ export default function App(){
         {/* Fase 1.7 — columna "Estado" oculta de la interfaz (NO se borra del modelo:
             guardarPres sigue escribiendo estado:"Borrador" tal cual). */}
         {/* Header tabla — oculto en móvil, donde cada fila se muestra como card apilada */}
-        <div className="lista-header" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 210px",gap:0,
+        <div className="lista-header" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 400px",gap:0,
           padding:"10px 20px",background:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
           {["Proyecto","Tipo","Acciones"].map((h,i)=>(
             <div key={h} style={{fontSize:11,fontWeight:700,color:C.grayMid,
@@ -2965,7 +2965,7 @@ export default function App(){
           ))}
         </div>
         {lista.map((p,i)=>(
-          <div key={p.id} className="lista-row" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 210px",
+          <div key={p.id} className="lista-row" style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 400px",
             gap:0,alignItems:"center",padding:"14px 20px",
             background:i%2===0?C.white:"#FAFAFA",
             borderBottom:i<lista.length-1?`1px solid ${C.line}`:"none",
@@ -2980,8 +2980,13 @@ export default function App(){
             {/* Punto 3.2, corrección posterior (Luis, WhatsApp) — orden invertido de
                 los primeros dos: Información general, Editar, Clonar. Los destinos
                 no cambian, solo el orden — ver "Corrección posterior" en
-                docs/specs/spec-navegacion-retro-410.md. "Eliminar" se quita de aquí
-                (ver duda 1 del spec) — y del breadcrumb, ver CLAUDE.md. */}
+                docs/specs/spec-navegacion-retro-410.md.
+                "Eliminar" se había quitado de aquí (duda 1 del spec, R4 de
+                docs/MD/DECISIONES.md) y vuelve hoy: es el único camino de borrado
+                que reescribe localStorage, y sin él el dashboard de Supabase deja
+                presupuestos fantasma en el listado. R4 queda pendiente de
+                reconfirmar con Luis — ver CLAUDE.md. La confirmación es el
+                window.confirm que eliminarPresupuesto ya traía (App.jsx:2449). */}
             <div className="lista-acciones" style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button onClick={()=>{
                 // FIX 6 v2: usar abrirPresupuesto para evitar race condition de setState
@@ -3000,6 +3005,14 @@ export default function App(){
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
                   cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>
                 Clonar
+              </button>
+              <button onClick={()=>eliminarPresupuesto(p)}
+                title="Eliminar este presupuesto y todas sus áreas y partidas"
+                style={{padding:"6px 14px",background:C.dangerLight,
+                  border:`1px solid ${C.danger}`,borderRadius:6,
+                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.danger,
+                  whiteSpace:"nowrap"}}>
+                🗑 Eliminar
               </button>
             </div>
           </div>

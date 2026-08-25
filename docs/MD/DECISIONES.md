@@ -30,7 +30,7 @@ contradigan entre sí, y la razón por la que ninguno sirve como referencia de i
 | R1 | **Destino de "Editar" del listado** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — la tabla lo manda al formulario de Datos generales (Step 1) | 2026-08-06 · corrección posterior en el mismo spec: al revisar la transcripción, *"cuando el cliente decía «formulario de edición» estaba señalando la pantalla de captura, no el paso 1"* | Va a **Capturar costos (Step 3)** — `App.jsx:2413`, commit `d2763e1` |
 | R2 | **Orden de los botones del listado** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"vamos a dejar editar aquí, como primer botón"* | 2026-08-07 · Luis, WhatsApp — *"aquí que vaya primero información general y después el botón de editar"* | **Información general, Editar, Clonar** — `App.jsx:2974-2991`, commit `f243158` |
 | R3 | **Destino del eslabón `[nombre del proyecto]`** | 2026-08-04 · `spec-navegacion-retro-410` §1 — *"primero inicio, luego presupuestos, que lo lleva al listado, y después el nombre del proyecto, que lo lleva a la edición"* | 2026-08-06 · *"De acá pues debería de mandarlo no aquí, sino al formulario de captura"* · *"aquí no debería de aparecer... o sea, sí, pero no debería de tener acción"* | Va a **Capturar costos**; en Capturar costos se muestra **sin acción** — `App.jsx:2752-2756`, `3825-3827`, commit `a00e5b0` |
-| R4 | **Eliminar un presupuesto** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"Quitar únicamente «Eliminar»"* del listado, dejándolo en el 🗑 de la barra superior | 2026-08-07 · Luis, WhatsApp — *"en el breadcrumb quite el botecito de eliminar en todas las pantallas"* | **Ningún camino de UI para eliminar** — `App.jsx:2915-2923`, commit `ec9d6bc`. `eliminarPresupuesto` (`App.jsx:2436-2454`) sigue definida e inalcanzable |
+| R4 | **Eliminar un presupuesto** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"Quitar únicamente «Eliminar»"* del listado, dejándolo en el 🗑 de la barra superior | 2026-08-07 · Luis, WhatsApp — *"en el breadcrumb quite el botecito de eliminar en todas las pantallas"* | **Botón 🗑 Eliminar de vuelta en el listado** (2026-08-25) — `App.jsx:3009-3016`. Llama a `eliminarPresupuesto`, que ya existía y estaba inalcanzable. **Pendiente de reconfirmar con Luis** (ver abajo) |
 | R5 | **Botón "Capturar costos" en Información general** | 2026-08-06 · `spec-recuperacion-datos` PASO 4 — lo pide para devolver el acceso perdido; implementado en `e4339bd` | 2026-08-06 · **el mismo día** — *"Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?"* | **No existe** — `App.jsx:4244-4248`, commit `d7abcef` |
 | R6 | **Modo lectura/edición in situ en Información general** | 2026-08-04 · `spec-final-ux-agosto` §2.2 — *"sí está bien, pero no en un formulario de editar… sí está bien, pero en la información general"*; implementado en `2e806fa` | 2026-08-05 · `spec-dos-sistemas-semana` día 3 — la pantalla deja de tener campos, así que el interruptor pierde sentido. El propio spec lo llama *"un cambio de criterio del cliente entre una retro y la siguiente, no un error de nadie"* | **No hay modo edición**: Step 5 es solo lectura fija — `App.jsx:4355`, `4366`, `4384`, `4399`, commits `fd7700a` / `94cac39` |
 | R7 | **Detalle por área en Información general** | 2026-08-05 · `spec-dos-sistemas-semana` día 3 — sale el `areas.map()` completo, por la queja *"dice materiales, materiales, materiales, materiales… nómina, nómina, nómina. No le entiendo"* | 2026-08-06 · corrección: *"el cliente pidió cambiar CÓMO se edita, no borrar el detalle por área de esta pantalla de consulta"* | **Vuelve, en texto plano** — `App.jsx:4299-4403`, commit `930016c` |
@@ -67,7 +67,31 @@ existen). R5 se revirtió el mismo día en que se implementó. Ninguna reversió
 | C19 | En Clonar, el tipo se hereda del origen y no se puede cambiar | *"Confirmado en producción — el tipo lo hereda el clon del origen y NO debe poder cambiarse ahí"* | 2026-08-06 | comentario en `App.jsx:3225-3229` | `App.jsx:3230-3237`, commit `1406992` |
 | C20 | Ocultar la sección de Ingresos para Departamento y Suministro | Sin cita; se deriva de que esos tipos no facturan | 2026-08-07 | `spec-dos-sistemas-semana` día 4 | `App.jsx:3447`, `3849`, commit `8e5f4dc` |
 | C21 | Un solo botón "Guardar" en Capturar costos | *"pedido de hoy: dejar de tener dos llamadas a `guardarPresupuestoEnNube` con snapshots independientes"* | 2026-08-10 | comentario en `App.jsx:2650-2657` | `guardarTodo` — `App.jsx:2658-2705`, commit `02f8a05` |
-| C22 | No hay forma de eliminar un presupuesto desde la UI, y así se queda por ahora | *"Confirmado por Luis: intencional por ahora, sin fecha de revisión"* | 2026-08-10 | `CLAUDE.md`, "Pendientes de producto" | Consecuencia de R4 |
+| C22 | ~~No hay forma de eliminar un presupuesto desde la UI, y así se queda por ahora~~ **REABIERTA el 2026-08-25** | *"Confirmado por Luis: intencional por ahora, sin fecha de revisión"* | 2026-08-10 | `CLAUDE.md`, "Pendientes de producto" | Consecuencia de R4 — sigue la suerte de R4 |
+
+---
+
+## R4 / C22 — pendiente de reconfirmar con Luis (2026-08-25)
+
+El botón **🗑 Eliminar** volvió al listado (`App.jsx:3009-3016`). Luis había dicho "ahorita no" el
+2026-08-07, así que **esto NO es una decisión cerrada: está pendiente de reconfirmar con él.**
+
+Argumento a favor de dejarlo, para cuando se le pregunte:
+
+1. **Cierra el fantasma de localStorage.** Sin botón, el único camino de borrado era el dashboard
+   de Supabase, que borra la fila pero deja el registro en el caché `geolis_app_state_v4` del
+   navegador. El `useEffect` de montaje (`App.jsx:2246-2269`) lo conserva en `soloLocales` y el
+   presupuesto sigue apareciendo en el listado; al abrirlo sale "No se pudo cargar el presupuesto".
+   `eliminarPresupuesto` reescribe ese caché (`saveAppState`, `App.jsx:2458`), así que borrar desde
+   la UI no deja fantasma.
+2. **No requirió código nuevo.** `eliminarPresupuesto` ya existía completa desde antes; solo estaba
+   inalcanzable. El cambio es el botón, más una frase agregada al `window.confirm` que ya traía.
+3. **La confirmación nombra el presupuesto y advierte la cascada** — el borrado se lleva áreas y
+   partidas vía `ON DELETE CASCADE`, y ese diálogo es el único punto del flujo donde el usuario se
+   entera.
+
+Si Luis dice que no otra vez, revertir es quitar el botón: `eliminarPresupuesto` vuelve a quedar
+inalcanzable sin tocar nada más.
 
 ---
 

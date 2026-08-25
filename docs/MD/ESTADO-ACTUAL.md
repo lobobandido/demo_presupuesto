@@ -73,22 +73,29 @@ Debajo del nombre de cada renglón se muestran `Inicio del proyecto: …` y `Vig
 
 | # | Botón | Handler | Destino | Referencia |
 |---|---|---|---|---|
-| 1 | `Información general` | `abrirPresupuesto(p)` | Step 5 | `src/App.jsx:2974-2980` · handler `2419-2433` |
-| 2 | `Editar` | `abrirEdit(p)` | **Step 3** | `src/App.jsx:2981-2984` · handler `2382-2414` |
-| 3 | `Clonar` | `setClonarModal(p)` + `setClonarTipo(p.tipo)` | abre modal | `src/App.jsx:2985-2991` |
+| 1 | `Información general` | `abrirPresupuesto(p)` | Step 5 | `src/App.jsx:2991-2997` · handler `2419-2433` |
+| 2 | `Editar` | `abrirEdit(p)` | **Step 3** | `src/App.jsx:2998-3001` · handler `2382-2414` |
+| 3 | `Clonar` | `setClonarModal(p)` + `setClonarTipo(p.tipo)` | abre modal | `src/App.jsx:3002-3008` |
+| 4 | `🗑 Eliminar` | `eliminarPresupuesto(p)` | borra y se queda en Step 0 | `src/App.jsx:3009-3016` · handler `2448-2466` |
 
 `abrirPresupuesto` no navega directo: guarda en `presToOpen` y un `useEffect` aplica el estado y
 hace `setStep(5)` (`src/App.jsx:2304-2339`, el `setStep(5)` en `2334`). `abrirEdit` termina en
 `setStep(3)` (`src/App.jsx:2413`).
 
-**No existe ningún botón de eliminar en el listado.** La función `eliminarPresupuesto`
-(`src/App.jsx:2436-2454`) y `eliminarPresupuestoDeNube` (`src/supabaseApi.js:69-75`) siguen
-definidas, pero **ningún JSX las invoca** — son código vivo e inalcanzable.
+**Eliminar (desde 2026-08-25).** El cuarto botón del renglón llama a `eliminarPresupuesto`
+(`src/App.jsx:2448-2466`), que hasta entonces era código vivo e inalcanzable. La secuencia es:
+`window.confirm` con el nombre del presupuesto y la advertencia de que se borran sus áreas y
+partidas (`src/App.jsx:2449`) → `lista.filter` → `setPres(null)` si el borrado es el abierto →
+`saveAppState` con la lista nueva (`src/App.jsx:2458`, esto es lo que evita el fantasma de
+localStorage) → `eliminarPresupuestoDeNube(p.id)` (`src/supabaseApi.js:69-75`) solo si el `id` ya
+es `string` (un presupuesto que nunca llegó a la nube se borra únicamente del estado local).
+El borrado en cascada de áreas y partidas lo hace la base por `ON DELETE CASCADE`, no la app.
+**No está reconfirmado con Luis** — ver R4 en `DECISIONES.md`.
 
-**Modal de Clonar** (`src/App.jsx:3001-3035`): muestra de cuál presupuesto se copia
-(`src/App.jsx:3008`), rejilla de cuatro tipos (`src/App.jsx:3014-3027`) y dos botones —
-`Cancelar` → cierra (`src/App.jsx:3030`) y `Continuar` → `clonarPresupuesto(clonarModal,clonarTipo)`
-(`src/App.jsx:3031`, handler `2463-2526`, aterriza en `setStep(1)` en `3525`).
+**Modal de Clonar** (`src/App.jsx:3026-3060`): muestra de cuál presupuesto se copia
+(`src/App.jsx:3033`), rejilla de cuatro tipos (`src/App.jsx:3038-3052`) y dos botones —
+`Cancelar` → cierra (`src/App.jsx:3055`) y `Continuar` → `clonarPresupuesto(clonarModal,clonarTipo)`
+(`src/App.jsx:3056`, handler `2475-2538`, aterriza en `setStep(1)`).
 
 ---
 
@@ -532,7 +539,7 @@ Ordenado por spec de origen. Solo se listan puntos donde el spec pide algo concr
 |---|---|---|
 | **1.4** | Información general con `✎ Editar partidas` | No existe. Los botones son `Resumen mensual →` y `⬇ PDF` (`src/App.jsx:4250-4251`) |
 | **1.4** | Resumen mensual con `Editar por área` | No existe (`src/App.jsx:3991-3999`) |
-| **1.5** | Botón del listado etiquetado `Datos generales` | Se llama `Editar` y va a Step 3, no a Step 1 (`src/App.jsx:2981-2984`) |
+| **1.5** | Botón del listado etiquetado `Datos generales` | Se llama `Editar` y va a Step 3, no a Step 1 (`src/App.jsx:2998-3001`) |
 | **1.6.b** | `LineChart` debe recibir las etiquetas ya calculadas | `LineChart` acepta el prop `meses` (`src/App.jsx:1576`, `1602`) pero **nunca se renderiza** en toda la app — es código muerto |
 | **2.1** | Indicador de 3 pasos durante la creación | No existe. `flujoCreacion` sí existe (`src/App.jsx:2221`) y se usa para el título y los botones, pero **no hay ningún JSX de indicador** dentro de `wrap` |
 | **2.2 / 2.3 / 2.4** | Ocultar gráficas al editar · modal de Cancelar · chip de modo fuera del PDF | No existen. Superados por `spec-dos-sistemas-semana.md` día 3, que eliminó el modo edición de Step 5 |
@@ -546,7 +553,7 @@ Ordenado por spec de origen. Solo se listan puntos donde el spec pide algo concr
 |---|---|---|
 | **4** | Formulario de edición con botón `Información general` | No existe; solo `Cancelar` y `Guardar`/`Continuar` (`src/App.jsx:3058-3061`). El comentario de `3049-3053` documenta que Luis pidió quitarlo |
 | **3.2** | «Editar» primero en el listado | El orden es `Información general`, `Editar`, `Clonar` (`src/App.jsx:2974-2991`), revertido por pedido posterior de Luis |
-| **3.2** | Que Eliminar quede al menos en el 🗑 de la barra superior | **No queda ningún camino de UI para eliminar** (`src/App.jsx:2915-2923`) |
+| **3.2** | Que Eliminar quede al menos en el 🗑 de la barra superior | El 🗑 de la barra superior sigue sin existir, pero desde el 2026-08-25 **sí hay camino de UI**: el botón `🗑 Eliminar` del listado (`src/App.jsx:3009-3016`) |
 
 ### De `spec-dos-sistemas-semana.md`
 

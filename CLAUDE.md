@@ -89,8 +89,9 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   guarda un área: aparece en el listado como si existiera, pero no está en
   Supabase. Si su id local se promueve a string sin que la fila exista,
   abrirPresupuesto falla con "No se pudo cargar el presupuesto" y el registro
-  queda inaccesible — el 🗑 tampoco aparece, porque requiere que pres se haya
-  cargado. Se limpia recargando la página. Misma clase de problema que tenían
+  queda inaccesible. Se limpia recargando la página, o desde el 2026-08-25 con
+  el botón `🗑 Eliminar` del listado, que no necesita que el presupuesto se haya
+  podido cargar. Misma clase de problema que tenían
   los ingresos antes de moverlos a Capturar costos: la UI aparenta permanencia
   donde no la hay.
 - guardarArea y guardarIngresos pueden solaparse: ambos hacen delete+insert
@@ -119,10 +120,12 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   que el usuario no puede distinguir "esto ya no existe" de "revisa tu
   conexión"). Misma clase que el fantasma del presupuesto clonado ya listado
   arriba: la UI aparenta permanencia donde no la hay.
-  **Agrava el A1 de docs/MD/DECISIONES.md**: como no hay ningún botón de
-  eliminar en la UI, el dashboard de Supabase es el único camino para borrar —
-  y es justo el que deja fantasmas. Cualquier arreglo de A1 (devolver el borrado
-  a la UI) debería resolver los dos de una vez.
+  **Parcialmente cerrado el 2026-08-25**: el botón `🗑 Eliminar` volvió al
+  listado y `eliminarPresupuesto` sí reescribe localStorage, así que **borrar
+  desde la UI ya no deja fantasma**. Lo que sigue abierto es el otro camino:
+  borrar directo en el dashboard de Supabase sigue dejando el registro en el
+  caché, porque la causa raíz —`soloLocales` conserva todo lo que no viene del
+  remoto, y el `if(remotos.length===0) return;` de la línea 2262— no se tocó.
 
 - Un presupuesto se persiste en la nube al picar **Continuar** en Datos
   generales, ANTES de tener áreas: guardarPres llama a
@@ -150,10 +153,17 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 
 ## Pendientes de producto
 
-- No hay forma de eliminar un presupuesto desde ninguna parte de la UI (se quitó
-  del listado en spec-navegacion-retro-410, y del breadcrumb hoy, por pedido de
-  Luis). Si se necesita, hoy solo es posible por Supabase directo. Confirmado
-  por Luis (hoy): intencional por ahora, sin fecha de revisión.
+- **R4 de docs/MD/DECISIONES.md queda PENDIENTE DE RECONFIRMAR con Luis.** El
+  2026-08-07 Luis dijo "ahorita no" a un botón de eliminar y se quitó del
+  listado y del breadcrumb. El 2026-08-25 volvió al listado (`🗑 Eliminar`,
+  App.jsx:3009-3016) — **no está aprobado por él todavía**. Argumento para
+  cuando se le pregunte: (a) cierra el fantasma de localStorage, porque borrar
+  desde el dashboard de Supabase deja el registro en el caché
+  `geolis_app_state_v4` y el presupuesto sigue listado, mientras que
+  `eliminarPresupuesto` reescribe ese caché (App.jsx:2458); (b) **no requirió
+  código nuevo** — `eliminarPresupuesto` ya existía completa y solo estaba
+  inalcanzable, el diff es el botón más una frase en el `window.confirm` que ya
+  traía. Si dice que no, revertir es quitar el botón y nada más.
 
 - **La app no puede expresar un gasto recurrente en meses IRREGULARES.**
   `distribuirOpex` solo sabe de `mesInicioOpex` + `periodicidad` (intervalo fijo
