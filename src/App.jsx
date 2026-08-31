@@ -59,7 +59,10 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   // grafía exacta que hay capturada hoy en Supabase.
   "ARTÍCULOS DE SEGURIDAD": "ARTICULOS DE SEGURIDAD",
   "VIÁTICOS": "VIATICOS",
-  "ARRENDAMIENTOS DE INMUEBLES": "ARRENDAMIENTO DE INMUEBLES",
+  // El valor es el RUBRO, no la subcuenta: macroDeCategoria NO encadena, así que
+  // apuntar a "ARRENDAMIENTO DE INMUEBLES" (que es subcuenta, CSV línea 7)
+  // creaba un grupo fantasma separado del de la grafía en singular.
+  "ARRENDAMIENTOS DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV",
   "MATERIAL DE SALUD": "MATERIALES DE SALUD",
   // TUBERIAS es SUBCUENTA del rubro MATERIALES en el catálogo 2027 (CSV línea
   // 60), no un rubro. Estuvo mapeada a sí misma entre el commit 45bbe74 y el
