@@ -3620,10 +3620,10 @@ export default function App(){
           <div style={{marginBottom:16}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-              <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Ingresos</h3>
+              <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Facturación</h3>
             </div>
             <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-              Precio fijo mensual del servicio × meses del proyecto. Puedes agregar ingresos adicionales en meses específicos.
+              Precio fijo mensual del servicio × meses del proyecto. Puedes agregar facturación adicional en meses específicos.
             </div>
           </div>
 
@@ -3666,19 +3666,19 @@ export default function App(){
           <div style={{marginBottom:16}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <div>
-                <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Ingresos</div>
-                <div style={{fontSize:11,color:C.grayMid}}>Captura el ingreso de cada mes. Si el monto es igual todos los meses, usa el precio fijo de arriba; si varía, agrega cada mes por separado aquí.</div>
+                <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Facturación</div>
+                <div style={{fontSize:11,color:C.grayMid}}>Captura la facturación de cada mes. Si el monto es igual todos los meses, usa el precio fijo de arriba; si varía, agrega cada mes por separado aquí.</div>
               </div>
               <button onClick={()=>setIngAd(prev=>[...prev,{id:uid(),mes:1,anio:new Date().getFullYear(),monto:0,desc:"Renovación de contrato"}])}
                 style={{padding:"7px 16px",background:C.yellow,border:"none",borderRadius:7,
                   cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,whiteSpace:"nowrap"}}>
-                + Agregar ingreso
+                + Agregar facturación
               </button>
             </div>
             {ingAdicionales.length===0&&(
               <div style={{padding:"14px 16px",background:"#F8F8F8",borderRadius:8,
                 border:`1px dashed ${C.grayBorder}`,fontSize:12,color:C.grayMid,textAlign:"center"}}>
-                Sin ingresos adicionales — solo el precio fijo mensual
+                Sin facturación adicional — solo el precio fijo mensual
               </div>
             )}
             {ingAdicionales.map((ing,idx)=>(
@@ -3750,11 +3750,12 @@ export default function App(){
                 {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
                     ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
                     Con precioFijo=0 daba el mismo total que esta fila, aparentando
-                    una suma duplicada sin serlo. Renombrada FACTURACIÓN → INGRESOS
-                    para combinar con el título de sección. mIngresos/
-                    totalIngresosAnual sin cambios. */}
+                    una suma duplicada sin serlo. Se llamó FACTURACIÓN, luego
+                    INGRESOS para combinar con el título de sección, y vuelve a
+                    FACTURACIÓN el 2026-08-31 con el título. mIngresos/
+                    totalIngresosAnual sin cambios en ninguno de los tres pasos. */}
                 <tr style={{background:C.successLight}}>
-                  <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>INGRESOS</td>
+                  <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
                   {mIngresos.map((v,i)=>(
                     <td key={i} style={{padding:"5px 4px",textAlign:"right",
                       color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
@@ -4154,7 +4155,7 @@ export default function App(){
               PASO C — oculta por completo para Departamento/Suministro
               (mostrarIngresos), que no facturan. */}
           {mostrarIngresos&&card(<>
-            {sTitle("Ingresos","Precio fijo mensual del servicio × meses del proyecto, más ingresos adicionales por mes. Se captura en Capturar costos.")}
+            {sTitle("Facturación","Precio fijo mensual del servicio × meses del proyecto, más facturación adicional por mes. Se captura en Capturar costos.")}
 
             {/* Tabla resumen M0-M12 */}
             <ScrollHint minWidth={800}>
@@ -4176,12 +4177,13 @@ export default function App(){
                   {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
                       ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
                       Con precioFijo=0 daba el mismo total que esta fila, aparentando
-                      una suma duplicada sin serlo. Renombrada FACTURACIÓN → INGRESOS
-                      para combinar con el título de sección. mIngresos/
+                      una suma duplicada sin serlo. Se llamó FACTURACIÓN, luego
+                      INGRESOS para combinar con el título de sección, y vuelve a
+                      FACTURACIÓN el 2026-08-31 con el título. mIngresos/
                       totalIngresosAnual sin cambios. Mismo patrón que Capturar
                       costos. */}
                   <tr style={{background:C.successLight}}>
-                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>INGRESOS</td>
+                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
                     {mIngresos.map((v,i)=>(
                       <td key={i} style={{padding:"5px 4px",textAlign:"right",
                         color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
@@ -4206,7 +4208,7 @@ export default function App(){
           {/* ── KPIs ────────────────────────────────────────────────────── */}
           <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
             {[
-              {l:"Ingresos",    v:totalIngresosAnual,c:C.success,   b:C.successLight},
+              {l:"Facturación",v:totalIngresosAnual,c:C.success,   b:C.successLight},
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
               {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
               {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
@@ -4400,7 +4402,7 @@ export default function App(){
           {/* ── Los cinco KPIs del presupuesto completo — mismo bloque que Step 4 ── */}
           <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
             {[
-              {l:"Ingresos",    v:totalIngresosAnual,c:C.success,   b:C.successLight},
+              {l:"Facturación",v:totalIngresosAnual,c:C.success,   b:C.successLight},
               {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
               {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
               {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
