@@ -66,7 +66,13 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   // "TUBERIAS" que no existe entre los 15 rubros. Se captura así porque así
   // vino aprobado; cambiar el valor a "MATERIALES" es la corrección si se
   // decide que debe colgar de su rubro.
-  "TUBERIAS": "TUBERIAS"};
+  "TUBERIAS": "TUBERIAS",
+  // ─── Aprobados por el usuario el 2026-08-31 ───
+  // Estos dos sí requerían criterio: el texto capturado no es la subcuenta del
+  // catálogo, se decidió a cuál corresponde. El valor es el RUBRO, que es lo
+  // que agrupa la tabla contable.
+  "HOSPEDAJE": "VIATICOS",            // subcuenta del catálogo: SERVICIOS DE HOSPEDAJE
+  "IMPRESORAS EN RENTA": "SERVICIOS"};// subcuenta del catálogo: SERVICIOS DE COPIADO
 
 // Normalización SOLO para comparar categorías contra el catálogo: ignora
 // mayúsculas, espacios sobrantes y ACENTOS. No cambia ninguna lista ni ningún
