@@ -271,9 +271,25 @@ lectura** (`src/App.jsx:4299-4403`) → Gráfica de flujo (`src/App.jsx:4406-443
 por categoría (`src/App.jsx:4433-4457`).
 
 El detalle por área usa los mismos `SCard`/`PartidaTable`/`NominaTable` de Step 3 pero con
-`readOnly={true}` (`src/App.jsx:4355`, `4366`, `4384`, `4399`): filas de puro texto, sin inputs, sin
+`readOnly={true}` (`src/App.jsx:4537`, `4548`, `4566`, `4581`): filas de puro texto, sin inputs, sin
 «+ Agregar», sin `×` y sin botón Guardar. **No existe ningún interruptor de modo lectura/edición en
 esta pantalla.**
+
+**Colapsado desde el 2026-08-31.** Cada caja de área va envuelta en `AreaColapsable`
+(`src/App.jsx:1663-1693`), **cerrada por defecto siempre**. El encabezado del área —icono, nombre,
+presupuesto y badge de estado— es el disparador, con el triángulo `▶`/`▼`, el mismo patrón que los
+subtotales de `TablaServicio`. Dentro del colapso quedan las tres tarjetas de KPI del área y las
+cuatro `SCard`. Pedido de Luis: *"elimínalas de ahí porque inclusive nadie las va a ver"* y *"ya
+viene sumarizado en esta tabla de CAPEX y OPEX"*; no se borran porque Salvador (PMO) las ocupa para
+revisar su área.
+
+El estado abierta/cerrada **no se persiste**: vive en el componente y se reinicia en cada visita.
+Las claves de `localStorage` siguen siendo seis y no se agregó ninguna.
+
+> **Cuidado al tocar esto.** El bloque de encabezado del área es carácter por carácter idéntico en
+> Step 3 (`src/App.jsx:3898`) y en Step 5 (`src/App.jsx:4496`). Un reemplazo por texto colapsa
+> también las cajas de **Capturar costos**, que deben quedarse abiertas porque ahí se trabaja.
+> Cualquier cambio a este bloque se acota a la parte del archivo posterior a `if(step===5){`.
 
 ---
 
@@ -285,7 +301,7 @@ En Step 3, de arriba hacia abajo:
 
 | # | Sección | Ámbito | Referencia |
 |---|---|---|---|
-| 0 | **Ingresos** (condicional por tipo) | todo el presupuesto | `src/App.jsx:3495-3648` |
+| 0 | **Facturación** (condicional por tipo) | todo el presupuesto | `src/App.jsx:3617-3770` |
 | — | Sidebar de participantes + Totales del presupuesto | — | `src/App.jsx:3653-3705` |
 | 1 | **CAPEX · Equipos e inversiones** | área activa | `src/App.jsx:3748-3769` |
 | 2 | **OPEX · Nómina y Mano de Obra** | área activa | `src/App.jsx:3772-3783` |
