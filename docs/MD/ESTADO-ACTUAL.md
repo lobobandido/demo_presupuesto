@@ -73,7 +73,7 @@ Debajo del nombre de cada renglón se muestran `Inicio del proyecto: …` y `Vig
 
 | # | Botón | Handler | Destino | Referencia |
 |---|---|---|---|---|
-| 1 | `Información general` | `abrirPresupuesto(p)` | Step 5 | `src/App.jsx:2991-2997` · handler `2419-2433` |
+| 1 | `Ver` | `abrirPresupuesto(p)` | Step 5 | `src/App.jsx:3115-3121` · handler `2419-2433` |
 | 2 | `Editar` | `abrirEdit(p)` | **Step 3** | `src/App.jsx:2998-3001` · handler `2382-2414` |
 | 3 | `Clonar` | `setClonarModal(p)` + `setClonarTipo(p.tipo)` | abre modal | `src/App.jsx:3002-3008` |
 | 4 | `🗑 Eliminar` | `eliminarPresupuesto(p)` | borra y se queda en Step 0 | `src/App.jsx:3009-3016` · handler `2448-2466` |

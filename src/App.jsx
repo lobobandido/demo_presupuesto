@@ -3098,7 +3098,8 @@ export default function App(){
             </div>
             <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
             {/* Punto 3.2, corrección posterior (Luis, WhatsApp) — orden invertido de
-                los primeros dos: Información general, Editar, Clonar. Los destinos
+                los primeros dos: Ver (antes rotulado "Información general"),
+                Editar, Clonar. Los destinos
                 no cambian, solo el orden — ver "Corrección posterior" en
                 docs/specs/spec-navegacion-retro-410.md.
                 "Eliminar" se había quitado de aquí (duda 1 del spec, R4 de
@@ -3117,7 +3118,7 @@ export default function App(){
               }}
                 style={{padding:"6px 14px",background:C.white,
                   border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Información general</button>
+                  cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>Ver</button>
               <button onClick={()=>abrirEdit(p)}
                 style={{padding:"6px 14px",background:C.yellow,border:"none",
                   borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700,color:C.grayDark,
