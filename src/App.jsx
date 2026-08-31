@@ -2067,10 +2067,14 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   const rowsF=[
     ["","","","","Mes 0","Mes 0",...Array(11).fill("").map((_,i)=>`Mes ${i+1}`)],
     ["","","","","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","FEB"],
+    // "Ingresos (MN)" se queda: es encabezado de sección y hace par con
+    // "Egresos (MX)" tres renglones abajo, igual que INGRESOS 2027 / EGRESOS 2027
+    // en el archivo de contabilidad. Los tres renglones de adentro sí pasan a
+    // Facturación: nombran el monto por sí solos.
     ["Ingresos (MN)","","","",""],
-    ["INGRESOS","","","","",...mIngresos],
-    ["Ingresos Totales (MN)","","","","",...mIngresos],
-    ["Ingresos Totales (MN) IVA","","","","",...mIngresosIVA],
+    ["FACTURACIÓN","","","","",...mIngresos],
+    ["Facturación Total (MN)","","","","",...mIngresos],
+    ["Facturación Total (MN) IVA","","","","",...mIngresosIVA],
     [""],
     ["Egresos (MX)","","","",""],
     ["OPEX","","","","",...mOpex],
@@ -2172,7 +2176,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
     ["Generado:",new Date().toLocaleDateString("es-MX",{year:"numeric",month:"long",day:"numeric"})],
     [""],
     ["RESUMEN FINANCIERO"],
-    ["Ingresos totales:",totalIngresosAnual],
+    ["Facturación total:",totalIngresosAnual],
     ["CAPEX total:",totalCAPEX],
     ["OPEX total:",totalOPEX],
     ["Total egresos:",totalEgr],
