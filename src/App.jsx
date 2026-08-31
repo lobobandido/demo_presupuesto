@@ -101,6 +101,34 @@ function normCat(s){
 const MACRO_POR_NORM  = new Map(CATS_MACRO_CONTABLE.map(m=>[normCat(m), m]));
 const SUBCAT_POR_NORM = new Map(Object.entries(SUBCAT_MAPPING).map(([k,v])=>[normCat(k), v]));
 
+// ─── GUARDARRAÍL DE DESARROLLO ──────────────────────────────────────────────
+// Todo VALOR de SUBCAT_MAPPING tiene que ser uno de los rubros de
+// CATS_MACRO_CONTABLE. Si apunta a una subcuenta, macroDeCategoria la devuelve
+// tal cual —NO encadena, no vuelve a resolver— y esa partida termina en un
+// grupo con un nombre que no existe entre los rubros del catálogo. No truena
+// nada: el monto es correcto, el subtotal es correcto, y el error solo se ve
+// leyendo con cuidado la tabla contable.
+//
+// Pasó dos veces el 2026-08-31: "TUBERIAS" -> "TUBERIAS" (commit 45bbe74,
+// corregido en 68dd4ee) y "ARRENDAMIENTOS DE INMUEBLES" ->
+// "ARRENDAMIENTO DE INMUEBLES" (commit 45bbe74, corregido en 2550d47).
+//
+// import.meta.env.DEV lo deja fuera del bundle de producción: Vite lo sustituye
+// por false y elimina el bloque entero como código muerto.
+if(import.meta.env.DEV){
+  const rubros=new Set(CATS_MACRO_CONTABLE.map(normCat));
+  const malas=Object.entries(SUBCAT_MAPPING).filter(([,v])=>!rubros.has(normCat(v)));
+  if(malas.length){
+    console.error(
+      `[catálogo contable] ${malas.length} entrada(s) de SUBCAT_MAPPING apuntan a algo que NO es\n`+
+      `un rubro de CATS_MACRO_CONTABLE. macroDeCategoria devuelve el valor sin volver a\n`+
+      `resolverlo, así que cada una crea un grupo fantasma en la tabla contable.\n`+
+      `Corregir el VALOR para que sea el rubro al que pertenece la subcuenta:\n`+
+      malas.map(([k,v])=>`    "${k}"  ->  "${v}"   ← "${v}" no es un rubro`).join("\n")
+    );
+  }
+}
+
 // Categoría escrita → categoría contable macro (misma regla que usa el modal
 // "¿A qué categoría contable pertenece?" y el aviso de partidas sin categoría) —
 // versión standalone para usarse fuera del componente (ej. exportarExcel).
