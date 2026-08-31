@@ -53,17 +53,40 @@ const CATS_MACRO_CONTABLE = ["ACTIVOS", "ARRENDA DE INMUEBLES Y SERV", "ARTICULO
 // Mapping: subcategoría escrita → categoría macro contable
 const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LUZ, AGUA E INTERNET": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LIMPIEZA": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE VIGILANCIA": "ARRENDA DE INMUEBLES Y SERV", "TELEFONIA FIJA": "ARRENDA DE INMUEBLES Y SERV", "AGUA Y ALCANTARILLADO": "ARRENDA DE INMUEBLES Y SERV", "ARRENDAMIENTO DE OF. MOVILES": "ARRENDA DE INMUEBLES Y SERV", "ROPA Y ARTICULOS DE PROTECCION": "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO (ADQUISICION)": "EQUIPO DE COMPUTO", "ARRENDAMIENTO DE EQ. COMPUTO": "EQUIPO DE COMPUTO", "ENSERES MENORES DIVERSOS": "EQUIPOS Y ENSERES", "INSUMOS AGRICOLAS": "INSUMOS OPERATIVOS", "PAPELERIA Y UTILES DE OFICINA": "INSUMOS DE OFICINA", "ARTICULOS DE ASEO Y SANITARIOS": "INSUMOS DE OFICINA", "ARTICULOS DE CAFETERIA": "INSUMOS DE OFICINA", "ARTICULOS DIGITALES Y DE COMPUTO": "INSUMOS DE OFICINA", "SERVICIOS DE MERCADOTECNIA": "MARKETING", "PUBLICIDAD Y PROPAGANDA": "MARKETING", "ABRASIVOS": "MATERIALES", "ACEITE LUBRICANTE P/MAQUINARIA": "MATERIALES", "ACEITES Y LUBRICANTES": "MATERIALES", "BANDA CADEN TRANS COPL": "MATERIALES", "CONEXIONES PARA TUBERIA": "MATERIALES", "FIBRAS HILOS Y TELAS": "MATERIALES", "GRASAS": "MATERIALES", "HERRAMIENTAS MANUALES": "MATERIALES", "LLANTAS, CAMARAS Y ACCESORIOS": "MATERIALES", "MATERIAL ELECTRICO": "MATERIALES", "MATERIALES Y ART P/MANTENIMIENTO": "MATERIALES", "POSTE DE TELEMETRIA": "MATERIALES", "MATERIAL PRIMEROS AUXILIOS": "MATERIALES DE SALUD", "NOMINA": "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR (PARA TRANSMITIR)": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE BANDA ANCHA": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE RADIOCOMUNICACION": "SERV TELEFONIA CELULAR Y RADIO", "CUADRILLA DE INSTALACION": "SERVICIOS", "HERRAMIENTA": "SERVICIOS", "CAPACITACION": "SERVICIOS DE CAPACITACION", "SERVICIOS MEDICOS": "SERVICIOS DE SALUD", "SERVICIOS Y COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "ALIMENTACION": "VIATICOS", "CASETAS PUENTES Y PEAJES": "VIATICOS", "SERV DE TRANSPORTAC AEREA": "VIATICOS", "SERV DE TRANSPORTAC TERRESTRE": "VIATICOS", "SERVICIOS DE HOSPEDAJE": "VIATICOS", "CAJA CHICA": "VIATICOS", "REEMBOLSOS": "VIATICOS", "MOBILIARIO": "EQUIPOS Y ENSERES", "SILLA DE OFICINA": "EQUIPOS Y ENSERES", "ESCRITORIO": "EQUIPOS Y ENSERES", "MUEBLES": "EQUIPOS Y ENSERES"};
 
+// Normalización SOLO para comparar categorías contra el catálogo: ignora
+// mayúsculas, espacios sobrantes y ACENTOS. No cambia ninguna lista ni ningún
+// texto que capture o vea el usuario — únicamente cómo se comparan.
+// Motivo: los dropdowns de captura están acentuados (CAT_OPEX trae "VIÁTICOS",
+// "NÓMINA Y ADICIONALES", "ARTÍCULOS DE SEGURIDAD") y el catálogo contable no
+// (VIATICOS, NOMINA Y ADICIONALES, ARTICULOS DE SEGURIDAD). Con la comparación
+// anterior —.trim().toUpperCase() y nada más— elegir una opción del propio menú
+// de la app la mandaba a SIN CATEGORÍA: 13 de 18 en CAT_OPEX, 3 de 7 en
+// CAT_OPEX_VIA y 4 de 10 en CAT_CAPEX.
+function normCat(s){
+  return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .toUpperCase().replace(/\s+/g," ").trim();
+}
+// Índices normalizados, armados una sola vez al cargar el módulo. El valor que
+// guardan es la grafía CANÓNICA del catálogo, para que dos grafías de la misma
+// cuenta ("VIÁTICOS" y "VIATICOS") caigan en el mismo grupo y no en dos.
+const MACRO_POR_NORM  = new Map(CATS_MACRO_CONTABLE.map(m=>[normCat(m), m]));
+const SUBCAT_POR_NORM = new Map(Object.entries(SUBCAT_MAPPING).map(([k,v])=>[normCat(k), v]));
+
 // Categoría escrita → categoría contable macro (misma regla que usa el modal
 // "¿A qué categoría contable pertenece?" y el aviso de partidas sin categoría) —
 // versión standalone para usarse fuera del componente (ej. exportarExcel).
 function macroDeCategoria(cat){
-  const catUp=(cat||"").trim().toUpperCase();
-  if(!catUp) return "SIN CATEGORÍA";
-  if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return catUp;
-  if(SUBCAT_MAPPING[catUp]) return SUBCAT_MAPPING[catUp];
+  const key=normCat(cat);
+  if(!key) return "SIN CATEGORÍA";
+  const macro=MACRO_POR_NORM.get(key);
+  if(macro) return macro;
+  const sub=SUBCAT_POR_NORM.get(key);
+  if(sub) return sub;
   try{
     const m=JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}");
-    if(m[catUp]) return m[catUp];
+    // Se recorre en vez de indexar: las claves ya guardadas se escribieron sin
+    // normalizar, así que un "VIÁTICOS" viejo tiene que seguir empatando.
+    for(const k in m){ if(normCat(k)===key) return m[k]; }
   }catch(e){}
   return "SIN CATEGORÍA";
 }
@@ -466,12 +489,15 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   // una categoría "tiene macro" si es ella misma una de las 27 CATS_MACRO_CONTABLE,
   // o si aparece en SUBCAT_MAPPING (fijo) o geolis_subcat_map (elegido por el usuario).
   const subcatMapLS=(()=>{ try{ return JSON.parse(localStorage.getItem("geolis_subcat_map")||"{}"); }catch(e){ return {}; } })();
+  // Misma comparación normalizada que macroDeCategoria (ver normCat arriba):
+  // si no, este contador diría "sin categoría" de partidas que la tabla sí
+  // agrupa, y al revés.
   function tieneCategoriaMacro(cat){
-    const catUp=(cat||"").trim().toUpperCase();
-    if(!catUp) return false;
-    if(CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===catUp)) return true;
-    if(SUBCAT_MAPPING[catUp]) return true;
-    if(subcatMapLS[catUp]) return true;
+    const key=normCat(cat);
+    if(!key) return false;
+    if(MACRO_POR_NORM.has(key)) return true;
+    if(SUBCAT_POR_NORM.has(key)) return true;
+    for(const k in subcatMapLS){ if(normCat(k)===key) return true; }
     return false;
   }
   let sinCategoriaMacro=0;
@@ -735,9 +761,11 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
 
   function handleNewCat(rawTxt){
     const upper=rawTxt.trim().toUpperCase();
-    // Verificar si ya existe en cats macro
-    const isMacro=CATS_MACRO_CONTABLE.some(m=>m.toUpperCase()===upper);
-    const hasSub=SUBCAT_MAPPING[upper];
+    // Misma comparación normalizada que macroDeCategoria (ver normCat arriba):
+    // si no, escribir "VIÁTICOS" abriría el modal "¿A qué categoría contable
+    // pertenece?" para una cuenta que el catálogo ya tiene como VIATICOS.
+    const isMacro=MACRO_POR_NORM.has(normCat(rawTxt));
+    const hasSub=SUBCAT_POR_NORM.has(normCat(rawTxt));
     if(isMacro||hasSub){
       // Existe, guardar directo
       saveCat(upper,storageKey); pick(upper);
