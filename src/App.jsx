@@ -61,18 +61,23 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   "VIÁTICOS": "VIATICOS",
   "ARRENDAMIENTOS DE INMUEBLES": "ARRENDAMIENTO DE INMUEBLES",
   "MATERIAL DE SALUD": "MATERIALES DE SALUD",
-  // OJO: TUBERIAS es SUBCUENTA del rubro MATERIALES en el catálogo 2027, no un
-  // rubro. Mapearla a sí misma la saca de SIN CATEGORÍA pero crea un grupo
-  // "TUBERIAS" que no existe entre los 15 rubros. Se captura así porque así
-  // vino aprobado; cambiar el valor a "MATERIALES" es la corrección si se
-  // decide que debe colgar de su rubro.
-  "TUBERIAS": "TUBERIAS",
+  // TUBERIAS es SUBCUENTA del rubro MATERIALES en el catálogo 2027 (CSV línea
+  // 60), no un rubro. Estuvo mapeada a sí misma entre el commit 45bbe74 y el
+  // 2026-08-31, lo que creaba un grupo "TUBERIAS" fuera de los 15 rubros.
+  "TUBERIAS": "MATERIALES",
   // ─── Aprobados por el usuario el 2026-08-31 ───
   // Estos dos sí requerían criterio: el texto capturado no es la subcuenta del
   // catálogo, se decidió a cuál corresponde. El valor es el RUBRO, que es lo
   // que agrupa la tabla contable.
   "HOSPEDAJE": "VIATICOS",            // subcuenta del catálogo: SERVICIOS DE HOSPEDAJE
-  "IMPRESORAS EN RENTA": "SERVICIOS"};// subcuenta del catálogo: SERVICIOS DE COPIADO
+  "IMPRESORAS EN RENTA": "SERVICIOS", // subcuenta del catálogo: SERVICIOS DE COPIADO
+  // ─── Aprobados el 2026-08-31 ───
+  // Coincidencia EXACTA con el CSV, sin criterio de por medio. Son opciones que
+  // el dropdown CAT_OPEX ya ofrece y que hoy no tienen ninguna partida
+  // capturada: el efecto es que dejan de caer en SIN CATEGORÍA si alguien las
+  // elige a partir de ahora.
+  "SEGUROS": "SERVICIOS",             // CSV línea 104: SERVICIOS,SEGUROS
+  "FLETES NACIONALES": "SERVICIOS"};  // CSV línea 83:  SERVICIOS,FLETES NACIONALES
 
 // Normalización SOLO para comparar categorías contra el catálogo: ignora
 // mayúsculas, espacios sobrantes y ACENTOS. No cambia ninguna lista ni ningún

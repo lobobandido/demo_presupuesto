@@ -542,7 +542,7 @@ categoría es texto libre en la columna `categoria` de cada partida.
 | Qué | Dónde |
 |---|---|
 | Los 27 rubros | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
-| Subcuenta → rubro (59 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
+| Subcuenta → rubro (61 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
 | Normalización para comparar | `normCat` — `src/App.jsx:86-89` |
 | Índices normalizados | `MACRO_POR_NORM`, `SUBCAT_POR_NORM` — `src/App.jsx:93-94` |
 | Resolución | `macroDeCategoria` — `src/App.jsx:99-113` |
