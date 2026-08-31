@@ -1660,6 +1660,37 @@ function SCard({title,subtitle,total,accentColor,icon,children}){
   );
 }
 
+// ─── CAJA DE ÁREA COLAPSABLE (solo Información general, Step 5) ──────────────
+// Luis: "elimínalas de ahí porque inclusive nadie las va a ver" y "ya viene
+// sumarizado en esta tabla de CAPEX y OPEX". No se borran porque Salvador (PMO)
+// las ocupa para revisar su área: se colapsan, cerradas por defecto, con el
+// mismo triángulo ▶/▼ que ya usan los subtotales de la tabla contable
+// (TablaServicio). El estado NO se persiste: vive en este componente y se
+// reinicia en cada visita, a propósito — nada de una séptima clave en
+// localStorage.
+//
+// OJO: esto es SOLO para Step 5. Las cajas de Capturar costos (Step 3), las que
+// tienen "+ Agregar puesto" y "+ Agregar equipo", NO usan este componente y no
+// se tocaron: ahí se trabaja y tienen que estar abiertas.
+function AreaColapsable({encabezado, derecha, children}){
+  const [abierta, setAbierta] = useState(false);
+  return (
+    <>
+      <div onClick={()=>setAbierta(v=>!v)}
+        title={abierta?"Clic para colapsar el área":"Clic para ver el detalle del área"}
+        style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+          marginBottom:abierta?18:0,cursor:"pointer",userSelect:"none"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:11,width:12,flexShrink:0,color:C.grayMid}}>{abierta?"▼":"▶"}</span>
+          {encabezado}
+        </div>
+        {derecha}
+      </div>
+      {abierta&&children}
+    </>
+  );
+}
+
 // ─── CHARTS ──────────────────────────────────────────────────────────────────
 function LineChart({series,height=260,meses}){
   if(!series||series.length===0)return null;
@@ -4463,18 +4494,17 @@ export default function App(){
                 paddingBottom:ai<areas.length-1?28:0,
                 borderBottom:ai<areas.length-1?`2px solid ${C.line}`:"none"}}>
 
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <AreaColapsable
+                  encabezado={<>
                     <span style={{fontSize:24}}>{areaInfo?.icon}</span>
                     <div>
                       <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
                       <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
                     </div>
-                  </div>
-                  <Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
+                  </>}
+                  derecha={<Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
                     color={datos?.estado==="guardado"?C.success:C.yellowDark}
-                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>
-                </div>
+                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>}>
 
                 <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
                   {[
@@ -4549,6 +4579,7 @@ export default function App(){
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
                     mostrarFechaReal={true} readOnly={true}/>
                 </SCard>
+                </AreaColapsable>
               </div>
             );
           })}
