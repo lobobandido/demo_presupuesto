@@ -534,6 +534,53 @@ y la rama de `plantKey` en `confirmarAreas` (`src/App.jsx:2611-2636`) están act
 
 ---
 
+## D bis. Catálogo contable — cómo se resuelve una categoría a su rubro
+
+**Actualizado el 2026-08-31.** El catálogo vive **en el código, no en Supabase**; en la base la
+categoría es texto libre en la columna `categoria` de cada partida.
+
+| Qué | Dónde |
+|---|---|
+| Los 27 rubros | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
+| Subcuenta → rubro (59 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
+| Normalización para comparar | `normCat` — `src/App.jsx:86-89` |
+| Índices normalizados | `MACRO_POR_NORM`, `SUBCAT_POR_NORM` — `src/App.jsx:93-94` |
+| Resolución | `macroDeCategoria` — `src/App.jsx:99-113` |
+| Mapeos que agrega el usuario a mano | `localStorage["geolis_subcat_map"]` — se escribe en `src/App.jsx:805-807` |
+| Agrupación de la tabla contable | `construirFilasServicio` — `src/App.jsx:1896-1917` |
+| Catálogo oficial de referencia | `docs/catalogo_contable_2027.csv` — 138 subcuentas en 15 rubros |
+
+`macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
+devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la
+tabla sigue mostrando el texto tal como se capturó; el encabezado del subtotal usa la grafía del
+catálogo. Antes del 2026-08-31 la comparación era `.trim().toUpperCase()` y nada más, lo que
+mandaba a SIN CATEGORÍA 13 de 18 opciones de `CAT_OPEX`, 3 de 7 de `CAT_OPEX_VIA` y 4 de 10 de
+`CAT_CAPEX` **aunque el usuario las eligiera del propio menú**.
+
+Tres cosas que siguen siendo ciertas y conviene no confundir:
+
+- **`CATALOGO_CASCADA` (`src/App.jsx:982`) NO es el catálogo contable.** Es el catálogo de almacén
+  (grupo → subcategoría → artículo). Solo aporta opciones extra al final del dropdown de Categoría
+  en OPEX Materiales (`src/App.jsx:1218`, `1223-1259`). No define ninguna relación subcuenta→rubro.
+- **El dropdown y el catálogo son dos listas distintas que nadie sincroniza.** `CAT_OPEX`
+  (`src/App.jsx:917`) está escrita a mano y no se deriva de `CATS_MACRO_CONTABLE`.
+- **CAPEX no pasa por `macroDeCategoria`.** `construirFilasServicio` le pone `macro:"ACTIVOS"` fijo
+  a todo renglón de CAPEX (`src/App.jsx:1869`), así que una categoría de CAPEX fuera del catálogo
+  no aparece como SIN CATEGORÍA aunque lo esté.
+
+### Cobertura medida contra `docs/catalogo_contable_2027.csv` (2026-08-31)
+
+De las 138 subcuentas del catálogo oficial, el código reconoce **43**; faltan **95** (63 de
+SERVICIOS, 24 de MATERIALES, 8 repartidas). En sentido inverso, 6 de las 27 de
+`CATS_MACRO_CONTABLE` no existen en el CSV: `INSUMOS OPERATIVOS`, `EQUIPO DE ADQUISICION`,
+`GABINETE Y ENERGIA`, `TRANSMISION`, `CENTRO DE MONITOREO`, `SOFTWARE Y LICENCIAS`.
+
+`NOMINA Y ADICIONALES` viene en el CSV bajo el rubro marcador
+`(?) RUBRO NO DEFINIDO EN EL EXCEL` — es la única de las 138 en ese estado y **está pendiente de
+aclarar con contabilidad**. No se le asignó rubro.
+
+---
+
 ## E. Lo que NO existe (aunque algún spec lo pida)
 
 Ordenado por spec de origen. Solo se listan puntos donde el spec pide algo concreto y el código
