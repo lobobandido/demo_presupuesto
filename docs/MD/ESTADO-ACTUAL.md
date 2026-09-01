@@ -557,7 +557,7 @@ categoría es texto libre en la columna `categoria` de cada partida.
 
 | Qué | Dónde |
 |---|---|
-| Los 27 rubros | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
+| Los 24 rubros | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
 | Subcuenta → rubro (61 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
 | Normalización para comparar | `normCat` — `src/App.jsx:86-89` |
 | Índices normalizados | `MACRO_POR_NORM`, `SUBCAT_POR_NORM` — `src/App.jsx:93-94` |
@@ -588,8 +588,11 @@ Tres cosas que siguen siendo ciertas y conviene no confundir:
 
 De las 138 subcuentas del catálogo oficial, el código reconoce **43**; faltan **95** (63 de
 SERVICIOS, 24 de MATERIALES, 8 repartidas). En sentido inverso, 6 de las 27 de
-`CATS_MACRO_CONTABLE` no existen en el CSV: `INSUMOS OPERATIVOS`, `EQUIPO DE ADQUISICION`,
-`GABINETE Y ENERGIA`, `TRANSMISION`, `CENTRO DE MONITOREO`, `SOFTWARE Y LICENCIAS`.
+`CATS_MACRO_CONTABLE` no existían en el CSV. El 2026-09-01, con autorización explícita del usuario,
+salieron tres de ellas —`GABINETE Y ENERGIA`, `TRANSMISION` y `CENTRO DE MONITOREO`— porque Anel
+dictaminó que van a `OTROS ACTIVOS`, o sea que no son rubros contables; hoy viven en
+`SUBCAT_MAPPING` apuntando ahí. Quedan **24 rubros**, de los cuales siguen sin existir en el CSV:
+`INSUMOS OPERATIVOS`, `EQUIPO DE ADQUISICION` y `SOFTWARE Y LICENCIAS`.
 
 `NOMINA Y ADICIONALES` viene en el CSV bajo el rubro marcador
 `(?) RUBRO NO DEFINIDO EN EL EXCEL` — es la única de las 138 en ese estado y **está pendiente de

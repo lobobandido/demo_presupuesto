@@ -38,7 +38,8 @@ decisión de producto, actualiza `DECISIONES.md`.
 1. PROHIBIDO que cualquier prueba automatizada escriba en Supabase. Ni INSERT,
    ni UPDATE, ni DELETE, ni upsert, ni RPC que mute. Solo GET. Las pruebas de
    navegador las ejecuta el usuario a mano.
-2. CATS_MACRO_CONTABLE y SUBCAT_MAPPING (27 categorías) vienen de finanzas.
+2. CATS_MACRO_CONTABLE (24 rubros desde el 2026-09-01) y SUBCAT_MAPPING vienen
+   de finanzas.
    No se modifican ni se amplían sin autorización explícita.
 3. Todo cambio que pueda mover un monto exige verificación de KPIs antes y
    después. Si un monto se movió, revertir.
