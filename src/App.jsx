@@ -48,10 +48,23 @@ const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","
 
 // ─── DATOS HISTÓRICOS DE PRESUPUESTOS REALES (Excel Geolis) ─────────────────
 // Fuente: 01022026_Presupuesto_Monitoreo_Cuervito y PERDIZ_HPS_800_HP
-const CATS_MACRO_CONTABLE = ["ACTIVOS", "ARRENDA DE INMUEBLES Y SERV", "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO", "EQUIPOS Y ENSERES", "INSUMOS OPERATIVOS", "INSUMOS DE OFICINA", "MARKETING", "MATERIALES", "MATERIALES DE SALUD", "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR Y RADIO", "SERVICIOS", "SERVICIOS DE CAPACITACION", "SERVICIOS DE SALUD", "UNIFORMES", "VEHICULOS Y COMBUSTIBLE", "VIATICOS", "EQUIPO DE TRANSPORTE", "EQUIPO DE ADQUISICION", "MAQUINARIA Y EQUIPO", "EQUIPO DE MOBILIARIO", "SOFTWARE Y LICENCIAS", "OTROS ACTIVOS"];
+// Los 14 RUBROS de docs/catalogo_contable_2027.csv, en el orden del archivo, más
+// una excepción. En el archivo de contabilidad los rubros van en dorado y
+// negritas y las subcuentas en cursiva con sangría; aquí solo van los rubros.
+// Una subcuenta NUNCA va en esta lista: si está, macroDeCategoria la devuelve
+// como si fuera rubro (gana sobre SUBCAT_MAPPING) y pinta un subtotal que no
+// existe en el archivo de Anel. El 2026-09-01 salieron nueve por ese motivo.
+//
+// EXCEPCIÓN PROVISIONAL — "NOMINA Y ADICIONALES". NO es un rubro: su fila en el
+// CSV trae el marcador "(?) RUBRO NO DEFINIDO EN EL EXCEL", o sea que es un
+// hueco del archivo del cliente, no un error nuestro. Se queda aquí hasta que
+// contabilidad defina su rubro, porque construirFilasServicio inyecta toda la
+// nómina bajo esta etiqueta: sin ella, $3,585,000.00 de nómina ya capturada
+// caerían en SIN CATEGORÍA. QUITARLA EN CUANTO ANEL CONTESTE.
+const CATS_MACRO_CONTABLE = ["ACTIVOS", "ARRENDA DE INMUEBLES Y SERV", "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO", "EQUIPOS Y ENSERES", "INSUMOS DE OFICINA", "MARKETING", "MATERIALES", "MATERIALES DE SALUD", "SERV TELEFONIA CELULAR Y RADIO", "SERVICIOS", "SERVICIOS DE SALUD", "VEHICULOS Y COMBUSTIBLE", "VIATICOS", "NOMINA Y ADICIONALES"];
 
 // Mapping: subcategoría escrita → categoría macro contable
-const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LUZ, AGUA E INTERNET": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LIMPIEZA": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE VIGILANCIA": "ARRENDA DE INMUEBLES Y SERV", "TELEFONIA FIJA": "ARRENDA DE INMUEBLES Y SERV", "AGUA Y ALCANTARILLADO": "ARRENDA DE INMUEBLES Y SERV", "ARRENDAMIENTO DE OF. MOVILES": "ARRENDA DE INMUEBLES Y SERV", "ROPA Y ARTICULOS DE PROTECCION": "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO (ADQUISICION)": "EQUIPO DE COMPUTO", "ARRENDAMIENTO DE EQ. COMPUTO": "EQUIPO DE COMPUTO", "ENSERES MENORES DIVERSOS": "EQUIPOS Y ENSERES", "INSUMOS AGRICOLAS": "INSUMOS OPERATIVOS", "PAPELERIA Y UTILES DE OFICINA": "INSUMOS DE OFICINA", "ARTICULOS DE ASEO Y SANITARIOS": "INSUMOS DE OFICINA", "ARTICULOS DE CAFETERIA": "INSUMOS DE OFICINA", "ARTICULOS DIGITALES Y DE COMPUTO": "INSUMOS DE OFICINA", "SERVICIOS DE MERCADOTECNIA": "MARKETING", "PUBLICIDAD Y PROPAGANDA": "MARKETING", "ABRASIVOS": "MATERIALES", "ACEITE LUBRICANTE P/MAQUINARIA": "MATERIALES", "ACEITES Y LUBRICANTES": "MATERIALES", "BANDA CADEN TRANS COPL": "MATERIALES", "CONEXIONES PARA TUBERIA": "MATERIALES", "FIBRAS HILOS Y TELAS": "MATERIALES", "GRASAS": "MATERIALES", "HERRAMIENTAS MANUALES": "MATERIALES", "LLANTAS, CAMARAS Y ACCESORIOS": "MATERIALES", "MATERIAL ELECTRICO": "MATERIALES", "MATERIALES Y ART P/MANTENIMIENTO": "MATERIALES", "POSTE DE TELEMETRIA": "MATERIALES", "MATERIAL PRIMEROS AUXILIOS": "MATERIALES DE SALUD", "NOMINA": "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR (PARA TRANSMITIR)": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE BANDA ANCHA": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE RADIOCOMUNICACION": "SERV TELEFONIA CELULAR Y RADIO", "CUADRILLA DE INSTALACION": "SERVICIOS", "HERRAMIENTA": "SERVICIOS", "CAPACITACION": "SERVICIOS DE CAPACITACION", "SERVICIOS MEDICOS": "SERVICIOS DE SALUD", "SERVICIOS Y COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "ALIMENTACION": "VIATICOS", "CASETAS PUENTES Y PEAJES": "VIATICOS", "SERV DE TRANSPORTAC AEREA": "VIATICOS", "SERV DE TRANSPORTAC TERRESTRE": "VIATICOS", "SERVICIOS DE HOSPEDAJE": "VIATICOS", "CAJA CHICA": "VIATICOS", "REEMBOLSOS": "VIATICOS", "MOBILIARIO": "EQUIPOS Y ENSERES", "SILLA DE OFICINA": "EQUIPOS Y ENSERES", "ESCRITORIO": "EQUIPOS Y ENSERES", "MUEBLES": "EQUIPOS Y ENSERES",
+const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LUZ, AGUA E INTERNET": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE LIMPIEZA": "ARRENDA DE INMUEBLES Y SERV", "SERVICIOS DE VIGILANCIA": "ARRENDA DE INMUEBLES Y SERV", "TELEFONIA FIJA": "ARRENDA DE INMUEBLES Y SERV", "AGUA Y ALCANTARILLADO": "ARRENDA DE INMUEBLES Y SERV", "ARRENDAMIENTO DE OF. MOVILES": "ARRENDA DE INMUEBLES Y SERV", "ROPA Y ARTICULOS DE PROTECCION": "ARTICULOS DE SEGURIDAD", "EQUIPO DE COMPUTO (ADQUISICION)": "EQUIPO DE COMPUTO", "ARRENDAMIENTO DE EQ. COMPUTO": "EQUIPO DE COMPUTO", "ENSERES MENORES DIVERSOS": "EQUIPOS Y ENSERES", "INSUMOS AGRICOLAS": "INSUMOS DE OFICINA", "PAPELERIA Y UTILES DE OFICINA": "INSUMOS DE OFICINA", "ARTICULOS DE ASEO Y SANITARIOS": "INSUMOS DE OFICINA", "ARTICULOS DE CAFETERIA": "INSUMOS DE OFICINA", "ARTICULOS DIGITALES Y DE COMPUTO": "INSUMOS DE OFICINA", "SERVICIOS DE MERCADOTECNIA": "MARKETING", "PUBLICIDAD Y PROPAGANDA": "MARKETING", "ABRASIVOS": "MATERIALES", "ACEITE LUBRICANTE P/MAQUINARIA": "MATERIALES", "ACEITES Y LUBRICANTES": "MATERIALES", "BANDA CADEN TRANS COPL": "MATERIALES", "CONEXIONES PARA TUBERIA": "MATERIALES", "FIBRAS HILOS Y TELAS": "MATERIALES", "GRASAS": "MATERIALES", "HERRAMIENTAS MANUALES": "MATERIALES", "LLANTAS, CAMARAS Y ACCESORIOS": "MATERIALES", "MATERIAL ELECTRICO": "MATERIALES", "MATERIALES Y ART P/MANTENIMIENTO": "MATERIALES", "POSTE DE TELEMETRIA": "MATERIALES", "MATERIAL PRIMEROS AUXILIOS": "MATERIALES DE SALUD", "NOMINA": "NOMINA Y ADICIONALES", "SERV TELEFONIA CELULAR (PARA TRANSMITIR)": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE BANDA ANCHA": "SERV TELEFONIA CELULAR Y RADIO", "SERVICIO DE RADIOCOMUNICACION": "SERV TELEFONIA CELULAR Y RADIO", "CUADRILLA DE INSTALACION": "SERVICIOS", "HERRAMIENTA": "SERVICIOS", "SERVICIOS MEDICOS": "SERVICIOS DE SALUD", "SERVICIOS Y COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "COMBUSTIBLE": "VEHICULOS Y COMBUSTIBLE", "ALIMENTACION": "VIATICOS", "CASETAS PUENTES Y PEAJES": "VIATICOS", "SERV DE TRANSPORTAC AEREA": "VIATICOS", "SERV DE TRANSPORTAC TERRESTRE": "VIATICOS", "SERVICIOS DE HOSPEDAJE": "VIATICOS", "CAJA CHICA": "VIATICOS", "REEMBOLSOS": "VIATICOS", "MOBILIARIO": "EQUIPOS Y ENSERES", "SILLA DE OFICINA": "EQUIPOS Y ENSERES", "ESCRITORIO": "EQUIPOS Y ENSERES", "MUEBLES": "EQUIPOS Y ENSERES",
   // ─── Aprobados el 2026-08-31 (diagnóstico del catálogo contable 2027) ───
   // Grafías reales encontradas en Cuervito, TI H1 2026 y PERDIZ-PAPAN que caían
   // en SIN CATEGORÍA. Las dos primeras ya las resuelve normCat por acento; se
@@ -85,16 +98,16 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   // "las que se pagan cada mes van en cuotas y suscripciones, y las que se
   // pagan de manera anual van en software". Las dos anuales quedan aquí; la
   // mensual NO se pudo capturar todavía — ver nota al pie de este bloque.
-  "LICENCIAMIENTO USD": "SOFTWARE Y LICENCIAS",
-  "LICENCIAMIENTO MXN ANUAL": "SOFTWARE Y LICENCIAS",
+  "LICENCIAMIENTO USD": "ACTIVOS",
+  "LICENCIAMIENTO MXN ANUAL": "ACTIVOS",
   // "se podría incluir en otros activos" (Anel). Solo estas dos entran: las
   // otras tres que venían en el mismo pedido —GABINETE Y ENERGIA, TRANSMISION
   // y CENTRO DE MONITOREO— YA son rubros de CATS_MACRO_CONTABLE, y
   // macroDeCategoria consulta MACRO_POR_NORM antes que SUBCAT_POR_NORM, así
   // que un mapeo suyo aquí nunca se ejecutaría. Moverlas a OTROS ACTIVOS exige
   // sacarlas de CATS_MACRO_CONTABLE, que es de finanzas (regla 2 de CLAUDE.md).
-  "ACCESORIOS": "OTROS ACTIVOS",
-  "INFRAESTRUCTURA DE RED": "OTROS ACTIVOS",
+  "ACCESORIOS": "ACTIVOS",
+  "INFRAESTRUCTURA DE RED": "ACTIVOS",
   // Corrección del 2026-09-01. "CUOTAS Y SUSCRIPCIONES", el destino que había
   // dictado Anel, es SUBCUENTA del rubro SERVICIOS en el catálogo 2027, no un
   // rubro — habría sido el tercer caso del mismo error. Se mapea al rubro que la
@@ -105,9 +118,33 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   // ACTIVOS, o sea que no son rubros contables — tenerlas en la lista de rubros
   // era el error. Mientras estuvieron ahí, MACRO_POR_NORM ganaba sobre
   // SUBCAT_POR_NORM y cualquier mapeo suyo quedaba inerte.
-  "GABINETE Y ENERGIA": "OTROS ACTIVOS",
-  "TRANSMISION": "OTROS ACTIVOS",
-  "CENTRO DE MONITOREO": "OTROS ACTIVOS"};
+  "GABINETE Y ENERGIA": "ACTIVOS",
+  "TRANSMISION": "ACTIVOS",
+  "CENTRO DE MONITOREO": "ACTIVOS",
+  // ─── 2026-09-01: subcuentas que estaban mal puestas en CATS_MACRO_CONTABLE ───
+  // Las nueve salieron de la lista de rubros ese día. Estas seis se mapean aquí
+  // a su rubro real del CSV porque tienen partidas capturadas o son opción del
+  // dropdown de CAPEX; sin el mapeo caerían en SIN CATEGORÍA.
+  "EQUIPO DE TRANSPORTE": "ACTIVOS",   // CSV: subcuenta de ACTIVOS · 1 partida
+  "MAQUINARIA Y EQUIPO": "ACTIVOS",    // CSV: subcuenta de ACTIVOS · 4 partidas
+  "EQUIPO DE MOBILIARIO": "ACTIVOS",   // CSV: subcuenta de ACTIVOS · opción de CAT_CAPEX
+  "OTROS ACTIVOS": "ACTIVOS",          // CSV: subcuenta de ACTIVOS · 5 partidas
+  "SOFTWARE Y LICENCIAS": "ACTIVOS",   // CSV: "SOFTWARE Y LICICENCIAS" (errata de Anel), subcuenta de ACTIVOS
+  // EQUIPO DE ADQUISICION no existe en el CSV. Aprobado a ACTIVOS: es CAPEX, ya
+  // cuelga del macro:"ACTIVOS" fijo, y cualquier respuesta de Anel va a ser una
+  // subcuenta de ACTIVOS igual. 4 partidas de Cuervito.
+  "EQUIPO DE ADQUISICION": "ACTIVOS",
+  // INSUMOS OPERATIVOS tampoco existe en el CSV. Su rubro se deduce de que
+  // INSUMOS AGRICOLAS —la única clave que apuntaba aquí— es subcuenta de
+  // INSUMOS DE OFICINA en el catálogo. 1 partida de Cuervito.
+  "INSUMOS OPERATIVOS": "INSUMOS DE OFICINA",
+  // NO se mapean, a propósito, y caen en SIN CATEGORÍA — van como pregunta a Anel:
+  //   SERVICIOS DE CAPACITACION: el CSV la cuelga de SERVICIOS DE SALUD (línea 130).
+  //     Capacitación bajo salud no es criterio contable, es una fila mal puesta.
+  //     Son $225,499.14 de PERDIZ-PAPAN, visibles y honestos en SIN CATEGORÍA.
+  //   UNIFORMES: el CSV la cuelga de VEHICULOS Y COMBUSTIBLE (línea 132). Mismo
+  //     caso. Sin partidas capturadas hoy.
+  };
 
 // Normalización SOLO para comparar categorías contra el catálogo: ignora
 // mayúsculas, espacios sobrantes y ACENTOS. No cambia ninguna lista ni ningún
@@ -136,13 +173,15 @@ const SUBCAT_POR_NORM = new Map(Object.entries(SUBCAT_MAPPING).map(([k,v])=>[nor
 // nada: el monto es correcto, el subtotal es correcto, y el error solo se ve
 // leyendo con cuidado la tabla contable.
 //
-// Pasó dos veces el 2026-08-31: "TUBERIAS" -> "TUBERIAS" (commit 45bbe74,
-// corregido en 68dd4ee) y "ARRENDAMIENTOS DE INMUEBLES" ->
-// "ARRENDAMIENTO DE INMUEBLES" (commit 45bbe74, corregido en 2550d47).
+// Pasó tres veces: "TUBERIAS" -> "TUBERIAS" y "ARRENDAMIENTOS DE INMUEBLES" ->
+// "ARRENDAMIENTO DE INMUEBLES" (ambas del commit 45bbe74, corregidas en 68dd4ee
+// y 2550d47), y "LICENCIAMIENTO MXN MENSUAL" -> "CUOTAS Y SUSCRIPCIONES", que
+// este guardarraíl atajó antes de entrar (2026-09-01).
 //
 // import.meta.env.DEV lo deja fuera del bundle de producción: Vite lo sustituye
 // por false y elimina el bloque entero como código muerto.
 if(import.meta.env.DEV){
+  // (1) Todo VALOR de SUBCAT_MAPPING tiene que ser un rubro.
   const rubros=new Set(CATS_MACRO_CONTABLE.map(normCat));
   const malas=Object.entries(SUBCAT_MAPPING).filter(([,v])=>!rubros.has(normCat(v)));
   if(malas.length){
@@ -152,6 +191,23 @@ if(import.meta.env.DEV){
       `resolverlo, así que cada una crea un grupo fantasma en la tabla contable.\n`+
       `Corregir el VALOR para que sea el rubro al que pertenece la subcuenta:\n`+
       malas.map(([k,v])=>`    "${k}"  ->  "${v}"   ← "${v}" no es un rubro`).join("\n")
+    );
+  }
+  // (2) La lista de rubros tiene que seguir siendo los 14 del CSV + la
+  // excepción provisional. Esta es la comprobación que faltaba: las nueve
+  // subcuentas que salieron el 2026-09-01 llevaban meses ahí sin que nada
+  // avisara, y cada una pintaba un subtotal inexistente en el archivo de Anel.
+  // El CSV no se puede leer en tiempo de ejecución, así que se vigila el conteo:
+  // si alguien agrega o quita, que lo tenga que justificar a mano.
+  const ESPERADOS=15; // 14 rubros de docs/catalogo_contable_2027.csv + NOMINA Y ADICIONALES
+  if(CATS_MACRO_CONTABLE.length!==ESPERADOS){
+    console.error(
+      `[catálogo contable] CATS_MACRO_CONTABLE tiene ${CATS_MACRO_CONTABLE.length} entradas y se\n`+
+      `esperaban ${ESPERADOS}: los 14 RUBROS de docs/catalogo_contable_2027.csv más la excepción\n`+
+      `provisional "NOMINA Y ADICIONALES". Si agregaste una SUBCUENTA aquí, quítala y ponla en\n`+
+      `SUBCAT_MAPPING apuntando a su rubro: en esta lista gana sobre SUBCAT_MAPPING y pinta un\n`+
+      `subtotal que no existe en el archivo de contabilidad. Si de verdad cambió el catálogo,\n`+
+      `actualiza el CSV y ESPERADOS en la misma pasada.`
     );
   }
 }

@@ -557,7 +557,7 @@ categoría es texto libre en la columna `categoria` de cada partida.
 
 | Qué | Dónde |
 |---|---|
-| Los 24 rubros | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
+| Los 14 rubros del CSV + 1 excepción | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
 | Subcuenta → rubro (61 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
 | Normalización para comparar | `normCat` — `src/App.jsx:86-89` |
 | Índices normalizados | `MACRO_POR_NORM`, `SUBCAT_POR_NORM` — `src/App.jsx:93-94` |
@@ -584,19 +584,35 @@ Tres cosas que siguen siendo ciertas y conviene no confundir:
   a todo renglón de CAPEX (`src/App.jsx:1869`), así que una categoría de CAPEX fuera del catálogo
   no aparece como SIN CATEGORÍA aunque lo esté.
 
-### Cobertura medida contra `docs/catalogo_contable_2027.csv` (2026-08-31)
+### Cobertura medida contra `docs/catalogo_contable_2027.csv` (actualizado 2026-09-01)
 
-De las 138 subcuentas del catálogo oficial, el código reconoce **43**; faltan **95** (63 de
-SERVICIOS, 24 de MATERIALES, 8 repartidas). En sentido inverso, 6 de las 27 de
-`CATS_MACRO_CONTABLE` no existían en el CSV. El 2026-09-01, con autorización explícita del usuario,
-salieron tres de ellas —`GABINETE Y ENERGIA`, `TRANSMISION` y `CENTRO DE MONITOREO`— porque Anel
-dictaminó que van a `OTROS ACTIVOS`, o sea que no son rubros contables; hoy viven en
-`SUBCAT_MAPPING` apuntando ahí. Quedan **24 rubros**, de los cuales siguen sin existir en el CSV:
-`INSUMOS OPERATIVOS`, `EQUIPO DE ADQUISICION` y `SOFTWARE Y LICENCIAS`.
+**`CATS_MACRO_CONTABLE` son los 14 RUBROS del CSV, ni uno más ni uno menos**, con una sola
+excepción documentada: `NOMINA Y ADICIONALES`, cuya fila en el CSV trae el marcador
+`(?) RUBRO NO DEFINIDO EN EL EXCEL`. Se queda porque `construirFilasServicio` inyecta toda la
+nómina bajo esa etiqueta y sin ella $3,585,000.00 de nómina ya capturada caerían en
+`SIN CATEGORÍA`. **Es provisional: quitarla en cuanto contabilidad defina su rubro.**
 
-`NOMINA Y ADICIONALES` viene en el CSV bajo el rubro marcador
-`(?) RUBRO NO DEFINIDO EN EL EXCEL` — es la única de las 138 en ese estado y **está pendiente de
-aclarar con contabilidad**. No se le asignó rubro.
+El 2026-09-01 salieron nueve entradas que eran **subcuentas**, no rubros. Una subcuenta en esta
+lista gana sobre `SUBCAT_MAPPING` (`MACRO_POR_NORM` se consulta primero) y pinta un subtotal que no
+existe en el archivo de contabilidad. Las que tenían partidas capturadas pasaron a `SUBCAT_MAPPING`
+apuntando a su rubro real.
+
+Dos quedaron **deliberadamente sin mapear**, porque el CSV las cuelga de un rubro que no resiste
+criterio contable, y son pregunta abierta a Anel:
+
+| Subcuenta | Rubro que le da el CSV | Línea | Estado |
+|---|---|---|---|
+| `SERVICIOS DE CAPACITACION` | `SERVICIOS DE SALUD` | 130 | cae en SIN CATEGORÍA — $225,499.14 en PERDIZ-PAPAN |
+| `UNIFORMES` | `VEHICULOS Y COMBUSTIBLE` | 132 | sin partidas capturadas |
+
+Tres categorías usadas en la base **no existen en el CSV** y se mapearon por deducción:
+`EQUIPO DE ADQUISICION` → `ACTIVOS` (es CAPEX, y cualquier respuesta de Anel será subcuenta de
+ACTIVOS), `INSUMOS OPERATIVOS` → `INSUMOS DE OFICINA` (por `INSUMOS AGRICOLAS`, que sí está ahí) y
+`SOFTWARE Y LICENCIAS` → `ACTIVOS` (el CSV la trae como `SOFTWARE Y LICICENCIAS`, con errata).
+
+El guardarraíl de desarrollo (`src/App.jsx`) vigila ahora **dos** invariantes: que todo VALOR de
+`SUBCAT_MAPPING` sea un rubro, y que `CATS_MACRO_CONTABLE` siga teniendo exactamente 15 entradas —
+esta segunda es la que faltaba, y es la que habría avisado de las nueve subcuentas mal puestas.
 
 ---
 
