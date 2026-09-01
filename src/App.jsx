@@ -80,7 +80,21 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   // capturada: el efecto es que dejan de caer en SIN CATEGORÍA si alguien las
   // elige a partir de ahora.
   "SEGUROS": "SERVICIOS",             // CSV línea 104: SERVICIOS,SEGUROS
-  "FLETES NACIONALES": "SERVICIOS"};  // CSV línea 83:  SERVICIOS,FLETES NACIONALES
+  "FLETES NACIONALES": "SERVICIOS",   // CSV línea 83:  SERVICIOS,FLETES NACIONALES
+  // ─── Definidos por Anel (contabilidad), 2026-09-01 ───
+  // "las que se pagan cada mes van en cuotas y suscripciones, y las que se
+  // pagan de manera anual van en software". Las dos anuales quedan aquí; la
+  // mensual NO se pudo capturar todavía — ver nota al pie de este bloque.
+  "LICENCIAMIENTO USD": "SOFTWARE Y LICENCIAS",
+  "LICENCIAMIENTO MXN ANUAL": "SOFTWARE Y LICENCIAS",
+  // "se podría incluir en otros activos" (Anel). Solo estas dos entran: las
+  // otras tres que venían en el mismo pedido —GABINETE Y ENERGIA, TRANSMISION
+  // y CENTRO DE MONITOREO— YA son rubros de CATS_MACRO_CONTABLE, y
+  // macroDeCategoria consulta MACRO_POR_NORM antes que SUBCAT_POR_NORM, así
+  // que un mapeo suyo aquí nunca se ejecutaría. Moverlas a OTROS ACTIVOS exige
+  // sacarlas de CATS_MACRO_CONTABLE, que es de finanzas (regla 2 de CLAUDE.md).
+  "ACCESORIOS": "OTROS ACTIVOS",
+  "INFRAESTRUCTURA DE RED": "OTROS ACTIVOS"};
 
 // Normalización SOLO para comparar categorías contra el catálogo: ignora
 // mayúsculas, espacios sobrantes y ACENTOS. No cambia ninguna lista ni ningún
