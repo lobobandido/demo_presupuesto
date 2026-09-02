@@ -4010,6 +4010,43 @@ export default function App(){
         </div>
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
           padding:24,marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          {/* "Seleccionar todas" (Luis, 02-sep-2026): "Debería tener una opción de
+              que elija... seleccionar todos para que no sea duplicado. Por si
+              quieren todas."
+              El "que no sea duplicado" es literal y es la parte que importa: al
+              marcar se agregan SOLO las áreas que aún no están en `areas` (filtro
+              !prev.includes), así que una ya seleccionada nunca entra dos veces.
+              Al desmarcar se quitan solo las áreas de ESTE tipo de presupuesto
+              (cats), no todo `areas`, para no borrar de paso un id heredado de otro
+              tipo si alguna vez quedara uno.
+              Estado maestro DERIVADO de `areas`, sin estado nuevo: si el usuario
+              desmarca una tarjeta a mano, `todasSel` deja de ser true solo, y la
+              casilla pasa a indeterminada. No toca cómo se guardan las áreas. */}
+          {(()=>{
+            const idsTipo=cats.map(a=>a.id);
+            const todasSel=idsTipo.length>0 && idsTipo.every(id=>areas.includes(id));
+            const algunaSel=idsTipo.some(id=>areas.includes(id));
+            return(
+              <label style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,
+                padding:"10px 14px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
+                background:C.grayLight,cursor:"pointer",userSelect:"none"}}>
+                <input type="checkbox" checked={todasSel}
+                  ref={el=>{ if(el) el.indeterminate = algunaSel && !todasSel; }}
+                  onChange={()=>setAreas(prev=>todasSel
+                    ? prev.filter(id=>!idsTipo.includes(id))
+                    : [...prev, ...idsTipo.filter(id=>!prev.includes(id))])}
+                  style={{width:16,height:16,cursor:"pointer",accentColor:C.yellow}}/>
+                <span style={{fontWeight:700,fontSize:13,color:C.grayDark}}>Seleccionar todas</span>
+                <span style={{fontSize:11,color:C.grayMid}}>
+                  {todasSel
+                    ? `las ${idsTipo.length} áreas están seleccionadas`
+                    : algunaSel
+                      ? `${areas.filter(id=>idsTipo.includes(id)).length} de ${idsTipo.length}`
+                      : `${idsTipo.length} áreas disponibles`}
+                </span>
+              </label>
+            );
+          })()}
           <div className="areas-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
             {cats.map(a=>{
               const sel=areas.includes(a.id);
