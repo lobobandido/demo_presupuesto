@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, Fragment } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, Fragment } from "react";
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 import { UNIDADES_NEGOCIO, etiquetaUnidad } from "./catalogoUnidades";
@@ -770,10 +770,62 @@ function anioDeFecha(f){
 function parseMoney(str){ return parseFloat(String(str).replace(/,/g,""))||0; }
 function displayMoney(n){ return n===0?"":Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
+// ─── Formato con comas MIENTRAS se teclea (02-sep-2026, pedido de Luis) ──────
+// Agrupa SOLO la parte entera y deja la decimal exactamente como se escribió:
+// "1234.5" queda "1,234.5" y puede seguir a "1,234.56" sin que nadie meta ceros
+// ni mueva el punto. Un punto final ("1234.") se conserva para poder seguir
+// tecleando. La cadena que devuelve es solo para pintar — el estado guarda el
+// número, igual que antes.
+function agruparMiles(raw){
+  const [ent="", ...resto] = String(raw).split(".");
+  const entero = ent.replace(/\D/g,"");
+  // Intl en vez de armar la coma a mano; sin decimales porque la parte decimal
+  // se concatena tal cual abajo.
+  const entFmt = entero===""?"":new Intl.NumberFormat("es-MX",{maximumFractionDigits:0}).format(Number(entero));
+  return resto.length ? `${entFmt}.${resto.join("")}` : entFmt;
+}
+// Cuántos caracteres SIGNIFICATIVOS hay a la izquierda de una posición del
+// cursor. Significativo = dígito o punto decimal: son los que el usuario tecleó
+// y que el reformateo nunca mueve entre sí. Las comas NO cuentan, porque son
+// justo lo que se inserta y se quita.
+//
+// El punto TIENE que contar. Contando solo dígitos, al teclear el punto en
+// "1,234." el cursor se reponía en la posición con 4 dígitos a la izquierda —o
+// sea ANTES del punto— y el siguiente dígito caía en la parte entera:
+// "1,234." + "5" daba "12,345." en vez de "1,234.5".
+function signifAntes(str, pos){
+  let n=0;
+  for(let i=0;i<pos && i<str.length;i++) if(/[0-9.]/.test(str[i])) n++;
+  return n;
+}
+// La posición del cursor que deja los mismos N caracteres significativos a su
+// izquierda.
+function posConSignif(str, n){
+  if(n<=0) return 0;
+  let vistos=0;
+  for(let i=0;i<str.length;i++){
+    if(/[0-9.]/.test(str[i])) vistos++;
+    if(vistos===n) return i+1;
+  }
+  return str.length;
+}
+
 function MoneyInput({value, onChange, style={}}){
   const [focused, setFocused] = useState(false);
   const [editRaw, setEditRaw] = useState("");
   const ref = useRef();
+  // Posición del cursor pendiente de reponer tras un reformateo. Se aplica en
+  // useLayoutEffect —antes de que el navegador pinte— porque hacerlo dentro del
+  // onChange no sirve: React todavía no ha escrito el value nuevo en el DOM y el
+  // navegador manda el cursor al final.
+  const caret = useRef(null);
+  useLayoutEffect(()=>{
+    if(caret.current!==null && ref.current){
+      ref.current.setSelectionRange(caret.current, caret.current);
+      caret.current=null;
+    }
+  });
+  // Ahora editRaw ya viene agrupado, así que se pinta tal cual mientras hay foco.
   const displayValue = focused ? editRaw : displayMoney(value);
   return(
     <div style={{display:"flex",alignItems:"stretch",
@@ -787,15 +839,30 @@ function MoneyInput({value, onChange, style={}}){
         value={displayValue}
         onFocus={()=>{
           const n=parseMoney(value);
-          setEditRaw(n===0?"":String(n));
+          // Al entrar se muestra ya agrupado: el campo se ve igual que al salir,
+          // así que enfocar no "salta" visualmente. Los decimales sobrantes no se
+          // inventan — String(n) da "1234.56" y "30000" tal cual.
+          setEditRaw(n===0?"":agruparMiles(String(n)));
           setFocused(true);
           setTimeout(()=>ref.current?.select(),0);
         }}
         onChange={e=>{
-          const parts=e.target.value.replace(/[^0-9.]/g,"").split(".");
-          const safe=parts.length>2?parts[0]+"."+parts.slice(1).join(""):e.target.value.replace(/[^0-9.]/g,"");
-          setEditRaw(safe);
-          onChange(parseMoney(safe));
+          const el=e.target;
+          const antes=el.value;                    // lo que el navegador acaba de dejar
+          const posAntes=el.selectionStart??antes.length;
+          // 1) Limpiar: solo dígitos y UN punto decimal. Esto es lo que hace que
+          //    pegar "2,668,500" funcione: las comas se caen y queda 2668500.
+          const soloNum=antes.replace(/[^0-9.]/g,"");
+          const partes=soloNum.split(".");
+          const limpio=partes.length>2 ? partes[0]+"."+partes.slice(1).join("") : soloNum;
+          // 2) Cuántos caracteres significativos (dígitos y punto) quedaban a la
+          //    izquierda del cursor ANTES de formatear.
+          const nSig=signifAntes(antes, posAntes);
+          // 3) Formatear y 4) reponer el cursor contando los mismos.
+          const fmtStr=agruparMiles(limpio);
+          caret.current=posConSignif(fmtStr, nSig);
+          setEditRaw(fmtStr);
+          onChange(parseMoney(limpio));
         }}
         onBlur={()=>{
           onChange(parseMoney(editRaw));
