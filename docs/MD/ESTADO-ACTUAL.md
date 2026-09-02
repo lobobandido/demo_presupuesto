@@ -123,36 +123,9 @@ No hay botón de PDF ni de «Información general» en esta pantalla. `guardarPr
 nombre/tipo/fechaInicio/fechaFin y, si falta alguno, activa los avisos en rojo y **no navega**
 (`src/App.jsx:2529-2530`).
 
-Campos: Nombre*, Empresa, **Año del presupuesto**, **Unidad de negocio***, Fecha inicio*, Fecha
-fin*. Debajo de las fechas va el bloque de origen y después el de tipo.
-
-**«Fecha de elaboración» ya no se ve** (02-sep-2026): el campo está **comentado, no borrado**, con
-la nota de por qué. El dato **se sigue guardando igual** — `abrirNuevo`/`clonarPresupuesto` le
-ponen la fecha de hoy y `presToRow` lo sigue mandando a la columna `fecha_elaboracion`
-(`supabaseApi.js:13`). Solo dejó de ser editable en pantalla, porque pasa a llenarse por usuario
-cuando exista el login. Las pantallas que solo lo **muestran** no se tocaron: «Elaborado:» en
-Resumen mensual y el pie del PDF exportado.
-
-**Select de «Unidad de negocio»** (agregado el 2026-09-02, pedido de Anel). Fila propia de ancho
-completo a la altura de Fecha inicio.
-
-- Catálogo en `src/catalogoUnidades.js`: **30 opciones**, `INTERNO` primero (presupuestos sin
-  unidad propia, como el de TI). Se despliega `CLAVE — NOMBRE` y **se guarda solo la clave**, en la
-  columna `presupuestos.unidad_negocio` (`text`, nullable, sin default).
-- **Es copia provisional**: la fuente real es el módulo de viáticos de `apps.nuvoil.com` (Django,
-  `id_un_clave`). Queda vieja en cuanto den de alta una unidad. Pendiente preguntar a Anel si hay
-  API o export, y confirmar `C18000`/`C18`/`F21858`/`BHSA` y los sub-proyectos
-  `F218385P001/P002/P003` — todo anotado en el encabezado del archivo.
-- **Obligatorio al crear**: `guardarPres` no navega si falta (`faltaUnidad`). **No** se exige en
-  `modoEdit`, porque ahí el select va **deshabilitado** con el valor guardado a la vista — abrir su
-  edición es la misma pregunta sin responder que la de las fechas (**A1**).
-- Un presupuesto **sin unidad** (`NULL`) se pinta como `—`, nunca vacío ni error. Los cinco
-  presupuestos anteriores a esta fecha están así y abren, calculan y exportan igual.
-- La unidad se muestra **junto al nombre** en los encabezados de Capturar costos, Resumen mensual e
-  Información general, para leerla sin entrar a editar.
-- Búsqueda: es un `<select>` nativo, igual que el resto de los selects de la app. Con el menú
-  abierto, teclear la clave salta a ella (las opciones empiezan por la clave). No se agregó ningún
-  componente nuevo de autocompletado.
+Campos: Nombre*, Empresa, **Año del presupuesto**, Fecha inicio*, Fecha fin*, Fecha de elaboración
+(`src/App.jsx:3073-3110`). Debajo de las fechas va el bloque de origen y después el de tipo
+(`src/App.jsx:3117-3266`):
 
 **Selector de «Año del presupuesto»** (agregado el 2026-09-02, `src/App.jsx:3549-3600`). Va
 **antes** de las dos fechas porque lo único que hace es rellenarlas; solo se pinta cuando

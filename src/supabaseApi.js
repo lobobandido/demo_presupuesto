@@ -12,13 +12,6 @@ function presToRow(form, precioFijo){
     fecha_fin: form.fechaFin||null,
     fecha_elaboracion: form.fechaElaboracion||null,
     precio_fijo: precioFijo||0,
-    // Unidad de negocio (02-sep-2026): se guarda SOLO la clave del catálogo
-    // (src/catalogoUnidades.js). ||null y no ||"" a propósito — la columna es
-    // nullable sin default, y los presupuestos anteriores a esta fecha están en
-    // NULL: que un formulario sin unidad escriba NULL y no cadena vacía deja los
-    // dos casos indistinguibles ("no tiene unidad") en vez de inventar un tercer
-    // estado que habría que limpiar después.
-    unidad_negocio: form.unidadNegocio||null,
   };
 }
 function capexToRow(p){
@@ -295,10 +288,6 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
   return {
     id: pres.id,
     nombre: pres.nombre, empresa: pres.empresa, tipo: pres.tipo, estado: pres.estado,
-    // Los presupuestos guardados antes del 02-sep-2026 traen NULL: se normaliza a
-    // "" para que el <select> quede sin selección (y no en un value que no existe
-    // en el catálogo), y el encabezado lo pinte como "—".
-    unidadNegocio: pres.unidad_negocio||"",
     fechaInicio: pres.fecha_inicio, fechaFin: pres.fecha_fin, fechaElaboracion: pres.fecha_elaboracion,
     fecha: pres.fecha_inicio,
     _areas: (areasRows||[]).map(a=>a.area_id),
