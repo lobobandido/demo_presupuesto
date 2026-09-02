@@ -557,14 +557,14 @@ categoría es texto libre en la columna `categoria` de cada partida.
 
 | Qué | Dónde |
 |---|---|
-| Los 14 rubros del CSV + 1 excepción | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
+| Los 18 rubros del CSV | `CATS_MACRO_CONTABLE` — `src/App.jsx:51` |
 | Subcuenta → rubro (61 entradas) | `SUBCAT_MAPPING` — `src/App.jsx:54` |
 | Normalización para comparar | `normCat` — `src/App.jsx:86-89` |
 | Índices normalizados | `MACRO_POR_NORM`, `SUBCAT_POR_NORM` — `src/App.jsx:93-94` |
 | Resolución | `macroDeCategoria` — `src/App.jsx:99-113` |
 | Mapeos que agrega el usuario a mano | `localStorage["geolis_subcat_map"]` — se escribe en `src/App.jsx:805-807` |
 | Agrupación de la tabla contable | `construirFilasServicio` — `src/App.jsx:1896-1917` |
-| Catálogo oficial de referencia | `docs/catalogo_contable_2027.csv` — 138 subcuentas en 15 rubros |
+| Catálogo oficial de referencia | `docs/catalogo_contable_2027.csv` — 138 subcuentas en 18 rubros |
 
 `macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
 devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la
@@ -584,24 +584,29 @@ Tres cosas que siguen siendo ciertas y conviene no confundir:
   a todo renglón de CAPEX (`src/App.jsx:1869`), así que una categoría de CAPEX fuera del catálogo
   no aparece como SIN CATEGORÍA aunque lo esté.
 
-### Cobertura medida contra `docs/catalogo_contable_2027.csv` (actualizado 2026-09-01)
+### Cobertura medida contra `docs/catalogo_contable_2027.csv` (regenerado 2026-09-01)
 
-**`CATS_MACRO_CONTABLE` son los 14 RUBROS del CSV, ni uno más ni uno menos**, con una sola
-excepción documentada: `NOMINA Y ADICIONALES`, cuya fila en el CSV trae el marcador
-`(?) RUBRO NO DEFINIDO EN EL EXCEL`. Se queda porque `construirFilasServicio` inyecta toda la
-nómina bajo esa etiqueta y sin ella $3,585,000.00 de nómina ya capturada caerían en
-`SIN CATEGORÍA`. **Es provisional: quitarla en cuanto contabilidad defina su rubro.**
+**`CATS_MACRO_CONTABLE` son los 18 RUBROS del CSV, exactamente. Cero excepciones**: ninguno falta y
+ninguno sobra.
 
-El 2026-09-01 salieron nueve entradas que eran **subcuentas**, no rubros. Una subcuenta en esta
-lista gana sobre `SUBCAT_MAPPING` (`MACRO_POR_NORM` se consulta primero) y pinta un subtotal que no
-existe en el archivo de contabilidad. Las que tenían partidas capturadas pasaron a `SUBCAT_MAPPING`
-apuntando a su rubro real.
+**Cómo se distingue un rubro de una subcuenta.** En el Excel de Anel
+(`docs/CARGA PRESUPUESTO 2027 - unidad de negocio.xlsx`, hoja «colocar unidad de negocio», filas
+9-160, columna A) la jerarquía está **en el formato, no en los valores**: los rubros van en
+**negritas sobre relleno dorado `DBAC00`**, las subcuentas en cursiva. Y las subcuentas aparecen
+**arriba** de su rubro, porque el rubro es la fila de suma. El CSV se regenera leyendo ese formato
+directamente del XML del xlsx.
 
-Dos quedaron **deliberadamente sin mapear**, porque el CSV las cuelga de un rubro que no resiste
-criterio contable, y son pregunta abierta a Anel:
+Las versiones anteriores del CSV deducían la jerarquía por los valores de las columnas de meses y
+salían mal: agrupaban `SERVICIOS DE CAPACITACION` bajo `SERVICIOS DE SALUD`, `UNIFORMES` bajo
+`VEHICULOS Y COMBUSTIBLE`, `INSUMOS AGRICOLAS` bajo `INSUMOS DE OFICINA`, y dejaban
+`NOMINA Y ADICIONALES` sin rubro con un marcador `(?) RUBRO NO DEFINIDO EN EL EXCEL`. **Los cuatro
+son rubros por derecho propio.** Con eso desaparece la excepción provisional que tenía
+`NOMINA Y ADICIONALES` y las dos preguntas abiertas a Anel sobre capacitación y uniformes.
 
-| Subcuenta | Rubro que le da el CSV | Línea | Estado |
-|---|---|---|---|
+El guardarraíl de desarrollo (`src/App.jsx`) vigila dos invariantes: que todo VALOR de
+`SUBCAT_MAPPING` sea un rubro, y que `CATS_MACRO_CONTABLE` tenga exactamente 18 entradas.
+
+---|---|---|---|
 | `SERVICIOS DE CAPACITACION` | `SERVICIOS DE SALUD` | 130 | cae en SIN CATEGORÍA — $225,499.14 en PERDIZ-PAPAN |
 | `UNIFORMES` | `VEHICULOS Y COMBUSTIBLE` | 132 | sin partidas capturadas |
 
