@@ -732,6 +732,37 @@ function distMeses(total,tipo="opex"){
   return Array(12).fill(parseFloat((total/12).toFixed(2)));
 }
 
+// ─── AÑO DEL PRESUPUESTO (solo valor inicial del formulario de creación) ─────
+// Dos escenarios confirmados por Anel (contabilidad), 2026-09-02:
+//   (a) el ciclo normal — el ejercicio del AÑO SIGUIENTE, completo: en
+//       septiembre de 2026 se captura enero–diciembre de 2027. Es el grueso, y
+//       por eso es el valor por omisión.
+//   (b) una unidad de negocio que se da de alta en lo que resta del año EN
+//       CURSO: su presupuesto cubre solo los meses que quedan, así que arranca
+//       el primer día del mes actual, no en enero.
+// Los años NO están escritos fijos en ningún lado: salen de new Date(). El fin
+// de vigencia es 31-dic del año elegido en los dos casos.
+//
+// Esto NO cambia cómo se guardan las fechas ni cómo se calculan las columnas de
+// mes: devuelve dos cadenas "YYYY-MM-DD" que se escriben en form.fechaInicio y
+// form.fechaFin, los mismos campos que el usuario podía teclear a mano, y que
+// siguen siendo editables después. Los presupuestos ya guardados no la ejecutan.
+function fechasDeAnio(anio, hoy=new Date()){
+  const mes = anio===hoy.getFullYear() ? hoy.getMonth()+1 : 1;
+  return {
+    fechaInicio: `${anio}-${String(mes).padStart(2,"0")}-01`,
+    fechaFin: `${anio}-12-31`,
+  };
+}
+// Año que de verdad tienen las fechas del formulario ahora mismo. El selector se
+// pinta a partir de ESTO y no de un estado propio, para que el año que se lee en
+// pantalla no pueda despegarse de las fechas capturadas (un clon hereda las
+// fechas de su origen, y el usuario puede editar cualquiera de las dos después).
+function anioDeFecha(f){
+  const m = /^(\d{4})-/.exec(f||"");
+  return m ? Number(m[1]) : null;
+}
+
 // ─── MONEY INPUT — prefijo $ fijo, sin bloqueo del 0 ──────────────────────────
 // ─── MONEY INPUT ─────────────────────────────────────────────────────────────
 // $ fijo | focus: edición limpia sin comas | blur: formato 1,500,000.00
@@ -2766,7 +2797,11 @@ export default function App(){
 
   // ── Acciones ────────────────────────────────────────────────────────────────
   function abrirNuevo(){
-    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",
+    // Año por omisión = AÑO ACTUAL + 1 (ver fechasDeAnio). Antes las dos fechas
+    // arrancaban vacías y había que teclearlas; ahora vienen rellenas con el
+    // ejercicio siguiente completo y siguen siendo editables en el formulario.
+    const {fechaInicio,fechaFin}=fechasDeAnio(new Date().getFullYear()+1);
+    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio,fechaFin,
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
@@ -3511,6 +3546,58 @@ export default function App(){
                   style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
+              {/* A.1 (2026-09-02) — AÑO DEL PRESUPUESTO. Va antes de las fechas
+                  porque es lo único que hace: rellenarlas. Solo en creación —
+                  en modoEdit, mover fechaInicio recorre todas las columnas de
+                  mes de lo ya capturado, que es la decisión A1 de
+                  docs/MD/DECISIONES.md y sigue sin resolver. */}
+              {!modoEdit&&(()=>{
+                const anioActual=new Date().getFullYear();
+                const anioSel=anioDeFecha(form.fechaInicio);
+                const opciones=[
+                  {anio:anioActual,   nota:"año en curso"},
+                  {anio:anioActual+1, nota:"siguiente"},
+                ];
+                // Un clon hereda las fechas de su origen y las dos fechas de
+                // abajo son editables: si el año capturado no es ninguno de los
+                // dos, se agrega como opción para que el selector nunca muestre
+                // resaltado un año distinto del que dicen las fechas.
+                if(anioSel && !opciones.some(o=>o.anio===anioSel))
+                  opciones.push({anio:anioSel, nota:"según las fechas capturadas"});
+                opciones.sort((a,b)=>a.anio-b.anio);
+                return(
+                <div style={{gridColumn:"1 / -1"}}>
+                  <FL>Año del presupuesto</FL>
+                  <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                    {opciones.map(o=>{
+                      const activo=anioSel===o.anio;
+                      return(
+                        <div key={o.anio} onClick={()=>setForm({...form,...fechasDeAnio(o.anio)})}
+                          style={{border:"2px solid",borderColor:activo?C.yellow:C.grayBorder,
+                            borderRadius:10,padding:"10px 20px",cursor:"pointer",textAlign:"center",
+                            background:activo?C.yellowLight:C.white,transition:"all 0.15s",
+                            boxShadow:activo?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
+                          <div style={{fontWeight:800,fontSize:18,color:C.grayDark,lineHeight:1.1}}>
+                            {activo?"● ":""}{o.anio}
+                          </div>
+                          <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>{o.nota}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* El año queda legible sin abrir ningún selector, y se lee de
+                      las fechas mismas — no de un estado paralelo que pudiera
+                      despegarse de ellas. */}
+                  <div style={{marginTop:8,fontSize:12,color:C.grayDark,background:C.yellowLight,
+                    border:`1px solid ${C.yellowBorder}`,borderRadius:8,padding:"8px 12px"}}>
+                    {anioSel
+                      ?<>Ejercicio <strong>{anioSel}</strong> — del <strong>{form.fechaInicio}</strong> al <strong>{form.fechaFin||"—"}</strong>. Las dos fechas de abajo son editables.</>
+                      :<>Elige un año para rellenar las fechas, o captúralas a mano abajo.</>}
+                  </div>
+                </div>
+                );
+              })()}
+
               <div>
                 <FL required>Fecha inicio</FL>
                 <input type="date" value={form.fechaInicio} onChange={e=>setForm({...form,fechaInicio:e.target.value})}

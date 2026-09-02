@@ -123,9 +123,32 @@ No hay botón de PDF ni de «Información general» en esta pantalla. `guardarPr
 nombre/tipo/fechaInicio/fechaFin y, si falta alguno, activa los avisos en rojo y **no navega**
 (`src/App.jsx:2529-2530`).
 
-Campos: Nombre*, Empresa, Fecha inicio*, Fecha fin*, Fecha de elaboración
+Campos: Nombre*, Empresa, **Año del presupuesto**, Fecha inicio*, Fecha fin*, Fecha de elaboración
 (`src/App.jsx:3073-3110`). Debajo de las fechas va el bloque de origen y después el de tipo
 (`src/App.jsx:3117-3266`):
+
+**Selector de «Año del presupuesto»** (agregado el 2026-09-02, `src/App.jsx:3549-3600`). Va
+**antes** de las dos fechas porque lo único que hace es rellenarlas; solo se pinta cuando
+`modoEdit` es `false` (en edición, mover `fechaInicio` recorre todas las columnas de mes de lo ya
+capturado — es **A1** de `docs/MD/DECISIONES.md`, sin resolver).
+
+- Ofrece dos años calculados con `new Date()`, nunca escritos fijos: **año en curso** y
+  **siguiente**. El valor por omisión de un presupuesto nuevo es **año actual + 1**, y lo aplica
+  `abrirNuevo` al armar el `form` (`src/App.jsx:2800-2805`).
+- Al elegir un año, `fechasDeAnio(anio)` (`src/App.jsx:750-756`) devuelve las dos fechas y se
+  escriben en `form.fechaInicio`/`form.fechaFin`:
+  · **año siguiente** → `01-01-<año>` → `31-12-<año>` (ejercicio completo);
+  · **año en curso** → primer día del **mes actual** → `31-12-<año>` (una unidad de negocio que se
+  da de alta en octubre no presupuesta de enero a septiembre).
+- El año resaltado **no vive en un estado propio**: se deriva de `form.fechaInicio` con
+  `anioDeFecha` (`src/App.jsx:761-764`), así que no puede despegarse de las fechas. Si las fechas
+  traen un año que no es ninguno de los dos (un clon hereda las de su origen, y las dos fechas
+  siguen siendo editables a mano), ese año se agrega como tercera opción rotulada «según las fechas
+  capturadas».
+- Debajo de las tarjetas hay una tira amarilla que imprime `Ejercicio <año> — del <fechaInicio> al
+  <fechaFin>`, para que el año elegido se lea **sin abrir ningún selector**.
+- No cambia cómo se guardan las fechas ni cómo se calculan las columnas de mes: es únicamente el
+  valor inicial del formulario. Los presupuestos ya guardados no ejecutan nada de esto.
 
 - Si `viaClonar` es `true`: tarjeta **«Presupuesto de origen»** con un `<select>` de otros
   presupuestos guardados del mismo tipo (`src/App.jsx:3126-3167`), y el tipo se muestra como texto
