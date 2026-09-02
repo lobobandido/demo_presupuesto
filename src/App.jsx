@@ -1904,7 +1904,12 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
                     onChange={e=>onUpdate({...p,mesesContrato:parseInt(e.target.value)||1})}
                     style={{width:48,padding:"2px 5px",border:`1px solid #bbf7d0`,
                       borderRadius:4,fontSize:11,textAlign:"center"}}/>
-                  <span style={{color:"#059669",fontWeight:700}}>× Total: {fmt(costoTotal)}</span>
+                  {/* Quitado el 02-sep-2026 a petición de Luis: aquí iba
+                      "x Total: {fmt(costoTotal)}", el mismo número que ya está en
+                      la columna COSTO ANUAL del renglón de arriba. Verlo dos veces
+                      confunde. El input de Meses de contrato SE QUEDA: es la única
+                      forma de capturar ese dato. costoTotal se sigue calculando
+                      igual, solo deja de pintarse en esta línea. */}
                 </span>
               )}
               {p.tipoPersonal==="fijo"&&(
