@@ -3628,15 +3628,24 @@ export default function App(){
                       );
                     })}
                   </div>
-                  {/* El año queda legible sin abrir ningún selector, y se lee de
-                      las fechas mismas — no de un estado paralelo que pudiera
-                      despegarse de ellas. */}
+                  {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
+                      contadora Anel probablemente lo va a pedir de vuelta, porque
+                      define el ejercicio presupuestal y qué significa cada tipo.
+
+                      Nota de lo que se pierde mientras esté oculto: este recuadro
+                      era lo que hacía legible el año elegido SIN abrir ningún
+                      selector. Las tarjetas de año siguen ahí y la resaltada sigue
+                      marcando cuál está elegido, así que el año se sigue viendo;
+                      lo que ya no se ve de un golpe son las dos fechas exactas que
+                      quedaron (que igual siguen en sus dos campos, abajo).
+
                   <div style={{marginTop:8,fontSize:12,color:C.grayDark,background:C.yellowLight,
                     border:`1px solid ${C.yellowBorder}`,borderRadius:8,padding:"8px 12px"}}>
                     {anioSel
                       ?<>Ejercicio <strong>{anioSel}</strong> — del <strong>{form.fechaInicio}</strong> al <strong>{form.fechaFin||"—"}</strong>. Las dos fechas de abajo son editables.</>
                       :<>Elige un año para rellenar las fechas, o captúralas a mano abajo.</>}
                   </div>
+                  */}
                 </div>
                 );
               })()}
@@ -3865,7 +3874,16 @@ export default function App(){
                         boxShadow:form.tipo===t.id?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
                       <div style={{fontSize:26,marginBottom:6}}>{t.icon}</div>
                       <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{t.label}</div>
+                      {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
+                          contadora Anel probablemente lo va a pedir de vuelta, porque
+                          define el ejercicio presupuestal y qué significa cada tipo.
+
+                          Solo se oculta el SUBTÍTULO: las cuatro tarjetas siguen ahí
+                          con su icono y su nombre, y `desc` se sigue definiendo en el
+                          arreglo de arriba (no se borró ningún texto).
+
                       <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>{t.desc}</div>
+                      */}
                     </div>
                   ))}
                 </div>
