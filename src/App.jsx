@@ -3743,10 +3743,72 @@ export default function App(){
               </div>
               */}
 
-              {/* Punto 8 spec-navegación-retro-410 — "debajo de fecha": el bloque de
-                  origen (select de Clonar, o las dos tarjetas de +Nuevo presupuesto)
-                  va debajo de las fechas y antes de Tipo de presupuesto. Cero lógica
-                  nueva — mismo JSX que antes, solo reubicado dentro de la rejilla. */}
+              <div style={{gridColumn:"1 / -1"}}>
+                <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
+                {/* Confirmado en producción — el tipo lo hereda el clon del origen y NO
+                    debe poder cambiarse ahí: cambiar un clon de Servicio a Departamento
+                    produce partidas que ese tipo no admite. form.tipo no se toca — solo
+                    se quita la edición mientras viaClonar es true. En "+ Nuevo
+                    presupuesto" las cuatro tarjetas siguen igual. */}
+                {viaClonar?(()=>{
+                  const tipoLabel={"instalacion":"Instalación","servicio":"Servicio","departamento":"Departamento","suministro":"Suministro"};
+                  return(
+                    <div style={{padding:"9px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
+                      fontSize:14,background:C.grayLight,color:C.grayDark}}>
+                      Tipo: <strong>{tipoLabel[form.tipo]||form.tipo}</strong> — heredado del presupuesto de origen
+                    </div>
+                  );
+                })():(
+                <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
+                  {[
+                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
+                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente",   icon:"🔁"},
+                    {id:"departamento",label:"Departamento", desc:"Área interna",          icon:"🏢"},
+                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales",  icon:"📦"},
+                  ].map(t=>(
+                    <div key={t.id}
+                      onClick={()=>{
+                        setForm({...form,tipo:t.id});
+                        setAreas([]);
+                        setOpexPM([]);
+                        // Usuario decide si cargar base o empezar desde cero
+                        setCapexPM([]);
+                        setPlantKey(null);
+                      }}
+                      style={{border:"2px solid",borderColor:form.tipo===t.id?C.yellow:C.grayBorder,
+                        borderRadius:10,padding:"14px 10px",cursor:"pointer",textAlign:"center",
+                        background:form.tipo===t.id?C.yellowLight:C.white,transition:"all 0.15s",
+                        boxShadow:form.tipo===t.id?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
+                      <div style={{fontSize:26,marginBottom:6}}>{t.icon}</div>
+                      <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{t.label}</div>
+                      {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
+                          contadora Anel probablemente lo va a pedir de vuelta, porque
+                          define el ejercicio presupuestal y qué significa cada tipo.
+
+                          Solo se oculta el SUBTÍTULO: las cuatro tarjetas siguen ahí
+                          con su icono y su nombre, y `desc` se sigue definiendo en el
+                          arreglo de arriba (no se borró ningún texto).
+
+                      <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>{t.desc}</div>
+                      */}
+                    </div>
+                  ))}
+                </div>
+                )}
+              </div>
+
+              {/* Bloque de origen: el select de Clonar, o las dos tarjetas de
+                  "+ Nuevo presupuesto" (plantilla / desde cero).
+                  Posición actual (Luis, 02-sep-2026): "cómo quieres iniciar este
+                  proceso... debería ir debajo de este tipo de presupuesto" — va
+                  DESPUÉS de las tarjetas de Tipo y es el último bloque del
+                  formulario, justo arriba de Continuar. Sigue el orden del flujo:
+                  primero qué presupuesto es, después de dónde arranca.
+                  Antes vivía debajo de las fechas y ANTES de Tipo (punto 8 de
+                  spec-navegación-retro-410); ese requisito queda superado por
+                  este.
+                  Las dos veces fue lo mismo: reubicar el JSX tal cual dentro de la
+                  rejilla. Cero lógica nueva — mismo estado, mismos handlers. */}
               <div style={{gridColumn:"1 / -1"}}>
                 {!modoEdit && form.tipo&&(viaClonar?(()=>{
                   // El tipo ya no se puede cambiar aquí (hereda del origen, ver bloque
@@ -3851,60 +3913,6 @@ export default function App(){
                     </div>
                   </div>
                 ))}
-              </div>
-
-              <div style={{gridColumn:"1 / -1"}}>
-                <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
-                {/* Confirmado en producción — el tipo lo hereda el clon del origen y NO
-                    debe poder cambiarse ahí: cambiar un clon de Servicio a Departamento
-                    produce partidas que ese tipo no admite. form.tipo no se toca — solo
-                    se quita la edición mientras viaClonar es true. En "+ Nuevo
-                    presupuesto" las cuatro tarjetas siguen igual. */}
-                {viaClonar?(()=>{
-                  const tipoLabel={"instalacion":"Instalación","servicio":"Servicio","departamento":"Departamento","suministro":"Suministro"};
-                  return(
-                    <div style={{padding:"9px 12px",border:`1px solid ${C.grayBorder}`,borderRadius:8,
-                      fontSize:14,background:C.grayLight,color:C.grayDark}}>
-                      Tipo: <strong>{tipoLabel[form.tipo]||form.tipo}</strong> — heredado del presupuesto de origen
-                    </div>
-                  );
-                })():(
-                <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
-                  {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
-                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente",   icon:"🔁"},
-                    {id:"departamento",label:"Departamento", desc:"Área interna",          icon:"🏢"},
-                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales",  icon:"📦"},
-                  ].map(t=>(
-                    <div key={t.id}
-                      onClick={()=>{
-                        setForm({...form,tipo:t.id});
-                        setAreas([]);
-                        setOpexPM([]);
-                        // Usuario decide si cargar base o empezar desde cero
-                        setCapexPM([]);
-                        setPlantKey(null);
-                      }}
-                      style={{border:"2px solid",borderColor:form.tipo===t.id?C.yellow:C.grayBorder,
-                        borderRadius:10,padding:"14px 10px",cursor:"pointer",textAlign:"center",
-                        background:form.tipo===t.id?C.yellowLight:C.white,transition:"all 0.15s",
-                        boxShadow:form.tipo===t.id?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
-                      <div style={{fontSize:26,marginBottom:6}}>{t.icon}</div>
-                      <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{t.label}</div>
-                      {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
-                          contadora Anel probablemente lo va a pedir de vuelta, porque
-                          define el ejercicio presupuestal y qué significa cada tipo.
-
-                          Solo se oculta el SUBTÍTULO: las cuatro tarjetas siguen ahí
-                          con su icono y su nombre, y `desc` se sigue definiendo en el
-                          arreglo de arriba (no se borró ningún texto).
-
-                      <div style={{fontSize:10,color:C.grayMid,marginTop:3}}>{t.desc}</div>
-                      */}
-                    </div>
-                  ))}
-                </div>
-                )}
               </div>
 
             </div>
