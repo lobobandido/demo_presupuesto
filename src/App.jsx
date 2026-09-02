@@ -2651,6 +2651,18 @@ export default function App(){
   // flujo de creación" (Captura de información) de "presupuesto existente"
   // (Editar — [nombre]) para el título de Capturar costos.
   const [flujoCreacion,setFlujoCreacion] = useState(false);
+  // Desbloqueo del acceso al Resumen mensual desde Capturar costos (02-sep-2026).
+  // Se prende cuando guardarTodo confirma un guardado EXITOSO y ya no se vuelve a
+  // apagar mientras se trabaja ese presupuesto: un botón que prende y apaga a cada
+  // tecla es peor que uno siempre apagado. Solo se reinicia al empezar OTRO
+  // presupuesto (abrirNuevo/clonarPresupuesto), que son los dos únicos puntos que
+  // ponen flujoCreacion en true.
+  //
+  // Deliberadamente NO se persiste: al volver a entrar por Ver, Editar o la miga
+  // de pan, esas tres rutas ya ponen flujoCreacion en false y los botones salen
+  // habilitados de todos modos. Una columna en Supabase no cambiaría nada de lo
+  // que el usuario ve.
+  const [resumenDesbloqueado,setResumenDesbloqueado] = useState(false);
   // Candado de guardado (Opción A) — true desde que guardarTodo dispara
   // guardarPresupuestoEnNube hasta que resuelve o falla; el único botón
   // "Guardar" de Capturar costos se deshabilita mientras esté en true. Antes
@@ -2808,6 +2820,7 @@ export default function App(){
     setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
     setIntentoGuardar(false);
     setFlujoCreacion(true);
+    setResumenDesbloqueado(false); // presupuesto nuevo: todavía no hay nada guardado
     setStep(1);
   }
   // Spec recuperación-datos, paso 2 — p llega ligero (de listarPresupuestos, sin
@@ -2974,6 +2987,7 @@ export default function App(){
     // hasta que el usuario elija uno del tipo nuevo en el select.
     setViaClonar(true);
     setOrigenReal(mismoTipo?{id:p.id,nombre:p.nombre,tipo:p.tipo}:null);
+    setResumenDesbloqueado(false); // la copia todavía no se ha guardado
     setStep(1);
   }
 
@@ -3144,7 +3158,12 @@ export default function App(){
               setLista(prevLista=>prevLista.map(x=>x.id===actualizado.id?{...x,id:cloudId}:x));
             }
             showToast("Costos guardados correctamente");
+            // Guardado confirmado por la nube (cloudId real): se abre el acceso al
+            // Resumen mensual. Va junto al toast de éxito a propósito — es el mismo
+            // evento, así que no pueden despegarse uno del otro.
+            setResumenDesbloqueado(true);
           } else {
+            // cloudId===null es un fallo reportado sin excepción: NO desbloquea.
             showToast("No se pudo guardar — intenta de nuevo");
           }
         }).catch(err=>{
@@ -3155,23 +3174,29 @@ export default function App(){
         // Sin Supabase configurado, el guardado es solo local — no hay nada
         // async que esperar, el toast de éxito es inmediato como antes.
         showToast("Costos guardados correctamente");
+        setResumenDesbloqueado(true);
       }
     } else {
       showToast("Costos guardados correctamente");
+      setResumenDesbloqueado(true);
     }
   }
 
   // ── BTN ──────────────────────────────────────────────────────────────────────
   // Jerarquía visual: primary/success = acción principal (llenas, con sombra),
   // secondary = acción secundaria (borde, sin relleno), danger = destructiva.
-  const btn=(label,onClick,variant="primary",disabled=false)=>{
+  // `title` (5º parámetro, 02-sep-2026): tooltip nativo, sobre todo para explicar
+  // por qué un botón está deshabilitado — antes el usuario veía un botón gris sin
+  // saber qué hacer. Es opcional con default undefined, así que las ~40 llamadas
+  // que ya existen a btn() no cambian en nada.
+  const btn=(label,onClick,variant="primary",disabled=false,title=undefined)=>{
     const bg=variant==="primary"?C.yellow:variant==="success"?C.success:
       variant==="danger"?C.danger:C.white;
     const bgHover=variant==="primary"?C.yellowDark:variant==="success"?"#166430":
       variant==="danger"?"#a5321f":C.grayLight;
     const isFilled=variant==="primary"||variant==="success"||variant==="danger";
     return(
-      <button onClick={onClick} disabled={disabled} style={{
+      <button onClick={onClick} disabled={disabled} title={title} style={{
         padding:isFilled?"10px 24px":"9px 20px",borderRadius:8,
         border:isFilled?"none":`1.5px solid ${C.grayBorder}`,
         cursor:disabled?"not-allowed":"pointer",
@@ -4059,15 +4084,44 @@ export default function App(){
               );
             })()}
           </div>
-          {/* Citas del cliente — "Tampoco activa", "Estos dos tampoco": mientras
-              flujoCreacion es true (presupuesto que aún no existe) estos dos
-              accesos van atenuados y no clicables; se activan en cuanto el
-              presupuesto está guardado (abrirEdit/abrirPresupuesto ponen
-              flujoCreacion en false). */}
-          <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("← Información general",()=>setStep(5),"secondary",flujoCreacion)}
-            {btn("Resumen mensual →",()=>setStep(4),"secondary",flujoCreacion)}
-          </div>
+          {/* Citas del cliente — "Tampoco activa", "Estos dos tampoco": mientras el
+              presupuesto no exista todavía, estos dos accesos van atenuados y no
+              clicables. Lo que cambió el 02-sep-2026 es CUÁNDO deja de estar
+              atenuado.
+                ANTES: solo `flujoCreacion`, que únicamente se apaga al ENTRAR a un
+              presupuesto ya existente (Ver / Editar / miga de pan). En una captura
+              nueva no se apagaba nunca: se podía guardar diez veces y los botones
+              seguían grises hasta salir y volver a entrar.
+                AHORA: `flujoCreacion && !resumenDesbloqueado`. El desbloqueo lo
+              prende guardarTodo en su rama de ÉXITO, el mismo evento que dispara
+              «Costos guardados correctamente», y no se vuelve a apagar mientras se
+              trabaja ese presupuesto. Un presupuesto que ya traía datos guardados
+              sigue abriendo habilitado sin guardar de nuevo, porque esas tres rutas
+              ya ponen flujoCreacion en false — ese caso no necesitó código.
+
+              TAREA 8, PASO 3 (fusión de las dos vistas): «Resumen mensual →» es el
+              botón que SOBREVIVE — cuando «Información general» salga del menú,
+              este queda como único destino. Por eso los dos comparten una sola
+              condición ya calculada (accesosBloqueados) en vez de repetirla: ese
+              día se borra el renglón de «← Información general» y ya. No hay que
+              rehacer nada de esta lógica. */}
+          {(()=>{
+            const accesosBloqueados = flujoCreacion && !resumenDesbloqueado;
+            const motivo = accesosBloqueados ? "Guarda primero para ver el resumen" : undefined;
+            return(
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}} className="noprint">
+                <div style={{display:"flex",gap:10}}>
+                  {btn("← Información general",()=>setStep(5),"secondary",accesosBloqueados,motivo)}
+                  {btn("Resumen mensual →",()=>setStep(4),"secondary",accesosBloqueados,motivo)}
+                </div>
+                {/* El tooltip solo aparece al pasar el mouse; el texto chico se ve
+                    siempre que estén bloqueados, que es cuando hace falta. */}
+                {accesosBloqueados&&(
+                  <div style={{fontSize:11,color:C.grayMid}}>Guarda primero para ver el resumen</div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* ── SECCIÓN: Captura de ingresos — movida de Resumen mensual (pantalla de

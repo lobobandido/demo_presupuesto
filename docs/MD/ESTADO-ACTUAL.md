@@ -269,7 +269,37 @@ acción (`src/App.jsx:3825-3827`).
 | `← Información general` | `()=>setStep(5)` | Step 5 | `src/App.jsx:3479` |
 | `Resumen mensual →` | `()=>setStep(4)` | Step 4 | `src/App.jsx:3480` |
 
-Los dos están **deshabilitados mientras `flujoCreacion` es `true`** (`src/App.jsx:3479-3480`).
+**Cuándo están deshabilitados** (cambiado el 2026-09-02, `src/App.jsx:4109`). La condición es
+`accesosBloqueados = flujoCreacion && !resumenDesbloqueado` — calculada **una sola vez** y pasada a
+los dos botones.
+
+- Antes era solo `flujoCreacion`, y `flujoCreacion` únicamente se apaga al **entrar** a un
+  presupuesto que ya existe (`Ver`, `Editar`, o el eslabón del nombre en la miga de pan). En una
+  captura nueva no se apagaba nunca: se podía guardar diez veces y los dos botones seguían grises
+  hasta salir del presupuesto y volver a entrar.
+- `resumenDesbloqueado` (`src/App.jsx:2665`) lo prende `guardarTodo` en sus **tres ramas de
+  éxito** — las mismas que disparan el aviso «Costos guardados correctamente»
+  (`src/App.jsx:3160`, `3176`, `3180`). En la rama de fallo (`cloudId===null`) y en el `.catch()`
+  **no** se prende.
+- Una vez prendido **no se vuelve a apagar** mientras se trabaje ese presupuesto: un botón que
+  prende y apaga a cada tecla es peor que uno siempre apagado. Solo se reinicia a `false` al
+  empezar otro presupuesto — `abrirNuevo` (`2823`) y `clonarPresupuesto` (`2990`), los dos únicos
+  puntos que ponen `flujoCreacion` en `true`.
+- **No se persiste**, a propósito: al reentrar por `Ver`/`Editar`/miga de pan, esas rutas ya ponen
+  `flujoCreacion` en `false` y los botones salen habilitados igual. Una columna en Supabase no
+  cambiaría nada de lo que el usuario ve (decisión del usuario, 2026-09-02).
+- Un presupuesto **que ya tenía datos guardados abre con los botones habilitados**, sin volver a
+  guardar. Ese caso no necesitó código: sale de que las tres rutas de apertura ya apagan
+  `flujoCreacion`.
+- Mientras están bloqueados, el motivo se **ve**: tooltip nativo en los dos botones más un texto
+  chico debajo, «Guarda primero para ver el resumen». El tooltip usa el 5º parámetro `title` de
+  `btn` (`src/App.jsx:3185`), agregado el mismo día, opcional y con default `undefined` — las
+  demás llamadas a `btn()` no cambian.
+
+> **Tarea 8, paso 3 (fusión de las dos vistas):** `Resumen mensual →` es el botón que **sobrevive**;
+> cuando «Información general» salga del menú, este queda como único destino. Por eso los dos
+> comparten la condición ya calculada en vez de repetirla: ese día se borra el renglón de
+> `← Información general` y nada más. La lógica de habilitado no se rehace.
 
 **Botón de guardado** (único de la pantalla, al final del panel de captura):
 
