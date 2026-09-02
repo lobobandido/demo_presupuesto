@@ -3564,10 +3564,10 @@ export default function App(){
           <h2 style={{margin:0,fontSize:20,fontWeight:800,color:C.grayDark}}>
             {modoEdit?"Editar presupuesto":"Nuevo presupuesto"}
           </h2>
-          <div style={{display:"flex",gap:10}} className="noprint">
-            {btn("Cancelar",()=>setStep(0),"secondary")}
-            {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
-          </div>
+          {/* Los botones Cancelar / Continuar vivían aquí, junto al título.
+              El 02-sep-2026 bajaron al final del formulario a petición de Luis
+              ("el botón de abajo"): se piden al terminar de llenar, no antes de
+              empezar. Ver el bloque al fondo de esta pantalla. */}
         </div>
 
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
@@ -3922,6 +3922,17 @@ export default function App(){
 
             </div>
           </div>
+        </div>
+
+        {/* Fila de botones del formulario (Luis, 02-sep-2026): antes estaba
+            arriba, junto al título; ahora es lo último de la pantalla, después
+            de "¿Cómo quieres iniciar este presupuesto?". Mismos handlers y misma
+            validación que tenían arriba — guardarPres sigue exigiendo nombre,
+            tipo, unidad de negocio (al crear) y las dos fechas, y sigue activando
+            los avisos en rojo sin navegar cuando falta alguno. */}
+        <div style={{display:"flex",gap:10,justifyContent:"flex-end",marginBottom:24}} className="noprint">
+          {btn("Cancelar",()=>setStep(0),"secondary")}
+          {btn(modoEdit?"Guardar":"Continuar",guardarPres,"primary")}
         </div>
 
         {/* Modal plantillas */}
