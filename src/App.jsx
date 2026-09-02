@@ -3616,12 +3616,25 @@ export default function App(){
                     background:intentoGuardar&&!form.fechaFin?"#FFF5F5":C.white}}/>
                 {intentoGuardar&&!form.fechaFin&&<div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Fecha fin requerida</div>}
               </div>
+              {/* Oculto temporalmente (02-sep-2026). Este dato pasa a ser por
+                  usuario cuando exista el login: se llenará solo con la fecha en
+                  que el usuario capturó, no como campo editable en pantalla.
+                  No borrar hasta que el login esté.
+
+                  Solo se oculta el CAMPO de esta pantalla. form.fechaElaboracion
+                  se sigue armando igual (abrirNuevo y clonarPresupuesto le ponen
+                  la fecha de hoy, App.jsx:2805 y 2931), presToRow lo sigue
+                  mandando a la columna fecha_elaboracion (supabaseApi.js:13) y
+                  las pantallas que solo lo muestran no se tocan: "Elaborado:" en
+                  Resumen mensual (App.jsx:4525) y el pie del PDF (App.jsx:4733).
+
               <div>
                 <FL>Fecha de elaboración</FL>
                 <input type="date" value={form.fechaElaboracion} onChange={e=>setForm({...form,fechaElaboracion:e.target.value})}
                   style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
+              */}
 
               {/* Punto 8 spec-navegación-retro-410 — "debajo de fecha": el bloque de
                   origen (select de Clonar, o las dos tarjetas de +Nuevo presupuesto)
