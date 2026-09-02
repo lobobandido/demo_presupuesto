@@ -3442,6 +3442,11 @@ export default function App(){
             transition:"background 0.1s"}}>
             <div>
               <div style={{fontWeight:600,fontSize:14,color:C.grayDark}}>{p.nombre}</div>
+              {/* Unidad de negocio debajo del nombre (Luis, 02-sep-2026) — mismo
+                  criterio que el encabezado del presupuesto: sin etiqueta, y si no
+                  hay unidad el renglón no se pinta. La clave viaja en el listado
+                  desde que listarPresupuestos la incluye en su select. */}
+              {p.unidadNegocio&&<div style={{fontSize:12,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(p.unidadNegocio)}</div>}
               {/* Spec navegación-retro-410 punto 3.1 — reemplaza la fecha suelta */}
               {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:2}}>Inicio del proyecto: {p.fechaInicio}</div>}
               {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:1}}>Vigencia: {p.fechaInicio} → {p.fechaFin||"—"}</div>}

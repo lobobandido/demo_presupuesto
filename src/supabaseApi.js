@@ -73,13 +73,18 @@ const F_IMSS_DEFAULT=0.32, F_PREST_DEFAULT=0.40, F_ISR_DEFAULT=0.05;
 // ─── LISTAR ──────────────────────────────────────────────────────────────────
 export async function listarPresupuestos(){
   if(!supabase) return [];
+  // unidad_negocio se agregó al select el 02-sep-2026: el listado la pinta debajo
+  // del nombre. Es una LECTURA — no toca presToRow ni el guardado.
   const {data, error} = await supabase.from("presupuestos")
-    .select("id,nombre,empresa,tipo,estado,fecha_inicio,fecha_fin,updated_at")
+    .select("id,nombre,empresa,tipo,estado,fecha_inicio,fecha_fin,unidad_negocio,updated_at")
     .order("updated_at",{ascending:false});
   if(error){ console.error("[supabase] listarPresupuestos:", error.message); return []; }
   return (data||[]).map(r=>({
     id:r.id, nombre:r.nombre, empresa:r.empresa, tipo:r.tipo, estado:r.estado,
     fecha:r.fecha_inicio, fechaInicio:r.fecha_inicio, fechaFin:r.fecha_fin,
+    // Mismo criterio que cargarPresupuestoDeNube: NULL → "" (los presupuestos
+    // anteriores a esa fecha), y el renglón simplemente no se pinta.
+    unidadNegocio:r.unidad_negocio||"",
     _remoto:true,
   }));
 }
