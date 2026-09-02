@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, Fragment } from "react";
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
+import { UNIDADES_NEGOCIO, etiquetaUnidad } from "./catalogoUnidades";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -2629,7 +2630,7 @@ export default function App(){
   // listarPresupuestos() y la lógica de mezcla en el useEffect de montaje
   // siguen exactamente iguales.
   const [lista,setLista]       = useState([]);
-  const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
+  const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   // Diálogo de Clonar (spec navegación-retro-410, punto 8) — presupuesto de
   // origen y tipo elegido, solo mientras el diálogo está abierto.
@@ -2801,7 +2802,7 @@ export default function App(){
     // arrancaban vacías y había que teclearlas; ahora vienen rellenas con el
     // ejercicio siguiente completo y siguen siendo editables en el formulario.
     const {fechaInicio,fechaFin}=fechasDeAnio(new Date().getFullYear()+1);
-    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",fechaInicio,fechaFin,
+    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio,fechaFin,
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
@@ -2824,6 +2825,8 @@ export default function App(){
       p = remoto;
     }
     setForm({nombre:p.nombre,tipo:p.tipo,empresa:p.empresa||"GEOLIS SA DE CV",
+      // Los 5 presupuestos anteriores al 02-sep-2026 no tienen unidad: queda "".
+      unidadNegocio:p.unidadNegocio||"",
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
     setAreas(p._areas||[]); setCostos(p._costos||{});
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
@@ -2926,6 +2929,11 @@ export default function App(){
       nombre: p.nombre + " (copia)",
       tipo: tipoFinal,
       empresa: p.empresa||"GEOLIS SA DE CV",
+      // La copia hereda la unidad del origen y se puede cambiar antes de guardar
+      // (el clon pasa por Step 1 con modoEdit en false, o sea con el select
+      // habilitado). Un origen sin unidad deja el clon sin unidad: el select sale
+      // vacío y "Continuar" lo va a exigir, que es justo lo que se quiere.
+      unidadNegocio: p.unidadNegocio||"",
       fechaInicio: p.fechaInicio||hoy,
       fechaFin: p.fechaFin||"",
       fechaElaboracion: hoy,
@@ -2970,7 +2978,12 @@ export default function App(){
   }
 
   function guardarPres(){
-    const invalido = !form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin;
+    // Unidad de negocio obligatoria SOLO al crear (02-sep-2026, pedido de Anel).
+    // En modoEdit no se exige: los 5 presupuestos anteriores a esta fecha están
+    // en NULL y su select está deshabilitado — exigirla ahí los dejaría sin
+    // poder guardarse hasta que se decida cómo se editan (A1 de DECISIONES.md).
+    const faltaUnidad = !modoEdit && !form.unidadNegocio;
+    const invalido = !form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin||faltaUnidad;
     if(invalido){ setIntentoGuardar(true); return; }
     const snap={...form,estado:"Borrador",fecha:new Date().toISOString().slice(0,10),
       _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos,
@@ -3598,6 +3611,44 @@ export default function App(){
                 );
               })()}
 
+              {/* UNIDAD DE NEGOCIO (02-sep-2026, pedido de Anel) — a la altura de
+                  Fecha inicio, en fila propia de ancho completo: son 30 opciones
+                  con clave y nombre largos y no caben en media rejilla.
+                  Se guarda SOLO la clave (catalogoUnidades.js). En modoEdit se
+                  muestra deshabilitado con el valor guardado a la vista: abrir su
+                  edición hoy es la misma pregunta sin responder que la de las
+                  fechas (A1 de docs/MD/DECISIONES.md). */}
+              <div style={{gridColumn:"1 / -1"}}>
+                <FL required={!modoEdit}>Unidad de negocio {modoEdit&&<span style={{color:C.grayMid,fontSize:10,fontWeight:400,marginLeft:6,textTransform:"none"}}>— no editable por ahora</span>}</FL>
+                <select value={form.unidadNegocio||""} disabled={modoEdit}
+                  onChange={e=>setForm({...form,unidadNegocio:e.target.value})}
+                  className="sel-brand"
+                  style={{width:"100%",padding:"9px 12px",
+                    border:`1px solid ${intentoGuardar&&!modoEdit&&!form.unidadNegocio?"#C0392B":C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
+                    background:modoEdit?C.grayLight:(intentoGuardar&&!form.unidadNegocio?"#FFF5F5":C.white),
+                    color:modoEdit?C.grayMid:C.grayDark,
+                    cursor:modoEdit?"not-allowed":"pointer"}}>
+                  <option value="">— Selecciona la unidad de negocio —</option>
+                  {/* Una clave guardada que ya no esté en el catálogo se agrega
+                      como opción para que el <select> no la borre al pintarse. */}
+                  {form.unidadNegocio&&!UNIDADES_NEGOCIO.some(u=>u.clave===form.unidadNegocio)&&(
+                    <option value={form.unidadNegocio}>{form.unidadNegocio} — (fuera del catálogo)</option>
+                  )}
+                  {UNIDADES_NEGOCIO.map(u=>(
+                    <option key={u.clave} value={u.clave}>{u.clave} — {u.nombre}</option>
+                  ))}
+                </select>
+                {intentoGuardar&&!modoEdit&&!form.unidadNegocio&&(
+                  <div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Unidad de negocio requerida</div>
+                )}
+                <div style={{fontSize:11,color:C.grayMid,marginTop:4}}>
+                  {modoEdit
+                    ? <>Guardada: <strong>{etiquetaUnidad(form.unidadNegocio)||"—"}</strong></>
+                    : <>Se guarda la clave (<strong>{form.unidadNegocio||"—"}</strong>). Escribe la clave con el select abierto para saltar a ella.</>}
+                </div>
+              </div>
+
               <div>
                 <FL required>Fecha inicio</FL>
                 <input type="date" value={form.fechaInicio} onChange={e=>setForm({...form,fechaInicio:e.target.value})}
@@ -3995,7 +4046,10 @@ export default function App(){
             <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>
               {flujoCreacion?"Captura de información":`Editar — ${pres?.nombre||form?.nombre||""}`}
             </h2>
-            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+            {/* Unidad de negocio junto al nombre (02-sep-2026) — se lee sin entrar
+                a editar. Un presupuesto sin unidad (los 5 anteriores a esta fecha,
+                en NULL) pinta "—", nunca vacío ni error. */}
+            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
             {pres?.fechaInicio&&(()=>{
               const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
               return(
@@ -4527,7 +4581,8 @@ export default function App(){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
             <div>
               <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+              {/* Unidad de negocio junto al nombre — ver nota en Capturar costos. */}
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
               {/* Fase 1.6.a — línea de periodo, cero cálculo nuevo: reusa mesLabelReal
                   y calcularNumMesesOp, ya existentes. */}
               {pres?.fechaInicio&&(
@@ -4788,7 +4843,8 @@ export default function App(){
             <div>
               {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
               <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa}</div>
+              {/* Unidad de negocio junto al nombre — ver nota en Capturar costos. */}
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
               {/* Fase 1.6.a — línea de periodo */}
               {pres?.fechaInicio&&(()=>{
                 const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
