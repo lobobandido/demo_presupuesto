@@ -4071,10 +4071,18 @@ export default function App(){
             <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>
               {flujoCreacion?"Captura de información":`Editar — ${pres?.nombre||form?.nombre||""}`}
             </h2>
-            {/* Unidad de negocio junto al nombre (02-sep-2026) — se lee sin entrar
-                a editar. Un presupuesto sin unidad (los 5 anteriores a esta fecha,
-                en NULL) pinta "—", nunca vacío ni error. */}
-            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
+            {/* Encabezado en tres renglones (pedido de Luis, 02-sep-2026):
+                  nombre / unidad de negocio / periodo.
+                "GEOLIS SA DE CV" se quitó de la línea del nombre: la empresa es
+                siempre la misma y robaba espacio. Sigue exportándose al Excel
+                (exportarExcel, App.jsx:2512) — ahí no se toca.
+                La unidad baja a renglón propio y SIN la etiqueta "Unidad:". Un
+                presupuesto sin unidad (los viejos, en NULL) NO pinta el renglón:
+                ni "—" ni hueco. Mismo bloque en las tres pantallas. */}
+            <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
+            {pres?.unidadNegocio&&(
+              <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
+            )}
             {pres?.fechaInicio&&(()=>{
               const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
               return(
@@ -4635,8 +4643,11 @@ export default function App(){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
             <div>
               <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
-              {/* Unidad de negocio junto al nombre — ver nota en Capturar costos. */}
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
+              {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
+              {pres?.unidadNegocio&&(
+                <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
+              )}
               {/* Fase 1.6.a — línea de periodo, cero cálculo nuevo: reusa mesLabelReal
                   y calcularNumMesesOp, ya existentes. */}
               {pres?.fechaInicio&&(
@@ -4897,8 +4908,11 @@ export default function App(){
             <div>
               {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
               <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
-              {/* Unidad de negocio junto al nombre — ver nota en Capturar costos. */}
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre} · {pres?.empresa} · Unidad: <strong style={{color:C.grayDark}}>{etiquetaUnidad(pres?.unidadNegocio)||"—"}</strong></div>
+              {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
+              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
+              {pres?.unidadNegocio&&(
+                <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
+              )}
               {/* Fase 1.6.a — línea de periodo */}
               {pres?.fechaInicio&&(()=>{
                 const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
