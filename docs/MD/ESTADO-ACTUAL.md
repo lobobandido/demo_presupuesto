@@ -150,6 +150,19 @@ capturado — es **A1** de `docs/MD/DECISIONES.md`, sin resolver).
 - No cambia cómo se guardan las fechas ni cómo se calculan las columnas de mes: es únicamente el
   valor inicial del formulario. Los presupuestos ya guardados no ejecutan nada de esto.
 
+> **Hueco conocido, NO se arregla hoy (anotado el 2026-09-02).** Como el bloque de año no se pinta
+> en `modoEdit`, **un presupuesto ya guardado con el año equivocado no se puede corregir desde la
+> app**: quien elija 2026 por error y avance queda con un presupuesto de septiembre a diciembre de
+> 2026 y sin camino de UI para moverlo a 2027. No es un descuido del selector — es **A1** de
+> `docs/MD/DECISIONES.md` («¿cómo se editan nombre, tipo y fechas de un presupuesto ya guardado?»),
+> abierta desde el 2026-08-06 y sin responder: no hay ningún camino de UI a Datos generales para un
+> presupuesto existente, y las fechas gobiernan todas las columnas de mes. El selector de año no
+> abre ese camino ni lo cierra; solo hace más visible lo que ya faltaba. Hoy la única salida es
+> corregir `fecha_inicio`/`fecha_fin` en el dashboard de Supabase — que **mueve montos de mes**, así
+> que es una acción deliberada, no algo que la app deba hacer sola. Mientras A1 siga abierta, vale
+> la pena avisarlo a los PMs antes del 25 de septiembre: **el año se revisa antes de picar
+> Continuar.**
+
 - Si `viaClonar` es `true`: tarjeta **«Presupuesto de origen»** con un `<select>` de otros
   presupuestos guardados del mismo tipo (`src/App.jsx:3126-3167`), y el tipo se muestra como texto
   fijo, **no editable** (`src/App.jsx:3230-3237`).
