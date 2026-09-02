@@ -3589,11 +3589,37 @@ export default function App(){
                   style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none"}}/>
               </div>
-              {/* A.1 (2026-09-02) — AÑO DEL PRESUPUESTO. Va antes de las fechas
-                  porque es lo único que hace: rellenarlas. Solo en creación —
-                  en modoEdit, mover fechaInicio recorre todas las columnas de
-                  mes de lo ya capturado, que es la decisión A1 de
-                  docs/MD/DECISIONES.md y sigue sin resolver. */}
+              {/* Oculto por petición de Luis (02-sep-2026). El año queda visible
+                  en Fecha inicio / Fecha fin, que ya lo muestran. NO BORRAR: si
+                  la captura de presupuestos del año en curso se vuelve frecuente,
+                  este selector es la forma rápida de cambiar entre ejercicios.
+
+                  LO QUE NO SE PIERDE — el valor por omisión de las dos fechas
+                  SIGUE SIENDO AÑO ACTUAL + 1. Lo aplica abrirNuevo llamando a
+                  fechasDeAnio(new Date().getFullYear()+1), que NO se tocó: hoy
+                  (2026) "+ Nuevo presupuesto" sigue proponiendo 2027-01-01 y
+                  2027-12-31. Es la regla que definió la contadora Anel. Lo único
+                  que se va es la forma VISUAL de elegirlo; para un presupuesto
+                  del año en curso, el usuario cambia las dos fechas a mano.
+
+                  El recuadro amarillo ("Ejercicio 2027 — del ... al ...") ya
+                  estaba comentado desde el commit 04cb918, por la misma petición.
+                  Aquí queda dentro de ESTE comentario y se le quitaron sus
+                  delimitadores propios, porque los comentarios de bloque de JS no
+                  se anidan.
+
+                  Para reactivarlo: borrar esta cabecera y el cierre de abajo (y,
+                  si se quiere también el recuadro, volver a envolverlo). Depende
+                  de anioDeFecha y fechasDeAnio; las dos siguen en el archivo
+                  —fechasDeAnio la usa abrirNuevo—, así que no hay nada más que
+                  restaurar.
+
+                  Contexto original del bloque: iba antes de las fechas porque lo
+                  único que hacía era rellenarlas, y solo se pintaba en creación —
+                  en modoEdit, mover fechaInicio recorre todas las columnas de mes
+                  de lo ya capturado, que es la decisión A1 de
+                  docs/MD/DECISIONES.md y sigue sin resolver.
+
               {!modoEdit&&(()=>{
                 const anioActual=new Date().getFullYear();
                 const anioSel=anioDeFecha(form.fechaInicio);
@@ -3628,16 +3654,7 @@ export default function App(){
                       );
                     })}
                   </div>
-                  {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
-                      contadora Anel probablemente lo va a pedir de vuelta, porque
-                      define el ejercicio presupuestal y qué significa cada tipo.
-
-                      Nota de lo que se pierde mientras esté oculto: este recuadro
-                      era lo que hacía legible el año elegido SIN abrir ningún
-                      selector. Las tarjetas de año siguen ahí y la resaltada sigue
-                      marcando cuál está elegido, así que el año se sigue viendo;
-                      lo que ya no se ve de un golpe son las dos fechas exactas que
-                      quedaron (que igual siguen en sus dos campos, abajo).
+                  El recuadro amarillo, oculto desde 04cb918:
 
                   <div style={{marginTop:8,fontSize:12,color:C.grayDark,background:C.yellowLight,
                     border:`1px solid ${C.yellowBorder}`,borderRadius:8,padding:"8px 12px"}}>
@@ -3645,10 +3662,10 @@ export default function App(){
                       ?<>Ejercicio <strong>{anioSel}</strong> — del <strong>{form.fechaInicio}</strong> al <strong>{form.fechaFin||"—"}</strong>. Las dos fechas de abajo son editables.</>
                       :<>Elige un año para rellenar las fechas, o captúralas a mano abajo.</>}
                   </div>
-                  */}
                 </div>
                 );
               })()}
+              */}
 
               {/* UNIDAD DE NEGOCIO (02-sep-2026, pedido de Anel) — a la altura de
                   Fecha inicio, en fila propia de ancho completo: son 30 opciones
