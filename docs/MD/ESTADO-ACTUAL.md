@@ -123,9 +123,23 @@ No hay botón de PDF ni de «Información general» en esta pantalla. `guardarPr
 nombre/tipo/fechaInicio/fechaFin y, si falta alguno, activa los avisos en rojo y **no navega**
 (`src/App.jsx:2529-2530`).
 
-Campos: Nombre*, Empresa, **Año del presupuesto**, Fecha inicio*, Fecha fin*, Fecha de elaboración
+Campos: Nombre*, Empresa, **Año del presupuesto**, Fecha inicio*, Fecha fin*
 (`src/App.jsx:3073-3110`). Debajo de las fechas va el bloque de origen y después el de tipo
-(`src/App.jsx:3117-3266`):
+(`src/App.jsx:3117-3266`).
+
+**«Fecha de elaboración» ya no se ve** (02-sep-2026): el campo está **comentado, no borrado**, con
+la nota de por qué. El dato **se sigue guardando igual** — `abrirNuevo`/`clonarPresupuesto` le
+ponen la fecha de hoy y `presToRow` lo sigue mandando a la columna `fecha_elaboracion`
+(`supabaseApi.js:13`). Solo dejó de ser editable en pantalla, porque pasa a llenarse por usuario
+cuando exista el login. Las pantallas que solo lo **muestran** no se tocaron: «Elaborado:» en
+Resumen mensual y el pie del PDF exportado.
+
+> **Unidad de negocio: intentada y revertida el 02-sep-2026.** Se implementó (commit `663719a`:
+> catálogo de 30 unidades en `src/catalogoUnidades.js`, select obligatorio, columna
+> `presupuestos.unidad_negocio`) y se **revirtió el mismo día** (`f53ad3e`) porque el `ALTER TABLE`
+> nunca se corrió: `presToRow` mandaba una llave que no existe en la tabla y **PostgREST rechazaba
+> el guardado completo** («No se pudo guardar»). El código está intacto en la historia; para
+> retomarlo, **primero** el ALTER, y hasta entonces no reaplicar el commit.
 
 **Selector de «Año del presupuesto»** (agregado el 2026-09-02, `src/App.jsx:3549-3600`). Va
 **antes** de las dos fechas porque lo único que hace es rellenarlas; solo se pinta cuando
