@@ -844,11 +844,29 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   const [newCatPending,setNewCatPending]=useState("");
   const [pos,setPos]=useState({top:0,left:0,width:0});
   const ref=useRef();
-  const allOpts=[...new Set([...options,...getCats(storageKey)])];
-  const filtered=allOpts.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
+  // `options` llega AGRUPADO: [{rubro, subs:[...]}]. El rubro es encabezado y NO
+  // se puede elegir; solo las subs son opciones. Es lo que pidió Luis: "en vez
+  // de frutas dice activos y en vez de naranjas, manzanas, peras, piñas dice
+  // equipo de transporte, equipo de mobiliario, todo eso".
+  const grupos = Array.isArray(options)&&options.length&&typeof options[0]==="object"
+    ? options
+    : [{rubro:null, subs:options||[]}];   // respaldo para cualquier llamada plana
+  // Las categorías que el usuario creó a mano van en su propio grupo, nunca
+  // revueltas con el catálogo contable.
+  const misCats = getCats(storageKey).filter(c=>!grupos.some(g=>g.subs.includes(c)));
+  const gruposConMias = misCats.length ? [...grupos,{rubro:"Mis categorías", subs:misCats}] : grupos;
+
+  const coincide = o => o.toLowerCase().includes(txt.toLowerCase());
+  // Al filtrar, un encabezado se oculta si ninguna de sus subcuentas coincide.
+  const gruposFiltrados = gruposConMias
+    .map(g=>({...g, subs:g.subs.filter(coincide)}))
+    .filter(g=>g.subs.length>0);
+  // allOpts sigue existiendo plano: lo usan el "Crear categoría" y handleNewCat.
+  const allOpts=[...new Set(gruposConMias.flatMap(g=>g.subs))];
+  const totalVisible = gruposFiltrados.reduce((n,g)=>n+g.subs.length,0);
   // Grupos del catálogo de almacén — opciones extra al final del dropdown,
-  // separadas por un divisor visual. Nunca se mezclan con allOpts/filtered.
-  const extraFiltradas=extraOptions.filter(o=>o.toLowerCase().includes(txt.toLowerCase()));
+  // separadas por su propio divisor. Nunca se mezclan con el catálogo contable.
+  const extraFiltradas=extraOptions.filter(coincide);
 
   // El menú se renderiza con position:fixed (ver abajo) para no ser recortado
   // por contenedores con overflow:hidden/auto (ej. el scroll horizontal de las
@@ -952,15 +970,28 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
               <span>Crear categoría <strong>"{txt.toUpperCase()}"</strong></span>
             </div>
           )}
-          {filtered.length===0&&<div style={{padding:"10px 12px",fontSize:12,color:C.grayMid}}>Sin resultados</div>}
-          {filtered.map(opt=>(
-            <div key={opt} onMouseDown={e=>{e.preventDefault();pick(opt);}}
-              style={{padding:"10px 14px",fontSize:12,cursor:"pointer",
-                background:value===opt?"#FFFBF0":"transparent",
-                borderBottom:`1px solid ${C.line}`,lineHeight:1.4}}
-              onMouseEnter={e=>e.currentTarget.style.background="#FFFBF0"}
-              onMouseLeave={e=>e.currentTarget.style.background=value===opt?"#FFFBF0":"transparent"}>
-              {opt}
+          {totalVisible===0&&extraFiltradas.length===0&&<div style={{padding:"10px 12px",fontSize:12,color:C.grayMid}}>Sin resultados</div>}
+          {gruposFiltrados.map(g=>(
+            <div key={g.rubro||"__plano"}>
+              {/* Encabezado de RUBRO: no seleccionable — sin onMouseDown y sin cursor */}
+              {g.rubro&&(
+                <div style={{padding:"7px 12px",fontSize:10,fontWeight:800,
+                  color:C.grayMid,background:"#F5F5F5",textTransform:"uppercase",
+                  letterSpacing:0.5,borderTop:`1px solid ${C.line}`,
+                  borderBottom:`1px solid ${C.line}`,userSelect:"none"}}>
+                  {g.rubro}
+                </div>
+              )}
+              {g.subs.map(opt=>(
+                <div key={g.rubro+"_"+opt} onMouseDown={e=>{e.preventDefault();pick(opt);}}
+                  style={{padding:"10px 14px",paddingLeft:g.rubro?28:14,fontSize:12,cursor:"pointer",
+                    background:value===opt?"#FFFBF0":"transparent",
+                    borderBottom:`1px solid ${C.line}`,lineHeight:1.4}}
+                  onMouseEnter={e=>e.currentTarget.style.background="#FFFBF0"}
+                  onMouseLeave={e=>e.currentTarget.style.background=value===opt?"#FFFBF0":"transparent"}>
+                  {opt}
+                </div>
+              ))}
             </div>
           ))}
           {extraFiltradas.length>0&&(
@@ -1022,27 +1053,196 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
     </div>
   );
 }
+// ─── LISTAS DE CATEGORÍA DE LOS DROPDOWNS ────────────────────────────────────
+// Derivadas de docs/catalogo_contable_2027.csv, GENERADAS del archivo y no
+// transcritas a mano. Cada lista es un arreglo de GRUPOS {rubro, subs}: el rubro
+// es el encabezado, NO seleccionable, y las subs son las opciones, en el orden
+// del CSV. CatalogInput es quien los pinta.
+//
+// Reparto de los 18 rubros, según en qué sección se capturan (medido por GET
+// sobre los presupuestos de la base: ningún rubro aparece en dos secciones):
+//   CAPEX ->  2 rubros: ACTIVOS, EQUIPO DE COMPUTO            (7 subcuentas)
+//   VIA   ->  1 rubro : VIATICOS                              (5 subcuentas)
+//   MAT   -> 14 rubros: los demás                           (125 subcuentas)
+//   ninguno-> NOMINA Y ADICIONALES                            (1 subcuenta)
+// 7+5+125+1 = 138. NOMINA Y ADICIONALES no va a ningún dropdown porque la
+// nómina se captura en NominaTable, que no tiene campo de Categoría.
+//
+// "Otras (fuera del catálogo 2027)" recoge las opciones que existían antes y no
+// están en el CSV. No se borran: varias tienen partidas capturadas y quitarlas
+// dejaría esas partidas apuntando a un texto que el menú ya no ofrece.
+//
+// NO existe un grupo con los rubros para captura antigua, a propósito. Hay ~71
+// partidas que usan un RUBRO como categoría en vez de una subcuenta; que no se
+// puedan re-elegir es el mecanismo que las va a ir corrigiendo cuando alguien
+// toque cada partida. Abrir ese grupo le daría permiso a los PMs que entran el
+// 25 de septiembre para seguir capturando al nivel de rubro.
+const OTRAS_FUERA = "Otras (fuera del catálogo 2027)";
+
 const CAT_CAPEX=[
-  "EQUIPO DE COMPUTO","EQUIPO DE TRANSPORTE","MAQUINARIA Y EQUIPO","ACCESORIOS",
-  "INFRAESTRUCTURA DE RED","GABINETE Y ENERGÍA","TRANSMISIÓN","EQUIPO DE MOBILIARIO",
-  "SOFTWARE Y LICENCIAS","OTROS ACTIVOS",
+  {rubro:"ACTIVOS", subs:[
+    "EQUIPO DE TRANSPORTE",
+    "EQUIPO DE MOBILIARIO",
+    "MAQUINARIA Y EQUIPO",
+    "OTROS ACTIVOS",
+    "SOFTWARE Y LICICENCIAS",
+  ]},
+  {rubro:"EQUIPO DE COMPUTO", subs:[
+    "EQUIPO DE COMPUTO (Adquisición)",
+    "ARRENDAMIENTO DE EQ. COMPUTO",
+  ]},
+  {rubro:OTRAS_FUERA, subs:["ACCESORIOS","INFRAESTRUCTURA DE RED","GABINETE Y ENERGÍA","TRANSMISIÓN","SOFTWARE Y LICENCIAS"]},
 ];
-const CAT_OPEX=[
-  "NÓMINA Y ADICIONALES","ARTÍCULOS DE SEGURIDAD","VEHÍCULOS Y COMBUSTIBLE","VIÁTICOS",
-  "MATERIALES","TELECOMUNICACIONES","SERVICIOS","LICENCIAMIENTO MXN MENSUAL",
-  "LICENCIAMIENTO MXN ANUAL","LICENCIAMIENTO USD","INSUMOS DE OFICINA","INSUMOS OPERATIVOS",
-  "HERRAMIENTAS","EQUIPOS Y ENSERES","SEGUROS","FLETES NACIONALES",
-  "SERVICIOS DE CAPACITACIÓN","RENTA DE MAQUINARIA",
+
+const CAT_OPEX_MAT=[
+  {rubro:"ARRENDA DE INMUEBLES Y SERV", subs:[
+    "ARRENDAMIENTO DE INMUEBLES",
+    "ENERGIA ELECTRICA",
+    "RENTA DE CASAS NO DEDUCIBLE",
+    "SERVICIOS DE LIMPIEZA",
+    "SERVICIOS DE VIGILANCIA",
+    "SERVICIOS DE FUMIGACION",
+    "TELEFONIA FIJA",
+    "AGUA Y ALCANTARILLADO",
+    "ARRENDAMIENTO DE OF. MOVILES",
+  ]},
+  {rubro:"ARTICULOS DE SEGURIDAD", subs:["ROPA Y ARTICULOS DE PROTECCION"]},
+  {rubro:"EQUIPOS Y ENSERES", subs:["ENSERES MENORES DIVERSOS (Acondicionamiento de casas)"]},
+  {rubro:"INSUMOS AGRICOLAS", subs:["INSUMOS AGRICOLAS"]},
+  {rubro:"INSUMOS DE OFICINA", subs:[
+    "PAPELERIA Y UTILES DE OFICINA",
+    "ARTICULOS DE ASEO Y SANITARIOS",
+    "ARTICULOS DE CAFETERIA",
+    "ARTICULOS DIGITALES Y DE COMPUTO",
+  ]},
+  {rubro:"MARKETING", subs:["SERVICIOS DE MERCADOTECNIA", "PUBLICIDAD Y PROPAGANDA"]},
+  {rubro:"MATERIALES", subs:[
+    "ABRASIVOS",
+    "ACEITE LUBRICANTE P/MAQUINARIA",
+    "ACEITES Y LUBRICANTES",
+    "AISLANTES IMPERM REFRA",
+    "BANDA CADEN TRANS COPL",
+    "CONEXIONES PARA TUBERIA",
+    "EMPAQUETAD JTAS Y SELLOS",
+    "ENVASES",
+    "FIBRAS HILOS Y TELAS",
+    "GRASAS",
+    "HERRAMIENTAS MANUALES",
+    "INSTRUM DE MEDICION Y CONTROL",
+    "LLANTAS, CAMARAS Y ACCESORIOS",
+    "MANGUERAS, CONEXIONES",
+    "MATERIAL ELECTRICO",
+    "MATERIAL PARA LA CONSTRUCCION",
+    "MATERIALES Y ART P/MANTENIMIENTO",
+    "METALES",
+    "PART REP ACCES Y PROD P/VEHIC",
+    "PARTES ACCES Y MAT P/LABORATORIO",
+    "PARTES ACCES Y REFAC P/ LUBRICANTES",
+    "PARTES ELECT, ACCES Y REFACC",
+    "PARTES Y REFAC TELECOM Y VIDEO",
+    "PARTES Y REFACCION C/INCENDIO",
+    "PASTA PEGAMENTO OTRO COMPUESTO",
+    "PINTURA Y OTROS RECUBRIMIENTOS",
+    "REFAC P/INSTRUM DE MED Y CONTROL",
+    "REFACC Y ACCES PARA VALVULAS",
+    "REFACC Y ACCESORIO PARA HERRAMIENTA",
+    "REFACCIONES P/MAQUINARIA",
+    "RODAM ACCES Y SELLOS P/ ACEITE",
+    "SUSTANCIAS QUIMICAS",
+    "TORNILLERIA Y ARTICULO",
+    "TUBERIAS",
+    "VALVULAS",
+  ]},
+  {rubro:"MATERIALES DE SALUD", subs:["MATERIAL PRIMEROS AUXILIOS"]},
+  {rubro:"SERV TELEFONIA CELULAR Y RADIO", subs:[
+    "SERV TELEFONIA CELULAR",
+    "SERVICIO DE BANDA ANCHA",
+    "SERVICIO DE RADIOCOMUNICACION",
+  ]},
+  {rubro:"SERVICIOS", subs:[
+    "ACONDICION DE CASA HABITACION",
+    "ADICION Y MODIFIC DE MATERIAL",
+    "ADQUISICION TARJET COMBUSTIBLE",
+    "ANALISIS CAUSA RAIZ",
+    "ANALISIS DE RIESGO",
+    "ANALISIS DE VIBRACION",
+    "BASES LICITACION Y CONCURSOS",
+    "CARGOS EXTRAORDINARIOS",
+    "CERTIFICACION",
+    "COLOCACION DE PILOTE",
+    "CORREOS Y MENSAJERIAS",
+    "CUOTAS Y SUSCRIPCIONES",
+    "DEDUCIBLE POR SINIESTRO",
+    "DESARROLLO DE SOFTWARE",
+    "FIANZAS",
+    "FLETES  EXTRANJEROS",
+    "FLETES NACIONALES",
+    "GASTOS DE IMPORTACION",
+    "GTO EXPED DE SEG/TRAMITE",
+    "HIELO Y AGUA",
+    "HONORARIOS A PERSONA FISICA",
+    "IMPUESTOS Y DERECHOS",
+    "INTERNET Y DATOS",
+    "MANIOBRAS",
+    "MANTENIMIENTO A VEHICULOS",
+    "MANTTO A EQUIPOS DE SEGURIDAD",
+    "MANTTO DE MOBILIARIO Y EQUIPO",
+    "MANTTO PREV A EQUIPOS DE MEDICION",
+    "MANTTO Y ACONDICION DE CAMPER",
+    "MECANICA DE SUELOS",
+    "OTROS DERECHOS",
+    "PACMA PEMEX EXPLORACION",
+    "PAGO DE RECARGOS",
+    "RECARGA DE GASES INDUSTRIALES",
+    "RENTA DE MAQUINARIA Y EQUIPO",
+    "RENTA DE SANITARIOS",
+    "REPARACIONES",
+    "SEGUROS",
+    "SERV DE DISEÑO Y ROTULACION",
+    "SERV DE DISPOS DE RESIDUOS",
+    "SERV DE MANTO A INSTALACIONES",
+    "SERV DE RECARGA DE EXTINTORES",
+    "SERV DE TRANSMISION DE DATOS",
+    "SERV PROFES DE PERSONA MORAL",
+    "SERV Y MANTTO A EQ INFORMATICO",
+    "SERVICIO DE AUTOLAVADO",
+    "SERVICIO DE EQPO Y MAQUINARIA",
+    "SERVICIO REPRESENTACION LEGAL",
+    "SERVICIOS DE BANQUETERIA",
+    "SERVICIOS DE COPIADO",
+    "SERVICIOS DE TAXI",
+    "SERVICIOS PREOPERATIVOS",
+    "SERVICIOS RADIOGRAFICOS",
+    "TENENCIA",
+    "TOPOGRAFIA",
+    "VERIFICACIONES",
+    "ASESORIA ESPECIAL INTERNA",
+    "ASESORIA ESPECIAL OPERATIVA",
+    "ASESORIA ESPECIAL SINDICAL",
+    "ASESORIA ESPECIAL VIAL",
+    "FIANZAS",
+    "INTERESES",
+    "PAGO DE MULTAS",
+  ]},
+  {rubro:"SERVICIOS DE CAPACITACION", subs:["SERVICIOS DE CAPACITACION"]},
+  {rubro:"SERVICIOS DE SALUD", subs:["SERVICIOS MEDICOS"]},
+  {rubro:"UNIFORMES", subs:["UNIFORMES"]},
+  {rubro:"VEHICULOS Y COMBUSTIBLE", subs:["ARRENDAMIENTO DE VEHIC", "COMBUSTIBLES"]},
+  // Los tres de licenciamiento van aquí aunque la lista vieja los excluía: hay
+  // 6 partidas en partidas_opex_mat de TI H1 2026 ($559,214.55) capturadas con
+  // ellos, y sin la opción no serían re-seleccionables al editar.
+  {rubro:OTRAS_FUERA, subs:["TELECOMUNICACIONES","INSUMOS OPERATIVOS","HERRAMIENTAS","RENTA DE MAQUINARIA","LICENCIAMIENTO USD","LICENCIAMIENTO MXN ANUAL","LICENCIAMIENTO MXN MENSUAL"]},
 ];
-// Categorías de OPEX Materiales — igual que CAT_OPEX pero sin nómina/licenciamiento
-// (esas no son "materiales", confundían el dropdown de esta sección)
-const CAT_OPEX_MAT = CAT_OPEX.filter(c=>![
-  "NÓMINA Y ADICIONALES","LICENCIAMIENTO MXN MENSUAL","LICENCIAMIENTO MXN ANUAL","LICENCIAMIENTO USD",
-].includes(c));
-// Categorías propias de OPEX Viáticos — más específicas que la única "VIÁTICOS" genérica
-const CAT_OPEX_VIA = [
-  "VIÁTICOS","ALIMENTACION","HOSPEDAJE","TRANSPORTE","CASETAS PUENTES Y PEAJES",
-  "SERV DE TRANSPORTAC AEREA","SERV DE TRANSPORTAC TERRESTRE",
+
+const CAT_OPEX_VIA=[
+  {rubro:"VIATICOS", subs:[
+    "ALIMENTACION",
+    "CASETAS PUENTES Y PEAJES",
+    "SERV DE TRANSPORTAC AEREA",
+    "SERV DE TRANSPORTAC TERRESTRE",
+    "SERVICIOS DE HOSPEDAJE",
+  ]},
+  {rubro:OTRAS_FUERA, subs:["HOSPEDAJE","TRANSPORTE"]},
 ];
 
 // ─── FIELD LABEL ─────────────────────────────────────────────────────────────
