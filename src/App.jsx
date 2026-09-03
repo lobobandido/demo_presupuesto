@@ -443,6 +443,13 @@ function vecesEnProyecto(periodicidad, numMeses=12){
 // Distribuye el OPEX en los meses correctos según periodicidad y mes de inicio.
 // M0 nunca lleva OPEX (es el mes de instalación) — el mínimo mes de inicio es M1.
 function distribuirOpex(p, numMeses=12){
+  // Periodicidad sin elegir (02-sep-2026): el renglón NO se distribuye en ningún
+  // mes y aporta $0.00. Antes el `||"mensual"` de abajo asumía la periodicidad
+  // más cara que existe —repetir el gasto todos los meses— sobre un campo que el
+  // usuario nunca tocó. Un $0.00 con aviso amarillo arriba es incómodo a
+  // propósito: es la única forma de que el hueco se vea.
+  // Los renglones ya guardados traen su periodicidad y no pasan por aquí.
+  if(!p.periodicidad) return Array(numMeses+1).fill(0);
   const intervalo = PM_INTERVALO[p.periodicidad||"mensual"]||1;
   const inicio = Math.max(1, p.mesInicioOpex||1);
   const montoMes = (p.monto||0)*(p.cantidad||1);
@@ -511,7 +518,13 @@ function mesesNomina(puesto, numMeses=12){
   if(puesto.tipoPersonal==="fijo") return numMeses;
   if(puesto.tipoPersonal==="contrato"||puesto.tipoPersonal==="outsourcing")
     return Math.min(puesto.mesesContrato||12, numMeses);
-  return numMeses;
+  // Tipo de personal sin elegir (02-sep-2026): 0 meses activos, o sea $0.00 al
+  // costo anual, y aviso amarillo en la sección. Antes este return caía en
+  // numMeses, o sea que un puesto sin tipo se cobraba como FIJO —el caso más
+  // caro— durante todo el proyecto. Un puesto ya guardado siempre trae tipo
+  // (verificado por GET: 10 fijo, 9 contrato, 0 vacíos), así que no cambia nada
+  // de lo existente.
+  return 0;
 }
 
 // Distribuye el costo de nómina de un puesto en los meses en que está activo
@@ -715,16 +728,26 @@ const LS_CATS="geolis_cats_v3";
 function getCats(key=LS_CATS){try{return JSON.parse(localStorage.getItem(key)||"[]");}catch{return[];}}
 function saveCat(c,key=LS_CATS){const e=getCats(key);if(!e.includes(c))localStorage.setItem(key,JSON.stringify([...e,c]));}
 
-function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"Unidad",cantidad:1,monto:0,
+// unidad y periodicidad arrancan VACÍAS desde el 02-sep-2026 (pedido de Luis):
+// un valor por omisión que el usuario nunca eligió mete dinero inventado en el
+// presupuesto sin que nadie se entere. Ver distribuirOpex: periodicidad vacía
+// aporta $0.00 y levanta aviso amarillo, en vez de asumir "mensual".
+// Los renglones YA GUARDADOS no cambian: cargarPresupuestoDeNube pasa su valor
+// explícito y el spread de o lo sobrescribe. Medido por GET el 02-sep-2026:
+// cero renglones vacíos en toda la base.
+function initP(o={}){return{id:uid(),cat:"",desc:"",unidad:"",cantidad:1,monto:0,
   mesGasto:0,             // índice M0-M12 para CAPEX
   mesGastoMes:"",         // mes real (1-12) para mostrar en calendario
-  mesGastoAnio:"",        // año real para mostrar en calendario  
-  periodicidad:"mensual", // OPEX: mensual/bimestral/trimestral/semestral/anual
+  mesGastoAnio:"",        // año real para mostrar en calendario
+  periodicidad:"",        // OPEX: mensual/bimestral/trimestral/semestral/anual — vacío = sin elegir
   mesInicioOpex:1,        // mes en que inicia el OPEX (1=primer mes)
   ...o};}
-function initN(o={}){return{id:uid(),puesto:"Técnico",puestoCustom:"",cantidad:1,salario:0,
+// puesto y tipoPersonal, mismo criterio. imss/prestaciones/isr NO se vacían: son
+// tasas estándar de la empresa, iguales para todos, y campos numéricos, no
+// selects — vaciarlas obligaría a teclear los mismos dos números en cada puesto.
+function initN(o={}){return{id:uid(),puesto:"",puestoCustom:"",cantidad:1,salario:0,
   imss:F_IMSS,prestaciones:F_PREST,isr:F_ISR,
-  tipoPersonal:"fijo",   // fijo / contrato / outsourcing
+  tipoPersonal:"",       // fijo / contrato / outsourcing — vacío = sin elegir
   mesesContrato:12,      // solo aplica si tipoPersonal=contrato
   mesInicio:1,           // mes en que inicia (para contrato)
   ...o};}
@@ -1703,11 +1726,12 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
               placeholder="Descripción"
               style={{padding:"7px 10px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:12,outline:"none",boxSizing:"border-box",width:"100%"}}/>
-            <select value={p.unidad} onChange={e=>onUpdate({...p,unidad:e.target.value})}
+            <select value={p.unidad||""} onChange={e=>onUpdate({...p,unidad:e.target.value})}
               className="sel-brand"
               title="Unidad = naturaleza del bien. Ej: Servicio para arrendamiento, Pieza para EPP, Global para partidas alzadas"
               style={{padding:"8px 10px",border:`1px solid ${C.grayBorder}`,
                 borderRadius:6,fontSize:11,width:"100%",background:C.white}}>
+              <option value="" disabled>— Elige unidad —</option>
               {UNIDADES.map(u=><option key={u}>{u}</option>)}
             </select>
             <input type="number" min="0" step="1" value={p.cantidad===0?"":p.cantidad}
@@ -1725,7 +1749,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   title="Mes de compra"
                   style={{padding:"7px 6px",border:`1px solid ${!p.mesGastoMes?C.danger:C.grayBorder}`,
                     borderRadius:6,fontSize:11,width:"50%",background:!p.mesGastoMes?"#FFF5F5":C.white,color:C.grayDark}}>
-                  <option value="">Mes*</option>
+                  <option value="" disabled>— Mes —</option>
                   {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
                     <option key={i} value={i+1}>{m}</option>
                   ))}
@@ -1737,7 +1761,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                   style={{padding:"7px 4px",border:`1px solid ${!p.mesGastoAnio||(fechaInicioProyecto&&fechaFinProyecto&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy))?C.danger:C.grayBorder}`,
                     borderRadius:6,fontSize:11,width:"50%",textAlign:"center",
                     background:!p.mesGastoAnio||(fechaInicioProyecto&&fechaFinProyecto&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy))?"#FFF5F5":C.white,color:C.grayDark}}>
-                  <option value="">Año*</option>
+                  <option value="" disabled>— Año —</option>
                   {RANGO_ANIOS.map(y=>(
                     <option key={y} value={y}>{y}</option>
                   ))}
@@ -1746,11 +1770,16 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             )}
             {showPeriod&&(
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <select value={p.periodicidad||"mensual"} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
+                {/* Sin periodicidad el renglón aporta $0.00 y no se distribuye
+                    (ver distribuirOpex). Se marca en rojo como los selectores de
+                    fecha, para que el hueco se vea en el renglón y no solo en el
+                    aviso de arriba. */}
+                <select value={p.periodicidad||""} onChange={e=>onUpdate({...p,periodicidad:e.target.value})}
                   className="sel-brand"
-                  title="¿Con qué frecuencia se repite este gasto?"
-                  style={{padding:"6px 6px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                    fontSize:10,width:"100%",background:C.white}}>
+                  title={p.periodicidad?"¿Con qué frecuencia se repite este gasto?":"Sin periodicidad este renglón aporta $0.00 y no se distribuye en ningún mes"}
+                  style={{padding:"6px 6px",border:`1px solid ${!p.periodicidad?C.danger:C.grayBorder}`,borderRadius:6,
+                    fontSize:10,width:"100%",background:!p.periodicidad?"#FFF5F5":C.white}}>
+                  <option value="" disabled>— Elige periodicidad —</option>
                   {PERIODICIDADES.map(pd=><option key={pd.id} value={pd.id}>{pd.label}</option>)}
                 </select>
                 <div style={{display:"flex",gap:3}}>
@@ -1764,7 +1793,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     title="¿En qué mes del calendario inicia este gasto? Se convierte automáticamente al mes del proyecto."
                     style={{padding:"6px 4px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
                       fontSize:10,width:"50%",background:C.white,color:C.grayDark}}>
-                    <option value="">Mes</option>
+                    <option value="" disabled>— Mes —</option>
                     {["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"].map((m,i)=>(
                       <option key={i} value={i+1}>{m}</option>
                     ))}
@@ -1780,7 +1809,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                     style={{padding:"6px 4px",
                       border:`1px solid ${fechaInicioProyecto&&fechaFinProyecto&&p.mesGastoAnio&&(parseInt(p.mesGastoAnio)<anioIniProy||parseInt(p.mesGastoAnio)>anioFinProy)?C.danger:C.grayBorder}`,
                       borderRadius:6,fontSize:10,width:"50%",textAlign:"center",background:C.white,color:C.grayDark}}>
-                    <option value="">Año</option>
+                    <option value="" disabled>— Año —</option>
                     {RANGO_ANIOS.map(y=>(
                       <option key={y} value={y}>{y}</option>
                     ))}
@@ -1920,13 +1949,17 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
                   if(PUESTOS_CAT.includes(v)) onUpdate({...p,puesto:v,puestoCustom:""});
                   else onUpdate({...p,puesto:"Otro",puestoCustom:v});
                 }}
-                options={PUESTOS_CAT} placeholder="Puesto" allowCustom={true}/>
+                options={PUESTOS_CAT} placeholder="— Elige puesto —" allowCustom={true}/>
               {/* Tipo de personal */}
-              <select value={p.tipoPersonal||"fijo"}
+              {/* Sin tipo, el puesto aporta $0.00 al costo anual (ver mesesNomina).
+                  Mismo marcado en rojo que periodicidad. */}
+              <select value={p.tipoPersonal||""}
                 onChange={e=>onUpdate({...p,tipoPersonal:e.target.value})}
                 className="sel-brand"
-                style={{padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,
-                  fontSize:11,width:"100%",background:C.white}}>
+                title={p.tipoPersonal?undefined:"Sin tipo de personal este puesto no suma al costo anual"}
+                style={{padding:"8px 10px",border:`1px solid ${!p.tipoPersonal?C.danger:C.grayBorder}`,borderRadius:6,
+                  fontSize:11,width:"100%",background:!p.tipoPersonal?"#FFF5F5":C.white}}>
+                <option value="" disabled>— Elige tipo —</option>
                 <option value="fijo">Fijo</option>
                 <option value="contrato">Contrato</option>
                 <option value="outsourcing">Outsourcing</option>
@@ -4615,6 +4648,18 @@ export default function App(){
                 <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
                   subtitle="Costo real por puesto incluyendo cargas sociales"
                   total={totalNomAnual(areaActiva)} accentColor="#059669">
+                  {/* Mismo aviso que el de "sin fecha de compra" de CAPEX, reusado
+                      tal cual: un puesto sin tipo de personal aporta $0.00 y hay
+                      que poder verlo sin revisar renglón por renglón. */}
+                  {(()=>{
+                    const sinTipo=(datos?.nomina||[]).filter(p=>!p.tipoPersonal).length;
+                    return sinTipo>0&&(
+                      <div style={{marginBottom:12,padding:"9px 14px",background:C.yellowLight,
+                        border:`1px solid ${C.yellowBorder}`,borderRadius:8,fontSize:12,color:C.yellowDark}}>
+                        ⚠ {sinTipo} puesto{sinTipo>1?"s":""} sin tipo de personal — no suma{sinTipo>1?"n":""} al costo anual.
+                      </div>
+                    );
+                  })()}
                   <NominaTable
                     nomina={datos?.nomina||[]}
                     onUpdate={u=>upP(areaActiva,"nomina",u.id,u)}
@@ -4629,6 +4674,17 @@ export default function App(){
                 <SCard title="OPEX · Materiales" icon="📦"
                   subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
                   total={totalOpexAnualCat(areaActiva,"mat")} accentColor="#0891b2">
+                  {/* Mismo aviso reusado: sin periodicidad la partida no se
+                      distribuye en ningún mes y aporta $0.00. */}
+                  {(()=>{
+                    const sinPer=(datos?.mat||[]).filter(p=>!p.periodicidad).length;
+                    return sinPer>0&&(
+                      <div style={{marginBottom:12,padding:"9px 14px",background:C.yellowLight,
+                        border:`1px solid ${C.yellowBorder}`,borderRadius:8,fontSize:12,color:C.yellowDark}}>
+                        ⚠ {sinPer} partida{sinPer>1?"s":""} sin periodicidad — no se distribuirá{sinPer>1?"n":""} en el Resumen mensual.
+                      </div>
+                    );
+                  })()}
                   <PartidaTable
                     partidas={datos?.mat||[]}
                     onUpdate={u=>upP(areaActiva,"mat",u.id,u)}
@@ -4644,6 +4700,16 @@ export default function App(){
                 <SCard title="OPEX · Viáticos" icon="🧳"
                   subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
                   total={totalOpexAnualCat(areaActiva,"via")} accentColor="#d97706">
+                  {/* Mismo aviso reusado, ver Materiales. */}
+                  {(()=>{
+                    const sinPer=(datos?.via||[]).filter(p=>!p.periodicidad).length;
+                    return sinPer>0&&(
+                      <div style={{marginBottom:12,padding:"9px 14px",background:C.yellowLight,
+                        border:`1px solid ${C.yellowBorder}`,borderRadius:8,fontSize:12,color:C.yellowDark}}>
+                        ⚠ {sinPer} partida{sinPer>1?"s":""} sin periodicidad — no se distribuirá{sinPer>1?"n":""} en el Resumen mensual.
+                      </div>
+                    );
+                  })()}
                   <PartidaTable
                     partidas={datos?.via||[]}
                     onUpdate={u=>upP(areaActiva,"via",u.id,u)}
