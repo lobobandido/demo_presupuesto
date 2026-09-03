@@ -1891,7 +1891,29 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
 }
 
 // ─── NOMINA TABLE ─────────────────────────────────────────────────────────────
-function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
+// numMesesProyecto (A1, 02-sep-2026): la duración REAL del proyecto, la misma que
+// ya usa totalNomAnual vía calcularNumMesesOp. Antes esta tabla tenía un 12
+// escrito a mano, así que el COSTO ANUAL del renglón y el TOTAL ANUAL de la
+// sección se despegaban en cuanto el proyecto no duraba exactamente 12 meses:
+// en "Cambio de servicio" (8 meses) los renglones mostraban $5,713,560 contra
+// los $3,809,040 reales de la sección. El que mentía era el renglón — el total de
+// la sección es el que alimenta los KPIs.
+// numMesesProyecto NO tiene valor por omisión, a propósito. Un default de 12 sería
+// el mismo 12 mentiroso que este cambio vino a quitar: una llamada que olvidara
+// pasarlo revivirá el bug en silencio y solo en esa pantalla. Sin default, el
+// olvido se ve —el guardarraíl de abajo lo grita en desarrollo y los importes
+// salen NaN en pantalla— en vez de mostrar un número creíble y equivocado.
+// Hoy hay exactamente DOS llamadas y las dos lo pasan: Capturar costos
+// (App.jsx:4674) y la vista de solo lectura (App.jsx:5290).
+function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false,numMesesProyecto}){
+  if(import.meta.env.DEV && !(numMesesProyecto>0)){
+    console.error(
+      "[nómina] NominaTable se llamó sin numMesesProyecto. Pásale la duración real\n"+
+      "del proyecto, la misma que usa totalNomAnual:\n"+
+      "    numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}\n"+
+      "Sin eso, el COSTO ANUAL del renglón no cuadra con el TOTAL ANUAL de la sección."
+    );
+  }
   return(
     <div>
     <ScrollHint minWidth={720}>
@@ -1910,8 +1932,8 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
       {nomina.map((p,idx)=>{
         const factor=1+(p.imss??F_IMSS)+(p.prestaciones??F_PREST)+(p.isr??F_ISR);
         const costo=(p.salario||0)*factor*(p.cantidad||1);
-        const meses = mesesNomina(p, 12);
-        const costoTotal = costoTotalNomina(p, 12);
+        const meses = mesesNomina(p, numMesesProyecto);
+        const costoTotal = costoTotalNomina(p, numMesesProyecto);
         // Modo lectura — mismo patrón que PartidaTable: fila de solo texto, sin
         // inputs ni botón de eliminar.
         if(readOnly){
@@ -2012,8 +2034,11 @@ function NominaTable({nomina,onUpdate,onRemove,onAdd,readOnly=false}){
                       igual, solo deja de pintarse en esta línea. */}
                 </span>
               )}
+              {/* Decía "x 12 meses" fijo, que era falso en cuanto el proyecto no
+                  duraba 12. Ahora dice los meses que de verdad se cobran, los
+                  mismos que la columna COSTO ANUAL del renglón. */}
               {p.tipoPersonal==="fijo"&&(
-                <span style={{color:"#059669",fontWeight:700}}>× 12 meses = {fmt(costoTotal)}</span>
+                <span style={{color:"#059669",fontWeight:700}}>× {meses} mes{meses===1?"":"es"} = {fmt(costoTotal)}</span>
               )}
             </div>
           </div>
@@ -4664,7 +4689,8 @@ export default function App(){
                     nomina={datos?.nomina||[]}
                     onUpdate={u=>upP(areaActiva,"nomina",u.id,u)}
                     onRemove={rmN(areaActiva)}
-                    onAdd={()=>addN(areaActiva)}/>
+                    onAdd={()=>addN(areaActiva)}
+                    numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                   {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
                     Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(areaActiva))}</strong>
                   </div>}
@@ -5280,7 +5306,8 @@ export default function App(){
                     onUpdate={u=>upP(id,"nomina",u.id,u)}
                     onRemove={rmN(id)}
                     onAdd={()=>addN(id)}
-                    readOnly={true}/>
+                    readOnly={true}
+                    numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                   {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
                     Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
                   </div>}
