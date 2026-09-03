@@ -2748,6 +2748,254 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
+// ═══ Bloques de Información general extraídos a componentes ═══
+// Tarea 8, paso 1 de 3 (03-sep-2026). Refactor PURO: la app se ve exactamente
+// igual que antes. El paso 2 (renderizarlos también en Resumen mensual) y el
+// paso 3 (mover el botón Ver y ocultar la pestaña) NO se hicieron aquí.
+// Regla de los cuatro: reciben resultados por props y los pintan. Cero
+// aritmética adentro — si alguna operación se cuela aquí, el bloque dejó de
+// ser presentación y hay que devolverla a App.
+
+// ── Tarea 8, paso 1 (03-sep-2026) — extraído de Información general TAL CUAL.
+// NO CALCULA NADA: los seis números llegan ya calculados por props; aquí solo se
+// pintan. Se extrae para poder renderizarlo también en Resumen mensual (paso 2)
+// sin duplicar JSX ni tocar una línea de cálculo.
+function KPIsPresupuesto({totalIngresosAnual, totalCAPEX, totalOPEX, totalEgr, utilidad, margen}){
+  return(
+    <>
+          {/* ── Los cinco KPIs del presupuesto completo — mismo bloque que Step 4 ── */}
+          <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+            {[
+              {l:"Facturación",v:totalIngresosAnual,c:C.success,   b:C.successLight},
+              {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
+              {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
+              {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
+              /* Bug conocido corregido — con ingresos en cero, margen=utilidad/0 no es
+                     "0.0%", es indefinido: se muestra "—" en vez de fingir un resultado.
+                     Solo cambia la presentación; la fórmula de margen no se toca. */
+              {l:"Utilidad y margen",v:utilidad,badge:totalIngresosAnual===0?"—":`${margen.toFixed(1)}%`,
+                c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
+            ].map(k=>(
+              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
+                borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
+                  {k.badge&&<div style={{fontSize:11,fontWeight:800,color:k.c}}>{k.badge}</div>}
+                </div>
+                <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
+              </div>
+            ))}
+          </div>
+    </>
+  );
+}
+
+// ── Tarea 8, paso 1 — la tabla contable CAPEX y OPEX, agrupada por rubro.
+// NO CALCULA NADA: `filas` llega ya armada por construirFilasServicio, que no se
+// toca. Es la tabla que la contadora Anel aprobó como prueba de que SERVICIOS
+// sale como rubro propio: si desaparece, se pierde esa evidencia.
+function TablaContableCard({filas, MESES13, MESES13_MES}){
+  return(
+    <>
+          {/* ── TablaServicio — el centro de la pantalla (día 2 + día 3) ── */}
+          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>CAPEX y OPEX</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Detalle por categoría, agrupado por categoría contable — haz clic en un subtotal para expandir
+              </div>
+            </div>
+            <TablaServicio filas={filas} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+          </div>
+    </>
+  );
+}
+
+// ── Tarea 8, paso 1 — las cajas por departamento (Operaciones, Construcción...).
+// NO CALCULA NADA: cada área llega en areasDetalle con sus totales ya sumados
+// (capexA, opexA, totalArea, nomAnual, opexMat, opexVia) y con esUltima ya
+// resuelto. Las sumas siguen viviendo en App, donde estaban.
+// Los handlers se reciben por props aunque la vista sea readOnly: así el bloque
+// queda idéntico al que había, sin decidir aquí que nunca se van a usar.
+function DetallePorArea({areasDetalle, pres, numMesesProyecto, upP, rmP, addP, rmN, addN}){
+  return(
+    <>
+          {/* ── Detalle por área, en texto plano (recuperado — el cliente pidió cambiar
+              el mecanismo de edición, no borrar esta consulta). Solo lectura: SCard,
+              PartidaTable y NominaTable con readOnly={true} — sin inputs, sin agregar/
+              quitar fila, sin botón Guardar. Editar de verdad se hace en Capturar
+              costos (Step 3). ── */}
+          {areasDetalle.length===0?(
+            <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
+              background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`,marginBottom:20}}>
+              Aún no hay áreas capturadas en este presupuesto.
+            </div>
+          ):areasDetalle.map(({id,esUltima,datos,areaInfo,capexA,nomMes,opexA,totalArea,nomAnual,opexMat,opexVia})=>{
+            return(
+              <div key={id} style={{marginBottom:!esUltima?36:20,
+                paddingBottom:!esUltima?28:0,
+                borderBottom:!esUltima?`2px solid ${C.line}`:"none"}}>
+
+                <AreaColapsable
+                  encabezado={<>
+                    <span style={{fontSize:24}}>{areaInfo?.icon}</span>
+                    <div>
+                      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
+                      <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
+                    </div>
+                  </>}
+                  derecha={<Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
+                    color={datos?.estado==="guardado"?C.success:C.yellowDark}
+                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>}>
+
+                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
+                  {[
+                    {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
+                    {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
+                    {l:"Total",           v:totalArea,c:C.grayDark,bg:C.grayLight},
+                  ].map(k=>(
+                    <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
+                      borderRadius:10,padding:"16px 18px"}}>
+                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
+                        textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
+                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
+                  subtitle="Inversiones únicas: maquinaria, equipos, activos"
+                  total={capexA} accentColor="#7c3aed">
+                  <PartidaTable
+                    partidas={datos?.capex||[]}
+                    onUpdate={u=>upP(id,"capex",u.id,u)}
+                    onRemove={rmP(id,"capex")}
+                    onAdd={()=>addP(id,"capex")}
+                    catOptions={CAT_CAPEX}
+                    addLabel="Agregar equipo / inversión"
+                    headerColor="#7c3aed"
+                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}
+                    readOnly={true}/>
+                </SCard>
+
+                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
+                  subtitle="Costo real por puesto incluyendo cargas sociales"
+                  total={nomAnual} accentColor="#059669">
+                  <NominaTable
+                    nomina={datos?.nomina||[]}
+                    onUpdate={u=>upP(id,"nomina",u.id,u)}
+                    onRemove={rmN(id)}
+                    onAdd={()=>addN(id)}
+                    readOnly={true}
+                    numMesesProyecto={numMesesProyecto}/>
+                  {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
+                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(nomAnual)}</strong>
+                  </div>}
+                </SCard>
+
+                <SCard title="OPEX · Materiales" icon="📦"
+                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
+                  total={opexMat} accentColor="#0891b2">
+                  <PartidaTable
+                    partidas={datos?.mat||[]}
+                    onUpdate={u=>upP(id,"mat",u.id,u)}
+                    onRemove={rmP(id,"mat")}
+                    onAdd={()=>addP(id,"mat")}
+                    catOptions={CAT_OPEX_MAT}
+                    addLabel="Agregar material"
+                    headerColor="#0891b2"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={numMesesProyecto}
+                    mostrarFechaReal={true} readOnly={true}/>
+                </SCard>
+
+                <SCard title="OPEX · Viáticos" icon="🧳"
+                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
+                  total={opexVia} accentColor="#d97706">
+                  <PartidaTable
+                    partidas={datos?.via||[]}
+                    onUpdate={u=>upP(id,"via",u.id,u)}
+                    onRemove={rmP(id,"via")}
+                    onAdd={()=>addP(id,"via")}
+                    catOptions={CAT_OPEX_VIA}
+                    addLabel="Agregar viático"
+                    headerColor="#d97706"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={numMesesProyecto}
+                    mostrarFechaReal={true} readOnly={true}/>
+                </SCard>
+                </AreaColapsable>
+              </div>
+            );
+          })}
+    </>
+  );
+}
+
+// ── Tarea 8, paso 1 — las dos gráficas (flujo de efectivo y OPEX por categoría).
+// NO CALCULA NADA: las series llegan ya construidas por calcularSerieMensual.
+function GraficasPresupuesto({mFlujo, mFlujoAcum, MESES13_MES, catOpexSeries}){
+  return(
+    <>
+          {/* ── Gráfica: flujo de efectivo ── */}
+          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Flujo de efectivo</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado
+              </div>
+            </div>
+            <div style={{display:"flex",gap:20,marginBottom:12}}>
+              {[
+                {label:"Flujo mensual positivo",color:C.yellow},
+                {label:"Flujo mensual negativo",color:C.danger},
+                {label:"Flujo acumulado",       color:"#374151"},
+              ].map(s=>(
+                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
+                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
+          </div>
+
+          {/* ── Gráfica: OPEX por categoría ── */}
+          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>OPEX por categoría</h3>
+              </div>
+              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+                Líneas por categoría contable mes a mes
+              </div>
+            </div>
+            {catOpexSeries.length>0?(
+              <>
+                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
+                  {catOpexSeries.map(s=>(
+                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
+                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
+              </>
+            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
+          </div>
+    </>
+  );
+}
+
 export default function App(){
   const [step,setStep]         = useState(0);
   const [pres,setPres]         = useState(null);   // presupuesto activo
@@ -5183,6 +5431,15 @@ export default function App(){
     const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
     const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
       totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+    // Tarea 8, paso 1 — los totales por área se calculan AQUÍ, como siempre, y
+    // el componente DetallePorArea solo los pinta. Las mismas llamadas que había
+    // en línea dentro del map: totalCat, totalNom, totalOpexAnualCat, totalNomAnual.
+    const areasDetalle=areas.map((id,ai)=>{
+      const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
+      const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
+      return {id, esUltima:ai===areas.length-1, datos:costos[id], areaInfo:cats.find(a=>a.id===id),
+        capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia};
+    });
 
     return wrap(
       <div>
@@ -5224,210 +5481,22 @@ export default function App(){
             </div>
           </div>
 
-          {/* ── Los cinco KPIs del presupuesto completo — mismo bloque que Step 4 ── */}
-          <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
-            {[
-              {l:"Facturación",v:totalIngresosAnual,c:C.success,   b:C.successLight},
-              {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
-              {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
-              {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
-              /* Bug conocido corregido — con ingresos en cero, margen=utilidad/0 no es
-                     "0.0%", es indefinido: se muestra "—" en vez de fingir un resultado.
-                     Solo cambia la presentación; la fórmula de margen no se toca. */
-              {l:"Utilidad y margen",v:utilidad,badge:totalIngresosAnual===0?"—":`${margen.toFixed(1)}%`,
-                c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
-            ].map(k=>(
-              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
-                borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-                  <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
-                  {k.badge&&<div style={{fontSize:11,fontWeight:800,color:k.c}}>{k.badge}</div>}
-                </div>
-                <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
-              </div>
-            ))}
-          </div>
+          {/* Tarea 8 paso 1: extraído a KPIsPresupuesto. */}
+          <KPIsPresupuesto totalIngresosAnual={totalIngresosAnual} totalCAPEX={totalCAPEX}
+            totalOPEX={totalOPEX} totalEgr={totalEgr} utilidad={utilidad} margen={margen}/>
 
-          {/* ── TablaServicio — el centro de la pantalla (día 2 + día 3) ── */}
-          <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>CAPEX y OPEX</h3>
-              </div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-                Detalle por categoría, agrupado por categoría contable — haz clic en un subtotal para expandir
-              </div>
-            </div>
-            <TablaServicio filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
-          </div>
+          {/* Tarea 8 paso 1: extraído a TablaContableCard. */}
+          <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
 
-          {/* ── Detalle por área, en texto plano (recuperado — el cliente pidió cambiar
-              el mecanismo de edición, no borrar esta consulta). Solo lectura: SCard,
-              PartidaTable y NominaTable con readOnly={true} — sin inputs, sin agregar/
-              quitar fila, sin botón Guardar. Editar de verdad se hace en Capturar
-              costos (Step 3). ── */}
-          {areas.length===0?(
-            <div style={{padding:"60px 40px",textAlign:"center",color:C.grayMid,
-              background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`,marginBottom:20}}>
-              Aún no hay áreas capturadas en este presupuesto.
-            </div>
-          ):areas.map((id,ai)=>{
-            const datos=costos[id];
-            const areaInfo=cats.find(a=>a.id===id);
-            const capexA=totalCat(id,"capex");
-            const nomMes=totalNom(id);
-            const opexA=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
-            return(
-              <div key={id} style={{marginBottom:ai<areas.length-1?36:20,
-                paddingBottom:ai<areas.length-1?28:0,
-                borderBottom:ai<areas.length-1?`2px solid ${C.line}`:"none"}}>
+          {/* Tarea 8 paso 1: extraído a DetallePorArea. Los totales por área se
+              siguen sumando aquí, en App — el componente solo los pinta. */}
+          <DetallePorArea areasDetalle={areasDetalle} pres={pres}
+            numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+            upP={upP} rmP={rmP} addP={addP} rmN={rmN} addN={addN}/>
 
-                <AreaColapsable
-                  encabezado={<>
-                    <span style={{fontSize:24}}>{areaInfo?.icon}</span>
-                    <div>
-                      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.grayDark}}>{areaInfo?.label}</h3>
-                      <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>{pres?.nombre}</div>
-                    </div>
-                  </>}
-                  derecha={<Badge label={datos?.estado==="guardado"?"✓ Guardado":"En captura"}
-                    color={datos?.estado==="guardado"?C.success:C.yellowDark}
-                    bg={datos?.estado==="guardado"?C.successLight:C.yellowLight}/>}>
-
-                <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginBottom:26}}>
-                  {[
-                    {l:"CAPEX del área",  v:capexA, c:"#7c3aed",bg:"#faf5ff"},
-                    {l:"OPEX del área",   v:opexA,  c:"#0891b2",bg:"#f0f9ff"},
-                    {l:"Total",           v:capexA+opexA,c:C.grayDark,bg:C.grayLight},
-                  ].map(k=>(
-                    <div key={k.l} style={{background:k.bg,border:`1px solid ${k.c}18`,
-                      borderRadius:10,padding:"16px 18px"}}>
-                      <div style={{fontSize:10.5,fontWeight:700,color:k.c,
-                        textTransform:"uppercase",letterSpacing:0.3}}>{k.l}</div>
-                      <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:6}}>{fmt(k.v)}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <SCard title="CAPEX · Equipos e inversiones" icon="🔧"
-                  subtitle="Inversiones únicas: maquinaria, equipos, activos"
-                  total={capexA} accentColor="#7c3aed">
-                  <PartidaTable
-                    partidas={datos?.capex||[]}
-                    onUpdate={u=>upP(id,"capex",u.id,u)}
-                    onRemove={rmP(id,"capex")}
-                    onAdd={()=>addP(id,"capex")}
-                    catOptions={CAT_CAPEX}
-                    addLabel="Agregar equipo / inversión"
-                    headerColor="#7c3aed"
-                    showMes={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin}
-                    readOnly={true}/>
-                </SCard>
-
-                <SCard title="OPEX · Nómina y Mano de Obra" icon="👥"
-                  subtitle="Costo real por puesto incluyendo cargas sociales"
-                  total={totalNomAnual(id)} accentColor="#059669">
-                  <NominaTable
-                    nomina={datos?.nomina||[]}
-                    onUpdate={u=>upP(id,"nomina",u.id,u)}
-                    onRemove={rmN(id)}
-                    onAdd={()=>addN(id)}
-                    readOnly={true}
-                    numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
-                  {nomMes>0&&<div style={{marginTop:10,fontSize:11,color:C.grayMid,textAlign:"right"}}>
-                    Costo anual nómina: <strong style={{color:"#059669"}}>{fmt(totalNomAnual(id))}</strong>
-                  </div>}
-                </SCard>
-
-                <SCard title="OPEX · Materiales" icon="📦"
-                  subtitle="Materiales e insumos recurrentes — Unidad = naturaleza del bien (Servicio, Pieza...) · Periodicidad = cada cuánto se repite"
-                  total={totalOpexAnualCat(id,"mat")} accentColor="#0891b2">
-                  <PartidaTable
-                    partidas={datos?.mat||[]}
-                    onUpdate={u=>upP(id,"mat",u.id,u)}
-                    onRemove={rmP(id,"mat")}
-                    onAdd={()=>addP(id,"mat")}
-                    catOptions={CAT_OPEX_MAT}
-                    addLabel="Agregar material"
-                    headerColor="#0891b2"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true} readOnly={true}/>
-                </SCard>
-
-                <SCard title="OPEX · Viáticos" icon="🧳"
-                  subtitle="Viáticos, hospedaje y gastos de campo · Unidad = Día o Viaje · Periodicidad = con qué frecuencia"
-                  total={totalOpexAnualCat(id,"via")} accentColor="#d97706">
-                  <PartidaTable
-                    partidas={datos?.via||[]}
-                    onUpdate={u=>upP(id,"via",u.id,u)}
-                    onRemove={rmP(id,"via")}
-                    onAdd={()=>addP(id,"via")}
-                    catOptions={CAT_OPEX_VIA}
-                    addLabel="Agregar viático"
-                    headerColor="#d97706"
-                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-                    mostrarFechaReal={true} readOnly={true}/>
-                </SCard>
-                </AreaColapsable>
-              </div>
-            );
-          })}
-
-          {/* ── Gráfica: flujo de efectivo ── */}
-          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Flujo de efectivo</h3>
-              </div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-                Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado
-              </div>
-            </div>
-            <div style={{display:"flex",gap:20,marginBottom:12}}>
-              {[
-                {label:"Flujo mensual positivo",color:C.yellow},
-                {label:"Flujo mensual negativo",color:C.danger},
-                {label:"Flujo acumulado",       color:"#374151"},
-              ].map(s=>(
-                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
-                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
-          </div>
-
-          {/* ── Gráfica: OPEX por categoría ── */}
-          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>OPEX por categoría</h3>
-              </div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-                Líneas por categoría contable mes a mes
-              </div>
-            </div>
-            {catOpexSeries.length>0?(
-              <>
-                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
-                  {catOpexSeries.map(s=>(
-                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
-                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
-                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
-              </>
-            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
-          </div>
+          {/* Tarea 8 paso 1: extraído a GraficasPresupuesto. */}
+          <GraficasPresupuesto mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
+            MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
         </div>
       </div>
     ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general"}]);
