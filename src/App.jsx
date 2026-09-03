@@ -3116,7 +3116,12 @@ export default function App(){
     // condición se reduce a la vista Ver.
     if(step===4 && pres?.nombre){
       const original=document.title;
-      document.title=`${pres.nombre} — Ver`;
+      // "Resumen", igual que el último eslabón de la miga. No lo pediste
+      // explícitamente: se alinea porque este título es el que imprime el
+      // navegador en el encabezado del PDF, y decir "— Ver" ahí quedaba
+      // descolgado de lo que muestra la pantalla. Si lo prefieres de otra
+      // forma, es esta línea.
+      document.title=`${pres.nombre} — Resumen`;
       return ()=>{ document.title=original; };
     }
   },[step,pres?.nombre]);
@@ -5209,11 +5214,14 @@ export default function App(){
               de la misma fila) siguen sin imprimirse porque ya tienen .noprint. */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
             <div>
-              {/* Tarea 8 paso 3 — la vista se renombra a "Ver". Solo la etiqueta:
-                  es la misma pantalla, con el mismo contenido. */}
-              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Ver</h2>
-              {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
+              {/* 03-sep-2026, Luis: el título de la pantalla es el NOMBRE DEL
+                  PRESUPUESTO. Antes había arriba un "Ver" que solo repetía de
+                  dónde venías; el nombre estaba debajo, en gris pequeño. Ahora el
+                  nombre ocupa el h2 y el "Ver" desaparece: a la vista se llega
+                  desde el botón "Ver" del listado y la miga dice "Resumen", así
+                  que la etiqueta no hacía falta en un tercer sitio.
+                  Encabezado de tres renglones — ver nota en Capturar costos. */}
+              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>{pres?.nombre}</h2>
               {pres?.unidadNegocio&&(
                 <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
               )}
@@ -5237,7 +5245,9 @@ export default function App(){
                 Información general") se queda: es el par recíproco del botón "Resumen
                 mensual" de Información general. */}
             <div style={{display:"flex",gap:10}} className="noprint">
-              {btn("← Capturar costos",irACapturarCostos,"secondary")}
+              {/* Solo cambia el texto (Luis, 03-sep-2026): sigue apuntando a
+                  Capturar costos, que es a donde va irACapturarCostos. */}
+              {btn("← Editar",irACapturarCostos,"secondary")}
               {btn("⬇ Excel",()=>exportarExcel({
                 pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
                 mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -5407,9 +5417,11 @@ export default function App(){
           </div>
         </div>
       </div>
-    // Tarea 8 paso 3 — la miga queda Inicio / Presupuestos / [nombre] / Ver. Se
-    // va el eslabón de Información general, que ya no es alcanzable.
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Ver"}]);
+    // Tarea 8 paso 3 — se fue el eslabón de Información general, que ya no es
+    // alcanzable. El último eslabón dice "Resumen" (Luis, 03-sep-2026): el botón
+    // del listado se llama "Ver" y la miga describe DÓNDE estás, no cómo
+    // llegaste. Queda Inicio / Presupuestos / [nombre] / Resumen.
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Resumen"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
