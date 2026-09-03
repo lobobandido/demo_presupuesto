@@ -2301,7 +2301,11 @@ function CatLinesChart({series,height=300,meses}){
     </div>
   );
   const NMESES=meses.length;
-  const W=960,H=height,pL=90,pR=130,pT=24,pB=44;
+  // pR era 130 para dejar sitio a los rótulos del final de cada línea. Sin
+  // rótulos, ese margen quedaba como una franja vacía a la derecha de la
+  // gráfica: se reduce a 24 y la línea usa el ancho. Solo geometría del SVG —
+  // los datos y las escalas no cambian.
+  const W=960,H=height,pL=90,pR=24,pT=24,pB=44;
   const cW=W-pL-pR, cH=H-pT-pB;
   const allV=series.flatMap(s=>s.data).filter(v=>v>0);
   const maxV=Math.max(...allV,1);
@@ -2329,8 +2333,8 @@ function CatLinesChart({series,height=300,meses}){
       {/* Líneas por categoría */}
       {series.map((s,si)=>{
         const pts=s.data.map((v,i)=>`${xP(i)},${yP(v)}`).join(" ");
-        const lastV=s.data[s.data.length-1];
-        const lastY=yP(lastV);
+        // lastV/lastY solo servían para colocar el rótulo del final de la línea,
+        // que se quitó (ver abajo). Se eliminan para no dejar código muerto.
         return <g key={s.label}>
           <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2.5"
             strokeLinejoin="round" strokeLinecap="round"/>
@@ -2338,11 +2342,16 @@ function CatLinesChart({series,height=300,meses}){
             <circle key={i} cx={xP(i)} cy={yP(v)} r="4"
               fill={s.color} stroke={C.white} strokeWidth="2"/>
           ))}
-          {/* Label inline al final de la línea */}
-          <text x={pL+cW+8} y={Math.max(pT+10,Math.min(H-pB-4,lastY+4))}
-            fontSize="10" fill={s.color} fontWeight="600" fontFamily="Inter,sans-serif">
-            {s.label.length>16?s.label.slice(0,16)+"…":s.label}
-          </text>
+          {/* Aquí iba un rótulo por serie al final de su línea. Quitado el
+              03-sep-2026: todas las series se rotulaban en la MISMA x, y las que
+              terminan en cero comparten la misma y, así que se encimaban unas
+              sobre otras y quedaban ilegibles. No es un caso raro — en
+              PERDIZ-PAPAN las CATORCE series terminan en cero, o sea catorce
+              rótulos en el mismo punto. Separarlos verticalmente los habría
+              alejado tanto de su línea que ya no diría cuál es cuál.
+              La leyenda de colores de arriba de la gráfica ya dice qué es cada
+              línea, y esta vista es la única que queda tras la fusión: un rótulo
+              ilegible estorba más de lo que ayuda. */}
         </g>;
       })}
     </svg>
