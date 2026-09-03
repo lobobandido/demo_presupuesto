@@ -5059,6 +5059,19 @@ export default function App(){
     // Servicio/Instalación sí facturan, Departamento/Suministro no.
     const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";
 
+    // Tarea 8, paso 2 (03-sep-2026) — los mismos datos que ya armaba Información
+    // general, con las mismas llamadas. Aquí no se calcula nada nuevo:
+    // construirFilasServicio y los totales por área son las funciones que ya
+    // existían; solo se las invoca también desde esta pantalla.
+    const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
+      totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+    const areasDetalle=areas.map((id,ai)=>{
+      const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
+      const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
+      return {id, esUltima:ai===areas.length-1, datos:costos[id], areaInfo:cats.find(a=>a.id===id),
+        capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia};
+    });
+
     // ── Helpers de render ──────────────────────────────────────────────────
     // 3er parámetro opcional className — hoy solo lo usan las dos tarjetas de
     // gráfica (className="chart-card"), para el break-inside:avoid del PDF (F1).
@@ -5275,28 +5288,12 @@ export default function App(){
           )}
 
           {/* ── KPIs ────────────────────────────────────────────────────── */}
-          <div className="resumen-kpi" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
-            {[
-              {l:"Facturación",v:totalIngresosAnual,c:C.success,   b:C.successLight},
-              {l:"CAPEX",       v:totalCAPEX,        c:C.yellowDark,b:C.yellowLight},
-              {l:"OPEX",        v:totalOPEX,         c:"#374151",   b:C.grayLight},
-              {l:"Total egresos",v:totalEgr,          c:C.danger,    b:C.dangerLight},
-              /* Bug conocido corregido — con ingresos en cero, margen=utilidad/0 no es
-                     "0.0%", es indefinido: se muestra "—" en vez de fingir un resultado.
-                     Solo cambia la presentación; la fórmula de margen no se toca. */
-              {l:"Utilidad y margen",v:utilidad,badge:totalIngresosAnual===0?"—":`${margen.toFixed(1)}%`,
-                c:utilidad>=0?C.success:C.danger,b:utilidad>=0?C.successLight:C.dangerLight},
-            ].map(k=>(
-              <div key={k.l} style={{background:k.b,border:`1px solid ${k.c}22`,
-                borderRadius:10,padding:"14px 18px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-                  <div style={{fontSize:10,fontWeight:700,color:k.c,textTransform:"uppercase",letterSpacing:0.5}}>{k.l}</div>
-                  {k.badge&&<div style={{fontSize:11,fontWeight:800,color:k.c}}>{k.badge}</div>}
-                </div>
-                <div style={{fontSize:19,fontWeight:800,color:k.c,marginTop:7}}>{fmt(k.v)}</div>
-              </div>
-            ))}
-          </div>
+          {/* Tarea 8 paso 2: la fila de KPIs pasa al componente compartido.
+              El bloque que estaba aquí en línea era idéntico al de Información
+              general (de ahí salió KPIsPresupuesto), así que no cambia nada de lo
+              que se ve — deja de estar escrito dos veces. */}
+          <KPIsPresupuesto totalIngresosAnual={totalIngresosAnual} totalCAPEX={totalCAPEX}
+            totalOPEX={totalOPEX} totalEgr={totalEgr} utilidad={utilidad} margen={margen}/>
 
           {/* ── TABLA 1: SERVICIO (Ingresos vs Egresos) ─────────────────── */}
           {card(<>
@@ -5322,41 +5319,28 @@ export default function App(){
             ]} showTotal={false}/>
           </>)}
 
-          {/* ── GRÁFICA I: Flujo de efectivo (barras + línea acumulada) ── */}
-          {card(<>
-            {sTitle("Gráfica I — Flujo de efectivo","Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado")}
-            <div style={{display:"flex",gap:20,marginBottom:12}}>
-              {[
-                {label:"Flujo mensual positivo",color:C.yellow},
-                {label:"Flujo mensual negativo",color:C.danger},
-                {label:"Flujo acumulado",       color:"#374151"},
-              ].map(s=>(
-                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
-                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
-          </>,16,"chart-card")}
+          {/* ── Tarea 8 paso 2 — la tabla contable agrupada por RUBRO, que hasta hoy
+              solo estaba en Información general. NO reemplaza a las tablas
+              mensuales de arriba: son dos vistas distintas del mismo dinero y las
+              dos se quedan. Es la que la contadora Anel aprobó como prueba de que
+              SERVICIOS sale como rubro propio. ── */}
+          <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
 
-          {/* ── GRÁFICA II: Líneas por categoría OPEX ───────────────────── */}
-          {card(<>
-            {sTitle("Gráfica II — OPEX por categoría","Líneas por categoría contable mes a mes · Equivalente a pestaña GRÁFICA II del Excel")}
-            {catOpexSeries.length>0?(
-              <>
-                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
-                  {catOpexSeries.map(s=>(
-                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
-                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
-                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
-              </>
-            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
-          </>,16,"chart-card")}
+          {/* ── Tarea 8 paso 2 — las cajas por departamento, también traídas de
+              Información general. Los totales por área se suman arriba, en App. ── */}
+          <DetallePorArea areasDetalle={areasDetalle} pres={pres}
+            numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+            upP={upP} rmP={rmP} addP={addP} rmN={rmN} addN={addN}/>
+
+          {/* ── Tarea 8 paso 2 — las dos gráficas pasan al componente compartido.
+              Antes estaban escritas en línea aquí Y en Información general; ahora
+              hay un solo bloque. Cambia SOLO el rótulo de las dos tarjetas: decían
+              "Gráfica I —" y "Gráfica II —" con la referencia a la pestaña del
+              Excel, y ahora dicen "Flujo de efectivo" y "OPEX por categoría", que es
+              como estaban rotuladas en Información general. Mismos datos, mismas dos
+              gráficas, mismo orden. ── */}
+          <GraficasPresupuesto mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
+            MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
 
           {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
           {areas.length>0&&card(<>
