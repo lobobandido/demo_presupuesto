@@ -45,6 +45,30 @@ export const UNIDADES_NEGOCIO = [
   {clave:"G18ADMIN",     nombre:"GEOLIS ADMINISTRACION"},
 ];
 
+// Unidad por omisión de los presupuestos de tipo DEPARTAMENTO (Luis,
+// 02-sep-2026): "los presupuestos de departamento siempre son internos y van a
+// esa unidad". Se referencia por esta constante y NUNCA escrita a mano en el
+// JSX, porque está PENDIENTE DE VALIDAR con la contadora: si Anel la renombra,
+// hay un solo lugar que cambiar.
+//
+// OJO: esto NO es lo mismo que consolidar unidades entre sí. Lo que Anel pidió
+// ("esos tres tenemos que conjuntar en uno, que sería el C18000") sigue abierto
+// y es otra decisión.
+export const UNIDAD_DEPARTAMENTO = "G18ADMIN";
+
+// Guardarraíl de desarrollo: si la clave deja de existir en el catálogo —porque
+// la renombraron o la dieron de baja— el autollenado se degradaría en silencio,
+// dejando el campo vacío sin que nadie se entere. Que truene en consola.
+// import.meta.env.DEV lo deja fuera del bundle de producción.
+if(import.meta.env.DEV && !UNIDADES_NEGOCIO.some(u=>u.clave===UNIDAD_DEPARTAMENTO)){
+  console.error(
+    `[unidades] UNIDAD_DEPARTAMENTO vale "${UNIDAD_DEPARTAMENTO}" y esa clave NO existe en\n`+
+    `UNIDADES_NEGOCIO. Los presupuestos de tipo Departamento van a quedarse con la unidad\n`+
+    `vacía en vez de autollenarse. Si la clave cambió de nombre, actualiza la constante;\n`+
+    `si la unidad se dio de baja, decide con la contadora cuál la reemplaza.`
+  );
+}
+
 // Formato de despliegue: "CLAVE — NOMBRE". El valor que se guarda es la CLAVE.
 export function etiquetaUnidad(clave){
   if(!clave) return "";

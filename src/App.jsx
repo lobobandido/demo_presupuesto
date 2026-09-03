@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, Fragment } from "react";
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
-import { UNIDADES_NEGOCIO, etiquetaUnidad } from "./catalogoUnidades";
+import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -2793,6 +2793,12 @@ export default function App(){
   // habilitados de todos modos. Una columna en Supabase no cambiaría nada de lo
   // que el usuario ve.
   const [resumenDesbloqueado,setResumenDesbloqueado] = useState(false);
+  // ¿El usuario ya eligió Unidad de negocio a mano en ESTE presupuesto?
+  // Gobierna el autollenado de G18ADMIN al elegir tipo Departamento
+  // (02-sep-2026): mientras sea false el tipo puede poner y quitar la unidad;
+  // en cuanto el usuario elige una, deja de tocarse — su elección manda aunque
+  // después cambie el tipo. Se reinicia al empezar otro presupuesto.
+  const [unidadTocada,setUnidadTocada] = useState(false);
   // Candado de guardado (Opción A) — true desde que guardarTodo dispara
   // guardarPresupuestoEnNube hasta que resuelve o falla; el único botón
   // "Guardar" de Capturar costos se deshabilita mientras esté en true. Antes
@@ -2951,6 +2957,7 @@ export default function App(){
     setIntentoGuardar(false);
     setFlujoCreacion(true);
     setResumenDesbloqueado(false); // presupuesto nuevo: todavía no hay nada guardado
+    setUnidadTocada(false);        // nadie ha elegido unidad: el tipo puede autollenarla
     setStep(1);
   }
   // Spec recuperación-datos, paso 2 — p llega ligero (de listarPresupuestos, sin
@@ -3118,6 +3125,9 @@ export default function App(){
     setViaClonar(true);
     setOrigenReal(mismoTipo?{id:p.id,nombre:p.nombre,tipo:p.tipo}:null);
     setResumenDesbloqueado(false); // la copia todavía no se ha guardado
+    // La copia hereda la unidad del origen. Si trae una, cuenta como elegida: el
+    // tipo no debe pisarla. Si el origen no tenía, queda libre para autollenarse.
+    setUnidadTocada(!!p.unidadNegocio);
     setStep(1);
   }
 
@@ -3807,7 +3817,12 @@ export default function App(){
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required={!modoEdit}>Unidad de negocio {modoEdit&&<span style={{color:C.grayMid,fontSize:10,fontWeight:400,marginLeft:6,textTransform:"none"}}>— no editable por ahora</span>}</FL>
                 <select value={form.unidadNegocio||""} disabled={modoEdit}
-                  onChange={e=>setForm({...form,unidadNegocio:e.target.value})}
+                  onChange={e=>{
+                    // A partir de aquí la elección es del usuario y el
+                    // autollenado por tipo deja de tocarla (ver unidadTocada).
+                    setUnidadTocada(true);
+                    setForm({...form,unidadNegocio:e.target.value});
+                  }}
                   className="sel-brand"
                   style={{width:"100%",padding:"9px 12px",
                     border:`1px solid ${intentoGuardar&&!modoEdit&&!form.unidadNegocio?"#C0392B":C.grayBorder}`,
@@ -3898,7 +3913,20 @@ export default function App(){
                   ].map(t=>(
                     <div key={t.id}
                       onClick={()=>{
-                        setForm({...form,tipo:t.id});
+                        // Autollenado de Unidad de negocio (Luis, 02-sep-2026):
+                        // un presupuesto de Departamento siempre es interno y va
+                        // a G18ADMIN, así que se pone solo — quien no conoce la
+                        // plataforma no tiene por qué buscar entre 30 claves.
+                        // Solo actúa mientras el usuario NO haya tocado el campo:
+                        // si ya eligió una unidad, su elección manda y no se pisa.
+                        // Y si no la tocó y sale de Departamento, vuelve al
+                        // placeholder — nada de G18ADMIN colgado en una
+                        // Instalación. El campo sigue editable y obligatorio: es
+                        // un atajo, no una imposición.
+                        const unidadAuto = unidadTocada
+                          ? form.unidadNegocio
+                          : (t.id==="departamento" ? UNIDAD_DEPARTAMENTO : "");
+                        setForm({...form,tipo:t.id,unidadNegocio:unidadAuto});
                         setAreas([]);
                         setOpexPM([]);
                         // Usuario decide si cargar base o empezar desde cero
