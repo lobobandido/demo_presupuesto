@@ -3112,9 +3112,11 @@ export default function App(){
   // de useEffect restaura el título anterior exacto al salir de Step 4/5 (o si
   // cambia de presupuesto/step), sin necesidad de guardar el original aparte.
   useEffect(()=>{
-    if((step===4||step===5) && pres?.nombre){
+    // Tarea 8 paso 3 — Step 5 (Información general) queda oculto, así que la
+    // condición se reduce a la vista Ver.
+    if(step===4 && pres?.nombre){
       const original=document.title;
-      document.title=`${pres.nombre} — ${step===4?"Resumen mensual":"Información general"}`;
+      document.title=`${pres.nombre} — Ver`;
       return ()=>{ document.title=original; };
     }
   },[step,pres?.nombre]);
@@ -3166,9 +3168,13 @@ export default function App(){
     setActiva(primera);
     setFlujoCreacion(false);
     setViaClonar(false);
-    // Abrir un presupuesto existente aterriza en Información general (día 3:
-    // esa pantalla ya no tiene modo lectura/edición in situ, ver App.jsx L3812+).
-    setStep(5);
+    // Tarea 8 paso 3 (03-sep-2026, confirmado por Luis en audio: "cuando entre
+    // usted en Ver pues lo lleva directo... ya directo... por la navegación va").
+    // El botón "Ver" del listado aterriza DIRECTO en la vista Ver (Step 4), que
+    // desde el paso 2 ya trae los KPIs, la tabla contable por rubro, las cajas
+    // por departamento y las gráficas. Antes aterrizaba en Información general
+    // (Step 5), que a partir de hoy queda oculta.
+    setStep(4);
     setPresToOpen(null); // limpiar para no re-ejecutar
     // Pequeño delay para que React termine el render antes de reanudar guardado
     setTimeout(()=>{ isOpening.current = false; }, 100);
@@ -4630,7 +4636,10 @@ export default function App(){
             return(
               <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}} className="noprint">
                 <div style={{display:"flex",gap:10}}>
-                  {btn("← Información general",()=>setStep(5),"secondary",accesosBloqueados,motivo)}
+                  {/* Tarea 8 paso 3: aquí iba también un botón "← Información
+                      general". Se fue con la vista. Como estaba previsto desde el
+                      paso 1, fue borrar el renglón: la condición compartida
+                      accesosBloqueados no se tocó. */}
                   {btn("Resumen mensual →",()=>setStep(4),"secondary",accesosBloqueados,motivo)}
                 </div>
                 {/* El tooltip solo aparece al pasar el mouse; el texto chico se ve
@@ -5200,7 +5209,9 @@ export default function App(){
               de la misma fila) siguen sin imprimirse porque ya tienen .noprint. */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
             <div>
-              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Resumen mensual</h2>
+              {/* Tarea 8 paso 3 — la vista se renombra a "Ver". Solo la etiqueta:
+                  es la misma pantalla, con el mismo contenido. */}
+              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Ver</h2>
               {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
               <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
               {pres?.unidadNegocio&&(
@@ -5226,7 +5237,7 @@ export default function App(){
                 Información general") se queda: es el par recíproco del botón "Resumen
                 mensual" de Información general. */}
             <div style={{display:"flex",gap:10}} className="noprint">
-              {btn("← Información general",()=>setStep(5),"secondary")}
+              {btn("← Capturar costos",irACapturarCostos,"secondary")}
               {btn("⬇ Excel",()=>exportarExcel({
                 pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
                 mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -5396,7 +5407,9 @@ export default function App(){
           </div>
         </div>
       </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general",onClick:()=>setStep(5)},{label:"Resumen mensual"}]);
+    // Tarea 8 paso 3 — la miga queda Inicio / Presupuestos / [nombre] / Ver. Se
+    // va el eslabón de Información general, que ya no es alcanzable.
+    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Ver"}]);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -5406,93 +5419,103 @@ export default function App(){
   // (upP/addP/rmP/addN/rmN/guardarArea) que Step 3 — la única diferencia es
   // que aquí se recorren TODAS las áreas de corrido (sin selector lateral),
   // en vez de mostrar una a la vez. No se tocó Step 3 ni Step 4.
-  if(step===5){
-    // Corrección posterior al día 3 (spec dos-sistemas-semana) — el cliente pidió
-    // cambiar CÓMO se edita (a Capturar costos), no borrar el detalle por área de
-    // esta pantalla de consulta. KPIs + TablaServicio + gráficas se quedan igual;
-    // debajo vuelve el detalle por área en texto plano (sin inputs, sin Guardar).
-    const cats=getAreasCat(pres?.tipo||"instalacion");
-    // Panorama del presupuesto completo — misma función que usa Step 4, cero
-    // lógica de cálculo duplicada.
-    const {NMESES, MESES13, MESES13_MES, mCapex, mOpex, mEgresos, mIngresos,
-      totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} =
-      calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
-    const totalCAPEX=mCapex.reduce((s,v)=>s+v,0);
-    const totalOPEX=mOpex.reduce((s,v)=>s+v,0);
-    const totalEgr=totalCAPEX+totalOPEX;
-    const utilidad=totalIngresosAnual-totalEgr;
-    const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
-    const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
-      totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
-    // Tarea 8, paso 1 — los totales por área se calculan AQUÍ, como siempre, y
-    // el componente DetallePorArea solo los pinta. Las mismas llamadas que había
-    // en línea dentro del map: totalCat, totalNom, totalOpexAnualCat, totalNomAnual.
-    const areasDetalle=areas.map((id,ai)=>{
-      const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
-      const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
-      return {id, esUltima:ai===areas.length-1, datos:costos[id], areaInfo:cats.find(a=>a.id===id),
-        capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia};
-    });
-
-    return wrap(
-      <div>
-        <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
-
-        <div id="rpdf">
-          {/* Header — movido DENTRO de #rpdf (antes era hermano, fuera): igual que en
-              Resumen mensual, sin esto el PDF exportado no traía nombre ni periodo.
-              Los botones siguen sin imprimirse por .noprint. */}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
-            <div>
-              {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
-              <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
-              {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
-              <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
-              {pres?.unidadNegocio&&(
-                <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
-              )}
-              {/* Fase 1.6.a — línea de periodo */}
-              {pres?.fechaInicio&&(()=>{
-                const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
-                return(
-                  <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
-                    Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
-                  </div>
-                );
-              })()}
-              {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
-                  aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
-            </div>
-            {/* Corrección posterior al paso 4 de spec-recuperación-datos — el cliente
-                dijo "Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?":
-                se quita el botón. No queda hueco de navegación: "Editar" del listado
-                (abrirEdit, commit d2763e1) ya manda directo a Capturar costos (Step 3),
-                y la miga de pan también permite volver a Información general desde ahí. */}
-            <div style={{display:"flex",gap:10}} className="noprint">
-              {btn("Resumen mensual →",()=>setStep(4),"secondary")}
-              {btn("⬇ PDF",()=>window.print(),"secondary")}
-            </div>
-          </div>
-
-          {/* Tarea 8 paso 1: extraído a KPIsPresupuesto. */}
-          <KPIsPresupuesto totalIngresosAnual={totalIngresosAnual} totalCAPEX={totalCAPEX}
-            totalOPEX={totalOPEX} totalEgr={totalEgr} utilidad={utilidad} margen={margen}/>
-
-          {/* Tarea 8 paso 1: extraído a TablaContableCard. */}
-          <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
-
-          {/* Tarea 8 paso 1: extraído a DetallePorArea. Los totales por área se
-              siguen sumando aquí, en App — el componente solo los pinta. */}
-          <DetallePorArea areasDetalle={areasDetalle} pres={pres}
-            numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
-            upP={upP} rmP={rmP} addP={addP} rmN={rmN} addN={addN}/>
-
-          {/* Tarea 8 paso 1: extraído a GraficasPresupuesto. */}
-          <GraficasPresupuesto mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
-            MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
-        </div>
-      </div>
-    ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general"}]);
-  }
+  // Vista de Información general. Oculta el 03-sep-2026 por
+  // petición de Luis: su contenido (KPIs, tabla contable por
+  // rubro, cajas por departamento y gráficas) vive ahora en la
+  // vista Ver. NO BORRAR: es la vuelta atrás sin revertir
+  // commits. Se borra semanas después, o nunca.
+  //
+  // Se comenta línea por línea, con doble barra, porque el bloque
+  // contiene comentarios JSX y los comentarios de bloque de JS no
+  // se anidan. Para reactivarla: quitar el prefijo de estas líneas
+  // y devolver el eslabón de la miga y el botón de regreso.
+  //   if(step===5){
+  //     // Corrección posterior al día 3 (spec dos-sistemas-semana) — el cliente pidió
+  //     // cambiar CÓMO se edita (a Capturar costos), no borrar el detalle por área de
+  //     // esta pantalla de consulta. KPIs + TablaServicio + gráficas se quedan igual;
+  //     // debajo vuelve el detalle por área en texto plano (sin inputs, sin Guardar).
+  //     const cats=getAreasCat(pres?.tipo||"instalacion");
+  //     // Panorama del presupuesto completo — misma función que usa Step 4, cero
+  //     // lógica de cálculo duplicada.
+  //     const {NMESES, MESES13, MESES13_MES, mCapex, mOpex, mEgresos, mIngresos,
+  //       totalIngresosAnual, mFlujo, mFlujoAcum, catOpexSeries} =
+  //       calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales});
+  //     const totalCAPEX=mCapex.reduce((s,v)=>s+v,0);
+  //     const totalOPEX=mOpex.reduce((s,v)=>s+v,0);
+  //     const totalEgr=totalCAPEX+totalOPEX;
+  //     const utilidad=totalIngresosAnual-totalEgr;
+  //     const margen=totalIngresosAnual>0?((utilidad/totalIngresosAnual)*100):0;
+  //     const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
+  //       totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+  //     // Tarea 8, paso 1 — los totales por área se calculan AQUÍ, como siempre, y
+  //     // el componente DetallePorArea solo los pinta. Las mismas llamadas que había
+  //     // en línea dentro del map: totalCat, totalNom, totalOpexAnualCat, totalNomAnual.
+  //     const areasDetalle=areas.map((id,ai)=>{
+  //       const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
+  //       const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
+  //       return {id, esUltima:ai===areas.length-1, datos:costos[id], areaInfo:cats.find(a=>a.id===id),
+  //         capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia};
+  //     });
+  //
+  //     return wrap(
+  //       <div>
+  //         <style>{`@media print{body *{visibility:hidden}#rpdf,#rpdf *{visibility:visible}#rpdf{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}`}</style>
+  //
+  //         <div id="rpdf">
+  //           {/* Header — movido DENTRO de #rpdf (antes era hermano, fuera): igual que en
+  //               Resumen mensual, sin esto el PDF exportado no traía nombre ni periodo.
+  //               Los botones siguen sin imprimirse por .noprint. */}
+  //           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+  //             <div>
+  //               {/* Fase 1.3 — "Mi presupuesto" pasa a llamarse "Información general" en toda la app */}
+  //               <h2 style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:C.grayDark}}>Información general</h2>
+  //               {/* Encabezado de tres renglones — ver nota en Capturar costos. */}
+  //               <div style={{fontSize:13,color:C.grayMid}}>{pres?.nombre}</div>
+  //               {pres?.unidadNegocio&&(
+  //                 <div style={{fontSize:13,color:C.grayDark,fontWeight:600,marginTop:2}}>{etiquetaUnidad(pres.unidadNegocio)}</div>
+  //               )}
+  //               {/* Fase 1.6.a — línea de periodo */}
+  //               {pres?.fechaInicio&&(()=>{
+  //                 const nMesesOp=calcularNumMesesOp(pres.fechaInicio,pres.fechaFin);
+  //                 return(
+  //                   <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+  //                     Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(nMesesOp,pres.fechaInicio)}</strong> · {nMesesOp+1} meses
+  //                   </div>
+  //                 );
+  //               })()}
+  //               {/* Spec navegación-retro-410 punto 5 — Elaborado/Vigencia se quitan de
+  //                   aquí; ahora viven en el listado (punto 3.1). El periodo se queda. */}
+  //             </div>
+  //             {/* Corrección posterior al paso 4 de spec-recuperación-datos — el cliente
+  //                 dijo "Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?":
+  //                 se quita el botón. No queda hueco de navegación: "Editar" del listado
+  //                 (abrirEdit, commit d2763e1) ya manda directo a Capturar costos (Step 3),
+  //                 y la miga de pan también permite volver a Información general desde ahí. */}
+  //             <div style={{display:"flex",gap:10}} className="noprint">
+  //               {btn("Resumen mensual →",()=>setStep(4),"secondary")}
+  //               {btn("⬇ PDF",()=>window.print(),"secondary")}
+  //             </div>
+  //           </div>
+  //
+  //           {/* Tarea 8 paso 1: extraído a KPIsPresupuesto. */}
+  //           <KPIsPresupuesto totalIngresosAnual={totalIngresosAnual} totalCAPEX={totalCAPEX}
+  //             totalOPEX={totalOPEX} totalEgr={totalEgr} utilidad={utilidad} margen={margen}/>
+  //
+  //           {/* Tarea 8 paso 1: extraído a TablaContableCard. */}
+  //           <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+  //
+  //           {/* Tarea 8 paso 1: extraído a DetallePorArea. Los totales por área se
+  //               siguen sumando aquí, en App — el componente solo los pinta. */}
+  //           <DetallePorArea areasDetalle={areasDetalle} pres={pres}
+  //             numMesesProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}
+  //             upP={upP} rmP={rmP} addP={addP} rmN={rmN} addN={addN}/>
+  //
+  //           {/* Tarea 8 paso 1: extraído a GraficasPresupuesto. */}
+  //           <GraficasPresupuesto mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
+  //             MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
+  //         </div>
+  //       </div>
+  //     ,[{label:"Presupuestos",onClick:()=>setStep(0)},{label:nombreProy,onClick:irACapturarCostos},{label:"Información general"}]);
+  //   }
   return null;
 }
