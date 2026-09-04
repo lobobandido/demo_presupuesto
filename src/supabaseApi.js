@@ -206,6 +206,12 @@ export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAd
     const viaRows=(datosArea.via||[]).map((p,i)=>({...opexToRow(p,true),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(viaRows.length){ const {error} = await supabase.from("partidas_opex_via").insert(viaRows); if(error) console.error("[supabase] insert via:",error.message); }
 
+    // OPEX · Servicios (04-sep-2026) — tabla gemela de partidas_opex_mat, mismas
+    // columnas y el MISMO opexToRow. Un presupuesto guardado antes de esta fecha
+    // no tiene filas aquí y se carga con serv:[].
+    const servRows=(datosArea.serv||[]).map((p,i)=>({...opexToRow(p,true),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
+    if(servRows.length){ const {error} = await supabase.from("partidas_opex_serv").insert(servRows); if(error) console.error("[supabase] insert serv:",error.message); }
+
     const nomRows=(datosArea.nomina||[]).map((p,i)=>({...nominaToRow(p),area_id:areaUuid,presupuesto_id:presupuestoId,orden:i}));
     if(nomRows.length){ const {error} = await supabase.from("nomina").insert(nomRows); if(error) console.error("[supabase] insert nomina:",error.message); }
   }
@@ -229,10 +235,11 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
   const {data:areasRows, error:areasErr} = await supabase.from("areas_presupuesto").select("*").eq("presupuesto_id",id).order("orden");
   if(areasErr) console.error("[supabase] cargar areas:", areasErr.message);
 
-  const [{data:capexRows},{data:matRows},{data:viaRows},{data:nomRows},{data:ingRows}] = await Promise.all([
+  const [{data:capexRows},{data:matRows},{data:viaRows},{data:servRows},{data:nomRows},{data:ingRows}] = await Promise.all([
     supabase.from("partidas_capex").select("*").eq("presupuesto_id",id).order("orden"),
     supabase.from("partidas_opex_mat").select("*").eq("presupuesto_id",id).order("orden"),
     supabase.from("partidas_opex_via").select("*").eq("presupuesto_id",id).order("orden"),
+    supabase.from("partidas_opex_serv").select("*").eq("presupuesto_id",id).order("orden"),
     supabase.from("nomina").select("*").eq("presupuesto_id",id).order("orden"),
     supabase.from("ingresos_adicionales").select("*").eq("presupuesto_id",id),
   ]);
@@ -241,7 +248,7 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
   (areasRows||[]).forEach(a=>{ uuidToAppId[a.id]=a.area_id; });
   const costos={};
   (areasRows||[]).forEach(a=>{
-    costos[a.area_id]={capex:[],mat:[],nomina:[],via:[],estado:a.estado||"pendiente"};
+    costos[a.area_id]={capex:[],mat:[],nomina:[],via:[],serv:[],estado:a.estado||"pendiente"};
   });
 
   (capexRows||[]).forEach(r=>{
@@ -282,6 +289,18 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
       mesGastoAnio:r.mes_gasto_anio?String(r.mes_gasto_anio):"",
     }));
   });
+  // OPEX · Servicios — mismo mapeo que mat y via, campo por campo.
+  (servRows||[]).forEach(r=>{
+    const appId=uuidToAppId[r.area_id]; if(!appId||!costos[appId]) return;
+    costos[appId].serv.push(initP({
+      id:uid(), cat:r.categoria, desc:r.descripcion, unidad:r.unidad,
+      cantidad:Number(r.cantidad), monto:Number(r.monto),
+      periodicidad:r.periodicidad||"mensual", mesInicioOpex:r.mes_inicio_opex||1,
+      repeticiones:r.repeticiones||null,
+      mesGastoMes:r.mes_gasto_mes?String(r.mes_gasto_mes):"",
+      mesGastoAnio:r.mes_gasto_anio?String(r.mes_gasto_anio):"",
+    }));
+  });
   (nomRows||[]).forEach(r=>{
     const appId=uuidToAppId[r.area_id]; if(!appId||!costos[appId]) return;
     costos[appId].nomina.push(initN({
@@ -301,7 +320,7 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
   for(let i=1;i<=Math.min(12,meses);i++) ingresos[i]=precioFijo;
 
   console.log(`[supabase] cargado OK: ${(areasRows||[]).length} área(s), `+
-    `${(capexRows||[]).length} CAPEX, ${(matRows||[]).length} OPEX-mat, ${(viaRows||[]).length} OPEX-via, `+
+    `${(capexRows||[]).length} CAPEX, ${(matRows||[]).length} OPEX-mat, ${(viaRows||[]).length} OPEX-via, ${(servRows||[]).length} OPEX-serv, `+
     `${(nomRows||[]).length} nómina, ${(ingRows||[]).length} ingreso(s) adicional(es)`);
 
   return {
