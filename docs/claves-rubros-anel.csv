@@ -1,0 +1,34 @@
+clave,rubro,bloque
+# Claves de 3 letras que el sistema de la contadora exige en la columna "Clave"
+# del archivo de carga (el "Excel para Apps"). Sin Clave el archivo no carga.
+#
+# Las dictó Anel el 2026-09-04. NO SE INVENTAN Y NO SE DEDUCEN del nombre: son
+# los códigos de su sistema. Si alguna cambia, se cambia aquí y en
+# src/catalogoClaves.js, que es la copia que consume la app.
+#
+# POR QUÉ ESTE ARCHIVO Y NO UNA COLUMNA EN catalogo_contable_2027.csv:
+# ese CSV se REGENERA leyendo el formato del Excel de Anel (ver CLAUDE.md), así
+# que una columna agregada a mano se perdería en la siguiente regeneración. Aquí
+# vive aparte y sobrevive.
+#
+# bloque: "ingresos" para FAC, "egresos" para los 18 rubros contables. Es lo que
+# decide bajo cuál de los dos encabezados del archivo va cada fila.
+FAC,FACTURACION,ingresos
+ACT,ACTIVOS,egresos
+CAS,ARRENDA DE INMUEBLES Y SERV,egresos
+SEG,ARTICULOS DE SEGURIDAD,egresos
+EQU,EQUIPO DE COMPUTO,egresos
+EQE,EQUIPOS Y ENSERES,egresos
+INA,INSUMOS AGRICOLAS,egresos
+INO,INSUMOS DE OFICINA,egresos
+MKT,MARKETING,egresos
+MAT,MATERIALES,egresos
+MAS,MATERIALES DE SALUD,egresos
+NCI,NOMINA Y ADICIONALES,egresos
+TEL,SERV TELEFONIA CELULAR Y RADIO,egresos
+SER,SERVICIOS,egresos
+SCA,SERVICIOS DE CAPACITACION,egresos
+SAL,SERVICIOS DE SALUD,egresos
+UNI,UNIFORMES,egresos
+VEH,VEHICULOS Y COMBUSTIBLE,egresos
+VIA,VIATICOS,egresos

@@ -2,6 +2,9 @@ import { useState, useEffect, useLayoutEffect, useRef, useCallback, Fragment } f
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
+// CLAVE_FACTURACION se importará cuando el exportador lo use (paso 4); hoy solo
+// se necesitan estas dos para el guardarraíl de abajo.
+import { claveDeRubro, RUBROS_EGRESOS } from "./catalogoClaves";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -203,6 +206,31 @@ if(import.meta.env.DEV){
       `SUBCAT_MAPPING apuntando a su rubro: en esta lista gana sobre SUBCAT_MAPPING y pinta un\n`+
       `subtotal que no existe en el archivo de contabilidad. Si de verdad cambió el catálogo,\n`+
       `actualiza el CSV y ESPERADOS en la misma pasada.`
+    );
+  }
+  // (3) Todo rubro tiene su clave de 3 letras, y toda clave apunta a un rubro
+  // real. El cruce va AQUÍ y no en catalogoClaves.js porque CATS_MACRO_CONTABLE
+  // vive en este archivo: importarla desde allá crearía un ciclo.
+  // Sin clave, el "Excel para Apps" escribiría una celda vacía en la columna
+  // Clave y el sistema de la contadora rechaza el archivo — o peor, lo carga
+  // incompleto. Que se vea en desarrollo, no al momento de entregar.
+  const sinClave=CATS_MACRO_CONTABLE.filter(r=>!claveDeRubro(r));
+  if(sinClave.length){
+    console.error(
+      `[claves] ${sinClave.length} rubro(s) de CATS_MACRO_CONTABLE no tienen clave de 3 letras:\n`+
+      sinClave.map(r=>`    ${r}`).join("\n")+"\n"+
+      `El "Excel para Apps" no puede escribir su columna Clave y el sistema de la contadora\n`+
+      `rechazaría el archivo. Agrégalas en docs/claves-rubros-anel.csv y en\n`+
+      `src/catalogoClaves.js — las dicta ella, no se deducen del nombre.`
+    );
+  }
+  const rubrosNorm=new Set(CATS_MACRO_CONTABLE.map(normCat));
+  const clavesHuerfanas=RUBROS_EGRESOS.filter(r=>!rubrosNorm.has(normCat(r.rubro)));
+  if(clavesHuerfanas.length){
+    console.error(
+      `[claves] clave(s) que apuntan a un rubro que ya no existe en CATS_MACRO_CONTABLE:\n`+
+      clavesHuerfanas.map(r=>`    ${r.clave} -> "${r.rubro}"`).join("\n")+"\n"+
+      `O el rubro se renombró y hay que actualizar la clave, o la clave sobra.`
     );
   }
 }
