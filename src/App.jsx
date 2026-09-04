@@ -46,6 +46,66 @@ function getAreasCat(tipo){
   return AREAS_CAMPO;
 }
 
+// ─── MULTI-TIPO (Tarea 12 · 04-sep-2026) ────────────────────────────────────
+// Un presupuesto puede llevar VARIOS tipos a la vez (Instalación + Servicio,
+// etc.). Las ÁREAS siguen siendo UNA SOLA LISTA para todo el presupuesto: no hay
+// grupo por tipo, no hay que separar partidas y no hace falta columna nueva en
+// las tablas de partidas. Lo único que cambia es que el presupuesto puede llevar
+// más de un tipo.
+const TIPOS_PRESUPUESTO=[
+  {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",   icon:"🏗️", factura:true},
+  {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente",  icon:"🔁", factura:true},
+  {id:"departamento",label:"Departamento", desc:"Área interna",         icon:"🏢", factura:false},
+  {id:"suministro",  label:"Suministro",   desc:"Compra de materiales", icon:"📦", factura:false},
+];
+const TIPO_LABEL=Object.fromEntries(TIPOS_PRESUPUESTO.map(t=>[t.id,t.label]));
+
+// Los tipos de un presupuesto, siempre como arreglo. Un presupuesto guardado
+// antes del multi-tipo tiene tipos en null y su `tipo` singular: se devuelve
+// [tipo] y todo se comporta exactamente igual que antes. Ése es el criterio de
+// aceptación de este cambio.
+function tiposDe(o){
+  const t=o?.tipos;
+  if(Array.isArray(t) && t.length) return t.filter(Boolean);
+  return o?.tipo ? [o.tipo] : [];
+}
+
+// Áreas ofrecidas = UNIÓN de las áreas de los tipos elegidos.
+//
+// La deduplicación es POR ID, nunca por etiqueta. Dedupliar por nombre perdería
+// un id que puede tener partidas colgando: "Innovación y Tecnología" existe dos
+// veces en el catálogo, como `innovacion` (Departamento) y como `innov_tec`
+// (Suministro). Son ids distintos y cada uno puede tener sus propias partidas
+// guardadas; colapsarlos borraría dinero en silencio.
+//
+// Cuando dos áreas de la unión comparten etiqueta —y SOLO entonces— se
+// desambigua el rótulo con el tipo entre paréntesis. Sin choque, la etiqueta va
+// limpia. Es cambio de rótulo, cero cambio de datos.
+function getAreasCatMulti(tipos){
+  const lista=[], vistos=new Set();
+  const efectivos=(tipos&&tipos.length)?tipos:["instalacion"];
+  efectivos.forEach(t=>{
+    getAreasCat(t).forEach(a=>{
+      if(vistos.has(a.id)) return;
+      vistos.add(a.id);
+      lista.push({...a, _tipo:t});
+    });
+  });
+  const cuantasVeces={};
+  lista.forEach(a=>{ cuantasVeces[a.label]=(cuantasVeces[a.label]||0)+1; });
+  return lista.map(a=> cuantasVeces[a.label]>1
+    ? {...a, label:`${a.label} (${TIPO_LABEL[a._tipo]||a._tipo})`}
+    : a);
+}
+
+// Hay facturación si CUALQUIERA de los tipos factura (Instalación o Servicio).
+// Un presupuesto de Instalación + Departamento factura, porque la parte de
+// instalación factura.
+const TIPOS_QUE_FACTURAN=new Set(TIPOS_PRESUPUESTO.filter(t=>t.factura).map(t=>t.id));
+function facturaAlguno(tipos){
+  return tiposDe({tipos}).some(t=>TIPOS_QUE_FACTURAN.has(t));
+}
+
 const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
 // Los 18 RUBROS de docs/catalogo_contable_2027.csv, en el orden del archivo.
@@ -613,7 +673,7 @@ function costoTotalNomina(puesto, numMeses=12){
 // Step 5 (Mi presupuesto) sin duplicar la lógica de cálculo — misma función,
 // mismos resultados, cero cambio de comportamiento en Step 4.
 function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, ingAdicionales}){
-  const cats=getAreasCat(pres?.tipo||"instalacion");
+  const cats=getAreasCatMulti(tiposDe(pres));
   // Duración real del proyecto (de 6 meses a 20 años) según fechaInicio/fechaFin —
   // ya no se asume siempre M0..M12.
   const NUM_MESES_OP=calcularNumMesesOp(pres?.fechaInicio, pres?.fechaFin);
@@ -622,7 +682,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   // un departamental no tiene mes de instalación. Cambia solo el elemento 0,
   // el arreglo sigue teniendo el mismo largo (NUM_MESES_OP+1) — no mueve
   // geometría de gráficas ni nada que dependa de MESES13.length.
-  const esProyecto = pres?.tipo==="instalacion" || pres?.tipo==="servicio";
+  const esProyecto = facturaAlguno(tiposDe(pres));
   const MESES13=[esProyecto?"M0 (Inst.)":"M0",
     ...Array.from({length:NUM_MESES_OP},(_,i)=>`M${i+1}`)];
   // Fase 1.6.b (corrección) — arreglo paralelo a MESES13, mismo largo, solo con
@@ -2941,7 +3001,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   const wsI=XLSX.utils.aoa_to_sheet([
     ["GEOLIS SA DE CV — Módulo de Presupuestos"],
     ["Presupuesto:",pres?.nombre||""],
-    ["Tipo:",pres?.tipo||""],
+    ["Tipo:",tiposDe(pres).join(" + ")||""],
     ["Empresa:",pres?.empresa||"GEOLIS SA DE CV"],
     ["Fecha elaboración:",pres?.fechaElaboracion||""],
     ["Fecha inicio:",pres?.fechaInicio||""],
@@ -3313,7 +3373,7 @@ export default function App(){
   // listarPresupuestos() y la lógica de mezcla en el useEffect de montaje
   // siguen exactamente iguales.
   const [lista,setLista]       = useState([]);
-  const [form,setForm]         = useState({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
+  const [form,setForm]         = useState({nombre:"",tipo:"",tipos:[],empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   // Diálogo de Clonar (spec navegación-retro-410, punto 8) — presupuesto de
   // origen y tipo elegido, solo mientras el diálogo está abierto.
@@ -3514,7 +3574,7 @@ export default function App(){
     // arrancaban vacías y había que teclearlas; ahora vienen rellenas con el
     // ejercicio siguiente completo y siguen siendo editables en el formulario.
     const {fechaInicio,fechaFin}=fechasDeAnio(new Date().getFullYear()+1);
-    setForm({nombre:"",tipo:"",empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio,fechaFin,
+    setForm({nombre:"",tipo:"",tipos:[],empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio,fechaFin,
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
@@ -3538,7 +3598,7 @@ export default function App(){
       }
       p = remoto;
     }
-    setForm({nombre:p.nombre,tipo:p.tipo,empresa:p.empresa||"GEOLIS SA DE CV",
+    setForm({nombre:p.nombre,tipo:p.tipo,tipos:tiposDe(p),empresa:p.empresa||"GEOLIS SA DE CV",
       // Los 5 presupuestos anteriores al 02-sep-2026 no tienen unidad: queda "".
       unidadNegocio:p.unidadNegocio||"",
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
@@ -3642,6 +3702,9 @@ export default function App(){
     setForm({
       nombre: p.nombre + " (copia)",
       tipo: tipoFinal,
+      // Commit 1 del multi-tipo: el clon sigue con UN tipo, igual que hoy.
+      // Llevarse la combinación completa es el commit 2.
+      tipos: [tipoFinal],
       empresa: p.empresa||"GEOLIS SA DE CV",
       // La copia hereda la unidad del origen y se puede cambiar antes de guardar
       // (el clon pasa por Step 1 con modoEdit en false, o sea con el select
@@ -3701,7 +3764,9 @@ export default function App(){
     // en NULL y su select está deshabilitado — exigirla ahí los dejaría sin
     // poder guardarse hasta que se decida cómo se editan (A1 de DECISIONES.md).
     const faltaUnidad = !modoEdit && !form.unidadNegocio;
-    const invalido = !form.nombre||!form.tipo||!form.fechaInicio||!form.fechaFin||faltaUnidad;
+    // Multi-tipo: se exige AL MENOS UN tipo. Con uno solo, idéntico a antes.
+    const sinTipo = !(form.tipos&&form.tipos.length) && !form.tipo;
+    const invalido = !form.nombre||sinTipo||!form.fechaInicio||!form.fechaFin||faltaUnidad;
     if(invalido){ setIntentoGuardar(true); return; }
     const snap={...form,estado:"Borrador",fecha:new Date().toISOString().slice(0,10),
       _areas:areas,_costos:costos,_capexPM:capexPM,_opexPM:opexPM,_ingresos:ingresos,
@@ -4155,7 +4220,7 @@ export default function App(){
               {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:2}}>Inicio del proyecto: {p.fechaInicio}</div>}
               {p.fechaInicio&&<div style={{fontSize:11,color:C.grayMid,marginTop:1}}>Vigencia: {p.fechaInicio} → {p.fechaFin||"—"}</div>}
             </div>
-            <div style={{fontSize:13,color:C.grayMid,textTransform:"capitalize"}}>{p.tipo}</div>
+            <div style={{fontSize:13,color:C.grayMid}}>{tiposDe(p).map(t=>TIPO_LABEL[t]||t).join(" + ")||"—"}</div>
             {/* Punto 3.2, corrección posterior (Luis, WhatsApp) — orden invertido de
                 los primeros dos: Ver (antes rotulado "Información general"),
                 Editar, Clonar. Los destinos
@@ -4453,7 +4518,7 @@ export default function App(){
               */}
 
               <div style={{gridColumn:"1 / -1"}}>
-                <FL required>Tipo de presupuesto {intentoGuardar&&!form.tipo&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona uno para continuar</span>}</FL>
+                <FL required>Tipo de presupuesto <span style={{color:C.grayMid,fontSize:10,fontWeight:400,marginLeft:6,textTransform:"none"}}>— puedes elegir más de uno</span>{intentoGuardar&&!(form.tipos||[]).length&&<span style={{color:C.danger,fontSize:10,fontWeight:400,marginLeft:6}}>← selecciona al menos uno para continuar</span>}</FL>
                 {/* Confirmado en producción — el tipo lo hereda el clon del origen y NO
                     debe poder cambiarse ahí: cambiar un clon de Servicio a Departamento
                     produce partidas que ese tipo no admite. form.tipo no se toca — solo
@@ -4469,14 +4534,21 @@ export default function App(){
                   );
                 })():(
                 <div className="tipo-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:2}}>
-                  {[
-                    {id:"instalacion", label:"Instalación",  desc:"Proyectos de campo",    icon:"🏗️"},
-                    {id:"servicio",    label:"Servicio",     desc:"Servicio recurrente",   icon:"🔁"},
-                    {id:"departamento",label:"Departamento", desc:"Área interna",          icon:"🏢"},
-                    {id:"suministro",  label:"Suministro",   desc:"Compra de materiales",  icon:"📦"},
-                  ].map(t=>(
+                  {/* SELECCIÓN MÚLTIPLE (Tarea 12 · 04-sep-2026). Las tarjetas ya
+                      no son excluyentes: se marcan y se desmarcan, y el
+                      presupuesto lleva la combinación. La lista de tipos sale de
+                      TIPOS_PRESUPUESTO, que también gobierna las etiquetas y qué
+                      tipos facturan — una sola fuente. */}
+                  {TIPOS_PRESUPUESTO.map(t=>(
                     <div key={t.id}
                       onClick={()=>{
+                        // Marcar / desmarcar, conservando el orden del catálogo
+                        // para que "Instalación + Servicio" no dependa de en qué
+                        // orden se picaron.
+                        const ya=(form.tipos||[]).includes(t.id);
+                        const tipos=TIPOS_PRESUPUESTO
+                          .map(x=>x.id)
+                          .filter(id=> id===t.id ? !ya : (form.tipos||[]).includes(id));
                         // Autollenado de Unidad de negocio (Luis, 02-sep-2026):
                         // un presupuesto de Departamento siempre es interno y va
                         // a G18ADMIN, así que se pone solo — quien no conoce la
@@ -4487,22 +4559,31 @@ export default function App(){
                         // placeholder — nada de G18ADMIN colgado en una
                         // Instalación. El campo sigue editable y obligatorio: es
                         // un atajo, no una imposición.
+                        // El autollenado de G18ADMIN mira la combinación: aplica
+                        // si el ÚNICO tipo elegido es Departamento. Con una
+                        // combinación no se asume que sea interno.
+                        const soloDepto = tipos.length===1 && tipos[0]==="departamento";
                         const unidadAuto = unidadTocada
                           ? form.unidadNegocio
-                          : (t.id==="departamento" ? UNIDAD_DEPARTAMENTO : "");
-                        setForm({...form,tipo:t.id,unidadNegocio:unidadAuto});
+                          : (soloDepto ? UNIDAD_DEPARTAMENTO : "");
+                        // tipo (singular) se conserva con el PRIMERO de la lista.
+                        setForm({...form,tipos,tipo:tipos[0]||"",unidadNegocio:unidadAuto});
+                        // Las áreas se limpian igual que antes: la unión cambia y
+                        // un id que ya no se ofrece no debe quedar seleccionado.
                         setAreas([]);
                         setOpexPM([]);
                         // Usuario decide si cargar base o empezar desde cero
                         setCapexPM([]);
                         setPlantKey(null);
                       }}
-                      style={{border:"2px solid",borderColor:form.tipo===t.id?C.yellow:C.grayBorder,
+                      style={{border:"2px solid",borderColor:(form.tipos||[]).includes(t.id)?C.yellow:C.grayBorder,
                         borderRadius:10,padding:"14px 10px",cursor:"pointer",textAlign:"center",
-                        background:form.tipo===t.id?C.yellowLight:C.white,transition:"all 0.15s",
-                        boxShadow:form.tipo===t.id?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
+                        background:(form.tipos||[]).includes(t.id)?C.yellowLight:C.white,transition:"all 0.15s",
+                        boxShadow:(form.tipos||[]).includes(t.id)?"0 0 0 3px rgba(221,172,0,0.15)":"none"}}>
                       <div style={{fontSize:26,marginBottom:6}}>{t.icon}</div>
-                      <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>{t.label}</div>
+                      <div style={{fontWeight:700,fontSize:13,color:C.grayDark}}>
+                        {(form.tipos||[]).includes(t.id)?"✓ ":""}{t.label}
+                      </div>
                       {/* Oculto por petición de Luis (02-sep-2026). NO BORRAR: la
                           contadora Anel probablemente lo va a pedir de vuelta, porque
                           define el ejercicio presupuestal y qué significa cada tipo.
@@ -4532,7 +4613,7 @@ export default function App(){
                   Las dos veces fue lo mismo: reubicar el JSX tal cual dentro de la
                   rejilla. Cero lógica nueva — mismo estado, mismos handlers. */}
               <div style={{gridColumn:"1 / -1"}}>
-                {!modoEdit && form.tipo&&(viaClonar?(()=>{
+                {!modoEdit && (form.tipos||[]).length>0&&(viaClonar?(()=>{
                   // El tipo ya no se puede cambiar aquí (hereda del origen, ver bloque
                   // de Tipo de presupuesto) — el texto ya no habla de "cambiar el tipo".
                   // El select tampoco se ofrece a sí mismo: excluye el presupuesto que
@@ -4756,14 +4837,14 @@ export default function App(){
   // STEP 2 — ÁREAS / PARTICIPANTES
   // ══════════════════════════════════════════════════════════════════════════
   if(step===2){
-    const cats=getAreasCat(pres?.tipo||form?.tipo);
+    const cats=getAreasCatMulti(tiposDe(pres).length?tiposDe(pres):tiposDe(form));
     const tipoLabel={"instalacion":"Instalación","servicio":"Servicio","departamento":"Departamento","suministro":"Suministro"};
     return wrap(
       <div style={{maxWidth:760}}>
         <div style={{marginBottom:28}}>
           <h2 style={{margin:"0 0 6px",fontSize:20,fontWeight:800,color:C.grayDark}}>Participantes</h2>
           <p style={{margin:0,color:C.grayMid,fontSize:14}}>
-            Selecciona quién capturará costos · <strong>{tipoLabel[pres?.tipo]||pres?.tipo}</strong>
+            Selecciona quién capturará costos · <strong>{tiposDe(pres).map(t=>TIPO_LABEL[t]||t).join(" + ")}</strong>
           </p>
         </div>
         <div style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
@@ -4856,7 +4937,7 @@ export default function App(){
   // STEP 3 — CAPTURA
   // ══════════════════════════════════════════════════════════════════════════
   if(step===3){
-    const cats=getAreasCat(pres?.tipo||"instalacion");
+    const cats=getAreasCatMulti(tiposDe(pres));
     const datos=areaActiva?costos[areaActiva]:null;
     const areaInfo=cats.find(a=>a.id===areaActiva);
     const capexA=areaActiva?totalCat(areaActiva,"capex"):0;
@@ -4873,7 +4954,8 @@ export default function App(){
     // de calcularSerieMensual (línea ~390, no exportado en su return, así que se
     // recalcula aquí en vez de tocar esa función) — Servicio/Instalación sí,
     // Departamento/Suministro no.
-    const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";
+    // Hay facturación si CUALQUIERA de los tipos factura.
+    const mostrarIngresos = facturaAlguno(tiposDe(pres));
 
     return wrap(
       <div>
@@ -5376,7 +5458,8 @@ export default function App(){
     // PASO C — mismo criterio que Step 3 (esProyecto no sale del return de
     // calcularSerieMensual, se recalcula aquí en vez de tocar esa función):
     // Servicio/Instalación sí facturan, Departamento/Suministro no.
-    const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";
+    // Hay facturación si CUALQUIERA de los tipos factura.
+    const mostrarIngresos = facturaAlguno(tiposDe(pres));
 
     // Tarea 8, paso 2 (03-sep-2026) — los mismos datos que ya armaba Información
     // general, con las mismas llamadas. Aquí no se calcula nada nuevo:

@@ -6,7 +6,12 @@ function presToRow(form, precioFijo){
   return {
     nombre: form.nombre||"",
     empresa: form.empresa||"GEOLIS SA DE CV",
-    tipo: form.tipo||"instalacion",
+    // tipo (singular) se conserva SIEMPRE con el primero elegido, para que todo
+    // lo que aún lo lee siga funcionando igual. tipos_presupuesto lleva la lista
+    // completa; null cuando no hay ninguno, para que un presupuesto viejo y uno
+    // nuevo sin tipos se vean iguales desde la app (tiposDe cae al singular).
+    tipo: form.tipo || (form.tipos&&form.tipos[0]) || "instalacion",
+    tipos_presupuesto: (form.tipos&&form.tipos.length) ? form.tipos : null,
     estado: form.estado||"Borrador",
     fecha_inicio: form.fechaInicio||null,
     fecha_fin: form.fechaFin||null,
@@ -76,11 +81,13 @@ export async function listarPresupuestos(){
   // unidad_negocio se agregó al select el 02-sep-2026: el listado la pinta debajo
   // del nombre. Es una LECTURA — no toca presToRow ni el guardado.
   const {data, error} = await supabase.from("presupuestos")
-    .select("id,nombre,empresa,tipo,estado,fecha_inicio,fecha_fin,unidad_negocio,updated_at")
+    .select("id,nombre,empresa,tipo,tipos_presupuesto,estado,fecha_inicio,fecha_fin,unidad_negocio,updated_at")
     .order("updated_at",{ascending:false});
   if(error){ console.error("[supabase] listarPresupuestos:", error.message); return []; }
   return (data||[]).map(r=>({
     id:r.id, nombre:r.nombre, empresa:r.empresa, tipo:r.tipo, estado:r.estado,
+    // null en los presupuestos anteriores al multi-tipo: tiposDe cae a [tipo].
+    tipos:r.tipos_presupuesto||null,
     fecha:r.fecha_inicio, fechaInicio:r.fecha_inicio, fechaFin:r.fecha_fin,
     // Mismo criterio que cargarPresupuestoDeNube: NULL → "" (los presupuestos
     // anteriores a esa fecha), y el renglón simplemente no se pinta.
@@ -300,6 +307,7 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
   return {
     id: pres.id,
     nombre: pres.nombre, empresa: pres.empresa, tipo: pres.tipo, estado: pres.estado,
+    tipos: pres.tipos_presupuesto||null,
     // Los presupuestos guardados antes del 02-sep-2026 traen NULL: se normaliza a
     // "" para que el <select> quede sin selección (y no en un value que no existe
     // en el catálogo), y el encabezado lo pinte como "—".
