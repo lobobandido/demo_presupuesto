@@ -4,6 +4,13 @@ import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, 
 import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
 import { claveDeRubro, RUBROS_EGRESOS, CLAVE_FACTURACION } from "./catalogoClaves";
 import { rubroDeSubcuenta, TOTAL_SUBCUENTAS, RUBROS_DEL_CSV } from "./catalogoContable";
+// xlsx-js-style, no "xlsx" (04-sep-2026): la build comunitaria de SheetJS IGNORA
+// cell.s, así que todo salía plano por más estilos que se le pusieran. Ese fue el
+// falso negativo de "0 de 327 celdas con formato" al leer el archivo de Anel.
+// Es el mismo SheetJS 0.18.5, con el soporte de estilos de celda puesto de vuelta.
+// Se importa del paquete en vez de cargarlo por CDN: así el build lo resuelve y
+// no hay una descarga en tiempo de clic que pueda fallar sin red.
+import * as XLSX from "xlsx-js-style";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -2734,7 +2741,9 @@ function filasExcelApps({filasServicio, fechaInicio, unidadNegocio}){
 
   const doceCeros=()=>Array(12).fill(0);
   const bloques=anios.map(anio=>{
-    const aa=String(anio).slice(2);              // dos dígitos, como su archivo
+    // Anio de DOS DÍGITOS y NUMÉRICO, como en el archivo de Anel. Antes salía
+    // como texto "26": un cargador que espera entero puede rechazar la cadena.
+    const aa=Number(String(anio).slice(2));
     const un=unidadNegocio||"";
     const aoa=[];
     aoa.push(["INGRESOS"]);
@@ -2765,24 +2774,63 @@ function filasExcelApps({filasServicio, fechaInicio, unidadNegocio}){
 // Los bloqueos (SIN CATEGORÍA con dinero, presupuesto sin unidad de negocio)
 // los evalúa quien pinta el botón, para poder deshabilitarlo y explicar por qué
 // ANTES del clic — no aquí, cuando ya es tarde.
+// Estilos del archivo de carga, extraídos del real de Anel con xlrd:
+// Arial 10 en todo, formato de número General (sin moneda ni separadores), y
+// tres bandas — cabecera de bloque gris oscuro, encabezados gris claro, fila
+// TOTAL gris claro en negritas. Nada más.
+const AF_FUENTE={name:"Arial", sz:10};
+const AF_BLOQUE={font:{...AF_FUENTE, bold:true, color:{rgb:"FFFFFF"}},
+  fill:{fgColor:{rgb:"808080"}}, alignment:{horizontal:"center"}};
+const AF_ENCABEZADO={font:{...AF_FUENTE, bold:true, color:{rgb:"000000"}},
+  fill:{fgColor:{rgb:"C0C0C0"}}, alignment:{horizontal:"center"}};
+const AF_DATO={font:{...AF_FUENTE}};
+const AF_TOTAL={font:{...AF_FUENTE, bold:true}, fill:{fgColor:{rgb:"C0C0C0"}}};
+const AF_TOTAL_ETIQ={...AF_TOTAL, alignment:{horizontal:"center"}};
+
 async function exportarExcelApps({bloques, pres}){
-  if(!window.XLSX){
-    await new Promise((res,rej)=>{
-      const sc=document.createElement("script");
-      sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
-      sc.onload=res; sc.onerror=rej;
-      document.head.appendChild(sc);
-    });
-  }
-  const XLSX=window.XLSX;
   const wb=XLSX.utils.book_new();
   // TODO PROVISIONAL — un bloque por año, uno debajo del otro y separados por
   // una fila vacía. Falta que la contadora diga si un presupuesto que cruza año
   // va en UN archivo con dos bloques o en DOS archivos; la regla no se inventa.
   const aoa=[];
-  bloques.forEach((b,i)=>{ if(i) aoa.push([]); b.aoa.forEach(f=>aoa.push(f)); });
+  // Se apunta qué fila de la hoja final es qué, para poder pintar las bandas y
+  // combinar celdas sin volver a adivinar por el contenido.
+  const filasBloque=[], filasEncabezado=[], filasTotal=[];
+  bloques.forEach((b,i)=>{
+    if(i) aoa.push([]);
+    const base=aoa.length;
+    b.aoa.forEach(f=>aoa.push(f));
+    // El layout de cada bloque es fijo (ver filasExcelApps):
+    //   0 INGRESOS · 1 encabezados · 2 FAC · 3 vacía · 4 EGRESOS · 5 encabezados
+    //   6..23 los 18 rubros · 24 TOTAL
+    filasBloque.push(base+0, base+4);
+    filasEncabezado.push(base+1, base+5);
+    filasTotal.push(base+b.aoa.length-1);
+  });
   const ws=XLSX.utils.aoa_to_sheet(aoa);
-  ws["!cols"]=[{wch:6},{wch:14},{wch:8},{wch:34},...Array(12).fill({wch:16})];
+  // Ancho 15 en las 16 columnas, como el archivo de Anel.
+  ws["!cols"]=Array(16).fill({wch:15});
+
+  const dir=(r,c)=>XLSX.utils.encode_cell({r,c});
+  // Arial 10 y General en TODA celda con contenido; las bandas se pintan encima.
+  for(let r=0;r<aoa.length;r++) for(let c=0;c<16;c++){
+    const cel=ws[dir(r,c)];
+    if(cel){ cel.s={...AF_DATO}; if(typeof cel.v==="number") cel.z="General"; }
+  }
+  ws["!merges"]=[];
+  filasBloque.forEach(r=>{
+    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s={...AF_BLOQUE}; }
+    ws["!merges"].push({s:{r,c:0}, e:{r,c:15}});           // A:P
+  });
+  filasEncabezado.forEach(r=>{ for(let c=0;c<16;c++) if(ws[dir(r,c)]) ws[dir(r,c)].s={...AF_ENCABEZADO}; });
+  filasTotal.forEach(r=>{
+    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s={...AF_TOTAL}; }
+    ws[dir(r,0)].s={...AF_TOTAL_ETIQ};
+    ws["!merges"].push({s:{r,c:0}, e:{r,c:3}});             // A:D, con TOTAL centrado
+  });
+  // El rango tiene que cubrir las 16 columnas aunque la última fila sea corta.
+  ws["!ref"]=XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:15}});
+
   XLSX.utils.book_append_sheet(wb, ws, "Presupuesto");
   const anios=bloques.map(b=>b.aa).join("-");
   XLSX.writeFile(wb, `Presupuesto-${anios}-${(pres?.unidadNegocio||"SIN-UN")}.xlsx`);
@@ -2813,15 +2861,6 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   const mFlujo = mFlujoBase;
   const mFlujoAcum = mFlujoAcumBase;
   // Cargar SheetJS con soporte de estilos
-  if(!window.XLSX){
-    await new Promise((res,rej)=>{
-      const s=document.createElement("script");
-      s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
-      s.onload=res; s.onerror=rej;
-      document.head.appendChild(s);
-    });
-  }
-  const XLSX=window.XLSX;
   const wb=XLSX.utils.book_new();
 
   // Formato de moneda MXN para celdas numéricas
