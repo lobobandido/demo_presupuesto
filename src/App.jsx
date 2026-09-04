@@ -531,6 +531,44 @@ function nombreMesReal(offset, fechaInicio){
   return `${m[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
 }
 
+// ─── CALENDARIZACIÓN (Tarea 9, paso 2 · 04-sep-2026) ────────────────────────
+// Traduce una serie mensual del PROYECTO (índice 0 = mes de fechaInicio, que es
+// como trabaja toda la app) a meses de CALENDARIO agrupados por año, que es como
+// los pide el formato de la contadora: doce columnas Enero..Diciembre.
+//
+//   serieACalendario([100,200,300], "2026-11-01")
+//     → { 2026: [0,...,0, 100, 200],   ← nov y dic
+//         2027: [300, 0, ..., 0] }     ← ene
+//
+// NO SUMA NADA NUEVO: reparte en otras casillas los valores que ya venían
+// calculados. La invariante que lo prueba es que la suma de todas las celdas de
+// todos los años sea exactamente la suma del arreglo de entrada — si difiere un
+// centavo, algo se cayó entre meses.
+//
+// El += en vez de = es a propósito: si dos meses de proyecto cayeran en el mismo
+// mes de calendario (no pasa hoy, pero podría con series construidas de otro
+// modo), se suman en vez de que el segundo borre al primero.
+function serieACalendario(mensual, fechaInicio){
+  const porAnio={};
+  if(!fechaInicio || !Array.isArray(mensual)) return porAnio;
+  const d0=new Date(fechaInicio+"T00:00:00");
+  const anio0=d0.getFullYear(), mes0=d0.getMonth(); // getMonth() es 0..11
+  mensual.forEach((v,i)=>{
+    const corridos=mes0+i;
+    const anio=anio0+Math.floor(corridos/12);
+    const mes=corridos%12;
+    if(!porAnio[anio]) porAnio[anio]=Array(12).fill(0);
+    porAnio[anio][mes]+=(v||0);
+  });
+  return porAnio;
+}
+
+// Total de una serie ya calendarizada. Existe para que quien exporte pueda
+// comprobar el cuadre sin volver a recorrer los años a mano.
+function totalCalendario(porAnio){
+  return Object.values(porAnio).reduce((s,arr)=>s+arr.reduce((a,v)=>a+v,0),0);
+}
+
 // Duración real del proyecto en meses operativos (M1..Mn), a partir de las fechas
 // capturadas — soporta desde presupuestos de 6 meses hasta de 20 años (240 meses).
 // Default 12 si no hay fechas (mismo comportamiento de siempre para M0..M12).
