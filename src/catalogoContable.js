@@ -1,6 +1,6 @@
 // ARCHIVO GENERADO — NO EDITAR A MANO.
 //
-// Fuente: docs/catalogo_contable_2027.csv (138 filas · 137 subcuentas
+// Fuente: docs/catalogo_contable_2027.csv (142 filas · 141 subcuentas
 // distintas · 18 rubros). Ese CSV viene de finanzas y es LA fuente de
 // verdad del mapeo subcuenta → rubro contable.
 //
@@ -155,6 +155,10 @@ export const SUBCUENTAS_CONTABLES = [
   ["SERV DE TRANSPORTAC AEREA"                             , "VIATICOS"],
   ["SERV DE TRANSPORTAC TERRESTRE"                         , "VIATICOS"],
   ["SERVICIOS DE HOSPEDAJE"                                , "VIATICOS"],
+  ["HERRAMIENTAS"                                          , "MATERIALES"],
+  ["RENTA DE MAQUINARIA"                                   , "SERVICIOS"],
+  ["TRANSPORTE"                                            , "VIATICOS"],
+  ["TELECOMUNICACIONES"                                    , "SERVICIOS"],
 ];
 
 // Comparación normalizada: ignora mayúsculas, acentos y espacios sobrantes,
@@ -175,7 +179,7 @@ export function rubroDeSubcuenta(cat){
   return POR_NORM.get(norm(cat)) ?? null;
 }
 
-export const TOTAL_SUBCUENTAS = 137;
+export const TOTAL_SUBCUENTAS = 141;
 export const RUBROS_DEL_CSV = [
   "ACTIVOS",
   "ARRENDA DE INMUEBLES Y SERV",

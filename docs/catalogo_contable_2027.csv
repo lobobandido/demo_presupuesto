@@ -137,3 +137,13 @@ VIATICOS,CASETAS PUENTES Y PEAJES,
 VIATICOS,SERV DE TRANSPORTAC AEREA,
 VIATICOS,SERV DE TRANSPORTAC TERRESTRE,
 VIATICOS,SERVICIOS DE HOSPEDAJE,
+# ─── AGREGADAS EL 2026-09-04, dictadas por Anel ────────────────────────────
+# Estas cuatro NO vienen del Excel de contabilidad: son categorías que el menú
+# de la app ofrece y que no existían en el catálogo 2027. Anel dictó a qué rubro
+# pertenecen. Antes caían en SIN CATEGORÍA y bloqueaban el "Excel para Apps".
+# CONSERVARLAS si este archivo se regenera leyendo el Excel de Anel: una
+# regeneración las borraría, porque allá no están.
+MATERIALES,HERRAMIENTAS,
+SERVICIOS,RENTA DE MAQUINARIA,
+VIATICOS,TRANSPORTE,
+SERVICIOS,TELECOMUNICACIONES,

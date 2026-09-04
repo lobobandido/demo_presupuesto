@@ -719,12 +719,17 @@ categoría es texto libre en la columna `categoria` de cada partida.
 > contradicen en ningún caso), los 5 KPIs de los 5 presupuestos idénticos al centavo, y
 > SIN CATEGORÍA **no sube**.
 >
-> **Cuatro categorías siguen sin rubro y son pregunta abierta para la contadora:**
-> `HERRAMIENTAS`, `TELECOMUNICACIONES`, `RENTA DE MAQUINARIA` y `TRANSPORTE`. No están en el CSV y
-> la app ya las agrupa bajo «Otras (fuera del catálogo 2027)». Dos de ellas retienen **todo** el
-> SIN CATEGORÍA de la base: `HERRAMIENTAS` $1,520,389.81 (PERDIZ-PAPAN) y `TELECOMUNICACIONES`
-> $456,730.02 (TI H1 2026). **Mientras no se resuelvan, esos dos presupuestos siguen bloqueados
-> para el «Excel para Apps».**
+> **Las cuatro que faltaban quedaron resueltas el 2026-09-04**, dictadas por Anel y agregadas al
+> final del CSV en un bloque marcado:
+> `HERRAMIENTAS`→MATERIALES · `RENTA DE MAQUINARIA`→SERVICIOS · `TRANSPORTE`→VIATICOS ·
+> `TELECOMUNICACIONES`→SERVICIOS.
+> No vienen del Excel de contabilidad —son categorías que el menú de la app ofrece y que no
+> existían en el catálogo 2027—, así que **si el CSV se regenera leyendo ese Excel hay que
+> conservarlas**: allá no están. El bloque lo dice con un comentario.
+>
+> Con ellas, **SIN CATEGORÍA quedó en $0.00 en los cinco presupuestos** (antes $1,977,119.83), y
+> se desbloqueó el «Excel para Apps» de PERDIZ-PAPAN y TI H1 2026 — a PERDIZ solo le falta la
+> unidad de negocio.
 
 `macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
 devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la
