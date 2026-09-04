@@ -696,6 +696,35 @@ categoría es texto libre en la columna `categoria` de cada partida.
 | Mapeos que agrega el usuario a mano | `localStorage["geolis_subcat_map"]` — se escribe en `src/App.jsx:805-807` |
 | Agrupación de la tabla contable | `construirFilasServicio` — `src/App.jsx:1896-1917` |
 | Catálogo oficial de referencia | `docs/catalogo_contable_2027.csv` — 138 subcuentas en 18 rubros |
+| **El CSV, como módulo consultable** | `src/catalogoContable.js` — **GENERADO**, no editar a mano |
+| Generador y verificador | `scripts/gen-catalogo-contable.mjs` · `npm run gen:catalogo` · `npm run check:catalogo` |
+
+> **El CSV es LA fuente de verdad del mapeo (04-sep-2026).** Antes,
+> `macroDeCategoria` solo conocía `SUBCAT_MAPPING`, transcrito a mano: **74 entradas contra las
+> 137 subcuentas del CSV**. Resultado, medido: **91 categorías del propio menú de la app caían en
+> SIN CATEGORÍA aunque el CSV ya dijera a qué rubro pertenecen** — el 71% de `CAT_OPEX_MAT`,
+> incluidas las 63 subcuentas del rubro SERVICIOS. El encabezado que pinta el menú
+> (`CAT_OPEX_MAT` y hermanos) y el mapeo que decide el rubro (`SUBCAT_MAPPING`) eran **dos
+> estructuras distintas mantenidas por separado**, y la segunda se quedó atrás.
+>
+> Ahora `macroDeCategoria` consulta, en este orden: **rubros → CSV → `SUBCAT_MAPPING` →
+> localStorage**. El CSV se **insertó**; no se reordenó nada más.
+>
+> `SUBCAT_MAPPING` **no se borra**: 32 de sus entradas no están en el CSV y son grafías reales ya
+> capturadas o alias del usuario (`POSTE DE TELEMETRIA`, `CUADRILLA DE INSTALACION`,
+> `GABINETE Y ENERGIA`, `TRANSMISION`, `CENTRO DE MONITOREO`, `EQUIPO DE ADQUISICION`…). Tirarla
+> rompería Cuervito. Queda como **capa de alias**, debajo del CSV.
+>
+> Verificado antes y después: **cero categorías cambian de rubro** (las dos fuentes no se
+> contradicen en ningún caso), los 5 KPIs de los 5 presupuestos idénticos al centavo, y
+> SIN CATEGORÍA **no sube**.
+>
+> **Cuatro categorías siguen sin rubro y son pregunta abierta para la contadora:**
+> `HERRAMIENTAS`, `TELECOMUNICACIONES`, `RENTA DE MAQUINARIA` y `TRANSPORTE`. No están en el CSV y
+> la app ya las agrupa bajo «Otras (fuera del catálogo 2027)». Dos de ellas retienen **todo** el
+> SIN CATEGORÍA de la base: `HERRAMIENTAS` $1,520,389.81 (PERDIZ-PAPAN) y `TELECOMUNICACIONES`
+> $456,730.02 (TI H1 2026). **Mientras no se resuelvan, esos dos presupuestos siguen bloqueados
+> para el «Excel para Apps».**
 
 `macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
 devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la

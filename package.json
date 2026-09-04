@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "gen:catalogo": "node scripts/gen-catalogo-contable.mjs",
+    "check:catalogo": "node scripts/gen-catalogo-contable.mjs --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",

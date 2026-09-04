@@ -3,6 +3,7 @@ import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
 import { claveDeRubro, RUBROS_EGRESOS, CLAVE_FACTURACION } from "./catalogoClaves";
+import { rubroDeSubcuenta, TOTAL_SUBCUENTAS, RUBROS_DEL_CSV } from "./catalogoContable";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -283,6 +284,32 @@ if(import.meta.env.DEV){
     );
   }
   const rubrosNorm=new Set(CATS_MACRO_CONTABLE.map(normCat));
+  // (4) El catálogo generado del CSV tiene que hablar de los MISMOS rubros que
+  // CATS_MACRO_CONTABLE. Si finanzas renombra o agrega un rubro en el CSV y
+  // nadie actualiza esa lista, las partidas caerían en un grupo que no existe
+  // entre los rubros — mismo error que ya pasó tres veces con SUBCAT_MAPPING.
+  const rubrosCsvHuerfanos=RUBROS_DEL_CSV.filter(r=>!rubrosNorm.has(normCat(r)));
+  if(rubrosCsvHuerfanos.length){
+    console.error(
+      `[catálogo contable] el CSV tiene ${rubrosCsvHuerfanos.length} rubro(s) que NO están en\n`+
+      `CATS_MACRO_CONTABLE:\n`+rubrosCsvHuerfanos.map(r=>`    ${r}`).join("\n")+"\n"+
+      `O finanzas cambió el catálogo y hay que actualizar esa lista, o el CSV trae una errata.`
+    );
+  }
+  const rubrosSinCsv=CATS_MACRO_CONTABLE.filter(r=>!RUBROS_DEL_CSV.some(c=>normCat(c)===normCat(r)));
+  if(rubrosSinCsv.length){
+    console.error(
+      `[catálogo contable] ${rubrosSinCsv.length} rubro(s) de CATS_MACRO_CONTABLE ya no están en el\n`+
+      `CSV: `+rubrosSinCsv.join(", ")+`\nSi el catálogo se redujo, regenera con\n`+
+      `    node scripts/gen-catalogo-contable.mjs\ny ajusta CATS_MACRO_CONTABLE en la misma pasada.`
+    );
+  }
+  if(TOTAL_SUBCUENTAS<100){
+    console.error(
+      `[catálogo contable] src/catalogoContable.js trae solo ${TOTAL_SUBCUENTAS} subcuentas y el CSV\n`+
+      `tenía 137. Parece truncado: regenéralo con node scripts/gen-catalogo-contable.mjs`
+    );
+  }
   const clavesHuerfanas=RUBROS_EGRESOS.filter(r=>!rubrosNorm.has(normCat(r.rubro)));
   if(clavesHuerfanas.length){
     console.error(
@@ -301,6 +328,23 @@ function macroDeCategoria(cat){
   if(!key) return "SIN CATEGORÍA";
   const macro=MACRO_POR_NORM.get(key);
   if(macro) return macro;
+  // ── El CSV manda (04-sep-2026) ──────────────────────────────────────────
+  // docs/catalogo_contable_2027.csv es LA fuente de verdad del mapeo
+  // subcuenta → rubro, y viene de finanzas. Se consulta aquí: después de los
+  // RUBROS (un rubro es él mismo) y ANTES de SUBCAT_MAPPING.
+  // Se INSERTA, no se reordena nada: SUBCAT_MAPPING queda debajo como capa de
+  // alias y el localStorage sigue al final, exactamente donde estaban.
+  // Verificado antes de hacerlo: CERO categorías donde el CSV y SUBCAT_MAPPING
+  // digan rubros distintos, así que ninguna partida que hoy resuelve puede
+  // cambiar de rubro. El cambio es puramente aditivo: +91 categorías del menú
+  // que antes caían en SIN CATEGORÍA y ahora resuelven con el rubro que ya
+  // decía finanzas.
+  const delCsv=rubroDeSubcuenta(cat);
+  if(delCsv) return delCsv;
+  // SUBCAT_MAPPING NO se borra: 32 de sus entradas no están en el CSV y son
+  // grafías reales ya capturadas o alias del usuario (POSTE DE TELEMETRIA,
+  // CUADRILLA DE INSTALACION, GABINETE Y ENERGIA, TRANSMISION, CENTRO DE
+  // MONITOREO, EQUIPO DE ADQUISICION...). Tirarla rompería Cuervito.
   const sub=SUBCAT_POR_NORM.get(key);
   if(sub) return sub;
   try{
@@ -768,6 +812,10 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
     const key=normCat(cat);
     if(!key) return false;
     if(MACRO_POR_NORM.has(key)) return true;
+    // Mismo orden que macroDeCategoria: el CSV entre los rubros y
+    // SUBCAT_MAPPING. Si esta función no lo consultara, el contador de
+    // "partidas sin categoría" diría una cosa y la tabla contable otra.
+    if(rubroDeSubcuenta(cat)) return true;
     if(SUBCAT_POR_NORM.has(key)) return true;
     for(const k in subcatMapLS){ if(normCat(k)===key) return true; }
     return false;
