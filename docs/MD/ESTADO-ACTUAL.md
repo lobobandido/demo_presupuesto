@@ -147,8 +147,36 @@ completo a la altura de Fecha inicio.
 - **Obligatorio al crear**: `guardarPres` no navega si falta (`faltaUnidad`). **No** se exige en
   `modoEdit`, porque ahí el select va **deshabilitado** con el valor guardado a la vista — abrir su
   edición es la misma pregunta sin responder que la de las fechas (**A1**).
-- Un presupuesto **sin unidad** (`NULL`) se pinta como `—`, nunca vacío ni error. Los cinco
-  presupuestos anteriores a esta fecha están así y abren, calculan y exportan igual.
+- Un presupuesto **sin unidad** (`NULL`) se pinta como `—`, nunca vacío ni error. Abre y calcula
+  igual — pero **ya no exporta**: ver el bloqueo de abajo.
+
+> **⛔ BLOQUEO DE EXPORTACIÓN (2026-09-04). Esto es A1, y dejó de ser una incomodidad.**
+>
+> La contadora confirmó que la unidad de negocio es **obligatoria para que el Excel «para Apps»
+> cargue en su sistema**: sin `UN` el archivo se rechaza. Y el select de unidad **solo está
+> habilitado al crear** — en `modoEdit` va deshabilitado, precisamente por **A1** de
+> `docs/MD/DECISIONES.md`.
+>
+> Consecuencia, en una frase: **un presupuesto guardado sin unidad de negocio no se puede
+> exportar NI arreglar desde la app.** Hay que entrar al dashboard de Supabase y correr un
+> `UPDATE presupuestos SET unidad_negocio = '<CLAVE>' WHERE id = '<uuid>'`.
+>
+> Estado al 2026-09-04, verificado por GET — los **cuatro presupuestos reales** están así:
+>
+> | Presupuesto | `unidad_negocio` | |
+> |---|---|---|
+> | Cuervito | `NULL` | → `F218301A`, confirmada, pendiente de correr el UPDATE |
+> | Presupuesto TI H1 2026 | `NULL` | → `G18ADMIN`, confirmada, pendiente de correr el UPDATE |
+> | PERDIZ-PAPAN | `NULL` | pendiente de la contadora |
+> | Cambio de servicio | `NULL` | pendiente de Salvador |
+>
+> Con **cuatro PMs capturando desde el 25 de septiembre de 2026**, el problema llega solo: basta
+> que uno avance sin elegir unidad, o que herede un clon sin ella, para tener un presupuesto que
+> no exporta y que nadie puede corregir sin acceso a Supabase. No es hipotético — es el estado
+> de los cuatro presupuestos que ya existen.
+>
+> Única mitigación hoy dentro de la app: la unidad es **obligatoria al crear**, lo que evita
+> generar casos nuevos pero no arregla los que ya están.
 - La unidad se muestra **junto al nombre** en los encabezados de Capturar costos, Resumen mensual e
   Información general, para leerla sin entrar a editar.
 - Búsqueda: es un `<select>` nativo, igual que el resto de los selects de la app. Con el menú

@@ -133,11 +133,33 @@ inalcanzable sin tocar nada más.
 
 | # | Pregunta | Cita o planteamiento | Fecha | Origen |
 |---|---|---|---|---|
-| A1 | ¿Cómo se editan nombre, tipo y fechas de un presupuesto ya guardado? | *"con este cambio, **no queda ningún camino de UI a Datos generales (Step 1) para un presupuesto ya existente**. […] Pregunta abierta con el cliente — no se resolvió hoy, solo se documenta"* | 2026-08-06 | `spec-navegacion-retro-410`, corrección segunda. **Consecuencia directa de R3.** Las fechas gobiernan todas las columnas de mes |
+| A1 | ¿Cómo se editan nombre, tipo, fechas **y unidad de negocio** de un presupuesto ya guardado? | *"con este cambio, **no queda ningún camino de UI a Datos generales (Step 1) para un presupuesto ya existente**. […] Pregunta abierta con el cliente — no se resolvió hoy, solo se documenta"* | 2026-08-06 | `spec-navegacion-retro-410`, corrección segunda. **Consecuencia directa de R3.** Las fechas gobiernan todas las columnas de mes |
 | A2 | ¿"INSUMOS OPERATIVOS" e "INSUMOS DE OFICINA" son dos rubros de 2,700/mes o el mismo dinero contado dos veces? | *"Esto hay que preguntárselo al cliente antes de cargar el ejemplo, porque cambia el total en 32,400"* | 2026-08-04 | `spec-dos-sistemas-semana`, apéndice B nota 2 |
 | A3 | Con "Presupuestos" apuntando al listado, ¿a dónde debe ir "Inicio" en la miga de pan? | Duda 2 del spec, sin resolver | 2026-08-04 | `spec-navegacion-retro-410`. Hoy los dos llevan al mismo lugar — `App.jsx:2896-2897`, `3037` |
 | A4 | ¿Qué espera ver en la visualización de Gantt? | *"Todavía no logran hacer la visualización de Gantt"* — lo mencionó de paso, sin desarrollarlo | 2026-08-04 | `spec-dos-sistemas-semana` D.7 |
 | A5 | ¿Un puesto de nómina con cantidad 0 debe poder capturarse? | *"Falta decidir si cantidad 0 debe poder capturarse"* | Sin fecha registrada | `CLAUDE.md`, bugs conocidos. Hoy `p.cantidad||1` lo cuenta como 1 persona (`App.jsx:362`) |
+
+> **A1 subió de categoría el 2026-09-04: ya no es una incomodidad, es un BLOQUEO DE
+> EXPORTACIÓN.**
+>
+> La unidad de negocio (`presupuestos.unidad_negocio`, agregada el 2026-09-02) es
+> **obligatoria para que el Excel «para Apps» cargue en el sistema de la contadora**: sin
+> `UN` el archivo se rechaza. Y su select **solo está habilitado al crear**: en `modoEdit`
+> va deshabilitado, precisamente por A1.
+>
+> Consecuencia, en una frase: **un presupuesto guardado sin unidad de negocio no se puede
+> exportar NI arreglar desde la app.** Hay que ir al dashboard de Supabase y correr un
+> `UPDATE`. Hoy son cuatro presupuestos: PERDIZ-PAPAN, Cuervito, TI H1 2026 y «Cambio de
+> servicio», los cuatro con `unidad_negocio` en `NULL`.
+>
+> Con **cuatro PMs capturando a partir del 25 de septiembre de 2026**, esto llega solo: basta
+> que uno avance el formulario sin elegir unidad —o que herede un clon sin ella— para tener un
+> presupuesto que no exporta y que nadie puede corregir sin acceso a Supabase. No es
+> hipotético: es el estado actual de los cuatro presupuestos reales.
+>
+> Mientras A1 siga abierta, la única mitigación en la app es que la unidad es **obligatoria al
+> crear** (`guardarPres`, `faltaUnidad`), lo que evita generar nuevos casos pero no arregla los
+> que ya existen.
 
 ---
 
