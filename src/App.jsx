@@ -2679,7 +2679,11 @@ async function exportarExcelApps({bloques, pres}){
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
   mFlujo: mFlujoBase, mFlujoAcum: mFlujoAcumBase, mIngresos: mIngresosBase, totalCAPEX, totalOPEX, totalEgr,
   totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[], nivel="detalle"}) {
-  const soloRubro = nivel==="rubro";
+  // soloRubro queda definida aunque hoy solo la use el bloque comentado de
+  // abajo: es lo que hay que mirar si algún día se reactiva el condensado aquí.
+  // Ninguna llamada viva pasa nivel:"rubro" — el "para Apps" lo genera
+  // exportarExcelApps.
+  const soloRubro = nivel==="rubro"; // eslint-disable-line no-unused-vars
   // mIngresosBase ya incluye los ingresos adicionales por mes (fusionados en el cálculo
   // del Resumen mensual) — se reutiliza tal cual para que el Excel cuadre con la pantalla.
   const mIngresos = mIngresosBase;
@@ -2754,6 +2758,14 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   // No se recalcula nada: se suman filas ya calculadas. Y se trabaja sobre
   // COPIAS —{...f} con su mensual clonado— porque este mismo arreglo de filas
   // es el que está pintando la tabla en pantalla: mutarlo la corrompería.
+  // El "Excel para Apps" ya NO se genera aquí (04-sep-2026): lo produce
+  // filasExcelApps + exportarExcelApps, con el layout calcado del archivo real
+  // de la contadora. Esta función se queda sirviendo SOLO al "Excel visual",
+  // que es el de revisión y por eso muestra el detalle por subcuenta y la fila
+  // de SIN CATEGORÍA.
+  // El código que condensaba a nivel rubro queda COMENTADO, no borrado, por si
+  // hiciera falta volver a ese formato:
+  /*
   const filasHoja = (()=>{
     if(!soloRubro) return filasServicio;
     const sinDetalle = filasServicio.filter(f=>f.tipo!=="detalle" || f.bloque==="ingresos");
@@ -2774,6 +2786,8 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
     });
     return out;
   })();
+  */
+  const filasHoja = filasServicio;
   filasHoja.forEach(fila=>{
     rowsS.push([fila.label, fila.total, ...fila.mensual]);
     const ri=rowsS.length-1;
@@ -2865,7 +2879,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
       if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"7c3aed"}},fill:{fgColor:{rgb:"F5F3FF"}}};
     }
   });
-  if(!soloRubro) XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
+  XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
 
   // ── Hoja 3: EGRESOS detallado ─────────────────────────────────────────────
   const hdrE=["#","Categoría","Descripción","Unidad","Cantidad","Monto Unit.","Total","Tipo"];
@@ -2921,7 +2935,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
       }
     }
   }
-  if(!soloRubro) XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
+  XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
 
   // ── Hoja 4: INFO ──────────────────────────────────────────────────────────
   const wsI=XLSX.utils.aoa_to_sheet([
@@ -2955,7 +2969,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
 
   // Guardar
   // El nombre distingue los dos archivos, para que no se pisen en Descargas.
-  const sufijo = soloRubro ? "Apps" : "Visual";
+  const sufijo = "Visual";  // esta función ya solo produce el de revisión
   const fileName=`Presupuesto_${(pres?.nombre||"GEOLIS").replace(/\s+/g,"_")}_${sufijo}_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb,fileName);
 }
@@ -5540,18 +5554,19 @@ export default function App(){
               {/* Solo cambia el texto (Luis, 03-sep-2026): sigue apuntando a
                   Capturar costos, que es a donde va irACapturarCostos. */}
               {btn("← Editar",irACapturarCostos,"secondary")}
-              {/* Tarea 9 (03-sep-2026) — dos formatos, una sola función con la
-                  bandera `nivel`. El de PDF se queda como estaba. */}
-              {btn("⬇ Excel para Apps",()=>exportarExcel({
-                pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
-                mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
-                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales,
-                nivel:"rubro"
-              }),"secondary",false,"Condensado por rubro contable — el que se carga al sistema")}
-              {btn("⬇ Excel contabilidad",()=>exportarExcelApps({bloques:excelApps.bloques, pres}),
+              {/* Tarea 9 — DOS formatos y nada más: "para Apps" (el que carga
+                  contabilidad) y "visual" (el de revisión). El de PDF se queda.
+                  El 04-sep-2026 "para Apps" pasó a generarse con filasExcelApps
+                  + exportarExcelApps, que es el layout calcado del archivo real
+                  de la contadora. Lo que producía antes queda comentado dentro de
+                  exportarExcel, no borrado.
+                  Es el ÚNICO botón que se bloquea: es el que se carga. */}
+              {btn("⬇ Excel para Apps",()=>exportarExcelApps({bloques:excelApps.bloques, pres}),
                 "secondary", !!bloqueoApps,
-                bloqueoApps?"No se puede generar — ver el aviso rojo de abajo"
-                  :"Archivo de carga para el sistema de contabilidad, una hoja plana por rubro")}
+                bloqueoApps?"No se puede generar todavía — ver el aviso de abajo"
+                  :"Archivo de carga para contabilidad, una hoja por rubro")}
+              {/* El de revisión NUNCA se bloquea: ahí SÍ debe verse la fila de
+                  SIN CATEGORÍA con su monto, que es justo lo que hay que revisar. */}
               {btn("⬇ Excel visual",()=>exportarExcel({
                 pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
                 mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -5571,22 +5586,23 @@ export default function App(){
             <div className="noprint" style={{marginBottom:20,padding:"12px 16px",
               background:C.dangerLight,border:`1px solid ${C.danger}55`,borderRadius:8,
               fontSize:12.5,color:C.danger,lineHeight:1.5}}>
+              {/* Texto para el usuario final, no para desarrollo: sin rutas de
+                  archivos, sin nombres de código, sin claves internas. Lo lee un
+                  PM o el director en una revisión, no quien programa. */}
               {bloqueoApps.tipo==="sincat" ? (
                 <>
-                  <strong>⚠ No se puede generar el Excel de contabilidad.</strong> Hay{" "}
-                  <strong>{fmt(bloqueoApps.total)}</strong> sin rubro contable
+                  <strong>⚠ No se puede generar el Excel para Apps.</strong> Hay{" "}
+                  <strong>{fmt(bloqueoApps.total)}</strong> sin categoría contable
                   {bloqueoApps.categorias.length>0&&<> en {bloqueoApps.categorias.join(", ")}</>}.
-                  El formato de contabilidad no tiene dónde ponerlos: un archivo con pesos sin
-                  rubro está mal por construcción, y cargarlo descuadraría contra TOTAL egresos.
-                  Clasifica esas categorías y vuelve a intentar.
+                  Contabilidad necesita cada peso dentro de un rubro: si se carga así, el
+                  archivo no cuadra con el total de egresos. Clasifica esas categorías y vuelve
+                  a intentar.
                 </>
               ) : (
                 <>
-                  <strong>⚠ No se puede generar el Excel de contabilidad.</strong> Este
-                  presupuesto no tiene <strong>unidad de negocio</strong>, y su sistema la exige
-                  en la columna UN: sin ella el archivo se rechaza. Hoy la unidad solo se captura
-                  al crear el presupuesto (ver A1 en docs/MD/DECISIONES.md), así que hay que
-                  asignarla desde el dashboard de Supabase.
+                  <strong>⚠ No se puede generar el Excel para Apps.</strong> Este presupuesto no
+                  tiene <strong>unidad de negocio</strong>, y contabilidad la exige en cada
+                  renglón del archivo. Contacta a Adolfo para asignarla.
                 </>
               )}
             </div>
