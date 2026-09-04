@@ -352,7 +352,7 @@ function getHistorialLS(){
     lista.forEach(p => {
       const costos = p._costos || {};
       Object.values(costos).forEach(area => {
-        ["capex","mat","via"].forEach(cat => {
+        ["capex","mat","via","serv"].forEach(cat => {
           (area[cat]||[]).forEach(p => {
             if(p.desc && p.monto > 0) partidas.push({...p, _fuente:"historial"});
           });
@@ -372,7 +372,7 @@ function buscarHistorial(cat, tipo="capex") {
     : HISTORIAL_OPEX_BASE;
   // Buscar también en localStorage
   const histLS = getHistorialLS().filter(p => tipo==="capex"
-    ? !["mat","via"].includes(p._origen)
+    ? !["mat","via","serv"].includes(p._origen)
     : true);
   const todos = [...histFijo, ...histLS];
   const results = [];
@@ -727,7 +727,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   // OPEX: cada partida se distribuye según su periodicidad y mes de inicio
   const mOpex=Array(NMESES).fill(0);
   areas.forEach(id=>{
-    ["mat","via"].forEach(cat=>{
+    ["mat","via","serv"].forEach(cat=>{
       (costos[id]?.[cat]||[]).forEach(p=>{
         distribuirOpex(p,NUM_MESES_OP).forEach((v,i)=>mOpex[i]+=v);
       });
@@ -744,7 +744,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   // reutiliza distribuirOpex/distribuirNomina por partida, sin afectar mOpex.
   const opexDetalle=[];
   areas.forEach(id=>{
-    ["mat","via"].forEach(cat=>{
+    ["mat","via","serv"].forEach(cat=>{
       (costos[id]?.[cat]||[]).forEach(p=>{
         opexDetalle.push({label:p.desc||p.cat||"OPEX",datos:distribuirOpex(p,NUM_MESES_OP)});
       });
@@ -774,7 +774,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   }
   let sinCategoriaMacro=0;
   areas.forEach(id=>{
-    ["capex","mat","via"].forEach(cat=>{
+    ["capex","mat","via","serv"].forEach(cat=>{
       (costos[id]?.[cat]||[]).forEach(p=>{ if(!tieneCategoriaMacro(p.cat)) sinCategoriaMacro++; });
     });
   });
@@ -804,7 +804,7 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
     arr.forEach((v,i)=>catOpexData[label][i]+=v);
   }
   areas.forEach(id=>{
-    ["mat","via"].forEach(cat=>{
+    ["mat","via","serv"].forEach(cat=>{
       (costos[id]?.[cat]||[]).forEach(p=>{
         addACat(p.cat||"SIN CATEGORÍA", distribuirOpex(p,NUM_MESES_OP));
       });
@@ -1480,6 +1480,20 @@ const CAT_OPEX_MAT=[
   {rubro:OTRAS_FUERA, subs:["TELECOMUNICACIONES","INSUMOS OPERATIVOS","HERRAMIENTAS","RENTA DE MAQUINARIA","LICENCIAMIENTO USD","LICENCIAMIENTO MXN ANUAL","LICENCIAMIENTO MXN MENSUAL"]},
 ];
 
+// OPEX · Servicios (04-sep-2026) — REUSA CAT_OPEX_MAT tal cual, solo moviendo el
+// grupo SERVICIOS al principio. No se inventa catálogo nuevo: las 63 subcuentas
+// del rubro SERVICIOS ya viven ahí, son las del catálogo contable 2027, y son el
+// rubro más grande del CSV. Poner ese grupo arriba es lo único que cambia,
+// porque es el que se va a usar el 90% de las veces en esta sección.
+// El resto de los rubros se conserva y en su orden: una partida de servicio
+// puede necesitar cualquier otra categoría, y ocultárselas obligaría a
+// capturarla en Materiales, que es justo lo que esta sección viene a evitar.
+const CAT_OPEX_SERV=(()=>{
+  const serv=CAT_OPEX_MAT.filter(g=>normCat(g.rubro)===normCat("SERVICIOS"));
+  const resto=CAT_OPEX_MAT.filter(g=>normCat(g.rubro)!==normCat("SERVICIOS"));
+  return [...serv,...resto];
+})();
+
 const CAT_OPEX_VIA=[
   {rubro:"VIATICOS", subs:[
     "ALIMENTACION",
@@ -1694,6 +1708,7 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
   const catStorageKey = addLabel==="Agregar equipo / inversión" ? "geolis_cats_capex"
     : addLabel==="Agregar material" ? "geolis_cats_mat"
     : addLabel==="Agregar viático" ? "geolis_cats_via"
+    : addLabel==="Agregar servicio" ? "geolis_cats_serv"
     : LS_CATS;
   const cols = showMes
     ? "2fr 2fr 74px 56px 150px 100px 92px 34px"
@@ -2514,7 +2529,7 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
   // OPEX: 1 renglón por categoría (mat/via con periodicidad real), nómina agregada en un solo renglón
   const opexPorCat={};
   areas.forEach(id=>{
-    ["mat","via"].forEach(c=>{
+    ["mat","via","serv"].forEach(c=>{
       (costos[id]?.[c]||[]).forEach(p=>{
         const k=p.cat||"SIN CATEGORÍA";
         if(!opexPorCat[k]) opexPorCat[k]=Array(NMESES).fill(0);
@@ -2959,9 +2974,9 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
       const costo=(p.salario||0)*f*(p.cantidad||1);
       rowsE.push([row++,"NOMINA Y ADICIONALES",p.puesto||"Puesto","Mes",p.cantidad||1,p.salario||0,costo,"OPEX-NOM"]);
     });
-    ["mat","via"].forEach(c=>{
+    ["mat","via","serv"].forEach(c=>{
       (costos[id]?.[c]||[]).forEach(p=>{
-        rowsE.push([row++,p.cat,p.desc,p.unidad,p.cantidad,p.monto,(p.cantidad||0)*(p.monto||0),c==="mat"?"OPEX-MAT":"OPEX-VIA"]);
+        rowsE.push([row++,p.cat,p.desc,p.unidad,p.cantidad,p.monto,(p.cantidad||0)*(p.monto||0),c==="mat"?"OPEX-MAT":c==="via"?"OPEX-VIA":"OPEX-SERV"]);
       });
     });
   });
@@ -3199,7 +3214,7 @@ function DetallePorArea({areasDetalle, pres, numMesesProyecto, upP, rmP, addP, r
               background:C.white,borderRadius:10,border:`1px solid ${C.grayBorder}`,marginBottom:20}}>
               Aún no hay áreas capturadas en este presupuesto.
             </div>
-          ):areasDetalle.map(({id,esUltima,datos,areaInfo,capexA,nomMes,opexA,totalArea,nomAnual,opexMat,opexVia})=>{
+          ):areasDetalle.map(({id,esUltima,datos,areaInfo,capexA,nomMes,opexA,totalArea,nomAnual,opexMat,opexVia,opexServ})=>{
             return(
               <div key={id} style={{marginBottom:!esUltima?36:20,
                 paddingBottom:!esUltima?28:0,
@@ -3288,6 +3303,22 @@ function DetallePorArea({areasDetalle, pres, numMesesProyecto, upP, rmP, addP, r
                     catOptions={CAT_OPEX_VIA}
                     addLabel="Agregar viático"
                     headerColor="#d97706"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={numMesesProyecto}
+                    mostrarFechaReal={true} readOnly={true}/>
+                </SCard>
+
+                {/* Servicios — misma caja que en captura, en solo lectura. */}
+                <SCard title="OPEX · Servicios" icon="🛠️"
+                  subtitle="Servicios contratados a terceros · Periodicidad = cada cuánto se repite"
+                  total={opexServ} accentColor="#7c3aed">
+                  <PartidaTable
+                    partidas={datos?.serv||[]}
+                    onUpdate={u=>upP(id,"serv",u.id,u)}
+                    onRemove={rmP(id,"serv")}
+                    onAdd={()=>addP(id,"serv")}
+                    catOptions={CAT_OPEX_SERV}
+                    addLabel="Agregar servicio"
+                    headerColor="#7c3aed"
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={numMesesProyecto}
                     mostrarFechaReal={true} readOnly={true}/>
                 </SCard>
@@ -3561,7 +3592,7 @@ export default function App(){
   function totalOpexAnualCat(id,cat){const n=calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin);return(costos[id]?.[cat]||[]).reduce((s,p)=>s+totalOpexPartida(p,n),0);}
   function totalNomAnual(id){const n=calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin);return(costos[id]?.nomina||[]).reduce((s,p)=>s+costoTotalNomina(p,n),0);}
   const capexAreas=areas.reduce((s,id)=>s+totalCat(id,"capex"),0);
-  const opexAreas =areas.reduce((s,id)=>s+totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via"),0);
+  const opexAreas =areas.reduce((s,id)=>s+totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via")+totalOpexAnualCat(id,"serv"),0);
   const capexPMt  =capexPM.reduce((s,p)=>s+(p.cantidad||0)*(p.monto||0),0);
   const opexPMt   =opexPM.reduce((s,p)=>s+totalOpexPartida(p,12),0);
   const totalCAPEX=capexAreas+capexPMt;
@@ -3875,7 +3906,7 @@ export default function App(){
           estado:"pendiente",
         };
       } else {
-        c[id]=existing||{capex:[],mat:[],nomina:[],via:[],estado:"pendiente"};
+        c[id]=existing||{capex:[],mat:[],nomina:[],via:[],serv:[],estado:"pendiente"};
       }
     });
     setCostos(c); setStep(3); setActiva(areas[0]||null);
@@ -4942,7 +4973,7 @@ export default function App(){
     const areaInfo=cats.find(a=>a.id===areaActiva);
     const capexA=areaActiva?totalCat(areaActiva,"capex"):0;
     const nomMes =areaActiva?totalNom(areaActiva):0;
-    const opexA  =areaActiva?totalOpexAnualCat(areaActiva,"mat")+totalNomAnual(areaActiva)+totalOpexAnualCat(areaActiva,"via"):0;
+    const opexA  =areaActiva?totalOpexAnualCat(areaActiva,"mat")+totalNomAnual(areaActiva)+totalOpexAnualCat(areaActiva,"via")+totalOpexAnualCat(areaActiva,"serv"):0;
     // Sección de ingresos movida aquí desde Resumen mensual (día de hoy) — se
     // necesitan NUM_MESES_OP/RANGO_ANIOS/MESES13/MESES13_MES/mIngresos/
     // totalIngresosAnual, que antes solo se calculaban en Step 4/5. Se llama a
@@ -5424,6 +5455,36 @@ export default function App(){
                     showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
                 </SCard>
 
+                {/* Servicios (04-sep-2026) — quinta sección de captura. Es un CLON
+                    de Materiales: mismos campos, misma PartidaTable, mismo motor de
+                    periodicidad y la MISMA distribuirOpex. Ningún cálculo nuevo.
+                    Va después de Viáticos y suma a OPEX y a TOTAL EGRESOS por el
+                    mismo camino que las otras dos, porque los recorridos pasaron de
+                    ["mat","via"] a ["mat","via","serv"]. */}
+                <SCard title="OPEX · Servicios" icon="🛠️"
+                  subtitle="Servicios contratados a terceros · Periodicidad = cada cuánto se repite"
+                  total={totalOpexAnualCat(areaActiva,"serv")} accentColor="#7c3aed">
+                  {/* Mismo aviso reusado, ver Materiales. */}
+                  {(()=>{
+                    const sinPer=(datos?.serv||[]).filter(p=>!p.periodicidad).length;
+                    return sinPer>0&&(
+                      <div style={{marginBottom:12,padding:"9px 14px",background:C.yellowLight,
+                        border:`1px solid ${C.yellowBorder}`,borderRadius:8,fontSize:12,color:C.yellowDark}}>
+                        ⚠ {sinPer} partida{sinPer>1?"s":""} sin periodicidad — no se distribuirá{sinPer>1?"n":""} en el Resumen mensual.
+                      </div>
+                    );
+                  })()}
+                  <PartidaTable
+                    partidas={datos?.serv||[]}
+                    onUpdate={u=>upP(areaActiva,"serv",u.id,u)}
+                    onRemove={rmP(areaActiva,"serv")}
+                    onAdd={()=>addP(areaActiva,"serv")}
+                    catOptions={CAT_OPEX_SERV}
+                    addLabel="Agregar servicio"
+                    headerColor="#7c3aed"
+                    showPeriod={true} fechaInicioProyecto={pres?.fechaInicio} fechaFinProyecto={pres?.fechaFin} numMesesOpProyecto={calcularNumMesesOp(pres?.fechaInicio,pres?.fechaFin)}/>
+                </SCard>
+
                 {/* Único botón "Guardar" de la pantalla (fusión de hoy) — junta
                     ingresos + esta área + todo lo demás en una sola llamada. */}
                 <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
@@ -5478,10 +5539,10 @@ export default function App(){
         ? {tipo:"sinun"}
         : null;
     const areasDetalle=areas.map((id,ai)=>{
-      const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
-      const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
+      const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), opexServ=totalOpexAnualCat(id,"serv"), nomAnual=totalNomAnual(id);
+      const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia+opexServ;
       return {id, esUltima:ai===areas.length-1, datos:costos[id], areaInfo:cats.find(a=>a.id===id),
-        capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia};
+        capexA, nomMes:totalNom(id), opexA, totalArea:capexA+opexA, nomAnual, opexMat, opexVia, opexServ};
     });
 
     // ── Helpers de render ──────────────────────────────────────────────────
@@ -5824,7 +5885,7 @@ export default function App(){
                 {areas.map((id,i)=>{
                   const a=cats.find(x=>x.id===id);
                   const cx=totalCat(id,"capex");
-                  const ox=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via");
+                  const ox=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via")+totalOpexAnualCat(id,"serv");
                   return(
                     <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
                       <td style={{padding:"10px 14px",fontWeight:600}}>{a?.icon} {a?.label}</td>
