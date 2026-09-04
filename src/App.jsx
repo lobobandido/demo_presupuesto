@@ -2415,20 +2415,50 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
     if(!macroGrupos[macro]) macroGrupos[macro]={};
     macroGrupos[macro][cat]=arr;
   });
-  Object.entries(macroGrupos).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([macro,cats])=>{
+  // ── Orden de los rubros: EL DEL ARCHIVO DE ANEL, no alfabético ──────────
+  // (03-sep-2026, autorizado por el usuario a tocar esta función.)
+  // CATS_MACRO_CONTABLE ya viene en el orden exacto de
+  // docs/catalogo_contable_2027.csv — se usa su índice, no se modifica la lista
+  // (regla 2 de CLAUDE.md: es de finanzas). Antes era localeCompare, que en
+  // estos 18 rubros da casi el mismo resultado por casualidad —el catálogo está
+  // casi alfabetizado— pero no lo garantiza y además metía SIN CATEGORÍA en la
+  // "S", entre SERVICIOS DE CAPACITACION y VEHICULOS.
+  // Cambia el ORDEN de las filas, no los montos: es un sort, cada fila conserva
+  // su total y su arreglo mensual.
+  const ORDEN_RUBRO=new Map(CATS_MACRO_CONTABLE.map((r,i)=>[normCat(r),i]));
+  const SIN_CATEGORIA="SIN CATEGORÍA";
+  function posMacro(m){
+    if(m===SIN_CATEGORIA) return 9999;                 // siempre al final, con su etiqueta
+    const i=ORDEN_RUBRO.get(normCat(m));
+    return i===undefined ? 9000 : i;                   // lo que no es rubro del CSV, antes de SIN CATEGORÍA
+  }
+  const ordenMacro=(a,b)=>{
+    const d=posMacro(a)-posMacro(b);
+    return d!==0 ? d : a.localeCompare(b);             // desempate estable entre los "no rubro"
+  };
+  Object.entries(macroGrupos).sort((a,b)=>ordenMacro(a[0],b[0])).forEach(([macro,cats])=>{
     const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
-    const esUnaSolaIgualAMacro=catEntries.length===1 && catEntries[0][0].toUpperCase()===macro.toUpperCase();
-    if(esUnaSolaIgualAMacro){
-      const [cat,arr]=catEntries[0];
-      filas.push({tipo:"detalle", label:cat, macro, bloque:"opex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
-    } else {
+    const macroArr=Array(NMESES).fill(0);
+    catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
+    const totalMacro=macroArr.reduce((s,v)=>s+v,0);
+    // Rubro sin dinero no se pinta.
+    if(totalMacro===0) return;
+    // TODO rubro emite su fila de subtotal, siempre. Antes, un rubro con una
+    // sola subcuenta que se llamaba igual que él (esUnaSolaIgualAMacro) salía
+    // como una fila de detalle suelta y SIN subtotal — o sea que Anel no lo veía
+    // como rubro. Le pasa a SERVICIOS en PERDIZ-PAPAN y a otros siete rubros
+    // ahí, y a cinco en Cuervito: entre los dos son $8.0M colgando de filas que
+    // no son de rubro. En el Excel condensado, que se arma con las filas de
+    // subtotal, ese dinero simplemente no aparecería.
+    // La fila de detalle redundante (la que repite el nombre del rubro) se
+    // omite: no aporta nada y duplicaría el renglón en pantalla.
+    const soloRepiteElRubro=catEntries.length===1 && normCat(catEntries[0][0])===normCat(macro);
+    if(!soloRepiteElRubro){
       catEntries.forEach(([cat,arr])=>{
         filas.push({tipo:"detalle", label:cat, macro, bloque:"opex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
       });
-      const macroArr=Array(NMESES).fill(0);
-      catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
-      filas.push({tipo:"subtotal", label:macro, macro, bloque:"opex", total:macroArr.reduce((s,v)=>s+v,0), mensual:macroArr});
     }
+    filas.push({tipo:"subtotal", label:macro, macro, bloque:"opex", total:totalMacro, mensual:macroArr});
   });
 
   filas.push({tipo:"total", label:"TOTAL EGRESOS", macro:null, bloque:null, total:totalEgr, mensual:mEgresos});
@@ -2436,9 +2466,21 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
   return filas;
 }
 
+// nivel (03-sep-2026) — UNA sola función con una bandera, no dos generadores:
+//   "detalle" → "Excel visual": SERVICIO con rubro + subcuenta, más FLUJO,
+//               EGRESOS (partida por partida) e INFO. Es para revisar la
+//               clasificación antes de cargar.
+//   "rubro"   → "Excel para Apps": la MISMA hoja SERVICIO colapsada a nivel
+//               rubro (solo las filas de subtotal) más INFO. Es el que se carga
+//               al sistema de Anel.
+// Colapsar salió más chico que emitir dos recorridos: construirFilasServicio ya
+// etiqueta cada fila con su tipo, así que el condensado es un filtro sobre las
+// mismas filas. Los montos son los mismos en los dos archivos — no se vuelve a
+// sumar nada aquí.
 async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgresos,
   mFlujo: mFlujoBase, mFlujoAcum: mFlujoAcumBase, mIngresos: mIngresosBase, totalCAPEX, totalOPEX, totalEgr,
-  totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[]}) {
+  totalIngresosAnual, MESES13, NMESES, totalNom, totalCat, ingAdicionales=[], nivel="detalle"}) {
+  const soloRubro = nivel==="rubro";
   // mIngresosBase ya incluye los ingresos adicionales por mes (fusionados en el cálculo
   // del Resumen mensual) — se reutiliza tal cual para que el Excel cuadre con la pantalla.
   const mIngresos = mIngresosBase;
@@ -2494,7 +2536,12 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   const seccionRows=[], subtotalRows=[], totalRows=[];
 
   const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
-  filasServicio.forEach(fila=>{
+  // El condensado se queda con las secciones, los subtotales de rubro y el
+  // total; se van las filas de subcuenta. Nada se recalcula: es un filtro.
+  const filasHoja = soloRubro
+    ? filasServicio.filter(f=>f.tipo!=="detalle" || f.bloque==="ingresos")
+    : filasServicio;
+  filasHoja.forEach(fila=>{
     rowsS.push([fila.label, fila.total, ...fila.mensual]);
     const ri=rowsS.length-1;
     if(fila.tipo==="seccion") seccionRows.push(ri);
@@ -2585,7 +2632,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
       if(wsF[a]) wsF[a].s={font:{bold:true,color:{rgb:"7c3aed"}},fill:{fgColor:{rgb:"F5F3FF"}}};
     }
   });
-  XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
+  if(!soloRubro) XLSX.utils.book_append_sheet(wb,wsF,"FLUJO");
 
   // ── Hoja 3: EGRESOS detallado ─────────────────────────────────────────────
   const hdrE=["#","Categoría","Descripción","Unidad","Cantidad","Monto Unit.","Total","Tipo"];
@@ -2641,7 +2688,7 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
       }
     }
   }
-  XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
+  if(!soloRubro) XLSX.utils.book_append_sheet(wb,wsE,"EGRESOS");
 
   // ── Hoja 4: INFO ──────────────────────────────────────────────────────────
   const wsI=XLSX.utils.aoa_to_sheet([
@@ -2674,7 +2721,9 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
   XLSX.utils.book_append_sheet(wb,wsI,"INFO");
 
   // Guardar
-  const fileName=`Presupuesto_${(pres?.nombre||"GEOLIS").replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  // El nombre distingue los dos archivos, para que no se pisen en Descargas.
+  const sufijo = soloRubro ? "Apps" : "Visual";
+  const fileName=`Presupuesto_${(pres?.nombre||"GEOLIS").replace(/\s+/g,"_")}_${sufijo}_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb,fileName);
 }
 
@@ -5248,11 +5297,20 @@ export default function App(){
               {/* Solo cambia el texto (Luis, 03-sep-2026): sigue apuntando a
                   Capturar costos, que es a donde va irACapturarCostos. */}
               {btn("← Editar",irACapturarCostos,"secondary")}
-              {btn("⬇ Excel",()=>exportarExcel({
+              {/* Tarea 9 (03-sep-2026) — dos formatos, una sola función con la
+                  bandera `nivel`. El de PDF se queda como estaba. */}
+              {btn("⬇ Excel para Apps",()=>exportarExcel({
                 pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
                 mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
-                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales
-              }),"secondary")}
+                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales,
+                nivel:"rubro"
+              }),"secondary",false,"Condensado por rubro contable — el que se carga al sistema")}
+              {btn("⬇ Excel visual",()=>exportarExcel({
+                pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
+                mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
+                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales,
+                nivel:"detalle"
+              }),"secondary",false,"Detalle por subcuenta — para revisar la clasificación antes de cargar")}
               {btn("⬇ PDF",()=>window.print(),"primary")}
             </div>
           </div>
