@@ -2537,10 +2537,44 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
 
   const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
   // El condensado se queda con las secciones, los subtotales de rubro y el
-  // total; se van las filas de subcuenta. Nada se recalcula: es un filtro.
-  const filasHoja = soloRubro
-    ? filasServicio.filter(f=>f.tipo!=="detalle" || f.bloque==="ingresos")
-    : filasServicio;
+  // total; se van las filas de subcuenta.
+  //
+  // Y EXACTAMENTE UNA FILA POR RUBRO (03-sep-2026): si dos filas comparten
+  // rubro, se suman en una sola. Es regla general, no un parche — hoy le pasa a
+  // ACTIVOS, que sale dos veces porque el subtotal del bloque CAPEX se rotula
+  // ACTIVOS y además hay categorías de OPEX que mapean ahí (LICENCIAMIENTO,
+  // ACCESORIOS, INFRAESTRUCTURA DE RED); si mañana pasa con otro rubro, ya está
+  // resuelto.
+  // POR QUÉ solo aquí: el archivo de Anel no separa CAPEX de OPEX. Su estructura
+  // es INGRESOS / EGRESOS y bajo egresos una fila por rubro. El corte
+  // CAPEX/OPEX es un concepto de esta app, no contable: un licenciamiento que
+  // mapea a un rubro de activos es un activo, se haya capturado donde se haya
+  // capturado. En "Excel visual" y EN PANTALLA la separación se queda, porque
+  // ahí el público es interno y sí necesita ver qué es inversión y qué es gasto
+  // recurrente.
+  // No se recalcula nada: se suman filas ya calculadas. Y se trabaja sobre
+  // COPIAS —{...f} con su mensual clonado— porque este mismo arreglo de filas
+  // es el que está pintando la tabla en pantalla: mutarlo la corrompería.
+  const filasHoja = (()=>{
+    if(!soloRubro) return filasServicio;
+    const sinDetalle = filasServicio.filter(f=>f.tipo!=="detalle" || f.bloque==="ingresos");
+    const out=[], porRubro=new Map();
+    sinDetalle.forEach(f=>{
+      if(f.tipo!=="subtotal"){ out.push(f); return; }
+      const clave=f.macro||f.label;
+      const ya=porRubro.get(clave);
+      if(!ya){
+        const copia={...f, mensual:[...f.mensual]};
+        porRubro.set(clave,copia); out.push(copia);
+        return;
+      }
+      // Se funde en la fila que ya existe: conserva su posición, que es la que
+      // le da el orden del CSV.
+      ya.total+=f.total;
+      f.mensual.forEach((v,i)=>{ ya.mensual[i]=(ya.mensual[i]||0)+v; });
+    });
+    return out;
+  })();
   filasHoja.forEach(fila=>{
     rowsS.push([fila.label, fila.total, ...fila.mensual]);
     const ri=rowsS.length-1;
