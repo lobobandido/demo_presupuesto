@@ -2,9 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef, useCallback, Fragment } f
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
-// CLAVE_FACTURACION se importará cuando el exportador lo use (paso 4); hoy solo
-// se necesitan estas dos para el guardarraíl de abajo.
-import { claveDeRubro, RUBROS_EGRESOS } from "./catalogoClaves";
+import { claveDeRubro, RUBROS_EGRESOS, CLAVE_FACTURACION } from "./catalogoClaves";
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -2530,6 +2528,141 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
   filas.push({tipo:"total", label:"TOTAL EGRESOS", macro:null, bloque:null, total:totalEgr, mensual:mEgresos});
 
   return filas;
+}
+
+// ─── HOJA "Presupuesto" DEL EXCEL DE CONTABILIDAD (Tarea 9, paso 3) ─────────
+// Arma las filas del archivo de carga que pide la contadora, calcadas de
+// docs/Presupuesto-26-F218357.xls. NO CALCULA MONTOS: toma los que ya trae
+// construirFilasServicio y solo los reacomoda en meses de calendario con
+// serieACalendario (paso 2).
+//
+// Layout, verificado leyendo su archivo:
+//   1  INGRESOS
+//   2  Anio | UN | Clave | Descripcion | Enero .. Diciembre        (16 columnas)
+//   3  <aa> | <UN> | FAC | FACTURACION | 12 importes
+//   4  (vacía)
+//   5  EGRESOS
+//   6  (mismo encabezado)
+//   7+ los 18 rubros SIEMPRE, en el orden de docs/claves-rubros-anel.csv,
+//      con 0 numérico donde no hay dinero
+//   ultima  fila de TOTAL: suma de los 18 rubros, SIN ingresos
+//
+// EL CERO ES NUMÉRICO, nunca celda vacía ni el texto "0": un cargador que
+// interpreta vacío como cero también interpreta cero como cero; al revés no
+// está garantizado. (Su propio archivo es inconsistente aquí: tres rubros en
+// cero traen 0 y dos traen celdas vacías. Se normaliza a 0.)
+//
+// Devuelve UN BLOQUE POR AÑO. Casi todos los presupuestos de esta app cruzan el
+// año natural, y el formato solo tiene doce columnas de calendario.
+// TODO PROVISIONAL — falta que la contadora diga si un presupuesto que cruza
+// año va en UN archivo con dos bloques o en DOS archivos. Mientras tanto se
+// devuelven los bloques y quien exporte decide; la regla no se inventa aquí.
+const MESES_CALENDARIO=["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ENCABEZADO_APPS=["Anio","UN","Clave","Descripcion",...MESES_CALENDARIO];
+// La primera celda de la fila final. Su archivo trae el literal "TOTAL" en la
+// columna Anio; ver la nota del reporte del 04-sep-2026. Si su cargador
+// esperara ahí el año, se cambia SOLO esta constante por null y el año se
+// escribe como en las demás filas.
+const ETIQUETA_FILA_TOTAL="TOTAL";
+
+function filasExcelApps({filasServicio, fechaInicio, unidadNegocio}){
+  const SIN_CAT="SIN CATEGORÍA";
+
+  // ── Ingresos: la fila de FACTURACION del bloque de ingresos ──
+  const filaIng=filasServicio.find(f=>f.bloque==="ingresos");
+  const calIngresos=serieACalendario(filaIng?.mensual||[], fechaInicio);
+
+  // ── Un renglón por rubro. Se funden los que compartan rubro (el subtotal de
+  // CAPEX y el de OPEX pueden ser los dos "ACTIVOS"): el archivo de la
+  // contadora no separa inversión de gasto, su estructura es INGRESOS/EGRESOS
+  // y bajo egresos una fila por rubro. Se suman filas ya calculadas.
+  const porRubro=new Map();
+  filasServicio.filter(f=>f.tipo==="subtotal").forEach(f=>{
+    const k=normCat(f.macro||f.label);
+    const ya=porRubro.get(k);
+    if(!ya){ porRubro.set(k,{etiqueta:f.macro||f.label, mensual:[...f.mensual]}); return; }
+    f.mensual.forEach((v,i)=>{ ya.mensual[i]=(ya.mensual[i]||0)+v; });
+  });
+
+  // ── SIN CATEGORÍA: el formato no tiene dónde ponerlo. Se reporta para que
+  // quien exporte BLOQUEE la generación — un archivo con pesos sin rubro está
+  // mal por construcción.
+  const sc=porRubro.get(normCat(SIN_CAT));
+  const sinCategoria={
+    total: sc ? sc.mensual.reduce((a,v)=>a+v,0) : 0,
+    categorias: [...new Set(filasServicio
+      .filter(f=>f.tipo==="detalle" && f.macro===SIN_CAT)
+      .map(f=>f.label))],
+  };
+
+  // ── Calendarizar cada uno de los 18, en el orden del catálogo ──
+  const calPorClave=new Map();
+  RUBROS_EGRESOS.forEach(r=>{
+    const fila=porRubro.get(normCat(r.rubro));
+    calPorClave.set(r.clave, fila ? serieACalendario(fila.mensual, fechaInicio) : {});
+  });
+
+  // ── Qué años toca el presupuesto ──
+  const anios=[...new Set([
+    ...Object.keys(calIngresos),
+    ...[...calPorClave.values()].flatMap(c=>Object.keys(c)),
+  ])].map(Number).sort((a,b)=>a-b);
+
+  const doceCeros=()=>Array(12).fill(0);
+  const bloques=anios.map(anio=>{
+    const aa=String(anio).slice(2);              // dos dígitos, como su archivo
+    const un=unidadNegocio||"";
+    const aoa=[];
+    aoa.push(["INGRESOS"]);
+    aoa.push([...ENCABEZADO_APPS]);
+    aoa.push([aa, un, CLAVE_FACTURACION, "FACTURACION", ...(calIngresos[anio]||doceCeros())]);
+    aoa.push([]);                                 // fila 4, vacía
+    aoa.push(["EGRESOS"]);
+    aoa.push([...ENCABEZADO_APPS]);
+    const totalMes=doceCeros();
+    RUBROS_EGRESOS.forEach(r=>{
+      const meses=(calPorClave.get(r.clave)||{})[anio]||doceCeros();
+      meses.forEach((v,i)=>{ totalMes[i]+=v; });
+      aoa.push([aa, un, r.clave, r.rubro, ...meses]);
+    });
+    // Fila final: suma de los 18 rubros, SIN ingresos. UN/Clave/Descripcion vacías.
+    aoa.push([ETIQUETA_FILA_TOTAL, "", "", "", ...totalMes]);
+    return {anio, aa, aoa, totalMes, totalAnio: totalMes.reduce((a,v)=>a+v,0)};
+  });
+
+  return {bloques, anios, sinCategoria, unidadNegocio: unidadNegocio||null};
+}
+
+// ─── EXPORTADOR "Excel contabilidad" (Tarea 9, paso 3) ─────────────────────
+// Escribe UNA hoja llamada exactamente "Presupuesto", sin formato. El nombre
+// importa: si su cargador la busca por nombre, respetarlo cuesta cero y no
+// hacerlo puede ser fatal.
+// No decide nada: recibe los bloques ya armados por filasExcelApps y los pega.
+// Los bloqueos (SIN CATEGORÍA con dinero, presupuesto sin unidad de negocio)
+// los evalúa quien pinta el botón, para poder deshabilitarlo y explicar por qué
+// ANTES del clic — no aquí, cuando ya es tarde.
+async function exportarExcelApps({bloques, pres}){
+  if(!window.XLSX){
+    await new Promise((res,rej)=>{
+      const sc=document.createElement("script");
+      sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      sc.onload=res; sc.onerror=rej;
+      document.head.appendChild(sc);
+    });
+  }
+  const XLSX=window.XLSX;
+  const wb=XLSX.utils.book_new();
+  // TODO PROVISIONAL — un bloque por año, uno debajo del otro y separados por
+  // una fila vacía. Falta que la contadora diga si un presupuesto que cruza año
+  // va en UN archivo con dos bloques o en DOS archivos; la regla no se inventa.
+  const aoa=[];
+  bloques.forEach((b,i)=>{ if(i) aoa.push([]); b.aoa.forEach(f=>aoa.push(f)); });
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"]=[{wch:6},{wch:14},{wch:8},{wch:34},...Array(12).fill({wch:16})];
+  XLSX.utils.book_append_sheet(wb, ws, "Presupuesto");
+  const anios=bloques.map(b=>b.aa).join("-");
+  XLSX.writeFile(wb, `Presupuesto-${anios}-${(pres?.unidadNegocio||"SIN-UN")}.xlsx`);
 }
 
 // nivel (03-sep-2026) — UNA sola función con una bandera, no dos generadores:
@@ -5237,6 +5370,16 @@ export default function App(){
     // existían; solo se las invoca también desde esta pantalla.
     const filasServicio=construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos,
       totalCAPEX, totalIngresosAnual, mIngresos, totalEgr});
+    // Tarea 9 paso 3 — filas del Excel de contabilidad y sus dos bloqueos. Se
+    // arman aquí para poder deshabilitar el botón y explicar el motivo ANTES
+    // del clic, no después de generar un archivo que su sistema rechazaría.
+    const excelApps=filasExcelApps({filasServicio, fechaInicio:pres?.fechaInicio,
+      unidadNegocio:pres?.unidadNegocio});
+    const bloqueoApps = excelApps.sinCategoria.total>0
+      ? {tipo:"sincat", ...excelApps.sinCategoria}
+      : !pres?.unidadNegocio
+        ? {tipo:"sinun"}
+        : null;
     const areasDetalle=areas.map((id,ai)=>{
       const opexMat=totalOpexAnualCat(id,"mat"), opexVia=totalOpexAnualCat(id,"via"), nomAnual=totalNomAnual(id);
       const capexA=totalCat(id,"capex"), opexA=opexMat+nomAnual+opexVia;
@@ -5405,6 +5548,10 @@ export default function App(){
                 totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales,
                 nivel:"rubro"
               }),"secondary",false,"Condensado por rubro contable — el que se carga al sistema")}
+              {btn("⬇ Excel contabilidad",()=>exportarExcelApps({bloques:excelApps.bloques, pres}),
+                "secondary", !!bloqueoApps,
+                bloqueoApps?"No se puede generar — ver el aviso rojo de abajo"
+                  :"Archivo de carga para el sistema de contabilidad, una hoja plana por rubro")}
               {btn("⬇ Excel visual",()=>exportarExcel({
                 pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
                 mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
@@ -5414,6 +5561,36 @@ export default function App(){
               {btn("⬇ PDF",()=>window.print(),"primary")}
             </div>
           </div>
+
+          {/* Tarea 9 paso 3 — aviso ROJO, no amarillo. Los amarillos avisan de
+              algo que se puede guardar a medias; éste bloquea: el archivo de
+              contabilidad no se genera. Es el mismo mecanismo visual, subido de
+              tono, y va pegado a la fila de botones para que se lea junto al
+              botón deshabilitado. */}
+          {bloqueoApps&&(
+            <div className="noprint" style={{marginBottom:20,padding:"12px 16px",
+              background:C.dangerLight,border:`1px solid ${C.danger}55`,borderRadius:8,
+              fontSize:12.5,color:C.danger,lineHeight:1.5}}>
+              {bloqueoApps.tipo==="sincat" ? (
+                <>
+                  <strong>⚠ No se puede generar el Excel de contabilidad.</strong> Hay{" "}
+                  <strong>{fmt(bloqueoApps.total)}</strong> sin rubro contable
+                  {bloqueoApps.categorias.length>0&&<> en {bloqueoApps.categorias.join(", ")}</>}.
+                  El formato de contabilidad no tiene dónde ponerlos: un archivo con pesos sin
+                  rubro está mal por construcción, y cargarlo descuadraría contra TOTAL egresos.
+                  Clasifica esas categorías y vuelve a intentar.
+                </>
+              ) : (
+                <>
+                  <strong>⚠ No se puede generar el Excel de contabilidad.</strong> Este
+                  presupuesto no tiene <strong>unidad de negocio</strong>, y su sistema la exige
+                  en la columna UN: sin ella el archivo se rechaza. Hoy la unidad solo se captura
+                  al crear el presupuesto (ver A1 en docs/MD/DECISIONES.md), así que hay que
+                  asignarla desde el dashboard de Supabase.
+                </>
+              )}
+            </div>
+          )}
 
           {/* ── SECCIÓN: Ingresos (solo lectura) ──────────────────────────
               Captura movida a Capturar costos (Step 3) — ahí vive el
