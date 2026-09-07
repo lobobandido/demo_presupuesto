@@ -3,7 +3,7 @@ import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
 import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
 import { claveDeRubro, RUBROS_EGRESOS, CLAVE_FACTURACION } from "./catalogoClaves";
-import { rubroDeSubcuenta, TOTAL_SUBCUENTAS, RUBROS_DEL_CSV } from "./catalogoContable";
+import { rubroDeSubcuenta, TOTAL_SUBCUENTAS, RUBROS_DEL_CSV, SUBCUENTAS_CONTABLES } from "./catalogoContable";
 // xlsx-js-style, no "xlsx" (04-sep-2026): la build comunitaria de SheetJS IGNORA
 // cell.s, así que todo salía plano por más estilos que se le pusieran. Ese fue el
 // falso negativo de "0 de 327 celdas con formato" al leer el archivo de Anel.
@@ -2774,6 +2774,111 @@ function filasExcelApps({filasServicio, fechaInicio, unidadNegocio}){
 // Los bloqueos (SIN CATEGORÍA con dinero, presupuesto sin unidad de negocio)
 // los evalúa quien pinta el botón, para poder deshabilitarlo y explicar por qué
 // ANTES del clic — no aquí, cuando ya es tarde.
+// ─── "Excel visual" en la plantilla de Anel (Tarea 9, paso 4 · 04-sep-2026) ──
+// Calcado de docs/PRESUPUESTO 2026 - F218357 (003).xlsx, hoja MN.
+// NO se genera la hoja USD: la suya está editada a mano y rota (EQUIPO DE
+// MOBILIARIO no cuadra con la paridad de 18.3). Solo MN.
+//
+// Es una PLANTILLA COMPLETA, no un resumen: van TODAS las subcuentas del
+// catálogo aunque estén en cero, con su rubro debajo como fila de suma. Por eso
+// no se puede armar solo con lo capturado.
+//
+// Tampoco calcula: los importes salen de construirFilasServicio y se reacomodan
+// a meses de calendario con serieACalendario. La columna B lleva FÓRMULAS de
+// Excel, no valores — es lo que pide el archivo de Anel.
+const MESES_PRE=MESES_CALENDARIO.map(m=>`${m} Pre`);
+const ENCABEZADO_VISUAL=["Descripcion","Total Presupuestado",...MESES_PRE];
+const FMT_CONTABLE='_-* #,##0.00_-;\\-* #,##0.00_-;_-* "-"??_-;_-@_-';
+
+function filasExcelVisual({filasServicio, fechaInicio, mFlujoAcum, nombre, paridad=18.3}){
+  const doce=()=>Array(12).fill(0);
+  const cal=(mensual)=>serieACalendario(mensual||[], fechaInicio);
+  // Un presupuesto que cruza año produce dos; esta plantilla tiene doce columnas
+  // y un solo encabezado de año, así que se usa el PRIMERO —el del arranque del
+  // proyecto— y se suman los años en esas mismas doce columnas para no perder
+  // dinero. El TOTAL de la hoja sigue cuadrando con TOTAL EGRESOS.
+  const aplanar=(mensual)=>{
+    const porAnio=cal(mensual), out=doce();
+    Object.values(porAnio).forEach(arr=>arr.forEach((v,i)=>{ out[i]+=v; }));
+    return out;
+  };
+  const anios=Object.keys(cal(filasServicio.find(f=>f.bloque==="ingresos")?.mensual||[])).map(Number).sort();
+  const anio=anios[0] ?? new Date(fechaInicio+"T00:00:00").getFullYear();
+
+  // Lo capturado, por categoría y por rubro
+  const detalle=new Map();   // normCat(categoría) → arreglo de 12
+  const rubroDe=new Map();   // normCat(categoría) → rubro
+  filasServicio.filter(f=>f.tipo==="detalle" && f.bloque!=="ingresos").forEach(f=>{
+    const k=normCat(f.label);
+    const prev=detalle.get(k)||doce();
+    aplanar(f.mensual).forEach((v,i)=>{ prev[i]+=v; });
+    detalle.set(k, prev);
+    if(f.macro) rubroDe.set(k, f.macro);
+  });
+  // El total de cada rubro sale de su fila de SUBTOTAL, no de sumar sus
+  // detalles: un rubro cuya única subcuenta se llama igual que él NO emite fila
+  // de detalle (construirFilasServicio la omite por redundante), así que
+  // sumando detalles ese rubro saldría en cero y la hoja no cuadraría. En
+  // Cuervito eran $2,855,000.00 que se caían.
+  // Se funden los subtotales que compartan rubro: el de CAPEX y el de OPEX
+  // pueden ser los dos ACTIVOS.
+  const totalRubro=new Map();
+  filasServicio.filter(f=>f.tipo==="subtotal").forEach(f=>{
+    const k=normCat(f.macro||f.label);
+    const prev=totalRubro.get(k)||doce();
+    aplanar(f.mensual).forEach((v,i)=>{ prev[i]+=v; });
+    totalRubro.set(k, prev);
+  });
+
+  // Índice del catálogo: rubro → sus subcuentas, en el orden del archivo
+  const subsPorRubro=new Map();
+  SUBCUENTAS_CONTABLES.forEach(([sub,ru])=>{
+    if(!subsPorRubro.has(ru)) subsPorRubro.set(ru,[]);
+    subsPorRubro.get(ru).push(sub);
+  });
+
+  const filas=[];   // {tipo:"subcuenta"|"rubro", label, meses}
+  RUBROS_DEL_CSV.forEach(ru=>{
+    const propias=(subsPorRubro.get(ru)||[])
+      // Una subcuenta que se llama IGUAL que su rubro no se repite: la fila del
+      // rubro hace las dos veces, igual que en el archivo de Anel.
+      .filter(sub=>normCat(sub)!==normCat(ru));
+    const usadas=new Set(propias.map(normCat));
+    // Categorías capturadas que resuelven a este rubro pero NO son subcuentas
+    // del catálogo (alias como POSTE DE TELEMETRIA o GABINETE Y ENERGIA). Si no
+    // se listaran, la SUMA del rubro dejaría fuera su dinero y la hoja no
+    // cuadraría. Van después de las del catálogo.
+    const extras=[...detalle.keys()]
+      .filter(k=>normCat(rubroDe.get(k)||"")===normCat(ru) && !usadas.has(k));
+    const nombresExtra=extras.map(k=>{
+      const f=filasServicio.find(x=>x.tipo==="detalle"&&normCat(x.label)===k);
+      return f?f.label:k;
+    });
+    [...propias, ...nombresExtra].forEach(sub=>{
+      filas.push({tipo:"subcuenta", label:sub, meses:detalle.get(normCat(sub))||doce()});
+    });
+    const nSubs=propias.length+nombresExtra.length;
+    // Si el rubro tiene subcuentas listadas, su fila las suma; si no —los cuatro
+    // que se llaman igual que su rubro—, toma su propio subtotal.
+    const suma=doce();
+    if(nSubs>0){
+      [...propias, ...nombresExtra].forEach(sub=>{
+        (detalle.get(normCat(sub))||doce()).forEach((v,i)=>{ suma[i]+=v; });
+      });
+    } else {
+      (totalRubro.get(normCat(ru))||doce()).forEach((v,i)=>{ suma[i]+=v; });
+    }
+    filas.push({tipo:"rubro", label:ru, meses:suma, nSubs});
+  });
+
+  const facturacion=aplanar(filasServicio.find(f=>f.bloque==="ingresos")?.mensual||[]);
+  // ACUMULADO = acumulado de (INGRESOS − EGRESOS) mes a mes. Es mFlujoAcum, que
+  // la app ya calcula: NO es el acumulado de egresos. Descifrado por aritmética
+  // sobre el archivo de Anel, en sus dos hojas y en los doce meses.
+  const acumulado=aplanar(mFlujoAcum);
+  return {anio, filas, facturacion, acumulado, nombre, paridad};
+}
+
 // Estilos del archivo de carga, extraídos del real de Anel con xlrd:
 // Arial 10 en todo, formato de número General (sin moneda ni separadores), y
 // tres bandas — cabecera de bloque gris oscuro, encabezados gris claro, fila
@@ -2786,6 +2891,127 @@ const AF_ENCABEZADO={font:{...AF_FUENTE, bold:true, color:{rgb:"000000"}},
 const AF_DATO={font:{...AF_FUENTE}};
 const AF_TOTAL={font:{...AF_FUENTE, bold:true}, fill:{fgColor:{rgb:"C0C0C0"}}};
 const AF_TOTAL_ETIQ={...AF_TOTAL, alignment:{horizontal:"center"}};
+
+// Estilos del "visual", extraídos de la hoja MN de Anel.
+const VF_TITULO={font:{name:"Calibri", sz:11, bold:true}};
+const VF_PROYECTO={font:{name:"Calibri", sz:11, bold:true, italic:true}};
+const VF_SECCION={font:{name:"Arial", sz:10, bold:true}, fill:{fgColor:{rgb:"DBAC00"}}};
+const VF_ENCABEZADO={font:{name:"Arial", sz:10, bold:true}};
+// La regla que distingue una subcuenta de un rubro, y la única que hay que
+// mirar para leer la hoja: cursiva chica y sin relleno contra negritas doradas.
+const VF_SUBCUENTA={font:{name:"Arial", sz:8, italic:true}};
+const VF_RUBRO={font:{name:"Arial", sz:10, bold:true}, fill:{fgColor:{rgb:"DBAC00"}}};
+const VF_TOTAL={font:{name:"Arial", sz:10, bold:true}};
+const VF_ACUMULADO={font:{name:"Calibri", sz:11, bold:true}};
+const VF_BANDA={fill:{fgColor:{rgb:"F7F7F7"}}};
+// Copia PROFUNDA del estilo para cada celda. Con un spread superficial, `font`
+// y `fill` quedan COMPARTIDOS entre todas las celdas y entre exportaciones
+// sucesivas — y el escritor de SheetJS los normaliza al guardar, así que el
+// segundo archivo de la misma sesión salía sin negritas ni relleno. Cazado
+// generando tres presupuestos seguidos: el primero bien, los otros dos no.
+const estiloCel=(o)=>JSON.parse(JSON.stringify(o||{}));
+
+async function exportarExcelVisual({visual, pres}){
+  const {anio, filas, facturacion, acumulado, nombre, paridad}=visual;
+  const wb=XLSX.utils.book_new();
+  const aoa=[], meta=[];   // meta[fila] = {clase, desde, hasta}
+  const push=(fila, clase, extra={})=>{ meta[aoa.length]={clase,...extra}; aoa.push(fila); };
+
+  push(["GEOLIS SA DE CV", null, paridad], "titulo");
+  push([`Proyecto: ${nombre||""}`], "proyecto");
+  push([`INGRESOS ${anio}`], "seccion");
+  push([...ENCABEZADO_VISUAL], "encabezado");
+  push(["FACTURACION", null, ...facturacion], "rubro", {nSubs:0});
+  push([], "vacia");
+  push([`EGRESOS ${anio}`], "seccion");
+  push([...ENCABEZADO_VISUAL], "encabezado");
+
+  // Las filas del catálogo. Se apunta el rango de subcuentas de cada rubro para
+  // poder escribir su fórmula de suma con las filas reales de la hoja.
+  let inicioBloque=null, iSub=0;
+  filas.forEach(f=>{
+    if(f.tipo==="subcuenta"){
+      if(inicioBloque===null) inicioBloque=aoa.length;
+      push([f.label, null, ...f.meses], "subcuenta", {banda:iSub%2===1});
+      iSub++;
+    } else {
+      push([f.label, null, ...f.meses], "rubro", {desde:inicioBloque, hasta:aoa.length-1});
+      inicioBloque=null; iSub=0;
+    }
+  });
+  const filaPrimerRubro=meta.findIndex((m,i)=>i>7 && m.clase==="rubro");
+  const filasRubro=meta.map((m,i)=>({m,i})).filter(x=>x.i>7 && x.m.clase==="rubro").map(x=>x.i);
+  push(["TOTAL"], "total");
+  push(["ACUMULADO", null, ...acumulado], "acumulado");
+  void filaPrimerRubro;
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  const dir=(r,c)=>XLSX.utils.encode_cell({r,c});
+  const cel=(r,c)=>{ const a=dir(r,c); if(!ws[a]) ws[a]={t:"s",v:""}; return ws[a]; };
+  const fil=(r)=>XLSX.utils.encode_row(r);
+
+  // ── Fórmulas de la columna B y de la fila TOTAL ──────────────────────────
+  // Van FÓRMULAS, no valores: es lo que trae el archivo de Anel y permite que
+  // contabilidad vea de dónde sale cada suma.
+  meta.forEach((m,r)=>{
+    if(m.clase==="subcuenta" || (m.clase==="rubro" && m.nSubs===0)){
+      const c=cel(r,1); c.t="n"; c.f=`SUM(C${fil(r)}:N${fil(r)})`;
+    } else if(m.clase==="rubro"){
+      const c=cel(r,1); c.t="n";
+      c.f = (m.desde!==null && m.desde!==undefined && m.hasta>=m.desde)
+        ? `SUM(B${fil(m.desde)}:B${fil(m.hasta)})`
+        : `SUM(C${fil(r)}:N${fil(r)})`;
+    }
+  });
+  // TOTAL = suma de los 18 rubros, columna por columna
+  const filaTotal=meta.findIndex(m=>m.clase==="total");
+  for(let c=1;c<14;c++){
+    const col=XLSX.utils.encode_col(c);
+    const cl=cel(filaTotal,c); cl.t="n";
+    cl.f=filasRubro.map(r=>`${col}${fil(r)}`).join("+");
+  }
+
+  // ── Estilos y esquema de agrupación ──────────────────────────────────────
+  ws["!rows"]=[];
+  const anchoTotal=15;
+  meta.forEach((m,r)=>{
+    const est = m.clase==="titulo"?VF_TITULO : m.clase==="proyecto"?VF_PROYECTO
+      : m.clase==="seccion"?VF_SECCION : m.clase==="encabezado"?VF_ENCABEZADO
+      : m.clase==="subcuenta"?VF_SUBCUENTA : m.clase==="rubro"?VF_RUBRO
+      : m.clase==="total"?VF_TOTAL : m.clase==="acumulado"?VF_ACUMULADO : null;
+    for(let c=0;c<16;c++){
+      const a=dir(r,c);
+      if(!ws[a] && !(est&&c<14)) continue;
+      const cl=cel(r,c);
+      cl.s=estiloCel(est);
+      // Banda alterna clara en las subcuentas, como en su archivo.
+      if(m.clase==="subcuenta" && m.banda) cl.s={...cl.s, ...estiloCel(VF_BANDA)};
+      // Formato CONTABLE en toda celda de importe: columna B y C..N.
+      // No es General — ése es el del "Excel para Apps". No confundirlos.
+      if(c>=1 && c<=13 && m.clase!=="encabezado" && m.clase!=="seccion"
+         && m.clase!=="titulo" && m.clase!=="proyecto" && m.clase!=="vacia") cl.z=FMT_CONTABLE;
+    }
+    // Esquema: las subcuentas en nivel 1, los rubros en nivel 0. Con
+    // summaryBelow, Excel entiende que el rubro resume a las de arriba y al
+    // colapsar deja solo los rubros.
+    ws["!rows"][r] = m.clase==="subcuenta" ? {level:1} : {level:0};
+  });
+  ws["!outline"]={above:false};   // summaryBelow = true
+
+  ws["!merges"]=[
+    {s:{r:0,c:0}, e:{r:0,c:1}},   // A1:B1
+    {s:{r:1,c:0}, e:{r:1,c:1}},   // A2:B2
+    {s:{r:2,c:0}, e:{r:2,c:13}},  // A3:N3  INGRESOS
+    {s:{r:6,c:0}, e:{r:6,c:13}},  // A7:N7  EGRESOS
+  ];
+  ws["!cols"]=[{wch:34.1},{wch:18.9},{wch:16.6},...Array(11).fill({wch:15.6}),
+    {wch:8.4},{wch:11.4}];        // A · B · C · D..N · O vacía · P comentarios
+  ws["!ref"]=XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:15}});
+  void anchoTotal;
+
+  XLSX.utils.book_append_sheet(wb, ws, "MN");
+  XLSX.writeFile(wb, `PRESUPUESTO ${anio} - ${(pres?.unidadNegocio||nombre||"GEOLIS")}.xlsx`);
+}
 
 async function exportarExcelApps({bloques, pres}){
   const wb=XLSX.utils.book_new();
@@ -2815,17 +3041,17 @@ async function exportarExcelApps({bloques, pres}){
   // Arial 10 y General en TODA celda con contenido; las bandas se pintan encima.
   for(let r=0;r<aoa.length;r++) for(let c=0;c<16;c++){
     const cel=ws[dir(r,c)];
-    if(cel){ cel.s={...AF_DATO}; if(typeof cel.v==="number") cel.z="General"; }
+    if(cel){ cel.s=estiloCel(AF_DATO); if(typeof cel.v==="number") cel.z="General"; }
   }
   ws["!merges"]=[];
   filasBloque.forEach(r=>{
-    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s={...AF_BLOQUE}; }
+    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s=estiloCel(AF_BLOQUE); }
     ws["!merges"].push({s:{r,c:0}, e:{r,c:15}});           // A:P
   });
-  filasEncabezado.forEach(r=>{ for(let c=0;c<16;c++) if(ws[dir(r,c)]) ws[dir(r,c)].s={...AF_ENCABEZADO}; });
+  filasEncabezado.forEach(r=>{ for(let c=0;c<16;c++) if(ws[dir(r,c)]) ws[dir(r,c)].s=estiloCel(AF_ENCABEZADO); });
   filasTotal.forEach(r=>{
-    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s={...AF_TOTAL}; }
-    ws[dir(r,0)].s={...AF_TOTAL_ETIQ};
+    for(let c=0;c<16;c++){ if(!ws[dir(r,c)]) ws[dir(r,c)]={t:"s",v:""}; ws[dir(r,c)].s=estiloCel(AF_TOTAL); }
+    ws[dir(r,0)].s=estiloCel(AF_TOTAL_ETIQ);
     ws["!merges"].push({s:{r,c:0}, e:{r,c:3}});             // A:D, con TOTAL centrado
   });
   // El rango tiene que cubrir las 16 columnas aunque la última fila sea corta.
@@ -5806,12 +6032,11 @@ export default function App(){
                   :"Archivo de carga para contabilidad, una hoja por rubro")}
               {/* El de revisión NUNCA se bloquea: ahí SÍ debe verse la fila de
                   SIN CATEGORÍA con su monto, que es justo lo que hay que revisar. */}
-              {btn("⬇ Excel visual",()=>exportarExcel({
-                pres,areas,costos,ingresos,mCapex,mOpex,mEgresos,
-                mFlujo,mFlujoAcum,mIngresos,totalCAPEX,totalOPEX,totalEgr,
-                totalIngresosAnual,MESES13,NMESES,totalNom,totalCat,ingAdicionales,
-                nivel:"detalle"
-              }),"secondary",false,"Detalle por subcuenta — para revisar la clasificación antes de cargar")}
+              {btn("⬇ Excel visual",()=>exportarExcelVisual({
+                visual:filasExcelVisual({filasServicio, fechaInicio:pres?.fechaInicio,
+                  mFlujoAcum, nombre:pres?.nombre}),
+                pres
+              }),"secondary",false,"Plantilla completa por subcuenta — para revisar la clasificación antes de cargar")}
               {btn("⬇ PDF",()=>window.print(),"primary")}
             </div>
           </div>
