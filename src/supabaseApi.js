@@ -218,7 +218,13 @@ export async function guardarPresupuestoEnNube({pres, form, areas, costos, ingAd
 
   // Ingresos adicionales: reemplazo completo
   await supabase.from("ingresos_adicionales").delete().eq("presupuesto_id",presupuestoId);
-  const ingRows=(ingAdicionales||[]).map(x=>({presupuesto_id:presupuestoId,descripcion:x.desc||"",mes:x.mes||1,anio:x.anio||new Date().getFullYear(),monto:x.monto||0}));
+  // mes: ?? y no || — 0 es falsy en JavaScript, así que "x.mes||1" convertía un
+  // M0 capturado en M1 al guardar. Con el desplegable arrancando en 1 eso nunca
+  // se disparaba; ahora que ofrece M0 sí, y movería el dinero un mes sin avisar.
+  // Misma corrección que se hizo en imss/prestaciones/isr (commit 4e4d6e8).
+  // Solo cambia el comportamiento cuando x.mes es exactamente 0; undefined y
+  // null siguen cayendo a 1 igual que antes.
+  const ingRows=(ingAdicionales||[]).map(x=>({presupuesto_id:presupuestoId,descripcion:x.desc||"",mes:x.mes??1,anio:x.anio||new Date().getFullYear(),monto:x.monto||0}));
   if(ingRows.length){ const {error} = await supabase.from("ingresos_adicionales").insert(ingRows); if(error) console.error("[supabase] insert ingresos_adicionales:",error.message); }
 
   console.log(`[supabase] guardado OK: presupuesto ${presupuestoId} — ${(areas||[]).length} área(s), ${ingRows.length} ingreso(s) adicional(es)`);

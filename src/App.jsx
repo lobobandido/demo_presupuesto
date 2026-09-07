@@ -5201,7 +5201,15 @@ export default function App(){
                   <select value={ing.mes} onChange={e=>setIngAd(prev=>prev.map(x=>x.id===ing.id?{...x,mes:parseInt(e.target.value)}:x))}
                     className="sel-brand"
                     style={{width:"100%",padding:"8px 10px",border:`1px solid ${C.grayBorder}`,borderRadius:6,fontSize:12,background:C.white}}>
-                    {Array.from({length:NUM_MESES_OP},(_,i)=>i+1).map(m=>{
+                    {Array.from({length:NUM_MESES_OP+1},(_,i)=>i).map(m=>{
+                      // Arranca en 0, no en 1. Antes era length:NUM_MESES_OP con i+1,
+                      // que dejaba fuera M0 mientras la tabla de abajo SI pinta la
+                      // columna M0 (MESES13, largo NUM_MESES_OP+1): la columna existía
+                      // y no había forma de meterle dinero. calcularSerieMensual ya
+                      // esperaba el caso, filtra x.mes===i desde i=0 (App.jsx:837).
+                      // Medido antes del cambio: cero filas de ingresos_adicionales
+                      // con mes=0 en toda la base, mes mínimo 1 — nadie pudo capturar
+                      // ahí, así que ninguna partida existente se mueve de mes.
                       const real=nombreMesReal(m,pres?.fechaInicio);
                       return(
                         <option key={m} value={m}>M{m}{real?` · ${real}`:""}</option>

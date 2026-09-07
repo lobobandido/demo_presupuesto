@@ -450,6 +450,24 @@ Se oculta por completo cuando el tipo no factura:
 const mostrarIngresos = pres?.tipo==="instalacion"||pres?.tipo==="servicio";  // src/App.jsx:3447
 ```
 
+#### El desplegable de mes de «Facturación» ofrece M0 (07-sep-2026)
+
+Antes arrancaba en **M1**: `Array.from({length:NUM_MESES_OP},(_,i)=>i+1)` (`src/App.jsx:5204`).
+La tabla de abajo sí pinta la columna **M0** —recorre `MESES13`, de largo `NUM_MESES_OP+1`
+(`src/App.jsx:731`)— y `calcularSerieMensual` ya filtraba `x.mes===i` desde `i=0`
+(`src/App.jsx:837`): la columna existía, el cálculo la esperaba y no había forma de meterle
+dinero. Bloqueó la captura del F218357, cuyo mes más grande cae en M0. Hoy el rango es
+`{length:NUM_MESES_OP+1}` con `i`, o sea M0..Mn, con la misma etiqueta `M0 · Ene 26`.
+
+Iba junto un segundo defecto que hacía inútil el primero: `guardarPresupuestoEnNube` escribía
+`mes: x.mes||1` (`src/supabaseApi.js:221`). Como `0` es falsy, un M0 capturado se guardaba como
+M1 y el dinero se movía un mes en silencio al reabrir. Ahora es `x.mes??1` — misma corrección
+que se hizo en `imss`/`prestaciones`/`isr` (commit `4e4d6e8`).
+
+**No movió ningún monto existente.** Medido por GET antes del cambio: cero filas de
+`ingresos_adicionales` con `mes=0` en toda la base, mes mínimo `1` — nadie podía capturar ahí.
+Los 5 KPIs de los 8 presupuestos dieron idénticos antes y después.
+
 ### Qué autocompleta la columna «Categoría»
 
 Elegir una categoría del desplegable de `CatalogInput` cambia **solo la categoría**
