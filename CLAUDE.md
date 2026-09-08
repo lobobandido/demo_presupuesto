@@ -62,6 +62,15 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 
 ## Bugs conocidos abiertos (NO arreglar salvo que se pidan)
 
+- **VIÁTICOS con acento en PERDIZ-PAPAN ($42,535.70).** Una categoría de OPEX
+  capturada como `VIÁTICOS` sale como fila propia dentro del bloque `VIATICOS`
+  de la hoja MN, así que se lee como un renglón repetido. El dinero cuadra
+  —queda dentro de los hijos y del subtotal, el resto sale 0— así que es
+  presentación, no monto. `normCat` no la dedupe porque `propias` ya excluyó la
+  subcuenta homónima del catálogo y la grafía acentuada entra por `extras`.
+  Misma familia que el CAPEX mal clasificado (arreglado el 2026-09-08), pero más
+  leve. Sin arreglar a propósito, se ve después.
+
 - M0 no acepta OPEX: Math.max(1,…) en distribuirOpex y en el onChange del
   selector de mes. El cliente confirmó que M0 SÍ debe permitirse.
 - calcularNumMesesOp: duración con un mes de menos.

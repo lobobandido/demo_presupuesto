@@ -194,9 +194,22 @@ const SUBCAT_MAPPING = {"ARRENDAMIENTO DE INMUEBLES": "ARRENDA DE INMUEBLES Y SE
   "EQUIPO DE MOBILIARIO": "ACTIVOS",   // CSV: subcuenta de ACTIVOS · opción de CAT_CAPEX
   "OTROS ACTIVOS": "ACTIVOS",          // CSV: subcuenta de ACTIVOS · 5 partidas
   "SOFTWARE Y LICENCIAS": "ACTIVOS",   // CSV: "SOFTWARE Y LICICENCIAS" (errata de Anel), subcuenta de ACTIVOS
-  // EQUIPO DE ADQUISICION no existe en el CSV. Aprobado a ACTIVOS: es CAPEX, ya
-  // cuelga del macro:"ACTIVOS" fijo, y cualquier respuesta de Anel va a ser una
-  // subcuenta de ACTIVOS igual. 4 partidas de Cuervito.
+  // EQUIPO DE ADQUISICION no existe en el CSV. Aprobado a ACTIVOS, pero OJO con
+  // el argumento: la justificación original decía "es CAPEX, ya cuelga del
+  // macro:'ACTIVOS' fijo, y cualquier respuesta de Anel va a ser una subcuenta
+  // de ACTIVOS igual". ESA PREMISA YA NO ES CIERTA (08-sep-2026).
+  //   1. El macro:"ACTIVOS" fijo se quitó. construirFilasServicio clasifica el
+  //      CAPEX con macroDeCategoria, igual que el OPEX, así que "ser CAPEX" ya
+  //      no manda a ACTIVOS: ahora ESTA LÍNEA es lo único que lo decide.
+  //   2. "Cualquier respuesta de Anel va a ser una subcuenta de ACTIVOS" era
+  //      falso. En su archivo, ACTIVOS y EQUIPO DE COMPUTO son dos rubros
+  //      distintos con clave propia (ACT y EQU), y la compra de cómputo va en
+  //      EQU. El CAPEX de una app se reparte entre varios rubros, no solo
+  //      ACTIVOS.
+  // Se conserva el mapeo porque sigue siendo lo mejor que se sabe hoy —son 4
+  // partidas de Cuervito, equipo de campo, y ACTIVOS es el rubro plausible— pero
+  // queda como PREGUNTA ABIERTA para Anel, no como deducción. Si ella dice otro
+  // rubro, se cambia aquí y el reparto la sigue sin tocar nada más.
   "EQUIPO DE ADQUISICION": "ACTIVOS",
   // INSUMOS OPERATIVOS tampoco existe en el CSV. Su rubro se deduce de que
   // INSUMOS AGRICOLAS —la única clave que apuntaba aquí— es subcuenta de
@@ -2565,7 +2578,89 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
   filas.push({tipo:"detalle", label:"FACTURACIÓN", macro:null, bloque:"ingresos", total:totalIngresosAnual, mensual:mIngresos});
   filas.push({tipo:"seccion", label:"EGRESOS año", macro:null, bloque:null, total:"", mensual:Array(NMESES).fill("")});
 
-  // CAPEX: 1 renglón por categoría (fecha real de compra), + rollup "ACTIVOS"
+  // ── Orden de los rubros: EL DEL ARCHIVO DE ANEL, no alfabético ──────────
+  // (03-sep-2026, autorizado por el usuario a tocar esta función.)
+  // CATS_MACRO_CONTABLE ya viene en el orden exacto de
+  // docs/catalogo_contable_2027.csv — se usa su índice, no se modifica la lista
+  // (regla 2 de CLAUDE.md: es de finanzas). Antes era localeCompare, que en
+  // estos 18 rubros da casi el mismo resultado por casualidad —el catálogo está
+  // casi alfabetizado— pero no lo garantiza y además metía SIN CATEGORÍA en la
+  // "S", entre SERVICIOS DE CAPACITACION y VEHICULOS.
+  // Cambia el ORDEN de las filas, no los montos: es un sort, cada fila conserva
+  // su total y su arreglo mensual.
+  // 08-sep-2026: se SUBIÓ hasta aquí, sin tocar una línea, para que el bloque de
+  // CAPEX use el mismo orden que el de OPEX en vez de una copia.
+  const ORDEN_RUBRO=new Map(CATS_MACRO_CONTABLE.map((r,i)=>[normCat(r),i]));
+  const SIN_CATEGORIA="SIN CATEGORÍA";
+  function posMacro(m){
+    if(m===SIN_CATEGORIA) return 9999;                 // siempre al final, con su etiqueta
+    const i=ORDEN_RUBRO.get(normCat(m));
+    return i===undefined ? 9000 : i;                   // lo que no es rubro del CSV, antes de SIN CATEGORÍA
+  }
+  const ordenMacro=(a,b)=>{
+    const d=posMacro(a)-posMacro(b);
+    return d!==0 ? d : a.localeCompare(b);             // desempate estable entre los "no rubro"
+  };
+
+  // Emite las filas de un bloque agrupadas por rubro contable: los detalles de
+  // cada rubro y después su fila de subtotal. La usan CAPEX y OPEX — es UNA
+  // función y no dos recorridos, para que las dos secciones no puedan volver a
+  // despegarse en la forma de clasificar.
+  function emitirPorRubro(porCat, bloque, ajusteSubtotal){
+    const grupos={};
+    Object.entries(porCat).forEach(([cat,arr])=>{
+      const macro=macroDeCategoria(cat);
+      if(!grupos[macro]) grupos[macro]={};
+      grupos[macro][cat]=arr;
+    });
+    // ajusteSubtotal: arreglo mensual que se SUMA al subtotal de ACTIVOS sin
+    // emitir fila de detalle. Ver la nota de la llamada de CAPEX.
+    if(ajusteSubtotal && ajusteSubtotal.some(v=>Math.abs(v)>=0.005) && !grupos["ACTIVOS"]) grupos["ACTIVOS"]={};
+    Object.entries(grupos).sort((a,b)=>ordenMacro(a[0],b[0])).forEach(([macro,cats])=>{
+      const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
+      const macroArr=Array(NMESES).fill(0);
+      catEntries.forEach(([,arr])=>arr.forEach((v,i)=>{ macroArr[i]+=v; }));
+      if(ajusteSubtotal && macro==="ACTIVOS") ajusteSubtotal.forEach((v,i)=>{ macroArr[i]+=v; });
+      const totalMacro=macroArr.reduce((s,v)=>s+v,0);
+      // Rubro sin dinero no se pinta.
+      if(totalMacro===0) return;
+      // TODO rubro emite su fila de subtotal, siempre. Antes, un rubro con una
+      // sola subcuenta que se llamaba igual que él (esUnaSolaIgualAMacro) salía
+      // como una fila de detalle suelta y SIN subtotal — o sea que Anel no lo veía
+      // como rubro. Le pasa a SERVICIOS en PERDIZ-PAPAN y a otros siete rubros
+      // ahí, y a cinco en Cuervito: entre los dos son $8.0M colgando de filas que
+      // no son de rubro. En el Excel condensado, que se arma con las filas de
+      // subtotal, ese dinero simplemente no aparecería.
+      // La fila de detalle redundante (la que repite el nombre del rubro) se
+      // omite: no aporta nada y duplicaría el renglón en pantalla. El dinero NO
+      // se va con ella — se queda en el subtotal, y filasExcelVisual lo vuelve
+      // visible como fila de "resto del rubro".
+      const soloRepiteElRubro=catEntries.length===1 && normCat(catEntries[0][0])===normCat(macro);
+      if(!soloRepiteElRubro){
+        catEntries.forEach(([cat,arr])=>{
+          filas.push({tipo:"detalle", label:cat, macro, bloque, total:arr.reduce((s,v)=>s+v,0), mensual:arr});
+        });
+      }
+      filas.push({tipo:"subtotal", label:macro, macro, bloque, total:totalMacro, mensual:macroArr});
+    });
+  }
+
+  // CAPEX: 1 renglón por categoría (fecha real de compra), agrupado POR RUBRO
+  // CONTABLE.
+  //
+  // 08-sep-2026 — ANTES todas las filas de CAPEX llevaban macro:"ACTIVOS" fijo y
+  // el bloque emitía UN solo subtotal llamado ACTIVOS con totalCAPEX. Era
+  // clasificación incorrecta, no un detalle de presentación: el "Excel para
+  // Apps" es el archivo de carga de contabilidad, y con esa regla se mandaban
+  // bajo la clave ACT $3,374,235.00 de TI H1 2026, $168,000.00 de
+  // PRC LITORAL-BECH y $84,000.00 de Cuervito que van bajo EQU.
+  // El archivo de Anel lo dice sin ambigüedad: en su hoja MN, ACTIVOS y
+  // EQUIPO DE COMPUTO son dos rubros con su propia fila y su propia clave, y la
+  // compra de cómputo va en EQUIPO DE COMPUTO.
+  // Ahora el CAPEX pasa por macroDeCategoria igual que el OPEX. Verificado: el
+  // reparto por rubro solo se mueve en esos tres presupuestos y siempre entre
+  // ACTIVOS y EQUIPO DE COMPUTO; TOTAL EGRESOS no cambia un centavo en ninguno
+  // de los seis.
   const capexPorCat={};
   areas.forEach(id=>{
     (costos[id]?.capex||[]).forEach(p=>{
@@ -2574,12 +2669,31 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
       capexPorCat[k][mesIndexCapex(p,pres?.fechaInicio,NUM_MESES_OP)]+=(p.cantidad||0)*(p.monto||0);
     });
   });
-  Object.entries(capexPorCat).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cat,arr])=>{
-    filas.push({tipo:"detalle", label:cat, macro:"ACTIVOS", bloque:"capex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
-  });
-  if(Object.keys(capexPorCat).length>0){
-    filas.push({tipo:"subtotal", label:"ACTIVOS", macro:"ACTIVOS", bloque:"capex", total:totalCAPEX, mensual:mCapex});
+  // GUARDARRAÍL DE DINERO. mCapex viene de calcularSerieMensual y SÍ incluye las
+  // partidas de PLANTILLAS (capexPM); capexPorCat NO, porque esta función nunca
+  // ha recibido capexPM. Mientras el subtotal era uno solo con totalCAPEX esa
+  // diferencia quedaba dentro del subtotal y el dinero salía en el archivo. Al
+  // pasar a subtotales calculados desde capexPorCat, ese dinero se caería sin
+  // que ningún total lo delatara —es exactamente la clase de fuga de los $8.0M—
+  // así que se mide la diferencia y se suma al subtotal de ACTIVOS, que es
+  // donde vive hoy. Con plantillas vacías el ajuste es cero y no cambia nada.
+  const sumaCat=Array(NMESES).fill(0);
+  Object.values(capexPorCat).forEach(arr=>arr.forEach((v,i)=>{ sumaCat[i]+=v; }));
+  const ajusteCapex=(mCapex||[]).map((v,i)=>(v||0)-(sumaCat[i]||0));
+  if(import.meta.env.DEV){
+    const dif=ajusteCapex.reduce((s,v)=>s+v,0);
+    if(Math.abs(dif)>=0.005){
+      console.warn(
+        `[capex] ${fmt(dif)} de CAPEX no salen de las partidas de las áreas (son partidas de\n`+
+        `PLANTILLAS, que esta función no recibe). Se suman al subtotal de ACTIVOS para que no se\n`+
+        `caigan del Excel; filasExcelVisual los muestra como fila de "resto del rubro".`
+      );
+    }
   }
+  if(Object.keys(capexPorCat).length>0 || ajusteCapex.some(v=>Math.abs(v)>=0.005)){
+    emitirPorRubro(capexPorCat, "capex", ajusteCapex);
+  }
+  void totalCAPEX;   // el subtotal ya no es uno solo: cada rubro suma el suyo
 
   // OPEX: 1 renglón por categoría (mat/via con periodicidad real), nómina agregada en un solo renglón
   const opexPorCat={};
@@ -2602,58 +2716,13 @@ function construirFilasServicio({pres, areas, costos, NMESES, mCapex, mEgresos, 
   });
   if(hayNomina) opexPorCat["NOMINA Y ADICIONALES"]=nominaArr;
 
-  // Agrupar categorías OPEX bajo su categoría contable macro
-  const macroGrupos={};
-  Object.entries(opexPorCat).forEach(([cat,arr])=>{
-    const macro=macroDeCategoria(cat);
-    if(!macroGrupos[macro]) macroGrupos[macro]={};
-    macroGrupos[macro][cat]=arr;
-  });
-  // ── Orden de los rubros: EL DEL ARCHIVO DE ANEL, no alfabético ──────────
-  // (03-sep-2026, autorizado por el usuario a tocar esta función.)
-  // CATS_MACRO_CONTABLE ya viene en el orden exacto de
-  // docs/catalogo_contable_2027.csv — se usa su índice, no se modifica la lista
-  // (regla 2 de CLAUDE.md: es de finanzas). Antes era localeCompare, que en
-  // estos 18 rubros da casi el mismo resultado por casualidad —el catálogo está
-  // casi alfabetizado— pero no lo garantiza y además metía SIN CATEGORÍA en la
-  // "S", entre SERVICIOS DE CAPACITACION y VEHICULOS.
-  // Cambia el ORDEN de las filas, no los montos: es un sort, cada fila conserva
-  // su total y su arreglo mensual.
-  const ORDEN_RUBRO=new Map(CATS_MACRO_CONTABLE.map((r,i)=>[normCat(r),i]));
-  const SIN_CATEGORIA="SIN CATEGORÍA";
-  function posMacro(m){
-    if(m===SIN_CATEGORIA) return 9999;                 // siempre al final, con su etiqueta
-    const i=ORDEN_RUBRO.get(normCat(m));
-    return i===undefined ? 9000 : i;                   // lo que no es rubro del CSV, antes de SIN CATEGORÍA
-  }
-  const ordenMacro=(a,b)=>{
-    const d=posMacro(a)-posMacro(b);
-    return d!==0 ? d : a.localeCompare(b);             // desempate estable entre los "no rubro"
-  };
-  Object.entries(macroGrupos).sort((a,b)=>ordenMacro(a[0],b[0])).forEach(([macro,cats])=>{
-    const catEntries=Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0]));
-    const macroArr=Array(NMESES).fill(0);
-    catEntries.forEach(([,arr])=>arr.forEach((v,i)=>macroArr[i]+=v));
-    const totalMacro=macroArr.reduce((s,v)=>s+v,0);
-    // Rubro sin dinero no se pinta.
-    if(totalMacro===0) return;
-    // TODO rubro emite su fila de subtotal, siempre. Antes, un rubro con una
-    // sola subcuenta que se llamaba igual que él (esUnaSolaIgualAMacro) salía
-    // como una fila de detalle suelta y SIN subtotal — o sea que Anel no lo veía
-    // como rubro. Le pasa a SERVICIOS en PERDIZ-PAPAN y a otros siete rubros
-    // ahí, y a cinco en Cuervito: entre los dos son $8.0M colgando de filas que
-    // no son de rubro. En el Excel condensado, que se arma con las filas de
-    // subtotal, ese dinero simplemente no aparecería.
-    // La fila de detalle redundante (la que repite el nombre del rubro) se
-    // omite: no aporta nada y duplicaría el renglón en pantalla.
-    const soloRepiteElRubro=catEntries.length===1 && normCat(catEntries[0][0])===normCat(macro);
-    if(!soloRepiteElRubro){
-      catEntries.forEach(([cat,arr])=>{
-        filas.push({tipo:"detalle", label:cat, macro, bloque:"opex", total:arr.reduce((s,v)=>s+v,0), mensual:arr});
-      });
-    }
-    filas.push({tipo:"subtotal", label:macro, macro, bloque:"opex", total:totalMacro, mensual:macroArr});
-  });
+  // Agrupar categorías OPEX bajo su categoría contable macro y emitir sus filas.
+  // Es la MISMA función que usa el CAPEX desde el 08-sep-2026 (emitirPorRubro,
+  // arriba): antes este recorrido vivía aquí en línea y el de CAPEX era otro,
+  // que clasificaba distinto. Unificarlos es lo que impide que se vuelvan a
+  // despegar. Cero cambio de comportamiento para el OPEX: mismo agrupado, mismo
+  // orden, misma guarda de la fila redundante, mismos montos.
+  emitirPorRubro(opexPorCat, "opex");
 
   filas.push({tipo:"total", label:"TOTAL EGRESOS", macro:null, bloque:null, total:totalEgr, mensual:mEgresos});
 
@@ -2870,7 +2939,35 @@ function filasExcelVisual({filasServicio, fechaInicio, mFlujoAcum, nombre, parid
     const resto=subtotal.map((v,i)=>v-deHijos[i]);
     // Medio centavo de tolerancia: el resto es una resta de flotantes y un
     // 1e-10 no es dinero, es ruido de punto flotante.
-    const hayResto=resto.some(v=>Math.abs(v)>=0.005);
+    //
+    // GUARDA (08-sep-2026): solo se emite fila si el resto es POSITIVO. Un resto
+    // negativo nunca es un dato válido —significa que se listó un hijo en un
+    // rubro cuyo subtotal no lo incluye— y salía como un importe inventado en
+    // negativo. Pasó en PRC LITORAL-BECH: EQUIPO DE COMPUTO (Adquisición) se
+    // emitía a la vez bajo ACTIVOS (por el macro:"ACTIVOS" fijo del CAPEX) y
+    // bajo EQUIPO DE COMPUTO (por el CSV), y el rubro remataba con
+    // −168,000.00. La CAUSA se arregló en construirFilasServicio, que ya
+    // clasifica el CAPEX por rubro; esto es el cinturón, para que un desajuste
+    // futuro no vuelva a pintar dinero negativo en un archivo de contabilidad.
+    // Medido: con la causa arreglada hay CERO restos negativos en los 6
+    // presupuestos, así que esta guarda no quita ninguna fila que hoy exista.
+    //
+    // La condición mira el resto ANUAL, no mes por mes: un mes suelto en
+    // negativo con el año en positivo sigue siendo dinero que hay que mostrar, y
+    // descartar la fila por eso sería peor que el bug. Si el año sale negativo la
+    // fila no se emite y el guardarraíl de abajo lo grita — el rubro va a quedar
+    // por debajo de su subtotal, o sea que hay algo mal ARRIBA de aquí, y eso se
+    // arregla en la clasificación, no tapándolo con un importe negativo.
+    const restoAnual=resto.reduce((s,v)=>s+v,0);
+    const hayResto=restoAnual>=0.005;
+    if(import.meta.env.DEV && restoAnual<=-0.005){
+      console.error(
+        `[visual] el "resto" de ${ru} salió NEGATIVO (${fmt(restoAnual)}). No se emite fila, así que\n`+
+        `este rubro va a quedar por debajo de su subtotal. Significa que una subcuenta se está\n`+
+        `listando en un rubro cuyo subtotal no la incluye: revisa qué rubro le asigna\n`+
+        `construirFilasServicio contra el que le da el CSV.`
+      );
+    }
     if(hayResto) listadas.push(ru);
 
     listadas.forEach(sub=>{

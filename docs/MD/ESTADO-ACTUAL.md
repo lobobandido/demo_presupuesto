@@ -887,6 +887,12 @@ Detalles que no son adorno:
 - El caso de las **4 subcuentas que se llaman igual que su rubro** (`INSUMOS AGRICOLAS`,
   `NOMINA Y ADICIONALES`, `SERVICIOS DE CAPACITACION`, `UNIFORMES`) es distinto y ya estaba
   resuelto: ahí el rubro no tiene hijos y toma su subtotal directo.
+- **El resto solo se emite si es POSITIVO** (guarda del 08-sep-2026), y la condición mira el
+  resto **anual**, no mes por mes: un mes suelto en negativo con el año en positivo sigue siendo
+  dinero que hay que mostrar. Si el año sale negativo la fila no se emite y un `console.error` de
+  DEV lo grita, porque un resto negativo **no es un dato**: significa que una subcuenta se está
+  listando en un rubro cuyo subtotal no la incluye, y eso se arregla en la clasificación, no
+  pintando un importe negativo en un archivo de contabilidad.
 
 Lo que costaba. Medido corriendo el código de antes y el de después sobre los mismos datos
 reales bajados por GET:
@@ -902,6 +908,50 @@ es una contradicción: su único caso es `EQUIPO DE COMPUTO`, un rubro sin ningu
 listada, y ésos ya salían bien por la rama que toma el subtotal directo. **El dinero se perdía
 solo cuando el rubro tenía además otras subcuentas** — que es justo el caso que parece no
 necesitar nada.
+
+#### El CAPEX se clasifica por rubro, no todo a ACTIVOS (08-sep-2026)
+
+Hasta esa fecha `construirFilasServicio` ponía **`macro:"ACTIVOS"` fijo** en cada fila de CAPEX y
+emitía **un solo subtotal** llamado ACTIVOS con `totalCAPEX`. Solo el OPEX pasaba por
+`macroDeCategoria`. **No era presentación: era clasificación incorrecta en el archivo de carga de
+contabilidad.** Bajo la clave `ACT` se mandaban $3,374,235.00 de TI H1 2026, $168,000.00 de
+PRC LITORAL-BECH y $84,000.00 de Cuervito que van bajo `EQU` — $3.63M en total.
+
+**El archivo de Anel lo contesta sin ambigüedad.** En su hoja MN, `ACTIVOS` (fila 14,
+$92,286,900.00) y `EQUIPO DE COMPUTO` (fila 29, $168,006.00) son **dos rubros con su propia fila y
+su propia clave** (`ACT` y `EQU` en `src/catalogoClaves.js`), y la compra de cómputo va en EQU. No
+había que preguntarle.
+
+Ahora **CAPEX y OPEX usan la misma función**, `emitirPorRubro`: agrupa por `macroDeCategoria`,
+ordena por el índice de `CATS_MACRO_CONTABLE`, omite la fila de detalle redundante
+(`soloRepiteElRubro`) y emite un subtotal por rubro. Es una sola función y no dos recorridos
+**a propósito**: dos recorridos es lo que permitió que las dos secciones clasificaran distinto
+durante semanas sin que ningún total lo delatara.
+
+Reparto que se movió. Solo 3 de los 6 presupuestos, y siempre entre esos dos rubros:
+
+| Presupuesto | ACTIVOS antes | ACTIVOS después | EQUIPO DE COMPUTO antes | después |
+|---|---:|---:|---:|---:|
+| Cuervito | 7,038,940.00 | 6,954,940.00 | 0.00 | 84,000.00 |
+| PRC LITORAL-BECH | 92,454,900.00 | 92,286,900.00 | 0.00 | 168,000.00 |
+| Presupuesto TI H1 2026 | 4,381,626.55 | 1,007,391.55 | 0.00 | 3,374,235.00 |
+
+`TOTAL EGRESOS` idéntico en los seis. Es reclasificación, no recálculo.
+
+**Efecto colateral bueno**: el duplicado y el resto negativo de PRC LITORAL-BECH
+(`EQUIPO DE COMPUTO (Adquisición)` emitida dos veces y el rubro remachando con −168,000.00)
+**desaparecen solos**. La causa era justo que `rubroDe` venía del `macro` fijo mientras `propias`
+venía del CSV; con los dos leyendo la misma fuente, `extras` ya no la coloca bajo ACTIVOS y
+`usadas` la descarta en su propio rubro.
+
+**GUARDARRAÍL DE DINERO que hay que entender antes de tocar `emitirPorRubro`.** `mCapex` viene de
+`calcularSerieMensual` y **sí incluye las partidas de PLANTILLAS** (`capexPM`); `capexPorCat`
+**no**, porque `construirFilasServicio` nunca ha recibido `capexPM`. Mientras el subtotal era uno
+solo con `totalCAPEX`, esa diferencia quedaba dentro del subtotal y el dinero salía en el archivo.
+Con subtotales calculados desde `capexPorCat` se caería **sin que ningún total lo delatara** — la
+misma clase de fuga que los $8.0M. Por eso se mide `ajusteCapex = mCapex − Σ capexPorCat` y se
+suma al subtotal de ACTIVOS, con un `console.warn` de DEV. Con plantillas vacías el ajuste es cero
+y no cambia nada; hoy los 6 presupuestos están así.
 
 Después del arreglo el TOTAL del «visual» sale idéntico al del «para Apps» en los tres.
 
