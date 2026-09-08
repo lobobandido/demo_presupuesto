@@ -772,20 +772,69 @@ hoja USD**: la suya está editada a mano y no cuadra con su propia paridad.
 que al colapsar queda la fila del rubro y no la primera subcuenta. Se escribe con
 `ws["!outline"]={above:false}`.
 
-Dos cosas que costaron y conviene no volver a descubrir:
+Una cosa que costó y conviene no volver a descubrir: **`wch` no es el ancho que Excel guarda.**
+`wch` son caracteres y SheetJS le suma el relleno de celda al escribir, así que `wch:15` sale
+como `15.83`. Los anchos se ponen con `width`, que se escribe tal cual. Los dos exportadores lo
+usan: la hoja MN coincide byte a byte con la de Anel
+(A 34.140625 · B 18.85546875 · C 16.5703125 · D..N 15.5703125 · P 11.42578125), y el «para Apps»
+lleva `15.5703125` en las 16 columnas — el valor real de su `.xls`, leído con `xlrd`, el mismo
+que las D..N de la MN. La descripción original de "ancho 15" era una lectura redondeada.
 
-- **`wch` no es el ancho que Excel guarda.** `wch` son caracteres y SheetJS le suma el relleno de
-  celda al escribir: `wch:15` sale como `15.83`. Los anchos de la hoja MN se ponen con `width`,
-  que se escribe tal cual, y coinciden byte a byte con los de Anel
-  (A 34.140625 · B 18.85546875 · C 16.5703125 · D..N 15.5703125 · P 11.42578125).
-  **Los dos exportadores usan `width`.** El «para Apps» lleva `15.5703125` en las 16 columnas —
-  el valor real de su `.xls`, leído con `xlrd`, y el mismo que las D..N de la hoja MN. La
-  descripción anterior de "ancho 15" era una lectura redondeada; no es 15 ni 15.83.
-- **El total de un rubro no se puede sumar de sus subcuentas.** Si alguien captura usando el
-  NOMBRE DEL RUBRO como categoría, `construirFilasServicio` omite esa fila de detalle por
-  redundante y el dinero solo vive en el subtotal. `filasExcelVisual` lo recupera por diferencia
-  (`subtotal − Σ hijos`) y lo emite como una subcuenta más rotulada con el nombre del rubro. Sin
-  eso, Cuervito daba $8,123,740.00 contra $10,978,740.00.
+#### El resto del rubro — NO SIMPLIFICAR
+
+**El total de un rubro NO se puede obtener sumando sus subcuentas.** Parece que sí, la suma de
+hijos se ve más limpia, y quien la "simplifique" va a tirar dinero sin que nada falle.
+
+El mecanismo completo, porque el defecto está repartido entre dos funciones y ninguna de las dos
+se ve mal por sí sola:
+
+1. La regla de captura correcta es Categoría = subcategoría descriptiva
+   (`POSTE DE TELEMETRIA` → la app mapea sola a MATERIALES). Pero **se puede capturar usando el
+   NOMBRE DEL RUBRO como categoría** (`MATERIALES` / `MATERIALES`), y el usuario lo hace seguido
+   — es la queja literal del cliente que ya está en CLAUDE.md.
+2. Cuando eso pasa, **`construirFilasServicio` NO emite fila de detalle**: la considera
+   redundante, porque el renglón de subtotal del rubro ya dice exactamente lo mismo. Esa decisión
+   es correcta en pantalla y no hay que tocarla.
+3. Consecuencia: ese dinero **existe solo en el subtotal del rubro** y no tiene ninguna fila hija
+   que lo represente. Una fila de rubro que sume a sus hijos lo deja fuera, y como el archivo se
+   genera igual y todas las demás cifras cuadran, **no hay error, no hay aviso, no hay nada**:
+   el total sale más chico y ya.
+4. `filasExcelVisual` lo recupera **por diferencia**: `resto = subtotal(rubro) − Σ(hijos listados)`.
+   Si `resto` no es cero, emite **una subcuenta más rotulada con el nombre del rubro** que lo
+   carga, y la suma del rubro vuelve a cuadrar.
+
+Detalles que no son adorno:
+
+- La tolerancia es de **medio centavo** (`Math.abs(v) >= 0.005`). `resto` es una resta de
+  flotantes; un `1e-10` no es dinero, es ruido, y sin el umbral aparecerían filas fantasma en
+  rubros que están perfectos.
+- Los "hijos listados" incluyen las **alias** (categorías capturadas que resuelven al rubro pero
+  no son subcuentas del catálogo). Si se quitaran de la lista, su dinero también se iría al
+  `resto` y saldría rotulado con el nombre del rubro en vez de con el suyo.
+- El caso de las **4 subcuentas que se llaman igual que su rubro** (`INSUMOS AGRICOLAS`,
+  `NOMINA Y ADICIONALES`, `SERVICIOS DE CAPACITACION`, `UNIFORMES`) es distinto y ya estaba
+  resuelto: ahí el rubro no tiene hijos y toma su subtotal directo.
+
+Lo que costaba. Medido corriendo el código de antes y el de después sobre los mismos datos
+reales bajados por GET:
+
+| Presupuesto | TOTAL del «visual» ANTES | AHORA | Se caía | TOTAL EGRESOS |
+|---|---:|---:|---:|---:|
+| Cuervito | 8,906,740.00 | 10,978,740.00 | **2,072,000.00** | 10,978,740.00 |
+| PERDIZ-PAPAN | 34,623,586.43 | 35,375,115.85 | **751,529.42** | 35,375,115.85 |
+| Presupuesto TI H1 2026 | 4,979,691.86 | 4,979,691.86 | 0.00 | 4,979,691.86 |
+
+El `resto` emite fila en **7 rubros de Cuervito, 8 de PERDIZ y 1 de TI**. TI recupera $0.00 y no
+es una contradicción: su único caso es `EQUIPO DE COMPUTO`, un rubro sin ninguna otra subcuenta
+listada, y ésos ya salían bien por la rama que toma el subtotal directo. **El dinero se perdía
+solo cuando el rubro tenía además otras subcuentas** — que es justo el caso que parece no
+necesitar nada.
+
+Después del arreglo el TOTAL del «visual» sale idéntico al del «para Apps» en los tres.
+
+**Antes de tocarlo:** si alguien cree que la suma de hijos basta, la prueba es un presupuesto con
+una partida capturada como `MATERIALES` / `MATERIALES`. Comparar el TOTAL de la hoja MN contra
+TOTAL EGRESOS de la app. Si no cuadran, el `resto` era lo que faltaba.
 
 `macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
 devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la
