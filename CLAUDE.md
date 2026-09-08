@@ -90,9 +90,12 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   guarda un área: aparece en el listado como si existiera, pero no está en
   Supabase. Si su id local se promueve a string sin que la fila exista,
   abrirPresupuesto falla con "No se pudo cargar el presupuesto" y el registro
-  queda inaccesible. Se limpia recargando la página, o desde el 2026-08-25 con
-  el botón `🗑 Eliminar` del listado, que no necesita que el presupuesto se haya
-  podido cargar. Misma clase de problema que tenían
+  queda inaccesible. Se limpia recargando la página. Entre el 2026-08-25 y el
+  2026-09-08 también servía el botón `🗑 Eliminar` del listado, que no necesita
+  que el presupuesto se haya podido cargar, pero **ese botón está oculto desde
+  el 2026-09-08** (petición del director; el bloque está comentado en
+  `App.jsx`, la función intacta). Hoy el único camino es recargar.
+  Misma clase de problema que tenían
   los ingresos antes de moverlos a Capturar costos: la UI aparenta permanencia
   donde no la hay.
 - guardarArea y guardarIngresos pueden solaparse: ambos hacen delete+insert
@@ -121,7 +124,8 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
   que el usuario no puede distinguir "esto ya no existe" de "revisa tu
   conexión"). Misma clase que el fantasma del presupuesto clonado ya listado
   arriba: la UI aparenta permanencia donde no la hay.
-  **El botón `🗑 Eliminar` (2026-08-25) NO cierra este bug.** `eliminarPresupuesto`
+  **El botón `🗑 Eliminar` (2026-08-25, oculto el 2026-09-08) NO cerraba este
+  bug** — y ahora tampoco existe como camino de UI. `eliminarPresupuesto`
   reescribe localStorage (App.jsx:2458), pero **localStorage es por origen**:
   limpia el caché únicamente del navegador y el dominio donde se picó el botón.
   Verificado el 2026-08-25: se borró desde `localhost:5173` y los mismos
@@ -162,18 +166,22 @@ Incorrecto: MATERIALES / MATERIALES → tabla plana, queja literal del cliente.
 
 ## Pendientes de producto
 
-- **R4 de docs/MD/DECISIONES.md queda PENDIENTE DE RECONFIRMAR con Luis.** El
-  2026-08-07 Luis dijo "ahorita no" a un botón de eliminar y se quitó del
-  listado y del breadcrumb. El 2026-08-25 volvió al listado (`🗑 Eliminar`,
-  App.jsx:3009-3016) — **no está aprobado por él todavía**. Argumento para
-  cuando se le pregunte: (a) **no requirió código nuevo** —
-  `eliminarPresupuesto` ya existía completa y solo estaba inalcanzable, el diff
-  es el botón más el texto del `window.confirm` que ya traía; (b) devuelve un
-  camino de borrado que no obliga a entrar al dashboard de Supabase.
-  **NO usar el argumento de que "cierra el fantasma de localStorage": es falso.**
-  Solo limpia el caché del navegador y dominio donde se picó el botón — ver el
-  bug del fantasma arriba. Si Luis dice que no, revertir es quitar el botón y
-  nada más.
+- **R4 de docs/MD/DECISIONES.md se cierra en "no va" el 2026-09-08, y ya no hace
+  falta preguntarle a Luis.** Historia: el 2026-08-07 Luis dijo "ahorita no" a un
+  botón de eliminar y se quitó del listado y del breadcrumb; el 2026-08-25 volvió
+  al listado (`🗑 Eliminar`) sin su aprobación; el **2026-09-08 el director pidió
+  ocultarlo** para que nadie borre un presupuesto por accidente. Las dos voces
+  apuntan al mismo lado, así que el pendiente deja de estar abierto.
+  **Está OCULTO, no borrado**: el bloque del botón quedó comentado en `App.jsx`,
+  dentro de la columna ACCIONES del listado, con la fecha y el motivo. Para
+  reactivarlo se descomenta y nada más.
+  **La función de borrado NO se tocó**: `eliminarPresupuesto` (App.jsx) sigue
+  completa con su `window.confirm`, `eliminarPresupuestoDeNube` sin cambio, y el
+  `ON DELETE CASCADE` de la base sin cambio. Se sigue pudiendo borrar desde el
+  dashboard de Supabase.
+  **NO usar el argumento de que el botón "cerraba el fantasma de localStorage":
+  es falso.** Solo limpiaba el caché del navegador y dominio donde se picaba —
+  ver el bug del fantasma arriba.
 
 - **La app no puede expresar un gasto recurrente en meses IRREGULARES.**
   `distribuirOpex` solo sabe de `mesInicioOpex` + `periodicidad` (intervalo fijo

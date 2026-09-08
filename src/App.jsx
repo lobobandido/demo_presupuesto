@@ -4704,14 +4704,43 @@ export default function App(){
                   cursor:"pointer",fontSize:12,fontWeight:600,color:C.grayMid}}>
                 Clonar
               </button>
-              <button onClick={()=>eliminarPresupuesto(p)}
-                title="Eliminar este presupuesto y todas sus áreas y partidas"
-                style={{padding:"6px 14px",background:C.dangerLight,
-                  border:`1px solid ${C.danger}`,borderRadius:6,
-                  cursor:"pointer",fontSize:12,fontWeight:700,color:C.danger,
-                  whiteSpace:"nowrap"}}>
-                🗑 Eliminar
-              </button>
+              {
+                // ── BOTÓN "🗑 Eliminar" OCULTO — 8 de septiembre de 2026 ──────
+                //
+                // POR QUÉ SE OCULTÓ: petición del director, para que nadie borre
+                // un presupuesto por accidente. El botón estaba en la columna
+                // ACCIONES del listado, junto a Ver / Editar / Clonar, y bastaba
+                // un clic más una confirmación para perder un presupuesto
+                // completo con todas sus áreas y partidas.
+                //
+                // CÓMO VOLVER A ACTIVARLO: descomentar el bloque de abajo y nada
+                // más. No hace falta tocar nada en Supabase ni en ningún otro
+                // archivo.
+                //
+                // LA FUNCIÓN DE BORRADO SE QUEDA INTACTA. Solo se le quitó el
+                // disparador de la interfaz:
+                //   - eliminarPresupuesto (App.jsx:4101) sigue completa, con su
+                //     window.confirm y su llamada a eliminarPresupuestoDeNube.
+                //   - eliminarPresupuestoDeNube (supabaseApi.js) sin cambio.
+                //   - El ON DELETE CASCADE de la base sin cambio.
+                // O sea: se puede seguir borrando desde el dashboard de Supabase,
+                // y reactivar el botón no requiere volver a escribir nada.
+                //
+                // NOTA para quien lea esto junto con CLAUDE.md: R4 de
+                // docs/MD/DECISIONES.md sigue PENDIENTE DE RECONFIRMAR con Luis.
+                // El 2026-08-07 él dijo "ahorita no" a un botón de eliminar y se
+                // quitó; el 2026-08-25 volvió sin su aprobación; hoy se vuelve a
+                // quitar, ahora sí por una petición explícita del director.
+                //
+                // <button onClick={()=>eliminarPresupuesto(p)}
+                //   title="Eliminar este presupuesto y todas sus áreas y partidas"
+                //   style={{padding:"6px 14px",background:C.dangerLight,
+                //     border:`1px solid ${C.danger}`,borderRadius:6,
+                //     cursor:"pointer",fontSize:12,fontWeight:700,color:C.danger,
+                //     whiteSpace:"nowrap"}}>
+                //   🗑 Eliminar
+                // </button>
+              }
             </div>
           </div>
         ))}

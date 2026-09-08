@@ -76,7 +76,7 @@ Debajo del nombre de cada renglón se muestran `Inicio del proyecto: …` y `Vig
 | 1 | `Ver` | `abrirPresupuesto(p)` | Step 5 | `src/App.jsx:3115-3121` · handler `2419-2433` |
 | 2 | `Editar` | `abrirEdit(p)` | **Step 3** | `src/App.jsx:2998-3001` · handler `2382-2414` |
 | 3 | `Clonar` | `setClonarModal(p)` + `setClonarTipo(p.tipo)` | abre modal | `src/App.jsx:3002-3008` |
-| 4 | `🗑 Eliminar` | `eliminarPresupuesto(p)` | borra y se queda en Step 0 | `src/App.jsx:3009-3016` · handler `2448-2466` |
+| ~~4~~ | ~~`🗑 Eliminar`~~ | — | **OCULTO el 2026-09-08** (petición del director, para que nadie borre por accidente). El bloque del botón está **comentado, no borrado**, en la columna ACCIONES; se reactiva descomentando. `eliminarPresupuesto` (handler), `eliminarPresupuestoDeNube` y el `ON DELETE CASCADE` **sin cambio** |
 
 `abrirPresupuesto` no navega directo: guarda en `presToOpen` y un `useEffect` aplica el estado y
 hace `setStep(5)` (`src/App.jsx:2304-2339`, el `setStep(5)` en `2334`). `abrirEdit` termina en
@@ -989,7 +989,7 @@ Ordenado por spec de origen. Solo se listan puntos donde el spec pide algo concr
 |---|---|---|
 | **4** | Formulario de edición con botón `Información general` | No existe; solo `Cancelar` y `Guardar`/`Continuar` (`src/App.jsx:3058-3061`). El comentario de `3049-3053` documenta que Luis pidió quitarlo |
 | **3.2** | «Editar» primero en el listado | El orden es `Información general`, `Editar`, `Clonar` (`src/App.jsx:2974-2991`), revertido por pedido posterior de Luis |
-| **3.2** | Que Eliminar quede al menos en el 🗑 de la barra superior | El 🗑 de la barra superior sigue sin existir, pero desde el 2026-08-25 **sí hay camino de UI**: el botón `🗑 Eliminar` del listado (`src/App.jsx:3009-3016`) |
+| **3.2** | Que Eliminar quede al menos en el 🗑 de la barra superior | El 🗑 de la barra superior nunca existió, y el botón `🗑 Eliminar` del listado —que fue el camino de UI entre el 2026-08-25 y el 2026-09-08— está **oculto** desde esa fecha por petición del director. **Hoy no hay ningún camino de borrado en la app**; se borra desde el dashboard de Supabase |
 
 ### De `spec-dos-sistemas-semana.md`
 

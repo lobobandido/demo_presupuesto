@@ -30,7 +30,7 @@ contradigan entre sí, y la razón por la que ninguno sirve como referencia de i
 | R1 | **Destino de "Editar" del listado** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — la tabla lo manda al formulario de Datos generales (Step 1) | 2026-08-06 · corrección posterior en el mismo spec: al revisar la transcripción, *"cuando el cliente decía «formulario de edición» estaba señalando la pantalla de captura, no el paso 1"* | Va a **Capturar costos (Step 3)** — `App.jsx:2413`, commit `d2763e1` |
 | R2 | **Orden de los botones del listado** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"vamos a dejar editar aquí, como primer botón"* | 2026-08-07 · Luis, WhatsApp — *"aquí que vaya primero información general y después el botón de editar"* | **Información general, Editar, Clonar** — `App.jsx:2974-2991`, commit `f243158` |
 | R3 | **Destino del eslabón `[nombre del proyecto]`** | 2026-08-04 · `spec-navegacion-retro-410` §1 — *"primero inicio, luego presupuestos, que lo lleva al listado, y después el nombre del proyecto, que lo lleva a la edición"* | 2026-08-06 · *"De acá pues debería de mandarlo no aquí, sino al formulario de captura"* · *"aquí no debería de aparecer... o sea, sí, pero no debería de tener acción"* | Va a **Capturar costos**; en Capturar costos se muestra **sin acción** — `App.jsx:2752-2756`, `3825-3827`, commit `a00e5b0` |
-| R4 | **Eliminar un presupuesto** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"Quitar únicamente «Eliminar»"* del listado, dejándolo en el 🗑 de la barra superior | 2026-08-07 · Luis, WhatsApp — *"en el breadcrumb quite el botecito de eliminar en todas las pantallas"* | **Botón 🗑 Eliminar de vuelta en el listado** (2026-08-25) — `App.jsx:3009-3016`. Llama a `eliminarPresupuesto`, que ya existía y estaba inalcanzable. **Pendiente de reconfirmar con Luis** (ver abajo) |
+| R4 | **Eliminar un presupuesto** | 2026-08-04 · `spec-navegacion-retro-410` §3.2 — *"Quitar únicamente «Eliminar»"* del listado, dejándolo en el 🗑 de la barra superior | 2026-08-07 · Luis, WhatsApp — *"en el breadcrumb quite el botecito de eliminar en todas las pantallas"* | **CERRADA en "no va" el 2026-09-08.** Volvió al listado el 2026-08-25 y se **ocultó** el 2026-09-08 por petición del director, *para que nadie borre un presupuesto por accidente*. Coincide con el "ahorita no" de Luis, así que deja de estar pendiente. Botón **comentado, no borrado**; función de borrado intacta |
 | R5 | **Botón "Capturar costos" en Información general** | 2026-08-06 · `spec-recuperacion-datos` PASO 4 — lo pide para devolver el acceso perdido; implementado en `e4339bd` | 2026-08-06 · **el mismo día** — *"Capturar el costo pues no va aquí, ¿por qué lo pondría aquí?"* | **No existe** — `App.jsx:4244-4248`, commit `d7abcef` |
 | R6 | **Modo lectura/edición in situ en Información general** | 2026-08-04 · `spec-final-ux-agosto` §2.2 — *"sí está bien, pero no en un formulario de editar… sí está bien, pero en la información general"*; implementado en `2e806fa` | 2026-08-05 · `spec-dos-sistemas-semana` día 3 — la pantalla deja de tener campos, así que el interruptor pierde sentido. El propio spec lo llama *"un cambio de criterio del cliente entre una retro y la siguiente, no un error de nadie"* | **No hay modo edición**: Step 5 es solo lectura fija — `App.jsx:4355`, `4366`, `4384`, `4399`, commits `fd7700a` / `94cac39` |
 | R7 | **Detalle por área en Información general** | 2026-08-05 · `spec-dos-sistemas-semana` día 3 — sale el `areas.map()` completo, por la queja *"dice materiales, materiales, materiales, materiales… nómina, nómina, nómina. No le entiendo"* | 2026-08-06 · corrección: *"el cliente pidió cambiar CÓMO se edita, no borrar el detalle por área de esta pantalla de consulta"* | **Vuelve, en texto plano** — `App.jsx:4299-4403`, commit `930016c` |
@@ -71,10 +71,20 @@ existen). R5 se revirtió el mismo día en que se implementó. Ninguna reversió
 
 ---
 
-## R4 / C22 — pendiente de reconfirmar con Luis (2026-08-25)
+## R4 / C22 — CERRADA en "no va" (2026-09-08)
 
-El botón **🗑 Eliminar** volvió al listado (`App.jsx:3009-3016`). Luis había dicho "ahorita no" el
-2026-08-07, así que **esto NO es una decisión cerrada: está pendiente de reconfirmar con él.**
+**Ya no hay que preguntarle a Luis.** El **2026-09-08 el director pidió ocultar el botón**
+*«para que nadie borre un presupuesto por accidente»*, que es el mismo lado al que apuntaba el
+"ahorita no" de Luis del 2026-08-07. Con las dos voces de acuerdo, el pendiente se cierra.
+
+**Está OCULTO, no borrado.** El bloque del botón quedó comentado en la columna ACCIONES del
+listado, con la fecha, el motivo y la instrucción de reactivación (descomentar y nada más). La
+función de borrado **no se tocó**: `eliminarPresupuesto` sigue completa con su `window.confirm`,
+`eliminarPresupuestoDeNube` sin cambio y el `ON DELETE CASCADE` sin cambio — se sigue pudiendo
+borrar desde el dashboard de Supabase.
+
+Lo que sigue abajo es el argumento que se había preparado para cuando se le preguntara. Se deja
+como registro histórico, ya no como pendiente.
 
 Argumento a favor de dejarlo, para cuando se le pregunte:
 
