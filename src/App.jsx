@@ -2913,6 +2913,12 @@ function filasExcelVisual({filasServicio, fechaInicio, mFlujoAcum, nombre, parid
   // ACUMULADO = acumulado de (INGRESOS − EGRESOS) mes a mes. Es mFlujoAcum, que
   // la app ya calcula: NO es el acumulado de egresos. Descifrado por aritmética
   // sobre el archivo de Anel, en sus dos hojas y en los doce meses.
+  //
+  // La hoja YA NO ESCRIBE este arreglo: desde el 08-sep-2026 el ACUMULADO va en
+  // FÓRMULAS encadenadas (ver hojaVisual), para que se recalcule si alguien
+  // edita un mes en Excel. Se sigue devolviendo porque es el valor de
+  // referencia contra el que se verifica esa cadena — el número que la app
+  // calcula por su cuenta, sin pasar por Excel.
   const acumulado=aplanar(mFlujoAcum);
   return {anio, filas, facturacion, acumulado, nombre, paridad};
 }
@@ -2949,17 +2955,30 @@ const VF_BANDA={fill:{fgColor:{rgb:"F7F7F7"}}};
 // generando tres presupuestos seguidos: el primero bien, los otros dos no.
 const estiloCel=(o)=>JSON.parse(JSON.stringify(o||{}));
 
-async function exportarExcelVisual({visual, pres}){
-  const {anio, filas, facturacion, acumulado, nombre, paridad}=visual;
-  const wb=XLSX.utils.book_new();
+// Arma UNA de las dos hojas. Es la misma función para MN y para USD porque las
+// dos hojas son el MISMO documento: misma estructura, mismos estilos, mismos
+// anchos, misma agrupación. Solo cambian dos cosas, y van por parámetro:
+//
+//   divisor      1 en MN · la paridad en USD. Cada importe de USD es el de MN
+//                entre la paridad.
+//   conParidad   true solo en MN: la paridad se escribe en C1 de MN y en USD
+//                esa celda va vacía, igual que en el archivo de Anel.
+//
+// OJO con la dirección de la conversión: en el archivo de Anel es al revés —su
+// MN se calcula desde USD (+USD!C5*MN!$C$1) y su USD está capturada a mano. Por
+// eso su USD no cuadra con su propia paridad. Aquí la fuente es MN, que es lo
+// que la app calcula, y USD se deriva de ella.
+function hojaVisual({visual, divisor=1, conParidad=true}){
+  const {anio, filas, facturacion, nombre, paridad}=visual;
   const aoa=[], meta=[];   // meta[fila] = {clase, desde, hasta}
   const push=(fila, clase, extra={})=>{ meta[aoa.length]={clase,...extra}; aoa.push(fila); };
+  const conv=(arr)=>arr.map(v=>v/divisor);
 
-  push(["GEOLIS SA DE CV", null, paridad], "titulo");
+  push(["GEOLIS SA DE CV", null, conParidad?paridad:null], "titulo");
   push([`Proyecto: ${nombre||""}`], "proyecto");
   push([`INGRESOS ${anio}`], "seccion");
   push([...ENCABEZADO_VISUAL], "encabezado");
-  push(["FACTURACION", null, ...facturacion], "rubro", {nSubs:0});
+  push(["FACTURACION", null, ...conv(facturacion)], "rubro", {nSubs:0, esFacturacion:true});
   push([], "vacia");
   push([`EGRESOS ${anio}`], "seccion");
   push([...ENCABEZADO_VISUAL], "encabezado");
@@ -2970,16 +2989,16 @@ async function exportarExcelVisual({visual, pres}){
   filas.forEach(f=>{
     if(f.tipo==="subcuenta"){
       if(inicioBloque===null) inicioBloque=aoa.length;
-      push([f.label, null, ...f.meses], "subcuenta", {banda:iSub%2===1});
+      push([f.label, null, ...conv(f.meses)], "subcuenta", {banda:iSub%2===1});
       iSub++;
     } else {
-      push([f.label, null, ...f.meses], "rubro", {desde:inicioBloque, hasta:aoa.length-1});
+      push([f.label, null, ...conv(f.meses)], "rubro", {desde:inicioBloque, hasta:aoa.length-1});
       inicioBloque=null; iSub=0;
     }
   });
   const filasRubro=meta.map((m,i)=>({m,i})).filter(x=>x.i>7 && x.m.clase==="rubro").map(x=>x.i);
   push(["TOTAL"], "total");
-  push(["ACUMULADO", null, ...acumulado], "acumulado");
+  push(["ACUMULADO"], "acumulado");
 
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   const dir=(r,c)=>XLSX.utils.encode_cell({r,c});
@@ -3006,6 +3025,27 @@ async function exportarExcelVisual({visual, pres}){
     const cl=cel(filaTotal,c); cl.t="n";
     cl.f=filasRubro.map(r=>`${col}${fil(r)}`).join("+");
   }
+
+  // ACUMULADO en CADENA, como en el archivo de Anel:
+  //   C = C{fact} - C{total}
+  //   D = C{acum} + D{fact} - D{total}       y así hasta N
+  // Van fórmulas y no el valor ya calculado para que, si alguien edita un mes
+  // en Excel, el acumulado se recalcule solo. Apuntan a las filas REALES de
+  // FACTURACION y TOTAL de esta hoja, que se mueven según cuántas subcuentas
+  // haya salido.
+  const filaFact=meta.findIndex(m=>m.esFacturacion);
+  const filaAcum=meta.findIndex(m=>m.clase==="acumulado");
+  for(let c=2;c<14;c++){
+    const col=XLSX.utils.encode_col(c);
+    const prev=XLSX.utils.encode_col(c-1);
+    const cl=cel(filaAcum,c); cl.t="n";
+    cl.f = c===2
+      ? `${col}${fil(filaFact)}-${col}${fil(filaTotal)}`
+      : `${prev}${fil(filaAcum)}+${col}${fil(filaFact)}-${col}${fil(filaTotal)}`;
+  }
+  // La B del ACUMULADO se queda vacía: un acumulado no se suma horizontalmente,
+  // su valor anual ES la celda de diciembre. En el archivo de Anel también está
+  // vacía.
 
   // ── Estilos y esquema de agrupación ──────────────────────────────────────
   ws["!rows"]=[];
@@ -3049,8 +3089,15 @@ async function exportarExcelVisual({visual, pres}){
     ...Array(11).fill(0).map(()=>({width:15.5703125})),
     {},{width:11.42578125}];      // A · B · C · D..N · O vacía · P comentarios
   ws["!ref"]=XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:15}});
+  return ws;
+}
 
-  XLSX.utils.book_append_sheet(wb, ws, "MN");
+async function exportarExcelVisual({visual, pres}){
+  const {anio, nombre, paridad}=visual;
+  const wb=XLSX.utils.book_new();
+  // USD PRIMERO y MN después, en ese orden, como el archivo de Anel.
+  XLSX.utils.book_append_sheet(wb, hojaVisual({visual, divisor:paridad, conParidad:false}), "USD");
+  XLSX.utils.book_append_sheet(wb, hojaVisual({visual, divisor:1,       conParidad:true }), "MN");
   XLSX.writeFile(wb, `PRESUPUESTO ${anio} - ${(pres?.unidadNegocio||nombre||"GEOLIS")}.xlsx`);
 }
 

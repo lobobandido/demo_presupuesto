@@ -757,7 +757,7 @@ son dos documentos distintos, con reglas distintas, y confundirlos rompe uno de 
 | | ⬇ Excel para Apps | ⬇ Excel visual |
 |---|---|---|
 | Para qué | cargarlo al sistema de la contadora | revisar la clasificación antes de cargar |
-| Hoja | una, llamada `Presupuesto` | una, llamada `MN` |
+| Hojas | una, llamada `Presupuesto` | dos: `USD` primero y `MN` después |
 | Contenido | una fila por rubro, los 18 siempre, en cero si hace falta | plantilla completa: todas las subcuentas del catálogo, en cero si hace falta |
 | Formato de número | `General` — sin moneda ni separadores | **contable** `_-* #,##0.00_-;…` |
 | Columna B | no existe | **fórmulas** de Excel, no valores |
@@ -765,12 +765,58 @@ son dos documentos distintos, con reglas distintas, y confundirlos rompe uno de 
 | SIN CATEGORÍA | **bloquea** la generación | **no bloquea**: sale su fila al final con el monto |
 | Genera | `filasExcelApps` + `exportarExcelApps` | `filasExcelVisual` + `exportarExcelVisual` |
 
-El «visual» se calca de `docs/PRESUPUESTO 2026 - F218357 (003).xlsx`, hoja MN. **No se genera la
-hoja USD**: la suya está editada a mano y no cuadra con su propia paridad.
+El «visual» se calca de `docs/PRESUPUESTO 2026 - F218357 (003).xlsx`. Las dos hojas son el **mismo
+documento** —misma estructura, mismos estilos, mismos anchos, misma agrupación— y las arma la misma
+función, `hojaVisual`, con dos parámetros: `divisor` (1 en MN, la paridad en USD) y `conParidad`
+(la paridad va en **C1 de MN y solo ahí**; en USD esa celda queda vacía, igual que en su archivo).
+
+**La dirección de la conversión es al revés que en el archivo de Anel, a propósito.** En el suyo
+MN se calcula desde USD (`+USD!C5*MN!$C$1`) y USD está capturada a mano — por eso su USD no cuadra
+con su propia paridad y su A2 todavía dice `Proyecto: colocar unidad de negocio`. Aquí la fuente es
+**MN**, que es lo que la app calcula, y USD se deriva dividiendo entre la paridad.
 
 **`summaryBelow` es lo que hace que el esquema sirva**: pone el rubro DEBAJO de sus subcuentas, así
 que al colapsar queda la fila del rubro y no la primera subcuenta. Se escribe con
 `ws["!outline"]={above:false}`.
+
+#### ACUMULADO: fórmulas encadenadas, y por qué diciembre cambió
+
+Desde el 08-sep-2026 el ACUMULADO va en **fórmulas**, no en el valor ya calculado, para que se
+recalcule si alguien edita un mes en Excel. La cadena es la de su archivo, apuntando a las filas
+reales de FACTURACION y TOTAL de la hoja generada:
+
+```
+C{acum} = C{fact} - C{total}
+D{acum} = C{acum} + D{fact} - D{total}      … y así hasta N
+```
+
+La `B` del ACUMULADO queda **vacía** a propósito: un acumulado no se suma horizontalmente, su valor
+anual ES la celda de diciembre. En el archivo de Anel también está vacía.
+
+**El cambio movió el ACUMULADO de diciembre en los presupuestos que cruzan año, y eso es un
+arreglo, no una regresión.** Antes la fila se escribía con `aplanar(mFlujoAcum)`: `mFlujoAcum` es
+una serie ACUMULADA por mes de proyecto, y `aplanar` la reparte en doce columnas de calendario
+**sumando** lo que cae en el mismo mes. Sumar dos valores acumulados no significa nada. La cadena,
+en cambio, acumula flujos mensuales, que sí se pueden sumar.
+
+Medido sobre datos reales:
+
+| Presupuesto | Periodo | ACUM dic ANTES | AHORA | Utilidad (KPI) |
+|---|---|---:|---:|---:|
+| PRC LITORAL-BECH | **un solo año** | 17,367,346.03 | 17,367,346.03 | 17,367,346.03 |
+| Cuervito | cruza año | −4,091,440.00 | **−3,073,140.00** | −3,073,140.00 |
+| PERDIZ-PAPAN | cruza año | 35,992,636.84 | **35,832,636.84** | 35,832,636.84 |
+| Presupuesto TI H1 2026 | cruza año | 0.00 | **−4,979,691.86** | −4,979,691.86 |
+
+El presupuesto de un solo año da **idéntico**, que es la prueba de que la causa es el aplanado de
+años y no la cadena. Y en los cuatro el nuevo diciembre **coincide con la utilidad que la app ya
+mostraba en sus KPIs**; el valor anterior no coincidía con nada.
+
+Queda abierto lo de fondo, que no es de este exportador: **una hoja de doce columnas no puede
+representar un presupuesto que cruza año.** Hoy los años se aplanan en las mismas doce columnas
+para no perder dinero —el TOTAL cuadra— pero un mes con dos años encima mezcla dos periodos en una
+celda. Es la pregunta que Anel todavía no ha contestado: un archivo con dos bloques, o dos
+archivos.
 
 Una cosa que costó y conviene no volver a descubrir: **`wch` no es el ancho que Excel guarda.**
 `wch` son caracteres y SheetJS le suma el relleno de celda al escribir, así que `wch:15` sale
