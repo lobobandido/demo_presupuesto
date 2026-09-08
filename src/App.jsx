@@ -3075,8 +3075,11 @@ async function exportarExcelApps({bloques, pres}){
     filasTotal.push(base+b.aoa.length-1);
   });
   const ws=XLSX.utils.aoa_to_sheet(aoa);
-  // Ancho 15 en las 16 columnas, como el archivo de Anel.
-  ws["!cols"]=Array(16).fill({wch:15});
+  // Ancho de las 16 columnas, leído del archivo de Anel con xlrd: 15.5703125,
+  // el MISMO valor que las columnas D..N de su hoja MN. No es 15.
+  // Va "width" y no "wch": wch son caracteres y SheetJS le suma el relleno de
+  // celda al escribir, así que wch:15 salía como 15.83 y no caía en su número.
+  ws["!cols"]=Array(16).fill(0).map(()=>({width:15.5703125}));
 
   const dir=(r,c)=>XLSX.utils.encode_cell({r,c});
   // Arial 10 y General en TODA celda con contenido; las bandas se pintan encima.

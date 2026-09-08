@@ -778,8 +778,9 @@ Dos cosas que costaron y conviene no volver a descubrir:
   celda al escribir: `wch:15` sale como `15.83`. Los anchos de la hoja MN se ponen con `width`,
   que se escribe tal cual, y coinciden byte a byte con los de Anel
   (A 34.140625 · B 18.85546875 · C 16.5703125 · D..N 15.5703125 · P 11.42578125).
-  **El «para Apps» todavía usa `wch:15` y por eso escribe `15.83`.** Es cosmético y está sin
-  cambiar a propósito, para no tocar un commit ya aceptado.
+  **Los dos exportadores usan `width`.** El «para Apps» lleva `15.5703125` en las 16 columnas —
+  el valor real de su `.xls`, leído con `xlrd`, y el mismo que las D..N de la hoja MN. La
+  descripción anterior de "ancho 15" era una lectura redondeada; no es 15 ni 15.83.
 - **El total de un rubro no se puede sumar de sus subcuentas.** Si alguien captura usando el
   NOMBRE DEL RUBRO como categoría, `construirFilasServicio` omite esa fila de detalle por
   redundante y el dinero solo vive en el subtotal. `filasExcelVisual` lo recupera por diferencia
