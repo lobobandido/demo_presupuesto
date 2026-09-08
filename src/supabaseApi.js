@@ -16,6 +16,13 @@ function presToRow(form, precioFijo){
     fecha_inicio: form.fechaInicio||null,
     fecha_fin: form.fechaFin||null,
     fecha_elaboracion: form.fechaElaboracion||null,
+    // Vigencia del CONTRATO (08-sep-2026). La columna vigencia_fin ya existe en
+    // Supabase: verificado por GET antes de escribir esta línea, que es la
+    // lección del 42703 de unidad_negocio — nunca agregar una clave a presToRow
+    // antes de que la columna exista, porque PostgREST rechaza el UPDATE
+    // COMPLETO y la app deja de guardar.
+    // ||null y no ||"": la columna es date nullable y "" no es una fecha.
+    vigencia_fin: form.vigenciaFin||null,
     precio_fijo: precioFijo||0,
     // Unidad de negocio (02-sep-2026): se guarda SOLO la clave del catálogo
     // (src/catalogoUnidades.js). ||null y no ||"" a propósito — la columna es
@@ -338,6 +345,11 @@ export async function cargarPresupuestoDeNube(id, {uid, initP, initN}){
     // en el catálogo), y el encabezado lo pinte como "—".
     unidadNegocio: pres.unidad_negocio||"",
     fechaInicio: pres.fecha_inicio, fechaFin: pres.fecha_fin, fechaElaboracion: pres.fecha_elaboracion,
+    // Vigencia del contrato (08-sep-2026). NULL se normaliza a "" para que el
+    // <input type="date"> quede vacío en vez de recibir null, y para que el
+    // encabezado de Resumen —que la condiciona con &&— simplemente no pinte la
+    // línea. Los presupuestos anteriores a hoy están todos en NULL.
+    vigenciaFin: pres.vigencia_fin||"",
     fecha: pres.fecha_inicio,
     _areas: (areasRows||[]).map(a=>a.area_id),
     _costos: costos,

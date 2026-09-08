@@ -124,8 +124,35 @@ nombre/tipo/fechaInicio/fechaFin y, si falta alguno, activa los avisos en rojo y
 (`src/App.jsx:2529-2530`).
 
 Campos: Nombre*, Empresa, **Año del presupuesto**, **Unidad de negocio***, Fecha inicio*, Fecha
-fin* (`src/App.jsx:3073-3110`). Debajo de las fechas va el bloque de origen y después el de tipo
-(`src/App.jsx:3117-3266`).
+fin*, **Vigencia del contrato (hasta)** (`src/App.jsx:3073-3110`). Debajo de las fechas va el
+bloque de origen y después el de tipo (`src/App.jsx:3117-3266`).
+
+**«Vigencia del contrato (hasta)»** (agregado el 2026-09-08, pedido del director). Columna
+`vigencia_fin date NULL`, debajo de Fecha fin. **Opcional, nunca requerida**: `guardarPres` no la
+mira, y los presupuestos anteriores a esa fecha están todos en NULL. Ayuda en pantalla: «Solo si el
+contrato dura más que este ejercicio».
+
+**No es lo mismo que Fecha fin, y ahí estaba el malentendido.** `fecha_fin` cierra el **ejercicio
+que se presupuesta**; la vigencia es **hasta cuándo dura el contrato** y puede ir años más allá (el
+ejemplo del director fue un contrato a 5 años). Lo que la vista Resumen pintaba antes como
+«Vigencia» era `fecha_inicio → fecha_fin`, o sea **el Periodo otra vez con otro formato**: no era
+este dato.
+
+Dónde se ve y dónde no, a propósito:
+
+| Pantalla | Qué muestra |
+|---|---|
+| Resumen (Ver) | línea propia inmediatamente debajo de `Periodo:`, `Vigencia del contrato: hasta <fecha>`. Si `vigencia_fin` es NULL **no se pinta la línea** |
+| Listado | **sin cambio** — sigue con `Inicio del proyecto:` y `Vigencia: <inicio> → <fin>` |
+| Capturar costos | **sin cambio** — no tiene línea de vigencia |
+
+Dos detalles que importan si alguien la toca:
+
+- La línea de Resumen se condiciona con `pres?.vigenciaFin` y **no** con `fechaElaboracion`. Antes
+  colgaba de la línea «Elaborado:», así que un presupuesto sin fecha de elaboración no mostraba
+  vigencia en ningún lado.
+- `abrirEdit` **tiene** que hidratar `vigenciaFin` en el form. `presToRow` escribe lo que traiga el
+  form, y un form sin la clave manda NULL: editar un presupuesto borraría el dato.
 
 **«Fecha de elaboración» ya no se ve** (02-sep-2026): el campo está **comentado, no borrado**, con
 la nota de por qué. El dato **se sigue guardando igual** — `abrirNuevo`/`clonarPresupuesto` le

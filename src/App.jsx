@@ -3808,7 +3808,11 @@ export default function App(){
   // listarPresupuestos() y la lógica de mezcla en el useEffect de montaje
   // siguen exactamente iguales.
   const [lista,setLista]       = useState([]);
-  const [form,setForm]         = useState({nombre:"",tipo:"",tipos:[],empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio:"",fechaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
+  // vigenciaFin (08-sep-2026) — vigencia del CONTRATO, columna vigencia_fin.
+  // Es un dato distinto de fechaFin: fechaFin cierra el ejercicio que se está
+  // presupuestando y vigenciaFin puede ir años más allá (el ejemplo del director
+  // fue un contrato a 5 años). Arranca en "" y es opcional en todas partes.
+  const [form,setForm]         = useState({nombre:"",tipo:"",tipos:[],empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio:"",fechaFin:"",vigenciaFin:"",fechaElaboracion:new Date().toISOString().slice(0,10)});
   const [plantModal,setPlantModal] = useState(false);
   // Diálogo de Clonar (spec navegación-retro-410, punto 8) — presupuesto de
   // origen y tipo elegido, solo mientras el diálogo está abierto.
@@ -4010,6 +4014,7 @@ export default function App(){
     // ejercicio siguiente completo y siguen siendo editables en el formulario.
     const {fechaInicio,fechaFin}=fechasDeAnio(new Date().getFullYear()+1);
     setForm({nombre:"",tipo:"",tipos:[],empresa:"GEOLIS SA DE CV",unidadNegocio:"",fechaInicio,fechaFin,
+      vigenciaFin:"",
       fechaElaboracion:new Date().toISOString().slice(0,10)});
     setAreas([]); setCostos({}); setCapexPM([]); setOpexPM([]); setIngresos(Array(13).fill(0)); setPrecioFijo(0); setIngAd([]);
     setPlantKey(null); setOrigenReal(null); setViaClonar(false); setPres(null); setModoEdit(false); setAreaSaved(false);
@@ -4036,6 +4041,11 @@ export default function App(){
     setForm({nombre:p.nombre,tipo:p.tipo,tipos:tiposDe(p),empresa:p.empresa||"GEOLIS SA DE CV",
       // Los 5 presupuestos anteriores al 02-sep-2026 no tienen unidad: queda "".
       unidadNegocio:p.unidadNegocio||"",
+      // vigenciaFin tiene que venir aquí o editar un presupuesto la borraría:
+      // presToRow escribe lo que traiga el form, y un form sin la clave manda
+      // null a la columna. p siempre llega de cargarPresupuestoDeNube cuando el
+      // id es string, así que el valor guardado está disponible.
+      vigenciaFin:p.vigenciaFin||"",
       fechaInicio:p.fechaInicio||"",fechaFin:p.fechaFin||""});
     setAreas(p._areas||[]); setCostos(p._costos||{});
     setCapexPM(p._capexPM||[]); setOpexPM(p._opexPM||[]);
@@ -4148,6 +4158,11 @@ export default function App(){
       unidadNegocio: p.unidadNegocio||"",
       fechaInicio: p.fechaInicio||hoy,
       fechaFin: p.fechaFin||"",
+      // El clon hereda la vigencia del contrato, igual que hereda la unidad y
+      // las fechas: si se clona un presupuesto de un contrato, es del mismo
+      // contrato hasta que alguien diga otra cosa. Se puede cambiar antes de
+      // guardar; el clon pasa por Step 1 con el campo habilitado.
+      vigenciaFin: p.vigenciaFin||"",
       fechaElaboracion: hoy,
     });
     // Copiar partidas con nuevos IDs
@@ -4931,6 +4946,20 @@ export default function App(){
                     borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",
                     background:intentoGuardar&&!form.fechaFin?"#FFF5F5":C.white}}/>
                 {intentoGuardar&&!form.fechaFin&&<div style={{fontSize:11,color:C.danger,marginTop:4}}>⚠ Fecha fin requerida</div>}
+              </div>
+              {/* Vigencia del contrato (08-sep-2026) — columna vigencia_fin.
+                  OPCIONAL, nunca requerida: guardarPres no la mira y los
+                  presupuestos anteriores a hoy la tienen en NULL. Es el ÚNICO
+                  lugar donde se captura este dato.
+                  No confundirla con Fecha fin: fecha fin cierra el ejercicio que
+                  se presupuesta, la vigencia es hasta cuándo dura el contrato y
+                  puede ir años más allá. */}
+              <div>
+                <FL>Vigencia del contrato (hasta)</FL>
+                <input type="date" value={form.vigenciaFin} onChange={e=>setForm({...form,vigenciaFin:e.target.value})}
+                  style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.grayBorder}`,
+                    borderRadius:8,fontSize:14,boxSizing:"border-box",outline:"none",background:C.white}}/>
+                <div style={{fontSize:11,color:C.grayMid,marginTop:4}}>Solo si el contrato dura más que este ejercicio</div>
               </div>
               {/* Oculto temporalmente (02-sep-2026). Este dato pasa a ser por
                   usuario cuando exista el login: se llenará solo con la fecha en
@@ -6094,10 +6123,23 @@ export default function App(){
                   Periodo: <strong>{mesLabelReal(0,pres.fechaInicio)} – {mesLabelReal(NUM_MESES_OP,pres.fechaInicio)}</strong> · {NUM_MESES_OP+1} meses
                 </div>
               )}
+              {/* Vigencia del CONTRATO (08-sep-2026) — línea propia, inmediatamente
+                  debajo del periodo y con su misma tipografía.
+                  Reemplaza al "· Vigencia: <fechaInicio> → <fechaFin>" que colgaba
+                  del final de la línea de "Elaborado:". Ése salía dos veces mal: iba
+                  al final en vez de junto al periodo, y repetía el periodo con otro
+                  formato en vez de decir algo nuevo.
+                  Condicionada a vigenciaFin y NO a fechaElaboracion: colgar de
+                  fechaElaboracion era lo que hacía desaparecer la línea en un
+                  presupuesto sin fecha de elaboración. Sin vigencia no se pinta. */}
+              {pres?.vigenciaFin&&(
+                <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
+                  Vigencia del contrato: hasta <strong>{pres.vigenciaFin}</strong>
+                </div>
+              )}
               {pres?.fechaElaboracion&&(
                 <div style={{fontSize:11,color:C.grayMid,marginTop:2}}>
                   Elaborado: <strong>{pres.fechaElaboracion}</strong>
-                  {pres?.fechaInicio&&<> · Vigencia: {pres.fechaInicio} → {pres?.fechaFin||"—"}</>}
                 </div>
               )}
             </div>
