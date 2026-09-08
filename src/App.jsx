@@ -2854,22 +2854,60 @@ function filasExcelVisual({filasServicio, fechaInicio, mFlujoAcum, nombre, parid
       const f=filasServicio.find(x=>x.tipo==="detalle"&&normCat(x.label)===k);
       return f?f.label:k;
     });
-    [...propias, ...nombresExtra].forEach(sub=>{
-      filas.push({tipo:"subcuenta", label:sub, meses:detalle.get(normCat(sub))||doce()});
+    const listadas=[...propias, ...nombresExtra];
+    // Dinero capturado con el NOMBRE DEL RUBRO como categoría. Ese caso no
+    // produce fila de detalle —construirFilasServicio la omite por redundante,
+    // ya está el subtotal— así que sumando hijos se cae del archivo. Se recupera
+    // por diferencia contra el subtotal del rubro, que sí lo trae, y se emite
+    // como una subcuenta más rotulada con el nombre del rubro. Sin esto no
+    // cuadraba: Cuervito daba $8,123,740.00 contra $10,978,740.00 y
+    // PERDIZ-PAPAN $34,623,586.43 contra su TOTAL EGRESOS.
+    const deHijos=doce();
+    listadas.forEach(sub=>{
+      (detalle.get(normCat(sub))||doce()).forEach((v,i)=>{ deHijos[i]+=v; });
     });
-    const nSubs=propias.length+nombresExtra.length;
-    // Si el rubro tiene subcuentas listadas, su fila las suma; si no —los cuatro
-    // que se llaman igual que su rubro—, toma su propio subtotal.
+    const subtotal=totalRubro.get(normCat(ru))||doce();
+    const resto=subtotal.map((v,i)=>v-deHijos[i]);
+    // Medio centavo de tolerancia: el resto es una resta de flotantes y un
+    // 1e-10 no es dinero, es ruido de punto flotante.
+    const hayResto=resto.some(v=>Math.abs(v)>=0.005);
+    if(hayResto) listadas.push(ru);
+
+    listadas.forEach(sub=>{
+      const meses = (sub===ru && hayResto) ? resto : (detalle.get(normCat(sub))||doce());
+      filas.push({tipo:"subcuenta", label:sub, meses});
+    });
+    const nSubs=listadas.length;
+    // Con subcuentas listadas, la fila del rubro las suma; sin ninguna —los
+    // rubros cuya única subcuenta se llama igual que ellos— toma su subtotal.
+    // Las dos ramas dan el mismo número ahora que el resto va listado.
     const suma=doce();
     if(nSubs>0){
-      [...propias, ...nombresExtra].forEach(sub=>{
-        (detalle.get(normCat(sub))||doce()).forEach((v,i)=>{ suma[i]+=v; });
-      });
+      deHijos.forEach((v,i)=>{ suma[i]+=v; });
+      if(hayResto) resto.forEach((v,i)=>{ suma[i]+=v; });
     } else {
-      (totalRubro.get(normCat(ru))||doce()).forEach((v,i)=>{ suma[i]+=v; });
+      subtotal.forEach((v,i)=>{ suma[i]+=v; });
     }
     filas.push({tipo:"rubro", label:ru, meses:suma, nSubs});
   });
+
+  // SIN CATEGORÍA va al FINAL, con su monto. Este archivo NO se bloquea por
+  // eso: es el de revisión, y ocultar el dinero sin rubro es justo lo contrario
+  // de lo que sirve para revisar. El que se bloquea es el "Excel para Apps".
+  // Sin este bloque, lo capturado sin rubro no aparecía en ninguna fila y el
+  // TOTAL de la hoja quedaba por debajo de TOTAL EGRESOS.
+  const rubrosCsv=new Set(RUBROS_DEL_CSV.map(normCat));
+  const huerfanas=[...detalle.keys()].filter(k=>!rubrosCsv.has(normCat(rubroDe.get(k)||"")));
+  if(huerfanas.length){
+    const suma=doce();
+    huerfanas.forEach(k=>{
+      const f=filasServicio.find(x=>x.tipo==="detalle"&&normCat(x.label)===k);
+      const meses=detalle.get(k)||doce();
+      meses.forEach((v,i)=>{ suma[i]+=v; });
+      filas.push({tipo:"subcuenta", label:f?f.label:k, meses});
+    });
+    filas.push({tipo:"rubro", label:"SIN CATEGORÍA", meses:suma, nSubs:huerfanas.length});
+  }
 
   const facturacion=aplanar(filasServicio.find(f=>f.bloque==="ingresos")?.mensual||[]);
   // ACUMULADO = acumulado de (INGRESOS − EGRESOS) mes a mes. Es mFlujoAcum, que
@@ -2939,11 +2977,9 @@ async function exportarExcelVisual({visual, pres}){
       inicioBloque=null; iSub=0;
     }
   });
-  const filaPrimerRubro=meta.findIndex((m,i)=>i>7 && m.clase==="rubro");
   const filasRubro=meta.map((m,i)=>({m,i})).filter(x=>x.i>7 && x.m.clase==="rubro").map(x=>x.i);
   push(["TOTAL"], "total");
   push(["ACUMULADO", null, ...acumulado], "acumulado");
-  void filaPrimerRubro;
 
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   const dir=(r,c)=>XLSX.utils.encode_cell({r,c});
@@ -2973,7 +3009,6 @@ async function exportarExcelVisual({visual, pres}){
 
   // ── Estilos y esquema de agrupación ──────────────────────────────────────
   ws["!rows"]=[];
-  const anchoTotal=15;
   meta.forEach((m,r)=>{
     const est = m.clase==="titulo"?VF_TITULO : m.clase==="proyecto"?VF_PROYECTO
       : m.clase==="seccion"?VF_SECCION : m.clase==="encabezado"?VF_ENCABEZADO
@@ -3004,10 +3039,16 @@ async function exportarExcelVisual({visual, pres}){
     {s:{r:2,c:0}, e:{r:2,c:13}},  // A3:N3  INGRESOS
     {s:{r:6,c:0}, e:{r:6,c:13}},  // A7:N7  EGRESOS
   ];
-  ws["!cols"]=[{wch:34.1},{wch:18.9},{wch:16.6},...Array(11).fill({wch:15.6}),
-    {wch:8.4},{wch:11.4}];        // A · B · C · D..N · O vacía · P comentarios
+  // Anchos EXACTOS de la hoja MN de Anel, leídos del XML de su archivo.
+  // Va "width" y no "wch": wch son caracteres y SheetJS le suma el relleno de
+  // celda al guardar (wch:15 sale como 15.83), así que con wch ninguna columna
+  // caía en su número. Con width se escribe tal cual.
+  //   A 34.140625 · B 18.85546875 · C 16.5703125 · D..N 15.5703125 · P 11.42578125
+  // La O va sin declarar: en su archivo tampoco tiene ancho propio.
+  ws["!cols"]=[{width:34.140625},{width:18.85546875},{width:16.5703125},
+    ...Array(11).fill(0).map(()=>({width:15.5703125})),
+    {},{width:11.42578125}];      // A · B · C · D..N · O vacía · P comentarios
   ws["!ref"]=XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:15}});
-  void anchoTotal;
 
   XLSX.utils.book_append_sheet(wb, ws, "MN");
   XLSX.writeFile(wb, `PRESUPUESTO ${anio} - ${(pres?.unidadNegocio||nombre||"GEOLIS")}.xlsx`);

@@ -749,6 +749,43 @@ categoría es texto libre en la columna `categoria` de cada partida.
 > se desbloqueó el «Excel para Apps» de PERDIZ-PAPAN y TI H1 2026 — a PERDIZ solo le falta la
 > unidad de negocio.
 
+### Los dos Excel, y en qué se diferencian (07-sep-2026)
+
+La vista **Ver** tiene exactamente dos botones de Excel. No son dos versiones del mismo archivo:
+son dos documentos distintos, con reglas distintas, y confundirlos rompe uno de los dos.
+
+| | ⬇ Excel para Apps | ⬇ Excel visual |
+|---|---|---|
+| Para qué | cargarlo al sistema de la contadora | revisar la clasificación antes de cargar |
+| Hoja | una, llamada `Presupuesto` | una, llamada `MN` |
+| Contenido | una fila por rubro, los 18 siempre, en cero si hace falta | plantilla completa: todas las subcuentas del catálogo, en cero si hace falta |
+| Formato de número | `General` — sin moneda ni separadores | **contable** `_-* #,##0.00_-;…` |
+| Columna B | no existe | **fórmulas** de Excel, no valores |
+| Agrupación | ninguna | esquema colapsable, subcuenta nivel 1 · rubro nivel 0 |
+| SIN CATEGORÍA | **bloquea** la generación | **no bloquea**: sale su fila al final con el monto |
+| Genera | `filasExcelApps` + `exportarExcelApps` | `filasExcelVisual` + `exportarExcelVisual` |
+
+El «visual» se calca de `docs/PRESUPUESTO 2026 - F218357 (003).xlsx`, hoja MN. **No se genera la
+hoja USD**: la suya está editada a mano y no cuadra con su propia paridad.
+
+**`summaryBelow` es lo que hace que el esquema sirva**: pone el rubro DEBAJO de sus subcuentas, así
+que al colapsar queda la fila del rubro y no la primera subcuenta. Se escribe con
+`ws["!outline"]={above:false}`.
+
+Dos cosas que costaron y conviene no volver a descubrir:
+
+- **`wch` no es el ancho que Excel guarda.** `wch` son caracteres y SheetJS le suma el relleno de
+  celda al escribir: `wch:15` sale como `15.83`. Los anchos de la hoja MN se ponen con `width`,
+  que se escribe tal cual, y coinciden byte a byte con los de Anel
+  (A 34.140625 · B 18.85546875 · C 16.5703125 · D..N 15.5703125 · P 11.42578125).
+  **El «para Apps» todavía usa `wch:15` y por eso escribe `15.83`.** Es cosmético y está sin
+  cambiar a propósito, para no tocar un commit ya aceptado.
+- **El total de un rubro no se puede sumar de sus subcuentas.** Si alguien captura usando el
+  NOMBRE DEL RUBRO como categoría, `construirFilasServicio` omite esa fila de detalle por
+  redundante y el dinero solo vive en el subtotal. `filasExcelVisual` lo recupera por diferencia
+  (`subtotal − Σ hijos`) y lo emite como una subcuenta más rotulada con el nombre del rubro. Sin
+  eso, Cuervito daba $8,123,740.00 contra $10,978,740.00.
+
 `macroDeCategoria` compara **ignorando mayúsculas, espacios sobrantes y acentos** (`normCat`), y
 devuelve la **grafía canónica del catálogo**, no el texto capturado. El renglón de detalle de la
 tabla sigue mostrando el texto tal como se capturó; el encabezado del subtotal usa la grafía del
