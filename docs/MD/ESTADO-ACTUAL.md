@@ -444,6 +444,19 @@ Subcategoría y Artículo son `<select>` nativos sin caja de texto, así que la 
 mayúsculas/acentos aplica al único campo con búsqueda escrita, Categoría. Los cinco KPI y los
 dos Excel se midieron idénticos antes y después.
 
+#### Corrección posterior (2026-09-10, tarde) — PDF y etiqueta CAPEX
+
+El PDF se genera con `window.print()` (`src/App.jsx`, botón `⬇ PDF` de la vista Ver) y CSS de
+impresión: el bloque `@media print` global oculta todo salvo `#rpdf` y lo que lleve `.noprint`.
+Salía en carta vertical y las tablas viven en `ScrollHint` (overflow-x:auto), que en papel no
+se desplaza: solo cabían 4-5 columnas de periodo.
+
+| Ajuste | Estado | Referencia |
+|---|---|---|
+| `@page` en carta horizontal; cada tabla (RESUMEN GENERAL, SERVICIO, FLUJO) sale en el PDF en dos bloques de periodos, M0-M6 y M7 en adelante, con Concepto y Total repetidos (`.solo-impresion`); en pantalla sigue la tabla única con scroll (`.solo-pantalla`) | hecho | CSS en el bloque `@media print` global; `bloquesPeriodosPdf`, `rotuloBloquePdf`, prop `cols` de `TablaServicio` y `TablaM`, `tablaMConPdf` |
+| Fuera del PDF (`.noprint`): insignia "✓ Guardado / En captura" y flecha de las cajas por área, flechas ▶/▼ de las tablas, degradado indicador de scroll de `ScrollHint` | hecho | `AreaColapsable`, `ScrollHint`, `TablaServicio`, `TablaM` |
+| Fila `CAPEX (Activos)` de la Tabla SERVICIO → `CAPEX`: `mCapex` suma todas las partidas CAPEX sin filtrar por rubro (ACTIVOS + EQUIPO DE COMPUTO + …) | hecho | `src/App.jsx`, filas de la Tabla SERVICIO; Excel para Apps y visual no usaban ese texto |
+
 ---
 
 ### Step 5 — Información general

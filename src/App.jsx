@@ -1120,7 +1120,9 @@ function ScrollHint({children, minWidth}){
         <div style={minWidth?{minWidth}:undefined}>{children}</div>
       </div>
       {canScrollRight && (
-        <div style={{position:"absolute",top:0,right:0,bottom:0,width:28,
+        /* noprint (10-sep-2026): el degradado que avisa "hay más a la derecha"
+           es indicador de scroll; en el PDF no hay scroll. */
+        <div className="noprint" style={{position:"absolute",top:0,right:0,bottom:0,width:28,
           background:"linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.13))",
           pointerEvents:"none"}}/>
       )}
@@ -2347,10 +2349,13 @@ function AreaColapsable({encabezado, derecha, children}){
         style={{display:"flex",alignItems:"center",justifyContent:"space-between",
           marginBottom:abierta?18:0,cursor:"pointer",userSelect:"none"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontSize:11,width:12,flexShrink:0,color:C.grayMid}}>{abierta?"▼":"▶"}</span>
+          {/* noprint (10-sep-2026): la flecha y la insignia de la derecha
+              ("✓ Guardado" / "En captura") son estado de la interfaz; no van al
+              PDF. En pantalla se ven igual. */}
+          <span className="noprint" style={{fontSize:11,width:12,flexShrink:0,color:C.grayMid}}>{abierta?"▼":"▶"}</span>
           {encabezado}
         </div>
-        {derecha}
+        <div className="noprint">{derecha}</div>
       </div>
       {abierta&&children}
     </>
@@ -3574,8 +3579,16 @@ async function exportarExcel({pres, areas, costos, ingresos, mCapex, mOpex, mEgr
 // Spec "Separar captura y visualización" (día 2). Recibe `filas` ya armadas
 // por construirFilasServicio — no calcula nada, solo pinta. No reemplaza a
 // TablaM, que sigue sirviendo a la tabla FLUJO de Resumen mensual.
-function TablaServicio({filas, MESES13, MESES13_MES}){
-  const [expandidos, setExpandidos] = useState({});
+// PDF (10-sep-2026): `cols` = índices de periodo a pintar (por omisión todos);
+// lo usan los bloques del PDF para partir la tabla en M0-M6 y M7+. `expandidos`
+// y `setExpandidos` pueden venir del padre para que la copia de pantalla y las
+// copias del PDF compartan qué rubros están abiertos. Cero aritmética nueva:
+// `f.total` y `f.mensual` llegan ya calculados y solo se filtra qué columnas van.
+function TablaServicio({filas, MESES13, MESES13_MES, cols, expandidos:expProp, setExpandidos:setExpProp}){
+  const [expLocal, setExpLocal] = useState({});
+  const expandidos = expProp ?? expLocal;
+  const setExpandidos = setExpProp ?? setExpLocal;
+  const idx = cols ?? MESES13.map((_,i)=>i);
 
   // Un subtotal "tiene detalle" si algún renglón de detalle comparte su macro —
   // eso es lo único que decide si lleva ▶/▼ (los casos esUnaSolaIgualAMacro no
@@ -3600,9 +3613,9 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
                 abreviado ($75.28M) — contabilidad cuadra al peso. La columna
                 sube de 62 a 108 px para que quepa; la tabla se desplaza dentro
                 de ScrollHint (overflowX:auto), nunca la página. */}
-            {MESES13.map((m,i)=>(
+            {idx.map(i=>(
               <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:108}}>
-                <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
+                <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{MESES13[i]}</div>
                 <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
               </td>
             ))}
@@ -3627,7 +3640,8 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
                   color:st.color, textTransform:f.tipo==="seccion"?"uppercase":"none",
                   display:"flex", alignItems:"center", gap:8}}>
                   {puedeExpandir&&(
-                    <span onClick={()=>setExpandidos(prev=>({...prev,[f.macro]:!prev[f.macro]}))}
+                    /* noprint (10-sep-2026): la flecha es control de pantalla, no va al PDF */
+                    <span className="noprint" onClick={()=>setExpandidos(prev=>({...prev,[f.macro]:!prev[f.macro]}))}
                       style={{cursor:"pointer",fontSize:9,width:10,flexShrink:0,userSelect:"none",color:st.color}}>
                       {expandidos[f.macro]?"▼":"▶"}
                     </span>
@@ -3637,12 +3651,12 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
                 <td style={{padding:"7px 12px",textAlign:"right",fontWeight:st.bold,color:st.color}}>
                   {f.total===""?"":fmt(f.total)}
                 </td>
-                {f.mensual.map((v,i)=>(
+                {idx.map(i=>{ const v=f.mensual[i]; return (
                   <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:st.bold,
                     color:v===""?st.color:(v!==0?st.color:C.grayBorder)}}>
                     {v===""?"":(v!==0?fmt(v):"—")}
                   </td>
-                ))}
+                );})}
               </tr>
             );
           })}
@@ -3699,7 +3713,21 @@ function KPIsPresupuesto({totalIngresosAnual, totalCAPEX, totalOPEX, totalEgr, u
 // NO CALCULA NADA: `filas` llega ya armada por construirFilasServicio, que no se
 // toca. Es la tabla que la contadora Anel aprobó como prueba de que SERVICIOS
 // sale como rubro propio: si desaparece, se pierde esa evidencia.
+// PDF (10-sep-2026): índices de periodo partidos en dos bloques, M0-M6 y M7 en
+// adelante (uno solo si hay 7 periodos o menos). Solo decide qué columnas pinta
+// cada copia de la tabla en el PDF; no toca las series.
+function bloquesPeriodosPdf(n){
+  const idx=Array.from({length:n},(_,i)=>i);
+  return n>7 ? [idx.slice(0,7), idx.slice(7)] : [idx];
+}
+function rotuloBloquePdf(b, MESES13_MES){
+  return `Periodos ${MESES13_MES[b[0]]} – ${MESES13_MES[b[b.length-1]]}`;
+}
+
 function TablaContableCard({filas, MESES13, MESES13_MES}){
+  // Estado de rubros expandidos compartido por la copia de pantalla y las copias
+  // del PDF, para que el PDF muestre lo mismo que el usuario dejó abierto.
+  const [expandidos, setExpandidos] = useState({});
   return(
     <>
           {/* ── TablaServicio — el centro de la pantalla (día 2 + día 3) ── */}
@@ -3717,7 +3745,25 @@ function TablaContableCard({filas, MESES13, MESES13_MES}){
                 Detalle por categoría, agrupado por categoría contable — haz clic en un subtotal para expandir
               </div>
             </div>
-            <TablaServicio filas={filas} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+            {/* Pantalla: la tabla única con scroll horizontal, como siempre. */}
+            <div className="solo-pantalla">
+              <TablaServicio filas={filas} MESES13={MESES13} MESES13_MES={MESES13_MES}
+                expandidos={expandidos} setExpandidos={setExpandidos}/>
+            </div>
+            {/* PDF (10-sep-2026): la misma tabla en dos bloques de periodos, con
+                la columna de concepto y el total repetidos en ambos. Oculto en
+                pantalla por CSS (.solo-impresion). */}
+            <div className="solo-impresion">
+              {bloquesPeriodosPdf(MESES13.length).map((b,bi)=>(
+                <div key={bi} className="bloque-pdf">
+                  <div style={{fontSize:10,color:C.grayMid,margin:"6px 0 4px 2px",fontWeight:600}}>
+                    {rotuloBloquePdf(b, MESES13_MES)}
+                  </div>
+                  <TablaServicio filas={filas} MESES13={MESES13} MESES13_MES={MESES13_MES} cols={b}
+                    expandidos={expandidos} setExpandidos={setExpandidos}/>
+                </div>
+              ))}
+            </div>
           </div>
     </>
   );
@@ -4650,6 +4696,19 @@ export default function App(){
           .kpi-grid { grid-template-columns: 1fr !important; }
           .resumen-kpi { grid-template-columns: 1fr 1fr !important; }
         }
+        /* PDF (10-sep-2026) — las tablas mensuales se cortaban en el PDF: el
+           documento salía en carta VERTICAL (612 pt de ancho) y cada tabla vive
+           en un ScrollHint con overflow-x:auto, que en papel no se desplaza —
+           recorta. Con 13-14 columnas de periodo a importe completo la tabla
+           mide 1,560-1,730 px y solo cabían 4-5 meses. Corrección con dos de los
+           patrones seguros: página HORIZONTAL (@page) y cada tabla partida en
+           dos bloques de periodos (M0-M6 y M7 en adelante) repitiendo la columna
+           de concepto. Los bloques (.solo-impresion) existen solo en el PDF; en
+           pantalla se sigue viendo la tabla única con scroll (.solo-pantalla).
+           Ningún cálculo cambia: los bloques reciben las mismas series y solo
+           eligen qué columnas pintar. */
+        .solo-impresion { display: none; }
+        @page { size: letter landscape; margin: 10mm; }
         @media print {
           .sidebar-nav { display: none !important; }
           .main-content { margin-left: 0 !important; }
@@ -4657,6 +4716,11 @@ export default function App(){
           #rpdf, #rpdf * { visibility: visible; }
           body * { visibility: hidden; }
           #rpdf { position: absolute; left: 0; top: 0; width: 100%; }
+          .solo-pantalla { display: none !important; }
+          .solo-impresion { display: block !important; }
+          .solo-impresion table { width: 100% !important; min-width: 0 !important; font-size: 10px !important; }
+          .solo-impresion td { min-width: 0 !important; padding: 5px 3px !important; }
+          .bloque-pdf { break-inside: avoid; page-break-inside: avoid; margin-bottom: 10px; }
           /* F1 (Fernando) — que ninguna gráfica se corte entre dos páginas al
              imprimir/exportar PDF. Solo las 2 tarjetas de gráfica por pantalla
              (Resumen mensual, Información general) llevan className="chart-card";
@@ -6158,7 +6222,12 @@ export default function App(){
       </div>
     );
     // ── Tabla mensual genérica ──────────────────────────────────────────────
-    function TablaM({filas,showTotal=true,title}){
+    // PDF (10-sep-2026): `cols` = índices de periodo a pintar (por omisión todos).
+    // Lo usan los bloques del PDF (M0-M6 y M7+). Los totales de la columna Total
+    // se siguen calculando sobre la serie COMPLETA: solo se filtra qué celdas
+    // mensuales se pintan.
+    function TablaM({filas,showTotal=true,title,cols}){
+      const idx=cols??Array.from({length:NMESES},(_,i)=>i);
       const totMes=Array(NMESES).fill(0).map((_,i)=>filas.reduce((s,f)=>s+(f.datos[i]||0),0));
       const totGen=filas.reduce((s,f)=>s+f.datos.reduce((a,b)=>a+b,0),0);
       return(
@@ -6174,9 +6243,9 @@ export default function App(){
                     lugar de fmtK) en Tabla SERVICIO y Tabla FLUJO; la columna de
                     mes sube de 62 a 108 px y la tabla se desplaza dentro de
                     ScrollHint, nunca la página. */}
-                {MESES13.map((m,i)=>(
+                {idx.map(i=>(
                   <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:108}}>
-                    <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
+                    <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{MESES13[i]}</div>
                     <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
                   </td>
                 ))}
@@ -6192,7 +6261,8 @@ export default function App(){
                 <tr style={{background:fi%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
                   <td style={{padding:"8px 14px",display:"flex",alignItems:"center",gap:8,position:"sticky",left:0,background:fi%2===0?C.white:"#FAFAFA"}}>
                     {puedeExpandir&&(
-                      <span onClick={()=>setExpandidosServicio(prev=>({...prev,[f.label]:!prev[f.label]}))}
+                      /* noprint (10-sep-2026): la flecha es control de pantalla, no va al PDF */
+                      <span className="noprint" onClick={()=>setExpandidosServicio(prev=>({...prev,[f.label]:!prev[f.label]}))}
                         style={{cursor:"pointer",fontSize:9,color:C.grayMid,width:10,flexShrink:0,userSelect:"none"}}>
                         {abierto?"▼":"▶"}
                       </span>
@@ -6200,12 +6270,12 @@ export default function App(){
                     <div style={{width:8,height:8,borderRadius:2,background:f.color,flexShrink:0}}/>
                     <span style={{fontWeight:600,color:f.color,fontSize:11}}>{f.label}</span>
                   </td>
-                  {f.datos.map((v,i)=>(
+                  {idx.map(i=>{ const v=f.datos[i]; return (
                     <td key={i} style={{padding:"7px 4px",textAlign:"right",
                       color:v>0?C.grayDark:v<0?C.danger:C.grayBorder,fontWeight:v!==0?600:400}}>
                       {v!==0?fmt(v):"—"}
                     </td>
-                  ))}
+                  );})}
                   <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:f.color}}>
                     {/* Bug conocido corregido — una serie acumulada (f.acumulado=true,
                         ej. FLUJO ACUMULADO) no se "totaliza" sumando la serie: su total
@@ -6219,11 +6289,11 @@ export default function App(){
                     <td style={{padding:"5px 14px 5px 32px",position:"sticky",left:0,background:C.grayLight,color:C.grayMid}}>
                       {d.label}
                     </td>
-                    {d.datos.map((v,i)=>(
+                    {idx.map(i=>{ const v=d.datos[i]; return (
                       <td key={i} style={{padding:"5px 4px",textAlign:"right",color:v>0?C.grayMid:C.grayBorder}}>
                         {v!==0?fmt(v):"—"}
                       </td>
-                    ))}
+                    );})}
                     <td style={{padding:"5px 12px",textAlign:"right",color:C.grayMid}}>
                       {fmt(d.datos.reduce((s,v)=>s+v,0))}
                     </td>
@@ -6235,12 +6305,12 @@ export default function App(){
               {showTotal&&(
                 <tr style={{background:C.yellowLight,borderTop:`2px solid ${C.yellow}`}}>
                   <td style={{padding:"9px 14px",fontWeight:800,color:C.grayDark,position:"sticky",left:0,background:C.yellowLight}}>TOTAL</td>
-                  {totMes.map((v,i)=>(
+                  {idx.map(i=>{ const v=totMes[i]; return (
                     <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:700,
                       color:v>0?C.grayDark:v<0?C.danger:C.grayBorder}}>
                       {v!==0?fmt(v):"—"}
                     </td>
-                  ))}
+                  );})}
                   <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.yellowDark}}>{fmt(totGen)}</td>
                 </tr>
               )}
@@ -6249,6 +6319,26 @@ export default function App(){
         </ScrollHint>
       );
     }
+    // PDF (10-sep-2026): una TablaM para pantalla (única, con scroll) y, solo en
+    // el PDF, la misma tabla en dos bloques de periodos (M0-M6 y M7+) con la
+    // columna Concepto y la columna Total repetidas. `filas` es el mismo arreglo
+    // para las tres copias: no hay cálculo nuevo, solo qué columnas se pintan.
+    const bloquesPdf = bloquesPeriodosPdf(NMESES);
+    const tablaMConPdf = (filas)=>(
+      <>
+        <div className="solo-pantalla"><TablaM filas={filas} showTotal={false}/></div>
+        <div className="solo-impresion">
+          {bloquesPdf.map((b,bi)=>(
+            <div key={bi} className="bloque-pdf">
+              <div style={{fontSize:10,color:C.grayMid,margin:"6px 0 4px 2px",fontWeight:600}}>
+                {rotuloBloquePdf(b, MESES13_MES)}
+              </div>
+              <TablaM filas={filas} showTotal={false} cols={b}/>
+            </div>
+          ))}
+        </div>
+      </>
+    );
 
     return wrap(
       <div>
@@ -6466,25 +6556,35 @@ export default function App(){
                 mEgresos), mismo expandir/contraer: expandidosServicio se indexa
                 por label y los dos labels con detalle no cambiaron.
                 La Tabla FLUJO de abajo NO se tocó. */}
-            <TablaM filas={[
+            {/* 10-sep-2026: la fila decía "CAPEX (Activos)", pero mCapex suma TODAS
+                las partidas de la sección CAPEX sin filtrar por rubro
+                (calcularSerieMensual): en PRC LITORAL-BECH son ACTIVOS
+                92,286,900.00 + EQUIPO DE COMPUTO 168,006.00 = 92,454,906.00, y en
+                Cuervito ACTIVOS 6,954,940.00 + EQUIPO DE COMPUTO 84,000.00 =
+                7,038,940.00. El paréntesis mentía por omisión; queda "CAPEX" a
+                secas y el detalle expandible ya enseña qué rubros lo componen.
+                Solo texto: series, detalle y clasificación sin cambio. */}
+            {tablaMConPdf([
               {label:"INGRESOS TOTALES",       color:C.success,   datos:mIngresos},
               {label:"EGRESOS TOTALES",         color:C.danger,    datos:mEgresos},
-              {label:"CAPEX (Activos)",        color:C.yellowDark,datos:mCapex, detalle:capexDetalle},
+              {label:"CAPEX",                  color:C.yellowDark,datos:mCapex, detalle:capexDetalle},
               {label:"OPEX",                   color:"#374151",   datos:mOpex,  detalle:opexDetalle},
-            ]} showTotal={false}/>
+            ])}
           </>)}
 
           {/* ── TABLA 2: FLUJO ───────────────────────────────────────────── */}
           {card(<>
             {sTitle("Tabla FLUJO — Flujo de efectivo","Equivalente a la pestaña FLUJO del archivo Excel de Geolis")}
-            <TablaM filas={[
+            {/* Tabla FLUJO sin cambio de filas ni series (10-sep-2026): solo pasa
+                por tablaMConPdf para salir completa en el PDF. */}
+            {tablaMConPdf([
               {label:"OPEX",              color:"#374151",   datos:mOpex},
               {label:"CAPEX",             color:C.yellowDark,datos:mCapex},
               {label:"EGRESOS TOTALES",   color:C.danger,    datos:mEgresos},
               {label:"INGRESOS",          color:C.success,   datos:mIngresos},
               {label:"FLUJO EFECTIVO",    color:"#7c3aed",   datos:mFlujo},
               {label:"FLUJO ACUMULADO",   color:"#0891b2",   datos:mFlujoAcum, acumulado:true},
-            ]} showTotal={false}/>
+            ])}
           </>)}
 
           {/* 2026-09-09 — aquí iba <TablaContableCard/> ("CAPEX y OPEX"). Subió
