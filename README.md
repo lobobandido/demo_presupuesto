@@ -49,9 +49,15 @@ src/
   main.jsx           — entrada de React
   index.css          — estilos globales
 
-catalogo_almacen*.json/.sql   — catálogo de artículos de almacén (generado)
-_gen_catalogo_almacen.mjs      — generador del catálogo desde el Excel fuente
-supabase_catalogo.sql          — inserts para cargar el catálogo en Supabase
+docs/catalogo/                 — codificador OFICIAL de almacén (CSV de grupos/subgrupos
+                                 y de artículos de servicios) — fuente de verdad
+scripts/gen-carga-catalogo.mjs — genera los INSERT de docs/catalogo/ para
+                                 catalogo_subgrupos y catalogo_articulos
+scripts/crear_catalogo_subgrupos_articulos.sql — DDL de esas dos tablas
+scripts/carga_catalogo_*.sql   — los INSERT generados (solo INSERT)
+scripts/semilla/               — semilla de 500 artículos de prueba de catalogo_almacen
+                                 (_gen_catalogo_almacen.mjs, catalogo_almacen*.json/.sql,
+                                 supabase_catalogo.sql). NO CORRER: ver su README
 
 docs/        — manuales, guía de negocio, capturas de pantalla, Excels fuente
 presupuestos/ — Excels y audios de referencia de proyectos reales
@@ -64,8 +70,10 @@ presupuestos/ — Excels y audios de referencia de proyectos reales
 
 - Node.js 18+
 - Un proyecto de [Supabase](https://supabase.com) con las tablas
-  `presupuestos` y `catalogo_almacen` (ver `supabase_catalogo.sql` para el
-  catálogo de almacén)
+  `presupuestos` y `catalogo_almacen` (la semilla de prueba está en
+  `scripts/semilla/`), más `catalogo_subgrupos` y `catalogo_articulos`
+  (ver `scripts/crear_catalogo_subgrupos_articulos.sql` y
+  `scripts/carga_catalogo_*.sql` para el codificador oficial de almacén)
 
 ## Configuración
 
