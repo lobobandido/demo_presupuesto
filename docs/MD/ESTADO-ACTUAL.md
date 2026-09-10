@@ -407,6 +407,31 @@ KPIs (`src/App.jsx:4062-4083`) → Tabla SERVICIO (`src/App.jsx:4086-4094`) → 
 (`src/App.jsx:4097-4107`) → Gráfica I (`src/App.jsx:4110-4125`) → Gráfica II
 (`src/App.jsx:4128-4143`) → Resumen por área (`src/App.jsx:4146-4182`).
 
+#### Corrección posterior (2026-09-09) — Bloque 1 de la junta con contabilidad
+
+Cuatro cambios **solo de render** en la pantalla Resumen (Ver). Ningún cálculo, exportación
+ni tabla de Supabase cambió; los cinco KPI de PRC LITORAL-BECH y los dos Excel se midieron
+idénticos antes y después.
+
+Orden actual de la pantalla:
+
+encabezado + botones → aviso de sin categoría → cinco KPI (`src/App.jsx:6416`) →
+**RESUMEN GENERAL** (`TablaContableCard`, `src/App.jsx:6428`; antes se titulaba «CAPEX y OPEX» e
+iba después de la Tabla FLUJO, el título vive en `src/App.jsx:3690`) → Tabla SERVICIO
+(`src/App.jsx:6432`) → Tabla FLUJO (`src/App.jsx:6451`, sin tocar) → cajas por departamento
+(`DetallePorArea`, `src/App.jsx:6468`) → gráficas «Flujo de efectivo» y «OPEX por categoría»
+(`src/App.jsx:6479`).
+
+| Cambio | Estado | Referencia |
+|---|---|---|
+| Tabla SERVICIO: fila `INGRESOS (Facturación)` → `INGRESOS TOTALES`; orden INGRESOS TOTALES · EGRESOS TOTALES · ▶ CAPEX (Activos) · ▶ OPEX. Mismas cuatro filas, mismo expandir/contraer | hecho | `src/App.jsx:6442-6445` |
+| Cajón «CAPEX y OPEX» → «RESUMEN GENERAL», primera tabla debajo de los KPI | hecho | `src/App.jsx:3690`, `6428` |
+| Panel verde «Facturación» (tabla M0-M12 de solo lectura) | **oculto, comentado** con bloque `OCULTO 2026-09-09` | `src/App.jsx:6347` |
+| Card «Resumen por área» (ÁREA · CAPEX · OPEX ANUAL · TOTAL) | **oculto, comentado** con bloque `OCULTO 2026-09-09` | `src/App.jsx:6484` |
+
+Para reactivar cualquiera de los dos ocultos basta quitar el `//` de cada línea del bloque;
+no requiere cambios de datos.
+
 ---
 
 ### Step 5 — Información general
@@ -526,6 +551,9 @@ Excel con las partidas de **todos** los presupuestos que haya en el `localStorag
 
 En **Resumen mensual (Step 4)** solo queda la tabla ya calculada, sin un solo campo editable
 (`src/App.jsx:4002-4051`; el comentario de `4002-4010` documenta el movimiento).
+**Desde el 2026-09-09 esa tabla está oculta** (bloque comentado `OCULTO 2026-09-09`,
+`src/App.jsx:6347`): la facturación se sigue viendo en el KPI de FACTURACIÓN y en la fila
+INGRESOS TOTALES de la Tabla SERVICIO. Ver «Corrección posterior (2026-09-09)» en Step 4.
 
 ### Cuántos botones de «Guardar» hay y qué escribe cada uno
 

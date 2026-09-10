@@ -3684,7 +3684,10 @@ function TablaContableCard({filas, MESES13, MESES13_MES}){
             <div style={{marginBottom:16}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>CAPEX y OPEX</h3>
+                {/* 2026-09-09 (junta con contabilidad) — el título decía "CAPEX y
+                    OPEX"; ahora "RESUMEN GENERAL". Solo cambia el texto: el
+                    subtítulo, la tabla y `filas` siguen igual. */}
+                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>RESUMEN GENERAL</h3>
               </div>
               <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
                 Detalle por categoría, agrupado por categoría contable — haz clic en un subtotal para expandir
@@ -6340,48 +6343,62 @@ export default function App(){
               mensual.
               PASO C — oculta por completo para Departamento/Suministro
               (mostrarIngresos), que no facturan. */}
-          {mostrarIngresos&&card(<>
-            {sTitle("Facturación","Precio fijo mensual del servicio × meses del proyecto, más facturación adicional por mes. Se captura en Capturar costos.")}
-
-            {/* Tabla resumen M0-M12 */}
-            <ScrollHint minWidth={800}>
-              <table style={{borderCollapse:"collapse",fontSize:11,width:"100%"}}>
-                <thead>
-                  <tr style={{background:"#059669"}}>
-                    <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
-                    {/* Fase 1.6.b (corrección) — mismo encabezado de dos líneas que TablaM */}
-                    {MESES13.map((m,i)=>(
-                      <td key={i} style={{padding:"4px 4px",textAlign:"right",minWidth:58}}>
-                        <div style={{fontSize:9,fontWeight:600,opacity:0.7,color:"rgba(255,255,255,0.7)"}}>{m}</div>
-                        <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
-                      </td>
-                    ))}
-                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
-                      ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
-                      Con precioFijo=0 daba el mismo total que esta fila, aparentando
-                      una suma duplicada sin serlo. Se llamó FACTURACIÓN, luego
-                      INGRESOS para combinar con el título de sección, y vuelve a
-                      FACTURACIÓN el 2026-08-31 con el título. mIngresos/
-                      totalIngresosAnual sin cambios. Mismo patrón que Capturar
-                      costos. */}
-                  <tr style={{background:C.successLight}}>
-                    <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
-                    {mIngresos.map((v,i)=>(
-                      <td key={i} style={{padding:"5px 4px",textAlign:"right",
-                        color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
-                        {v>0?fmtK(v):"—"}
-                      </td>
-                    ))}
-                    <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </ScrollHint>
-          </>)}
+          {
+            /* OCULTO 2026-09-09 — Card del panel verde "Facturación" del Resumen.
+               Solicitado en la junta del 9 de septiembre con contabilidad.
+               Razón: quedó duplicado con el KPI de FACTURACIÓN y con la fila
+               INGRESOS TOTALES de la Tabla SERVICIO.
+               El dato NO se borró: sigue en la BD, en la captura, en los dos Excel y en el PDF.
+               PARA REACTIVAR: quitar este comentario. No requiere cambios de datos. */
+            //
+            // Va con `//` por línea (y no con un solo {/* */}) porque el bloque
+            // trae comentarios {/* */} anidados que cerrarían el comentario antes
+            // de tiempo — mismo patrón que el botón "🗑 Eliminar" oculto del
+            // listado. Para reactivar: quitar el `//` de cada línea de abajo.
+            //
+            // {mostrarIngresos&&card(<>
+            //   {sTitle("Facturación","Precio fijo mensual del servicio × meses del proyecto, más facturación adicional por mes. Se captura en Capturar costos.")}
+            //
+            //   {/* Tabla resumen M0-M12 */}
+            //   <ScrollHint minWidth={800}>
+            //     <table style={{borderCollapse:"collapse",fontSize:11,width:"100%"}}>
+            //       <thead>
+            //         <tr style={{background:"#059669"}}>
+            //           <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:140}}>Concepto</td>
+            //           {/* Fase 1.6.b (corrección) — mismo encabezado de dos líneas que TablaM */}
+            //           {MESES13.map((m,i)=>(
+            //             <td key={i} style={{padding:"4px 4px",textAlign:"right",minWidth:58}}>
+            //               <div style={{fontSize:9,fontWeight:600,opacity:0.7,color:"rgba(255,255,255,0.7)"}}>{m}</div>
+            //               <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
+            //             </td>
+            //           ))}
+            //           <td style={{padding:"6px 12px",textAlign:"right",fontWeight:700,color:C.white}}>Total</td>
+            //         </tr>
+            //       </thead>
+            //       <tbody>
+            //         {/* Fila "+ Adicionales" eliminada — mostraba solo la porción de
+            //             ingAdicionales, que mIngresos/totalIngresosAnual ya incluyen.
+            //             Con precioFijo=0 daba el mismo total que esta fila, aparentando
+            //             una suma duplicada sin serlo. Se llamó FACTURACIÓN, luego
+            //             INGRESOS para combinar con el título de sección, y vuelve a
+            //             FACTURACIÓN el 2026-08-31 con el título. mIngresos/
+            //             totalIngresosAnual sin cambios. Mismo patrón que Capturar
+            //             costos. */}
+            //         <tr style={{background:C.successLight}}>
+            //           <td style={{padding:"8px 14px",fontWeight:700,color:C.success}}>FACTURACIÓN</td>
+            //           {mIngresos.map((v,i)=>(
+            //             <td key={i} style={{padding:"5px 4px",textAlign:"right",
+            //               color:v>0?C.success:C.grayBorder,fontWeight:v>0?600:400}}>
+            //               {v>0?fmtK(v):"—"}
+            //             </td>
+            //           ))}
+            //           <td style={{padding:"6px 12px",textAlign:"right",fontWeight:800,color:C.success}}>{fmt(totalIngresosAnual)}</td>
+            //         </tr>
+            //       </tbody>
+            //     </table>
+            //   </ScrollHint>
+            // </>)}
+          }
 
           {/* Aviso: partidas sin categoría contable macro asignada */}
           {sinCategoriaMacro>0&&(
@@ -6399,14 +6416,33 @@ export default function App(){
           <KPIsPresupuesto totalIngresosAnual={totalIngresosAnual} totalCAPEX={totalCAPEX}
             totalOPEX={totalOPEX} totalEgr={totalEgr} utilidad={utilidad} margen={margen}/>
 
+          {/* ── RESUMEN GENERAL (antes "CAPEX y OPEX") — la tabla contable agrupada
+              por RUBRO. Movida aquí el 2026-09-09 (junta con contabilidad) para que
+              sea la PRIMERA tabla del Resumen, justo debajo de los cinco KPI;
+              antes iba después de la Tabla FLUJO. Solo cambia de lugar: mismo
+              componente, mismas `filasServicio`, ningún cálculo se tocó.
+              Tarea 8 paso 2 — hasta entonces solo estaba en Información general.
+              NO reemplaza a las tablas mensuales SERVICIO y FLUJO: son dos vistas
+              distintas del mismo dinero y las dos se quedan. Es la que la contadora
+              Anel aprobó como prueba de que SERVICIOS sale como rubro propio. ── */}
+          <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+
           {/* ── TABLA 1: SERVICIO (Ingresos vs Egresos) ─────────────────── */}
           {card(<>
             {sTitle("Tabla SERVICIO — Ingresos vs Egresos por mes","Equivalente a la pestaña SERVICIO del archivo Excel de Geolis")}
+            {/* 2026-09-09 (junta con contabilidad) — solo RENDER, en ESTA tabla:
+                · "INGRESOS (Facturación)" pasa a llamarse "INGRESOS TOTALES".
+                · EGRESOS TOTALES sube debajo de INGRESOS; CAPEX y OPEX (las dos
+                  filas expandibles) quedan debajo de él, como su desglose.
+                Mismas cuatro filas, mismas series (mIngresos/mCapex/mOpex/
+                mEgresos), mismo expandir/contraer: expandidosServicio se indexa
+                por label y los dos labels con detalle no cambiaron.
+                La Tabla FLUJO de abajo NO se tocó. */}
             <TablaM filas={[
-              {label:"INGRESOS (Facturación)",color:C.success,   datos:mIngresos},
+              {label:"INGRESOS TOTALES",       color:C.success,   datos:mIngresos},
+              {label:"EGRESOS TOTALES",         color:C.danger,    datos:mEgresos},
               {label:"CAPEX (Activos)",        color:C.yellowDark,datos:mCapex, detalle:capexDetalle},
               {label:"OPEX",                   color:"#374151",   datos:mOpex,  detalle:opexDetalle},
-              {label:"EGRESOS TOTALES",         color:C.danger,    datos:mEgresos},
             ]} showTotal={false}/>
           </>)}
 
@@ -6423,12 +6459,9 @@ export default function App(){
             ]} showTotal={false}/>
           </>)}
 
-          {/* ── Tarea 8 paso 2 — la tabla contable agrupada por RUBRO, que hasta hoy
-              solo estaba en Información general. NO reemplaza a las tablas
-              mensuales de arriba: son dos vistas distintas del mismo dinero y las
-              dos se quedan. Es la que la contadora Anel aprobó como prueba de que
-              SERVICIOS sale como rubro propio. ── */}
-          <TablaContableCard filas={filasServicio} MESES13={MESES13} MESES13_MES={MESES13_MES}/>
+          {/* 2026-09-09 — aquí iba <TablaContableCard/> ("CAPEX y OPEX"). Subió
+              arriba de la Tabla SERVICIO como "RESUMEN GENERAL"; ver el bloque
+              debajo de <KPIsPresupuesto/>. */}
 
           {/* ── Tarea 8 paso 2 — las cajas por departamento, también traídas de
               Información general. Los totales por área se suman arriba, en App. ── */}
@@ -6447,43 +6480,57 @@ export default function App(){
             MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
 
           {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
-          {areas.length>0&&card(<>
-            {sTitle("Resumen por área")}
-            <ScrollHint minWidth={480}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
-              <thead>
-                <tr style={{background:"#FAFAFA",borderBottom:`2px solid ${C.line}`}}>
-                  {["Área","CAPEX","OPEX anual","Total"].map((h,i)=>(
-                    <td key={h} style={{padding:"10px 14px",fontWeight:700,fontSize:11,
-                      color:i===1?C.yellowDark:i===2?"#374151":C.grayMid,
-                      textAlign:i>0?"right":"left",textTransform:"uppercase",letterSpacing:0.4}}>{h}</td>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {areas.map((id,i)=>{
-                  const a=cats.find(x=>x.id===id);
-                  const cx=totalCat(id,"capex");
-                  const ox=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via")+totalOpexAnualCat(id,"serv");
-                  return(
-                    <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
-                      <td style={{padding:"10px 14px",fontWeight:600}}>{a?.icon} {a?.label}</td>
-                      <td style={{padding:"10px 14px",textAlign:"right",color:C.yellowDark,fontWeight:600}}>{fmt(cx)}</td>
-                      <td style={{padding:"10px 14px",textAlign:"right",color:"#374151"}}>{fmt(ox)}</td>
-                      <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700}}>{fmt(cx+ox)}</td>
-                    </tr>
-                  );
-                })}
-                <tr style={{background:C.grayDark}}>
-                  <td style={{padding:"11px 14px",fontWeight:700,color:C.white}}>TOTAL</td>
-                  <td style={{padding:"11px 14px",textAlign:"right",fontWeight:700,color:C.yellow}}>{fmt(totalCAPEX)}</td>
-                  <td style={{padding:"11px 14px",textAlign:"right",fontWeight:700,color:"#ccc"}}>{fmt(totalOPEX)}</td>
-                  <td style={{padding:"11px 14px",textAlign:"right",fontWeight:800,color:C.white,fontSize:14}}>{fmt(totalEgr)}</td>
-                </tr>
-              </tbody>
-            </table>
-            </ScrollHint>
-          </>,0)}
+          {
+            /* OCULTO 2026-09-09 — Card completo "Resumen por área" del Resumen.
+               Solicitado en la junta del 9 de septiembre.
+               Razón: repite los KPI de CAPEX, OPEX y TOTAL EGRESOS que ya están arriba,
+               y con una sola área el renglón de TOTAL duplica el renglón de arriba.
+               El cálculo por área NO se borró: sigue existiendo, solo no se pinta.
+               PARA REACTIVAR: quitar este comentario. No requiere cambios de datos. */
+            //
+            // Va con `//` por línea, igual que el panel "Facturación" de arriba y
+            // el botón "🗑 Eliminar" oculto del listado. Para reactivar: quitar el
+            // `//` de cada línea de abajo. totalCat / totalOpexAnualCat /
+            // totalNomAnual siguen definidas y las usan areasDetalle y los KPI.
+            //
+            // {areas.length>0&&card(<>
+            //   {sTitle("Resumen por área")}
+            //   <ScrollHint minWidth={480}>
+            //   <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+            //     <thead>
+            //       <tr style={{background:"#FAFAFA",borderBottom:`2px solid ${C.line}`}}>
+            //         {["Área","CAPEX","OPEX anual","Total"].map((h,i)=>(
+            //           <td key={h} style={{padding:"10px 14px",fontWeight:700,fontSize:11,
+            //             color:i===1?C.yellowDark:i===2?"#374151":C.grayMid,
+            //             textAlign:i>0?"right":"left",textTransform:"uppercase",letterSpacing:0.4}}>{h}</td>
+            //         ))}
+            //       </tr>
+            //     </thead>
+            //     <tbody>
+            //       {areas.map((id,i)=>{
+            //         const a=cats.find(x=>x.id===id);
+            //         const cx=totalCat(id,"capex");
+            //         const ox=totalOpexAnualCat(id,"mat")+totalNomAnual(id)+totalOpexAnualCat(id,"via")+totalOpexAnualCat(id,"serv");
+            //         return(
+            //           <tr key={id} style={{background:i%2===0?C.white:"#FAFAFA",borderBottom:`1px solid ${C.line}`}}>
+            //             <td style={{padding:"10px 14px",fontWeight:600}}>{a?.icon} {a?.label}</td>
+            //             <td style={{padding:"10px 14px",textAlign:"right",color:C.yellowDark,fontWeight:600}}>{fmt(cx)}</td>
+            //             <td style={{padding:"10px 14px",textAlign:"right",color:"#374151"}}>{fmt(ox)}</td>
+            //             <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700}}>{fmt(cx+ox)}</td>
+            //           </tr>
+            //         );
+            //       })}
+            //       <tr style={{background:C.grayDark}}>
+            //         <td style={{padding:"11px 14px",fontWeight:700,color:C.white}}>TOTAL</td>
+            //         <td style={{padding:"11px 14px",textAlign:"right",fontWeight:700,color:C.yellow}}>{fmt(totalCAPEX)}</td>
+            //         <td style={{padding:"11px 14px",textAlign:"right",fontWeight:700,color:"#ccc"}}>{fmt(totalOPEX)}</td>
+            //         <td style={{padding:"11px 14px",textAlign:"right",fontWeight:800,color:C.white,fontSize:14}}>{fmt(totalEgr)}</td>
+            //       </tr>
+            //     </tbody>
+            //   </table>
+            //   </ScrollHint>
+            // </>,0)}
+          }
 
           <div style={{textAlign:"center",fontSize:11,color:C.grayMid,paddingTop:20,marginTop:20,
             borderTop:`1px solid ${C.line}`}}>
