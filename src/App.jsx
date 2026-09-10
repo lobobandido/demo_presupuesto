@@ -909,6 +909,10 @@ const fmt=n=>isNaN(n)||n==null?"$0.00":"$"+Number(n).toLocaleString("es-MX",{min
 const fmtMiles=n=>isNaN(n)||n==null?"0.00":Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
 // Monto compacto para que quepa en columnas angostas de mes ($1.2M, $540K) —
 // movida a nivel de módulo para que TablaServicio (día 2) la use igual que TablaM.
+// Retro 10-sep-2026: TablaServicio (RESUMEN GENERAL) y TablaM (SERVICIO y FLUJO)
+// dejaron de usarla — muestran el importe completo con fmt, porque contabilidad
+// cuadra al peso. Solo la sigue usando la tabla verde de Facturación en Capturar
+// costos. Se conserva por eso y para reactivar el modo compacto si hiciera falta.
 const fmtK=v=>{
   if(v===0)return "—";
   const abs=Math.abs(v);
@@ -1170,7 +1174,11 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
   const misCats = getCats(storageKey).filter(c=>!grupos.some(g=>g.subs.includes(c)));
   const gruposConMias = misCats.length ? [...grupos,{rubro:"Mis categorías", subs:misCats}] : grupos;
 
-  const coincide = o => o.toLowerCase().includes(txt.toLowerCase());
+  // Retro 10-sep-2026: la búsqueda no distingue mayúsculas NI acentos. Antes
+  // comparaba con toLowerCase, así que "Válvulas" no encontraba VALVULAS ni
+  // "analisis" a ANÁLISIS. normCat (misma normalización que usa
+  // macroDeCategoria) quita acentos, sube a mayúsculas y colapsa espacios.
+  const coincide = o => normCat(o).includes(normCat(txt));
   // Al filtrar, un encabezado se oculta si ninguna de sus subcuentas coincide.
   const gruposFiltrados = gruposConMias
     .map(g=>({...g, subs:g.subs.filter(coincide)}))
@@ -1273,7 +1281,9 @@ function CatalogInput({value,onChange,options,placeholder="Seleccionar o escribi
         <div style={{position:"fixed",top:pos.top,left:pos.left,width:pos.width,zIndex:1000,
           background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:8,
           maxHeight:340,overflowY:"auto",boxShadow:"0 8px 28px rgba(0,0,0,0.15)"}}>
-          {allowCustom&&txt&&!allOpts.map(o=>o.toUpperCase()).includes(txt.toUpperCase())&&(
+          {/* Retro 10-sep-2026: misma normalización que `coincide` — escribir
+              "Válvulas" ya no ofrece "Crear categoría" de una que existe. */}
+          {allowCustom&&txt&&!allOpts.some(o=>normCat(o)===normCat(txt))&&(
             <div onMouseDown={e=>{e.preventDefault();handleNewCat(txt);}}
               style={{padding:"11px 14px",fontSize:12,color:C.yellowDark,cursor:"pointer",
                 borderBottom:`1px solid ${C.line}`,fontWeight:700,display:"flex",alignItems:"center",gap:8,
@@ -1765,7 +1775,10 @@ const CATALOGO_CASCADA = {
 // Headers y fila en el mismo componente, dentro del card
 function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel, headerColor, showMes=false, showPeriod=false, fechaInicioProyecto, fechaFinProyecto, numMesesOpProyecto=12, mostrarFechaReal=false, readOnly=false}){
   // Cascada Subcategoría/Artículo (solo OPEX Materiales) — key=p.id, value=subcategoría elegida
-  const [subcatSel, setSubcatSel] = useState({});
+  // Retro 10-sep-2026: dejó de usarse; la selección vive ahora en el renglón
+  // (p.subcat, p.articulo) para que los selects conserven su valor. Se deja
+  // comentado, no borrado.
+  // const [subcatSel, setSubcatSel] = useState({});
   // Rango de años de los selects "Año" — antes fijo 2024-2035; ahora se ajusta
   // a la duración real del proyecto (soporta desde 6 meses hasta 20 años).
   const anioIniProy = fechaInicioProyecto ? new Date(fechaInicioProyecto+"T00:00:00").getFullYear() : 2024;
@@ -1853,40 +1866,47 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
             borderBottom:idx<partidas.length-1?`1px solid ${C.line}`:"none"}}>
             <div>
               <CatalogInput value={p.cat} onChange={v=>{
-                onUpdate({...p,cat:v,subcat:""});
-                setSubcatSel(prev=>({...prev,[p.id]:""}));
+                // Cambiar la categoría reinicia la cascada (subcategoría y artículo).
+                onUpdate({...p,cat:v,subcat:"",articulo:""});
                 // El dropdown de sugerencias se activa cuando hay historial
               }} options={catOptions} placeholder="Categoría" storageKey={catStorageKey}
                 extraOptions={addLabel==="Agregar material"?Object.keys(CATALOGO_CASCADA):[]}
                 extraLabel="── catálogo almacén ──"/>
               {/* Cascada Subcategoría/Artículo — solo OPEX Materiales, solo si la
                   categoría elegida tiene entrada en CATALOGO_CASCADA. p.cat nunca
-                  cambia aquí: solo se autocompletan desc/unidad al elegir artículo. */}
+                  cambia aquí: solo se autocompletan desc/unidad al elegir artículo.
+                  Retro 10-sep-2026 ("que se quede visible"): la subcategoría y el
+                  artículo elegidos viven en el propio renglón (p.subcat, p.articulo)
+                  y los dos selects los siguen mostrando después de elegir. Antes
+                  vivían en el estado local subcatSel y se vaciaban al escoger el
+                  artículo. Son SOLO estado de pantalla: opexToRow no los manda a
+                  Supabase (la columna para el código de artículo es otra tarea), así
+                  que al recargar el renglón trae Descripción y Unidad como siempre y
+                  los selects vuelven al placeholder. */}
               {addLabel==="Agregar material"&&CATALOGO_CASCADA[p.cat]&&(
                 <div style={{marginTop:4,display:"flex",flexDirection:"column",gap:4}}>
                   <select
-                    value={subcatSel[p.id]||""}
-                    onChange={e=>setSubcatSel(prev=>({...prev,[p.id]:e.target.value}))}
+                    value={p.subcat||""}
+                    onChange={e=>onUpdate({...p,subcat:e.target.value,articulo:""})}
                     className="sel-brand"
                     style={{padding:"6px 6px",
                       border:`1px solid ${C.grayBorder}`,
                       borderRadius:6,fontSize:11,
                       background:C.white,width:"100%",
-                      color:subcatSel[p.id]?C.grayDark:C.grayMid}}>
+                      color:p.subcat?C.grayDark:C.grayMid}}>
                     <option value="">Subcategoría...</option>
                     {Object.keys(CATALOGO_CASCADA[p.cat]).map(sg=>(
                       <option key={sg} value={sg}>{sg}</option>
                     ))}
                   </select>
-                  {subcatSel[p.id]&&CATALOGO_CASCADA[p.cat]?.[subcatSel[p.id]]&&(
+                  {p.subcat&&CATALOGO_CASCADA[p.cat]?.[p.subcat]&&(
                     <select
-                      value=""
+                      value={p.articulo||""}
                       onChange={e=>{
-                        const art=CATALOGO_CASCADA[p.cat][subcatSel[p.id]]
+                        const art=CATALOGO_CASCADA[p.cat][p.subcat]
                           .find(a=>a.desc===e.target.value);
                         if(art){
-                          onUpdate({...p,desc:art.desc,unidad:UM_ALMACEN_A_UNIDAD[art.um]||"Unidad"});
-                          setSubcatSel(prev=>({...prev,[p.id]:""}));
+                          onUpdate({...p,desc:art.desc,unidad:UM_ALMACEN_A_UNIDAD[art.um]||"Unidad",articulo:art.desc});
                         }
                       }}
                       className="sel-brand"
@@ -1894,9 +1914,9 @@ function PartidaTable({partidas, onUpdate, onRemove, onAdd, catOptions, addLabel
                         border:`1px solid ${C.grayBorder}`,
                         borderRadius:6,fontSize:11,
                         background:C.white,width:"100%",
-                        color:C.grayMid}}>
+                        color:p.articulo?C.grayDark:C.grayMid}}>
                       <option value="">Artículo...</option>
-                      {CATALOGO_CASCADA[p.cat][subcatSel[p.id]].map((a,i)=>(
+                      {CATALOGO_CASCADA[p.cat][p.subcat].map((a,i)=>(
                         <option key={i} value={a.desc}>{a.desc} ({a.um})</option>
                       ))}
                     </select>
@@ -3576,8 +3596,12 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
           <tr style={{background:C.grayDark}}>
             <td style={{padding:"8px 14px",fontWeight:700,color:C.white,minWidth:220,position:"sticky",left:0,background:C.grayDark}}>Descripción</td>
             <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:C.white,minWidth:110}}>Total Presupuestado</td>
+            {/* Retro 10-sep-2026: importe completo ($75,277,150.65) en vez de
+                abreviado ($75.28M) — contabilidad cuadra al peso. La columna
+                sube de 62 a 108 px para que quepa; la tabla se desplaza dentro
+                de ScrollHint (overflowX:auto), nunca la página. */}
             {MESES13.map((m,i)=>(
-              <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:62}}>
+              <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:108}}>
                 <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
                 <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
               </td>
@@ -3611,12 +3635,12 @@ function TablaServicio({filas, MESES13, MESES13_MES}){
                   <span>{f.label}</span>
                 </td>
                 <td style={{padding:"7px 12px",textAlign:"right",fontWeight:st.bold,color:st.color}}>
-                  {f.total===""?"":fmtK(f.total)}
+                  {f.total===""?"":fmt(f.total)}
                 </td>
                 {f.mensual.map((v,i)=>(
                   <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:st.bold,
                     color:v===""?st.color:(v!==0?st.color:C.grayBorder)}}>
-                    {v===""?"":(v!==0?fmtK(v):"—")}
+                    {v===""?"":(v!==0?fmt(v):"—")}
                   </td>
                 ))}
               </tr>
@@ -6146,8 +6170,12 @@ export default function App(){
                 {/* Fase 1.6.b (corrección) — encabezado de dos líneas: código M{i} atenuado
                     arriba, nombre real del mes prominente abajo. key={i} porque con nombres
                     de mes puede haber repetidos en presupuestos de 13+ meses. */}
+                {/* Retro 10-sep-2026: importe completo en vez de abreviado (fmt en
+                    lugar de fmtK) en Tabla SERVICIO y Tabla FLUJO; la columna de
+                    mes sube de 62 a 108 px y la tabla se desplaza dentro de
+                    ScrollHint, nunca la página. */}
                 {MESES13.map((m,i)=>(
-                  <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:62}}>
+                  <td key={i} style={{padding:"5px 4px",textAlign:"right",minWidth:108}}>
                     <div style={{fontSize:9,fontWeight:600,opacity:0.6,color:"#aaa"}}>{m}</div>
                     <div style={{fontSize:11,fontWeight:700,color:C.white}}>{MESES13_MES[i]}</div>
                   </td>
@@ -6175,7 +6203,7 @@ export default function App(){
                   {f.datos.map((v,i)=>(
                     <td key={i} style={{padding:"7px 4px",textAlign:"right",
                       color:v>0?C.grayDark:v<0?C.danger:C.grayBorder,fontWeight:v!==0?600:400}}>
-                      {v!==0?fmtK(v):"—"}
+                      {v!==0?fmt(v):"—"}
                     </td>
                   ))}
                   <td style={{padding:"7px 12px",textAlign:"right",fontWeight:700,color:f.color}}>
@@ -6183,7 +6211,7 @@ export default function App(){
                         ej. FLUJO ACUMULADO) no se "totaliza" sumando la serie: su total
                         es el último valor de la serie. Solo afecta filas marcadas así;
                         el resto sigue sumando igual que siempre. */}
-                    {fmtK(f.acumulado ? f.datos[f.datos.length-1] : f.datos.reduce((s,v)=>s+v,0))}
+                    {fmt(f.acumulado ? f.datos[f.datos.length-1] : f.datos.reduce((s,v)=>s+v,0))}
                   </td>
                 </tr>
                 {abierto&&f.detalle.map((d,di)=>(
@@ -6193,11 +6221,11 @@ export default function App(){
                     </td>
                     {d.datos.map((v,i)=>(
                       <td key={i} style={{padding:"5px 4px",textAlign:"right",color:v>0?C.grayMid:C.grayBorder}}>
-                        {v!==0?fmtK(v):"—"}
+                        {v!==0?fmt(v):"—"}
                       </td>
                     ))}
                     <td style={{padding:"5px 12px",textAlign:"right",color:C.grayMid}}>
-                      {fmtK(d.datos.reduce((s,v)=>s+v,0))}
+                      {fmt(d.datos.reduce((s,v)=>s+v,0))}
                     </td>
                   </tr>
                 ))}
@@ -6210,10 +6238,10 @@ export default function App(){
                   {totMes.map((v,i)=>(
                     <td key={i} style={{padding:"7px 4px",textAlign:"right",fontWeight:700,
                       color:v>0?C.grayDark:v<0?C.danger:C.grayBorder}}>
-                      {v!==0?fmtK(v):"—"}
+                      {v!==0?fmt(v):"—"}
                     </td>
                   ))}
-                  <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.yellowDark}}>{fmtK(totGen)}</td>
+                  <td style={{padding:"7px 12px",textAlign:"right",fontWeight:800,color:C.yellowDark}}>{fmt(totGen)}</td>
                 </tr>
               )}
             </tbody>

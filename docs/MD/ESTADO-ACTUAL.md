@@ -432,6 +432,18 @@ iba después de la Tabla FLUJO, el título vive en `src/App.jsx:3690`) → Tabla
 Para reactivar cualquiera de los dos ocultos basta quitar el `//` de cada línea del bloque;
 no requiere cambios de datos.
 
+#### Corrección posterior (2026-09-10) — retro del 10 de septiembre, tres ajustes de UI
+
+| Ajuste | Estado | Referencia |
+|---|---|---|
+| RESUMEN GENERAL, Tabla SERVICIO y Tabla FLUJO muestran el importe completo (`fmt`, `$75,277,150.65`) en vez del abreviado (`fmtK`, `$75.28M`); la columna de mes sube de 62 a 108 px y la tabla se desplaza dentro de `ScrollHint`, la página no | hecho | `src/App.jsx:3599-3643` (TablaServicio), `6173-6244` (TablaM); `fmtK` sigue viva solo para la tabla verde de Facturación en Capturar costos |
+| La búsqueda de Categoría no distingue mayúsculas ni acentos (`coincide` usa `normCat`); "Válvulas" y "analisis" encuentran VALVULAS y ANALISIS…, y ya no ofrecen "Crear categoría" | hecho | `src/App.jsx:1177-1181`, `1284-1286` |
+| En OPEX · Materiales, los selects de Subcategoría y Artículo conservan lo elegido (`p.subcat`, `p.articulo`, estado de pantalla; `opexToRow` no los persiste) | hecho | `src/App.jsx:1869-1919`; `subcatSel` comentado en `1778-1782` |
+
+Subcategoría y Artículo son `<select>` nativos sin caja de texto, así que la insensibilidad a
+mayúsculas/acentos aplica al único campo con búsqueda escrita, Categoría. Los cinco KPI y los
+dos Excel se midieron idénticos antes y después.
+
 ---
 
 ### Step 5 — Información general
