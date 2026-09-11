@@ -140,8 +140,13 @@ cambios son dentro del área de la gráfica; ninguno mueve un cálculo ni una se
    la lleva únicamente la tarjeta 1.
 2. **Título de eje Y** «MXN», rotado 90°, en el margen izquierdo, 10 px, `C.grayMid`
    (`TituloEjeY`), en las tarjetas 1, 2 y 3. En la tarjeta 4 el eje de valores es el
-   horizontal, así que «MXN» va centrado debajo de las barras, con el mismo estilo; el
-   margen izquierdo ahí es de nombres de rubro, no de escala.
+   horizontal, así que «MXN» va justo debajo de la última barra, alineado a la base de
+   las barras, con el mismo estilo; el margen izquierdo ahí es de nombres de rubro, no
+   de escala.
+   En la tarjeta 1 el dominio del eje sale del máximo de TODAS las series dibujadas
+   más el aire de la etiqueta de valor (24 px sobre la barra más alta), para que ni la
+   barra ni su etiqueta salgan del área; los ticks se calculan sobre el dato y siguen
+   siendo ≤5, el aire solo estira el tope (corrección 2026-09-11, recorrido manual).
 3. **Área de trazado en blanco.** Se retira el `<rect>` de fondo (#FAFAFA) de las tres
    gráficas mensuales. Sin marco. En la tarjeta 3 permanece el área tenue bajo la línea
    (sección 4, tarjeta 3): es una marca de dato, no fondo, y baja a opacidad 0.10.

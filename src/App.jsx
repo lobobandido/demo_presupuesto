@@ -4021,7 +4021,15 @@ function GraficaIngresosEgresos({mIngresos,mEgresos,meses}){
   const W=960,pL=80,pR=20,pT=28, cW=W-pL-pR, cH=216;
   const slot=cW/n, grupo=slot*0.72, barW=(grupo-2)/2;
   const diag=ejeXDiagonal(meses,slot), pB=altoEjeX(meses,diag), H=pT+cH+pB;
-  const {ticks,min,max}=ticksEje(0,Math.max(...mIngresos,...mEgresos,0));
+  // Dominio: máximo de TODAS las series dibujadas (barras agrupadas: la escala
+  // es una sola para Ingresos y Egresos) más el aire que ocupa la etiqueta de
+  // valor encima de la barra más alta (15 px de separación + 9 px de fuente),
+  // para que ni la barra ni su etiqueta salgan del área de trazado. Los ticks se
+  // calculan sobre el dato (siguen siendo ≤5); el aire solo estira el tope.
+  const maxDato=Math.max(...mIngresos,...mEgresos,0);
+  const AIRE_ETIQUETA=24;
+  const {ticks,min,max:maxTick}=ticksEje(0,maxDato);
+  const max=Math.max(maxTick,maxDato+(maxDato-min)*(AIRE_ETIQUETA/cH));
   const yP=v=>pT+cH-((v-min)/(max-min))*cH;
   const xP=i=>pL+slot*i+slot/2;
   return(
@@ -4147,12 +4155,13 @@ function rubrosParaGrafica(filas){
   return items;
 }
 // Acabado: sin rejilla ni líneas verticales (cada barra ya lleva su cifra); el
-// eje de valores es el horizontal, así que el título «MXN» va debajo de las
-// barras, horizontal, con el mismo estilo que el título de eje Y de las otras.
+// eje de valores es el horizontal, así que el título «MXN» va bajo la última
+// barra, alineado a la base de las barras, con el mismo estilo que el título de
+// eje Y de las otras tarjetas.
 function GraficaEgresosRubro({filas}){
   const items=rubrosParaGrafica(filas);
   if(items.length===0) return null;
-  const fila=30, W=960,pL=290,pR=110,pT=8,pB=24, cW=W-pL-pR, H=pT+pB+fila*items.length;
+  const fila=30, W=960,pL=290,pR=110,pT=8,pB=18, cW=W-pL-pR, H=pT+pB+fila*items.length;
   const maxV=Math.max(...items.map(it=>Math.abs(it.total)),1);
   // El nombre se recorta con «…» si no cabe en el margen izquierdo (≈6.6 px por
   // carácter a 11 px semibold); el <title> conserva el nombre completo.
@@ -4171,7 +4180,8 @@ function GraficaEgresosRubro({filas}){
           </g>
         );
       })}
-      <text x={pL+cW/2} y={H-6} textAnchor="middle" fontSize="10" fill={C.grayMid} fontFamily={GRAF_FONT}>{GRAF_UNIDAD}</text>
+      {/* Unidad pegada a la base de las barras, justo bajo la última, no flotando al centro. */}
+      <text x={pL} y={pT+fila*items.length+2} textAnchor="start" fontSize="10" fill={C.grayMid} fontFamily={GRAF_FONT}>{GRAF_UNIDAD}</text>
     </svg>
   );
 }
