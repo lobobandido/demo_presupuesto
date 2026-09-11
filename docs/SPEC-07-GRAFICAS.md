@@ -128,6 +128,54 @@ Validada: banda de luminosidad, piso de croma, separación para daltonismo (peor
    protegida por la regla 4 de CLAUDE.md), con un comentario que dice que quedó sin
    consumidor tras este rediseño, para que nadie lo borre ni lo reviva por error.
 
+## 9 · Acabado profesional (2026-09-11)
+
+Referencia: el tablero ejecutivo de CoreWell (cuervito.corewell.mx/tablero_ejecutivo). El
+encabezado de sección de la app (barra dorada + título) ya coincide y no se toca. Los seis
+cambios son dentro del área de la gráfica; ninguno mueve un cálculo ni una serie.
+
+1. **Leyenda abajo.** Debajo del eje X, en una sola línea horizontal centrada, 11 px en
+   `C.grayMid`, marcador de 10 px: línea con punto para series de línea, cuadro redondeado
+   para barras (`MarcadorLeyenda`). Sólo con 2+ series (regla de la sección 3), así que hoy
+   la lleva únicamente la tarjeta 1.
+2. **Título de eje Y** «MXN», rotado 90°, en el margen izquierdo, 10 px, `C.grayMid`
+   (`TituloEjeY`), en las tarjetas 1, 2 y 3. En la tarjeta 4 el eje de valores es el
+   horizontal, así que «MXN» va centrado debajo de las barras, con el mismo estilo; el
+   margen izquierdo ahí es de nombres de rubro, no de escala.
+3. **Área de trazado en blanco.** Se retira el `<rect>` de fondo (#FAFAFA) de las tres
+   gráficas mensuales. Sin marco. En la tarjeta 3 permanece el área tenue bajo la línea
+   (sección 4, tarjeta 3): es una marca de dato, no fondo, y baja a opacidad 0.10.
+4. **Rejilla mínima.** Máximo 5 líneas horizontales, 1 px, continuas, `#E8E8E6`
+   (`GRAF_REJILLA`); `ticksEje` reduce el número de intervalos hasta que los ticks quepan
+   en 5. La línea del cero es uno de esos ticks y va un tono más oscuro (`GRAF_CERO`,
+   `#C4C4C0`) porque es la base de las barras. Cero líneas verticales: se retira también la
+   raya vertical que la tarjeta 4 dibujaba al inicio de cada barra. Cero marco.
+5. **Marcadores chicos.** Los puntos de la tarjeta 3 bajan a r=4 (8 px de diámetro, el
+   mínimo de la sección 6), relleno del color de la serie y anillo blanco de 1.5 px.
+6. **Eje X en diagonal** −45°, anclado al final, cuando la etiqueta más larga no cabe en su
+   ranura (`ejeXDiagonal`, ≈6.2 px por carácter a 11 px); el alto reservado bajo el eje se
+   calcula con `altoEjeX`. Con 13 meses («Ene 26») caben horizontales; a partir de ~20
+   meses giran. En la tarjeta 4 los nombres de rubro se recortan con «…» si exceden el
+   margen izquierdo (290 px); el `<title>` conserva el nombre completo.
+
+Espaciado: 16 px de margen interno entre el borde de la tarjeta y el área de trazado
+(`GRAF_PAD`, padding de `TarjetaGrafica`) y 12 px entre el eje X y la leyenda
+(`GRAF_GAP_LEYENDA`).
+
+Fuera de alcance, a propósito: el icono de expandir ⤢ y el filtro de fecha por tarjeta de
+CoreWell. Son funcionalidad, no estilo, y van en otra entrega.
+
+### Verificación del acabado — en PRC LITORAL-BECH y en Cuervito
+
+1. Las cuatro tarjetas con la leyenda abajo (o sin leyenda si tienen una sola serie).
+2. Ningún área de trazado con fondo de color ni marco.
+3. Máximo 5 líneas de rejilla horizontal, ninguna vertical.
+4. El flujo de febrero de PRC LITORAL-BECH (−$26,721,991.06) sigue siendo una barra roja
+   de tamaño legible.
+5. Los cinco KPI y las tres tablas sin cambio; los dos Excel con los md5 de siempre
+   (432aa4f5… y 611c65f5…).
+6. Las cuatro tarjetas salen completas en el PDF.
+
 ## NO SE TOCA
 
 Cálculos, distribución mensual, Tabla FLUJO, los tres exportadores, la base de datos.

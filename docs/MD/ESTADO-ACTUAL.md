@@ -477,6 +477,12 @@ Paleta fija (`PALETA_GRAF`), texto en `C.grayMid`, eje y etiquetas abreviados (`
 `calcularSerieMensual` sin consumidor, con comentario. Las cuatro tarjetas llevan `chart-card`
 y salen completas en el PDF.
 
+Acabado (2026-09-11, SPEC 07 §9, referencia CoreWell): leyenda debajo del eje X (horizontal,
+centrada, solo con 2+ series), título de eje «MXN» rotado en el margen izquierdo, área de
+trazado en blanco sin marco, rejilla de máximo 5 líneas horizontales continuas (`ticksEje`
+limita los ticks) y ninguna vertical, marcadores r=4 con anillo blanco, etiquetas del eje X en
+diagonal −45° cuando no caben (`ejeXDiagonal`), 16 px de margen interno y 12 px eje↔leyenda.
+
 ---
 
 ### Step 5 — Información general

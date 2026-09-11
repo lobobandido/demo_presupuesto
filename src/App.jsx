@@ -3923,6 +3923,15 @@ const GRAF_INGRESOS=PALETA_GRAF[1], GRAF_EGRESOS=PALETA_GRAF[2];
 const GRAF_POS=PALETA_GRAF[0], GRAF_NEG=PALETA_GRAF[7];
 const GRAF_ACUM=PALETA_GRAF[1];
 const GRAF_FONT="Inter,sans-serif";
+// Acabado (SPEC 07 §9, 11-sep-2026, referencia: tablero ejecutivo de CoreWell).
+// Área de trazado en blanco (sin panel de color ni marco), rejilla mínima de
+// máximo 5 líneas horizontales continuas de 1 px y cero verticales, título de
+// eje «MXN», leyenda debajo del eje X, marcadores chicos.
+const GRAF_REJILLA="#E8E8E6";   // línea de rejilla: 1 px, continua
+const GRAF_CERO="#C4C4C0";      // línea del cero (base de las barras); es un tick, cuenta dentro de las 5
+const GRAF_PAD=16;              // margen interno: borde de la tarjeta ↔ área de trazado
+const GRAF_GAP_LEYENDA=12;      // eje X ↔ leyenda
+const GRAF_UNIDAD="MXN";        // título de eje en las cuatro tarjetas
 
 // Abreviado para eje y etiqueta de barra ($75.3M, $540K, -$26.7M). El tooltip
 // usa fmt, no esto.
@@ -3934,15 +3943,22 @@ const fmtAbrev=v=>{
 };
 // Ticks "redondos" que incluyen SIEMPRE el cero: el dominio va del tick mínimo al
 // máximo, así la línea del cero cae en una marca del eje y las barras se miden
-// desde ella. Una sola escala por plano (regla 1).
-function ticksEje(min,max,n=5){
+// desde ella. Una sola escala por plano (regla 1). NUNCA más de `nMax` ticks
+// (acabado 4: máximo 5 líneas de rejilla): si el paso "redondo" da más, se
+// prueba con menos intervalos hasta que quepan.
+function ticksEje(min,max,nMax=5){
   const lo=Math.min(0,min), hi=Math.max(0,max);
   const span=Math.max(hi-lo,1);
-  const bruto=span/n, pot=Math.pow(10,Math.floor(Math.log10(bruto)));
-  const m=bruto/pot, paso=(m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*pot;
-  const t0=Math.floor(lo/paso)*paso, t1=Math.ceil(hi/paso)*paso;
-  const ticks=[]; for(let t=t0;t<=t1+paso/2;t+=paso) ticks.push(Math.abs(t)<paso/1e6?0:t);
-  return {ticks, min:t0, max:t1===t0?t0+paso:t1};
+  let res=null;
+  for(let n=nMax-1;n>=1;n--){
+    const bruto=span/n, pot=Math.pow(10,Math.floor(Math.log10(bruto)));
+    const m=bruto/pot, paso=(m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*pot;
+    const t0=Math.floor(lo/paso)*paso, t1=Math.ceil(hi/paso)*paso;
+    const ticks=[]; for(let t=t0;t<=t1+paso/2;t+=paso) ticks.push(Math.abs(t)<paso/1e6?0:t);
+    res={ticks, min:t0, max:t1===t0?t0+paso:t1};
+    if(ticks.length<=nMax) break;
+  }
+  return res;
 }
 // Barra vertical con las esquinas redondeadas SOLO del lado del dato (sección 6).
 function pathBarraV(x,yTop,w,h,arriba,r=4){
@@ -3958,21 +3974,43 @@ function pathBarraH(x,y,w,h,r=4){
   const rr=Math.min(r,h/2,w), x2=x+w, y2=y+h;
   return `M${x},${y} H${x2-rr} Q${x2},${y} ${x2},${y+rr} V${y2-rr} Q${x2},${y2} ${x2-rr},${y2} H${x} Z`;
 }
+// Rejilla mínima (acabado 4): una línea horizontal por tick, 1 px, continua,
+// GRAF_REJILLA; la del cero un poco más oscura porque es la base de las barras.
+// Sin líneas verticales ni marco.
 function EjeY({ticks,yP,pL,xFin,resaltarCero=true}){
   return ticks.map(t=>(
     <g key={t}>
       <line x1={pL} y1={yP(t)} x2={xFin} y2={yP(t)}
-        stroke={t===0&&resaltarCero?"#888":C.line} strokeWidth={t===0&&resaltarCero?1.5:0.8}
-        strokeDasharray={t===0?"none":"4 3"}/>
+        stroke={t===0&&resaltarCero?GRAF_CERO:GRAF_REJILLA} strokeWidth="1" shapeRendering="crispEdges"/>
       <text x={pL-10} y={yP(t)+4} textAnchor="end" fontSize="11" fill={C.grayMid}
         fontWeight={t===0?"700":"400"} fontFamily={GRAF_FONT}>{fmtAbrev(t)}</text>
     </g>
   ));
 }
-function EjeX({meses,xP,y}){
-  return meses.map((m,i)=>(
-    <text key={i} x={xP(i)} y={y} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{m}</text>
-  ));
+// Título del eje Y (acabado 2): rotado 90°, en el margen izquierdo, 10 px.
+function TituloEjeY({yCentro,texto=GRAF_UNIDAD}){
+  return <text transform={`translate(12,${yCentro}) rotate(-90)`} textAnchor="middle" fontSize="10"
+    fill={C.grayMid} fontFamily={GRAF_FONT}>{texto}</text>;
+}
+// Ancho estimado de una etiqueta de eje X a 11 px (≈6.2 px por carácter). Si la
+// más larga no cabe en su ranura, TODAS giran -45° ancladas al final (acabado 6).
+const ANCHO_CHAR_11=6.2;
+function ejeXDiagonal(labels,slot){
+  const maxLen=Math.max(0,...labels.map(l=>String(l).length));
+  return maxLen*ANCHO_CHAR_11+8>slot;
+}
+// Alto que necesita el eje X debajo del área de trazado: horizontal 20 px;
+// en diagonal, la proyección vertical de la etiqueta más larga.
+function altoEjeX(labels,diagonal){
+  if(!diagonal) return 20;
+  const maxLen=Math.max(0,...labels.map(l=>String(l).length));
+  return Math.ceil(maxLen*ANCHO_CHAR_11*0.72)+14;
+}
+function EjeX({meses,xP,y,diagonal=false}){
+  return meses.map((m,i)=>diagonal
+    ? <text key={i} transform={`translate(${xP(i)},${y+6}) rotate(-45)`} textAnchor="end" fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{m}</text>
+    : <text key={i} x={xP(i)} y={y+16} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{m}</text>
+  );
 }
 
 // TARJETA 1 · Ingresos vs Egresos por mes — barras agrupadas, dos series, misma
@@ -3980,14 +4018,15 @@ function EjeX({meses,xP,y}){
 // cada barra; la leyenda la pinta la tarjeta (HTML), no el SVG.
 function GraficaIngresosEgresos({mIngresos,mEgresos,meses}){
   const n=meses.length;
-  const W=960,H=290,pL=80,pR=20,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const W=960,pL=80,pR=20,pT=28, cW=W-pL-pR, cH=216;
+  const slot=cW/n, grupo=slot*0.72, barW=(grupo-2)/2;
+  const diag=ejeXDiagonal(meses,slot), pB=altoEjeX(meses,diag), H=pT+cH+pB;
   const {ticks,min,max}=ticksEje(0,Math.max(...mIngresos,...mEgresos,0));
   const yP=v=>pT+cH-((v-min)/(max-min))*cH;
-  const slot=cW/n, grupo=slot*0.72, barW=(grupo-2)/2;
   const xP=i=>pL+slot*i+slot/2;
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <TituloEjeY yCentro={pT+cH/2}/>
       <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
       {meses.map((m,i)=>{
         const y0=yP(0);
@@ -4006,7 +4045,7 @@ function GraficaIngresosEgresos({mIngresos,mEgresos,meses}){
           );
         });
       })}
-      <EjeX meses={meses} xP={xP} y={H-12}/>
+      <EjeX meses={meses} xP={xP} y={pT+cH} diagonal={diag}/>
     </svg>
   );
 }
@@ -4017,14 +4056,15 @@ function GraficaIngresosEgresos({mIngresos,mEgresos,meses}){
 // meses negativos como barras de tamaño legible (criterio duro 7.6).
 function GraficaFlujoMensual({mFlujo,meses}){
   const n=meses.length;
-  const W=960,H=300,pL=80,pR=20,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const W=960,pL=80,pR=20,pT=28, cW=W-pL-pR, cH=226;
+  const slot=cW/n, barW=slot*0.55, xP=i=>pL+slot*i+slot/2;
+  const diag=ejeXDiagonal(meses,slot), pB=altoEjeX(meses,diag), H=pT+cH+pB;
   const {ticks,min,max}=ticksEje(Math.min(...mFlujo,0),Math.max(...mFlujo,0));
   const yP=v=>pT+cH-((v-min)/(max-min))*cH;
-  const slot=cW/n, barW=slot*0.55, xP=i=>pL+slot*i+slot/2;
   const y0=yP(0);
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <TituloEjeY yCentro={pT+cH/2}/>
       <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
       {mFlujo.map((v,i)=>{
         const h=Math.abs(v)/(max-min)*cH, pos=v>=0, x=xP(i)-barW/2;
@@ -4036,40 +4076,42 @@ function GraficaFlujoMensual({mFlujo,meses}){
           </g>
         );
       })}
-      <EjeX meses={meses} xP={xP} y={H-12}/>
+      <EjeX meses={meses} xP={xP} y={pT+cH} diagonal={diag}/>
     </svg>
   );
 }
 
 // TARJETA 3 · Flujo acumulado — línea con área tenue, UNA serie, EJE PROPIO (esta
 // separación es la corrección de fondo: antes compartía plano con el flujo
-// mensual y le imponía su escala). Marcadores ≥8 px con tooltip; etiqueta
-// directa solo en el primer y el último punto (nunca en cada punto).
+// mensual y le imponía su escala). Marcadores de 8 px (r=4, relleno del color de
+// la serie, anillo blanco de 1.5 px — acabado 5) con tooltip; etiqueta directa
+// solo en el primer y el último punto (nunca en cada punto).
 function GraficaFlujoAcumulado({mFlujoAcum,meses}){
   const n=meses.length;
-  const W=960,H=290,pL=80,pR=40,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const W=960,pL=80,pR=40,pT=28, cW=W-pL-pR, cH=216;
+  const xP=i=>pL+(n>1?(i/(n-1))*cW:cW/2);
+  const diag=ejeXDiagonal(meses,n>1?cW/(n-1):cW), pB=altoEjeX(meses,diag), H=pT+cH+pB;
   const {ticks,min,max}=ticksEje(Math.min(...mFlujoAcum,0),Math.max(...mFlujoAcum,0));
   const yP=v=>pT+cH-((v-min)/(max-min))*cH;
-  const xP=i=>pL+(n>1?(i/(n-1))*cW:cW/2);
   const pts=mFlujoAcum.map((v,i)=>`${xP(i)},${yP(v)}`);
   const area=`M${xP(0)},${yP(0)} L${pts.join(" L")} L${xP(n-1)},${yP(0)} Z`;
   const ult=n-1;
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <TituloEjeY yCentro={pT+cH/2}/>
       <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
-      <path d={area} fill={GRAF_ACUM} opacity="0.12"/>
+      <path d={area} fill={GRAF_ACUM} opacity="0.10"/>
       <polyline points={pts.join(" ")} fill="none" stroke={GRAF_ACUM} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
       {mFlujoAcum.map((v,i)=>(
         <g key={i}>
           <title>{`${meses[i]} · Flujo acumulado: ${fmt(v)}`}</title>
-          <circle cx={xP(i)} cy={yP(v)} r="4.5" fill={GRAF_ACUM} stroke={C.white} strokeWidth="2"/>
+          <circle cx={xP(i)} cy={yP(v)} r="4" fill={GRAF_ACUM} stroke={C.white} strokeWidth="1.5"/>
           {(i===0||i===ult)&&(
             <text x={xP(i)} y={yP(v)-11} textAnchor={i===0?"start":"end"} fontSize="10" fontWeight="600" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(v)}</text>
           )}
         </g>
       ))}
-      <EjeX meses={meses} xP={xP} y={H-12}/>
+      <EjeX meses={meses} xP={xP} y={pT+cH} diagonal={diag}/>
     </svg>
   );
 }
@@ -4104,11 +4146,18 @@ function rubrosParaGrafica(filas){
   if(sinCat!==0) items.push({nombre:"⚠ "+SIN,total:sinCat,color:GRAF_ALERTA,tipo:"alerta"});
   return items;
 }
+// Acabado: sin rejilla ni líneas verticales (cada barra ya lleva su cifra); el
+// eje de valores es el horizontal, así que el título «MXN» va debajo de las
+// barras, horizontal, con el mismo estilo que el título de eje Y de las otras.
 function GraficaEgresosRubro({filas}){
   const items=rubrosParaGrafica(filas);
   if(items.length===0) return null;
-  const fila=30, W=960,pL=250,pR=110,pT=12,pB=12, cW=W-pL-pR, H=pT+pB+fila*items.length;
+  const fila=30, W=960,pL=290,pR=110,pT=8,pB=24, cW=W-pL-pR, H=pT+pB+fila*items.length;
   const maxV=Math.max(...items.map(it=>Math.abs(it.total)),1);
+  // El nombre se recorta con «…» si no cabe en el margen izquierdo (≈6.6 px por
+  // carácter a 11 px semibold); el <title> conserva el nombre completo.
+  const MAX_CHARS=Math.floor((pL-12)/6.6);
+  const rotulo=n=>n.length>MAX_CHARS?n.slice(0,MAX_CHARS-1).trimEnd()+"…":n;
   return(
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
       {items.map((it,i)=>{
@@ -4116,23 +4165,38 @@ function GraficaEgresosRubro({filas}){
         return (
           <g key={it.nombre}>
             <title>{`${it.nombre}: ${fmt(it.total)}${it.detalle?"\n"+it.detalle:""}`}</title>
-            <text x={pL-12} y={y+h/2+4} textAnchor="end" fontSize="11" fontWeight={it.tipo==="alerta"?"700":"600"} fill={C.grayMid} fontFamily={GRAF_FONT}>{it.nombre}</text>
-            <line x1={pL} y1={y-2} x2={pL} y2={y+h+2} stroke="#ccc" strokeWidth="1"/>
+            <text x={pL-12} y={y+h/2+4} textAnchor="end" fontSize="11" fontWeight={it.tipo==="alerta"?"700":"600"} fill={C.grayMid} fontFamily={GRAF_FONT}>{rotulo(it.nombre)}</text>
             <path d={pathBarraH(pL,y,w,h)} fill={it.color}/>
             <text x={pL+w+8} y={y+h/2+4} fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(it.total)}</text>
           </g>
         );
       })}
+      <text x={pL+cW/2} y={H-6} textAnchor="middle" fontSize="10" fill={C.grayMid} fontFamily={GRAF_FONT}>{GRAF_UNIDAD}</text>
     </svg>
   );
 }
 
+// Marcador de leyenda de 10 px (acabado 1): línea con punto para series de
+// línea, cuadro redondeado para barras.
+function MarcadorLeyenda({tipo,color}){
+  if(tipo==="linea") return (
+    <svg width="14" height="10" viewBox="0 0 14 10" style={{display:"block"}}>
+      <line x1="0" y1="5" x2="14" y2="5" stroke={color} strokeWidth="2"/>
+      <circle cx="7" cy="5" r="2.5" fill={color}/>
+    </svg>
+  );
+  return <div style={{width:10,height:10,borderRadius:2,background:color,flexShrink:0}}/>;
+}
+
 // Tarjeta común: misma cáscara que tenían las gráficas anteriores (chart-card
-// para que el PDF no la parta). La leyenda solo se pinta cuando hay 2+ series.
+// para que el PDF no la parta). El encabezado (barra dorada + título) no cambia.
+// Acabado: margen interno GRAF_PAD entre el borde y el área de trazado; la
+// leyenda —solo con 2+ series— va DEBAJO del eje X, en una línea horizontal
+// centrada, a GRAF_GAP_LEYENDA del eje.
 function TarjetaGrafica({titulo, subtitulo, leyenda, children}){
   return(
     <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-      padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+      padding:GRAF_PAD,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
       <div style={{marginBottom:12}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
@@ -4140,17 +4204,18 @@ function TarjetaGrafica({titulo, subtitulo, leyenda, children}){
         </div>
         {subtitulo&&<div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>{subtitulo}</div>}
       </div>
+      {children}
       {leyenda&&leyenda.length>=2&&(
-        <div className="graf-leyenda" style={{display:"flex",gap:20,marginBottom:10,marginLeft:13}}>
+        <div className="graf-leyenda" style={{display:"flex",justifyContent:"center",flexWrap:"wrap",
+          gap:"4px 18px",marginTop:GRAF_GAP_LEYENDA}}>
           {leyenda.map(s=>(
             <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
-              <div style={{width:12,height:12,borderRadius:3,background:s.color}}/>
-              <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+              <MarcadorLeyenda tipo={s.tipo} color={s.color}/>
+              <span style={{fontSize:11,color:C.grayMid,lineHeight:1}}>{s.label}</span>
             </div>
           ))}
         </div>
       )}
-      {children}
     </div>
   );
 }
@@ -4164,7 +4229,7 @@ function GraficasPresupuesto({mIngresos, mEgresos, mFlujo, mFlujoAcum, MESES13_M
     <>
       <TarjetaGrafica titulo="Ingresos vs Egresos por mes"
         subtitulo="Barras agrupadas por mes, misma escala · pasa el cursor sobre una barra para ver la cifra completa"
-        leyenda={[{label:"Ingresos",color:GRAF_INGRESOS},{label:"Egresos",color:GRAF_EGRESOS}]}>
+        leyenda={[{label:"Ingresos",color:GRAF_INGRESOS,tipo:"barra"},{label:"Egresos",color:GRAF_EGRESOS,tipo:"barra"}]}>
         <GraficaIngresosEgresos mIngresos={mIngresos} mEgresos={mEgresos} meses={MESES13_MES}/>
       </TarjetaGrafica>
       <TarjetaGrafica titulo="Flujo mensual"
