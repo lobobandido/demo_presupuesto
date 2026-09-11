@@ -46,6 +46,8 @@ Cuatro tarjetas, una métrica cada una. Todas leen series YA calculadas por
 ### TARJETA 2 · Flujo mensual
 - Forma: barras, una por mes, UNA serie con polaridad. Serie: `mFlujo`.
 - Oro `#B0870A` si el mes es positivo, rojo `#9E3A2E` si es negativo.
+- Subtítulo «Ingresos menos egresos de cada mes», sin explicar los colores (revisión con Luis,
+  2026-09-12): la barra roja se explica sola.
 - Sin leyenda. Línea del cero visible y etiquetada.
 - Etiqueta de valor sobre cada barra; las negativas, debajo.
 
@@ -56,11 +58,15 @@ Cuatro tarjetas, una métrica cada una. Todas leen series YA calculadas por
 - Esta tarjeta es la corrección de fondo: separada de la 2, la escala vuelve a ser
   la del flujo mensual y los −$26.7M de febrero se ven.
 
-### TARJETA 4 · Egresos por rubro — los ocho mayores
+### TARJETA 4 · Top 10 de egresos por rubro
+- Título «Top 10 de egresos por rubro», **sin subtítulo** (revisión con Luis, 2026-09-12; antes
+  «Egresos por rubro — los ocho mayores» con subtítulo explicativo).
 - Forma: barras HORIZONTALES, de mayor a menor. Fuente: `filasServicio`.
 - Horizontales porque los nombres son largos (SERV TELEFONIA CELULAR Y RADIO).
-- Los 8 rubros con más dinero en el año; el resto sumado en «Otros», gris `#8A8A85`.
-- **Un solo color para las ocho barras de rubro: `#C4571C`**, el mismo de Egresos en
+- Los **10** rubros con más dinero en el año (`TOP_RUBROS`; eran 8 hasta el 2026-09-12); el resto
+  sumado en «Otros», gris `#8A8A85`. Como las barras van en un solo color, pasar de 8 a 10 no toca
+  la paleta ni la regla de máximo 8 series de color.
+- **Un solo color para las diez barras de rubro: `#C4571C`**, el mismo de Egresos en
   la tarjeta 1 (ajuste 2026-09-11). Con el nombre pegado a cada barra el color no
   carga identidad, y así no hay color-por-posición (el rubro más grande no cambia de
   color de un presupuesto a otro). «Otros» sigue en `#8A8A85` y ⚠ SIN CATEGORÍA en
@@ -119,7 +125,7 @@ Validada: banda de luminosidad, piso de croma, separación para daltonismo (peor
    - a) El total por rubro se toma de la fila `subtotal` si existe y, si no, de la
      fila `detalle` con su `macro` (caso `esUnaSolaIgualAMacro`: un rubro con una
      sola subcuenta que se llama igual que él no genera subtotal).
-   - b) SIN CATEGORÍA **no entra al top 8 ni se mezcla en «Otros»**. Va aparte,
+   - b) SIN CATEGORÍA **no entra al top (hoy 10) ni se mezcla en «Otros»**. Va aparte,
      siempre al final, rotulada «⚠ SIN CATEGORÍA» y en rojo de alerta `#B3261E`, que
      no es color de serie. Sólo se dibuja si su total es distinto de cero. Razón: es
      una alarma de captura, no una categoría de gasto; enterrarla en «Otros» esconde

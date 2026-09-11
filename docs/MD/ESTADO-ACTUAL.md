@@ -180,8 +180,10 @@ completo a la altura de Fecha inicio.
   `etiquetaUnidad` resuelve el nombre en este orden: catálogo oficial → `UNIDADES_HEREDADAS`
   (constante pequeña junto al import del CSV, con `F218301A` y `G18ADMIN` y sus nombres de
   antes; no entran al desplegable ni al CSV, que es la lista oficial de contabilidad) → sólo la
-  clave. `UNIDAD_DEPARTAMENTO` sigue en `G18ADMIN` aunque el CSV trae `C18ADMIN`: decidir con la
-  contadora cuál es la buena (el guardarraíl de desarrollo avisa en consola). El select sigue
+  clave. `UNIDAD_DEPARTAMENTO` vale **`C18ADMIN`** desde el 2026-09-12 (confirmado por la
+  contadora en la revisión con Luis: está en el CSV oficial como «GEOLIS - ADMINISTRACION», tipo
+  DP; el `G18ADMIN` anterior era un dedazo de la libreta). `G18ADMIN` se queda en
+  `UNIDADES_HEREDADAS` porque TI H1 2026 lo tiene guardado y no debe perder su nombre. El select sigue
   **deshabilitado en modo Editar** (A1): la unidad es la identidad del presupuesto; un cambio de
   unidad se hace con `UPDATE` en Supabase.
 - Claves del catálogo anterior (30 fijas en código, copiadas del módulo de viáticos) que no
@@ -487,7 +489,7 @@ sin dependencia nueva, que solo LEEN series ya calculadas:
 | Ingresos vs Egresos por mes | barras agrupadas, leyenda + etiqueta directa | `mIngresos`, `mEgresos` | `GraficaIngresosEgresos` |
 | Flujo mensual | barras con polaridad (oro/rojo), sin leyenda, cero rotulado | `mFlujo` | `GraficaFlujoMensual` |
 | Flujo acumulado | línea con área, eje propio, etiqueta solo en extremos | `mFlujoAcum` | `GraficaFlujoAcumulado` |
-| Egresos por rubro | barras horizontales, top 8 en un solo color (`#C4571C`) + «Otros» gris, ⚠ SIN CATEGORÍA aparte en rojo de alerta | filas `subtotal`/`detalle` de `filasServicio` | `GraficaEgresosRubro`, `rubrosParaGrafica` |
+| Top 10 de egresos por rubro (título desde 2026-09-12, sin subtítulo) | barras horizontales, top 10 (`TOP_RUBROS`, eran 8) en un solo color (`#C4571C`) + «Otros» gris, ⚠ SIN CATEGORÍA aparte en rojo de alerta | filas `subtotal`/`detalle` de `filasServicio` | `GraficaEgresosRubro`, `rubrosParaGrafica` |
 
 Paleta fija (`PALETA_GRAF`), texto en `C.grayMid`, eje y etiquetas abreviados (`fmtAbrev`),
 `<title>` con la cifra completa (`fmt`) en toda marca. `catOpexSeries` sigue en

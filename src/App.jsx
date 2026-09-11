@@ -4127,10 +4127,13 @@ function GraficaFlujoAcumulado({mFlujoAcum,meses}){
 // TARJETA 4 · Egresos por rubro — barras horizontales, de mayor a menor. Fuente:
 // las filas de construirFilasServicio. Total por rubro = su fila `subtotal`
 // (sumando bloques capex+opex si el rubro sale en ambos) o, si no la tiene, sus
-// filas `detalle` (decisión 8.2a). Top 8 en un solo color (#C4571C, el de
-// Egresos); el resto sumado en «Otros» gris. SIN CATEGORÍA nunca entra al top
-// ni a «Otros»: va aparte, al final, en rojo de alerta, solo si su total no es
-// cero (8.2b).
+// filas `detalle` (decisión 8.2a). Top 10 en un solo color (#C4571C, el de
+// Egresos); el resto sumado en «Otros» gris. Eran 8 hasta la revisión con Luis
+// del 12-sep-2026; como las barras van en un solo color, el cambio no toca la
+// paleta ni la regla de «máximo 8 series de color». SIN CATEGORÍA nunca entra al
+// top ni a «Otros»: va aparte, al final, en rojo de alerta, solo si su total no
+// es cero (8.2b).
+const TOP_RUBROS=10;
 function rubrosParaGrafica(filas){
   const SIN="SIN CATEGORÍA";
   const sub=new Map(), det=new Map();
@@ -4143,12 +4146,12 @@ function rubrosParaGrafica(filas){
   det.forEach((v,k)=>{ if(!sub.has(k)) tot.set(k,v); });
   const sinCat=tot.get(SIN)||0; tot.delete(SIN);
   const orden=[...tot.entries()].filter(([,v])=>v!==0).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
-  // Un solo color para los ocho rubros (ajuste del 11-sep-2026): con el nombre
+  // Un solo color para los diez rubros (ajuste del 11-sep-2026): con el nombre
   // pegado a cada barra el color no carga identidad, y así no hay color-por-
   // posición (SERVICIOS saldría oro en un presupuesto y azul en otro). Es el
   // mismo #C4571C de «Egresos» en la tarjeta 1: son egresos.
-  const top=orden.slice(0,8).map(([nombre,total])=>({nombre,total,color:GRAF_EGRESOS,tipo:"rubro"}));
-  const resto=orden.slice(8);
+  const top=orden.slice(0,TOP_RUBROS).map(([nombre,total])=>({nombre,total,color:GRAF_EGRESOS,tipo:"rubro"}));
+  const resto=orden.slice(TOP_RUBROS);
   const items=[...top];
   if(resto.length) items.push({nombre:`Otros (${resto.length})`,total:resto.reduce((s,[,v])=>s+v,0),color:GRAF_OTROS,tipo:"otros",detalle:resto.map(([n,v])=>`${n}: ${fmt(v)}`).join("\n")});
   if(sinCat!==0) items.push({nombre:"⚠ "+SIN,total:sinCat,color:GRAF_ALERTA,tipo:"alerta"});
@@ -4243,15 +4246,15 @@ function GraficasPresupuesto({mIngresos, mEgresos, mFlujo, mFlujoAcum, MESES13_M
         <GraficaIngresosEgresos mIngresos={mIngresos} mEgresos={mEgresos} meses={MESES13_MES}/>
       </TarjetaGrafica>
       <TarjetaGrafica titulo="Flujo mensual"
-        subtitulo="Ingresos menos egresos de cada mes · oro = positivo, rojo = negativo">
+        subtitulo="Ingresos menos egresos de cada mes">
         <GraficaFlujoMensual mFlujo={mFlujo} meses={MESES13_MES}/>
       </TarjetaGrafica>
       <TarjetaGrafica titulo="Flujo acumulado"
         subtitulo="Suma corrida del flujo mensual, con su propia escala">
         <GraficaFlujoAcumulado mFlujoAcum={mFlujoAcum} meses={MESES13_MES}/>
       </TarjetaGrafica>
-      <TarjetaGrafica titulo="Egresos por rubro — los ocho mayores"
-        subtitulo="Total del año por rubro contable, de mayor a menor · el resto se suma en «Otros» · SIN CATEGORÍA aparte, si la hay">
+      {/* Revisión con Luis (12-sep-2026): título «Top 10…», sin subtítulo, diez rubros. */}
+      <TarjetaGrafica titulo="Top 10 de egresos por rubro">
         {rubrosParaGrafica(filasServicio||[]).length>0
           ? <GraficaEgresosRubro filas={filasServicio||[]}/>
           : <div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas en las áreas para ver esta gráfica.</div>}

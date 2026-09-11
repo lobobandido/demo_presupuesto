@@ -29,7 +29,7 @@ import csvUnidades from "./data/unidades-negocio.csv?raw";
    Pendientes de confirmar con contabilidad. */
 const UNIDADES_HEREDADAS = {
   "F218301A": "GEOLIS GAS - SERVICIOS CUERVITO (JAYSAN)",   // Cuervito
-  "G18ADMIN": "GEOLIS ADMINISTRACION",                      // Presupuesto TI H1 2026
+  "G18ADMIN": "GEOLIS ADMINISTRACION",                      // Presupuesto TI H1 2026; dedazo por C18ADMIN (confirmado 12-sep-2026)
 };
 
 // Parser mínimo para el CSV del catálogo: una fila por línea, coma como
@@ -98,15 +98,16 @@ export const UNIDADES_NEGOCIO = ordenarJerarquia(
 // JSX, porque está PENDIENTE DE VALIDAR con la contadora: si Anel la renombra,
 // hay un solo lugar que cambiar.
 //
-// OJO (11-sep-2026): el CSV trae C18ADMIN (GEOLIS - ADMINISTRACION) y NO
-// G18ADMIN. El presupuesto «TI H1 2026» está guardado con G18ADMIN. Cuál de las
-// dos es la buena es decisión de la contadora, no del código: la constante se
-// deja como estaba y el guardarraíl de abajo avisa en desarrollo.
+// 12-sep-2026, confirmado por la contadora en la revisión con Luis: la clave
+// correcta es C18ADMIN («GEOLIS - ADMINISTRACION», tipo DP, en el CSV oficial).
+// El G18ADMIN que decía esta constante hasta hoy era un dedazo en la libreta de
+// donde se capturó. El presupuesto «TI H1 2026» sigue guardado con G18ADMIN y
+// conserva su nombre gracias a UNIDADES_HEREDADAS; no se cambia solo.
 //
 // OJO: esto NO es lo mismo que consolidar unidades entre sí. Lo que Anel pidió
 // ("esos tres tenemos que conjuntar en uno, que sería el C18000") sigue abierto
 // y es otra decisión.
-export const UNIDAD_DEPARTAMENTO = "G18ADMIN";
+export const UNIDAD_DEPARTAMENTO = "C18ADMIN";
 
 // Guardarraíl de desarrollo: si la clave deja de existir en el catálogo —porque
 // la renombraron o la dieron de baja— el autollenado se degradaría en silencio,
