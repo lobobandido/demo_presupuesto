@@ -457,6 +457,26 @@ se desplaza: solo cabían 4-5 columnas de periodo.
 | Fuera del PDF (`.noprint`): insignia "✓ Guardado / En captura" y flecha de las cajas por área, flechas ▶/▼ de las tablas, degradado indicador de scroll de `ScrollHint` | hecho | `AreaColapsable`, `ScrollHint`, `TablaServicio`, `TablaM` |
 | Fila `CAPEX (Activos)` de la Tabla SERVICIO → `CAPEX`: `mCapex` suma todas las partidas CAPEX sin filtrar por rubro (ACTIVOS + EQUIPO DE COMPUTO + …) | hecho | `src/App.jsx`, filas de la Tabla SERVICIO; Excel para Apps y visual no usaban ese texto |
 
+#### Corrección posterior (2026-09-11) — SPEC 07, rediseño de las gráficas
+
+Especificación versionada en `docs/SPEC-07-GRAFICAS.md`. Se retiran del Resumen «Flujo de
+efectivo» (`FlowChart`, barras y acumulado en un plano) y «OPEX por categoría» (`CatLinesChart`,
+hasta 50 series); sus funciones siguen definidas sin consumidor y la versión anterior de
+`GraficasPresupuesto` queda comentada. Entran cuatro tarjetas de una métrica, en SVG a mano,
+sin dependencia nueva, que solo LEEN series ya calculadas:
+
+| Tarjeta | Forma | Serie | Componente |
+|---|---|---|---|
+| Ingresos vs Egresos por mes | barras agrupadas, leyenda + etiqueta directa | `mIngresos`, `mEgresos` | `GraficaIngresosEgresos` |
+| Flujo mensual | barras con polaridad (oro/rojo), sin leyenda, cero rotulado | `mFlujo` | `GraficaFlujoMensual` |
+| Flujo acumulado | línea con área, eje propio, etiqueta solo en extremos | `mFlujoAcum` | `GraficaFlujoAcumulado` |
+| Egresos por rubro | barras horizontales, top 8 en un solo color (`#C4571C`) + «Otros» gris, ⚠ SIN CATEGORÍA aparte en rojo de alerta | filas `subtotal`/`detalle` de `filasServicio` | `GraficaEgresosRubro`, `rubrosParaGrafica` |
+
+Paleta fija (`PALETA_GRAF`), texto en `C.grayMid`, eje y etiquetas abreviados (`fmtAbrev`),
+`<title>` con la cifra completa (`fmt`) en toda marca. `catOpexSeries` sigue en
+`calcularSerieMensual` sin consumidor, con comentario. Las cuatro tarjetas llevan `chart-card`
+y salen completas en el PDF.
+
 ---
 
 ### Step 5 — Información general

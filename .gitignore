@@ -28,3 +28,6 @@ Thumbs.db
 *.m4a
 "Imagen pegada.png"
 docs/AUDIOS/
+
+# Archivos de bloqueo de LibreOffice
+.~lock.*#

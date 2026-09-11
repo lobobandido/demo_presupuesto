@@ -866,6 +866,11 @@ function calcularSerieMensual({pres, areas, costos, capexPM, opexPM, ingresos, i
   for(let i=1;i<NMESES;i++) mFlujoAcum[i]=mFlujoAcum[i-1]+mFlujo[i];
 
   // OPEX por categoría para Gráfica II — misma distribución real, agrupada por categoría
+  // 11-sep-2026 (SPEC 07, decisión 8.3): catOpexSeries QUEDÓ SIN CONSUMIDOR tras el
+  // rediseño de las gráficas — la tarjeta «OPEX por categoría» (CatLinesChart) se
+  // retiró de GraficasPresupuesto. Se deja intacto a propósito: esta función está
+  // protegida por la regla 4 de CLAUDE.md. No borrar ni volver a conectar sin
+  // motivo explícito del usuario.
   const catOpexData={};
   function addACat(label,arr){
     if(!catOpexData[label]) catOpexData[label]=Array(NMESES).fill(0);
@@ -3904,67 +3909,344 @@ function DetallePorArea({areasDetalle, pres, numMesesProyecto, upP, rmP, addP, r
   );
 }
 
-// ── Tarea 8, paso 1 — las dos gráficas (flujo de efectivo y OPEX por categoría).
-// NO CALCULA NADA: las series llegan ya construidas por calcularSerieMensual.
-function GraficasPresupuesto({mFlujo, mFlujoAcum, MESES13_MES, catOpexSeries}){
+// ═══ SPEC 07 · GRÁFICAS (11-sep-2026) — docs/SPEC-07-GRAFICAS.md ═══════════
+// Cuatro tarjetas, una métrica cada una, en SVG a mano (decisión 8.1: sin
+// dependencia nueva). NINGUNA CALCULA NADA: leen mIngresos/mEgresos/mFlujo/
+// mFlujoAcum de calcularSerieMensual y las filas de construirFilasServicio, y
+// solo deciden geometría y color. Reglas duras: un solo eje Y por plano, máximo
+// 8 series de color más «Otros», paleta en orden fijo, texto en C.grayMid,
+// abreviado en eje/etiqueta y cifra completa (fmt) en el <title> de cada marca.
+const PALETA_GRAF=["#B0870A","#2E6FD0","#C4571C","#1F8FA8","#7B4BC7","#15794E","#E0678F","#9E3A2E"];
+const GRAF_OTROS="#8A8A85";     // «Otros» (sección 5)
+const GRAF_ALERTA="#B3261E";    // ⚠ SIN CATEGORÍA — NO es color de serie (decisión 8.2b)
+const GRAF_INGRESOS=PALETA_GRAF[1], GRAF_EGRESOS=PALETA_GRAF[2];
+const GRAF_POS=PALETA_GRAF[0], GRAF_NEG=PALETA_GRAF[7];
+const GRAF_ACUM=PALETA_GRAF[1];
+const GRAF_FONT="Inter,sans-serif";
+
+// Abreviado para eje y etiqueta de barra ($75.3M, $540K, -$26.7M). El tooltip
+// usa fmt, no esto.
+const fmtAbrev=v=>{
+  if(!v) return "$0";
+  const a=Math.abs(v);
+  const s=a>=1e6?`$${(a/1e6).toFixed(1)}M`:a>=1e3?`$${(a/1e3).toFixed(0)}K`:`$${a.toFixed(0)}`;
+  return v<0?`-${s}`:s;
+};
+// Ticks "redondos" que incluyen SIEMPRE el cero: el dominio va del tick mínimo al
+// máximo, así la línea del cero cae en una marca del eje y las barras se miden
+// desde ella. Una sola escala por plano (regla 1).
+function ticksEje(min,max,n=5){
+  const lo=Math.min(0,min), hi=Math.max(0,max);
+  const span=Math.max(hi-lo,1);
+  const bruto=span/n, pot=Math.pow(10,Math.floor(Math.log10(bruto)));
+  const m=bruto/pot, paso=(m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*pot;
+  const t0=Math.floor(lo/paso)*paso, t1=Math.ceil(hi/paso)*paso;
+  const ticks=[]; for(let t=t0;t<=t1+paso/2;t+=paso) ticks.push(Math.abs(t)<paso/1e6?0:t);
+  return {ticks, min:t0, max:t1===t0?t0+paso:t1};
+}
+// Barra vertical con las esquinas redondeadas SOLO del lado del dato (sección 6).
+function pathBarraV(x,yTop,w,h,arriba,r=4){
+  if(h<=0) return "";
+  const rr=Math.min(r,w/2,h), x2=x+w, yB=yTop+h;
+  return arriba
+    ? `M${x},${yB} V${yTop+rr} Q${x},${yTop} ${x+rr},${yTop} H${x2-rr} Q${x2},${yTop} ${x2},${yTop+rr} V${yB} Z`
+    : `M${x},${yTop} V${yB-rr} Q${x},${yB} ${x+rr},${yB} H${x2-rr} Q${x2},${yB} ${x2},${yB-rr} V${yTop} Z`;
+}
+// Barra horizontal redondeada solo en el extremo derecho (el del dato).
+function pathBarraH(x,y,w,h,r=4){
+  if(w<=0) return "";
+  const rr=Math.min(r,h/2,w), x2=x+w, y2=y+h;
+  return `M${x},${y} H${x2-rr} Q${x2},${y} ${x2},${y+rr} V${y2-rr} Q${x2},${y2} ${x2-rr},${y2} H${x} Z`;
+}
+function EjeY({ticks,yP,pL,xFin,resaltarCero=true}){
+  return ticks.map(t=>(
+    <g key={t}>
+      <line x1={pL} y1={yP(t)} x2={xFin} y2={yP(t)}
+        stroke={t===0&&resaltarCero?"#888":C.line} strokeWidth={t===0&&resaltarCero?1.5:0.8}
+        strokeDasharray={t===0?"none":"4 3"}/>
+      <text x={pL-10} y={yP(t)+4} textAnchor="end" fontSize="11" fill={C.grayMid}
+        fontWeight={t===0?"700":"400"} fontFamily={GRAF_FONT}>{fmtAbrev(t)}</text>
+    </g>
+  ));
+}
+function EjeX({meses,xP,y}){
+  return meses.map((m,i)=>(
+    <text key={i} x={xP(i)} y={y} textAnchor="middle" fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{m}</text>
+  ));
+}
+
+// TARJETA 1 · Ingresos vs Egresos por mes — barras agrupadas, dos series, misma
+// escala (mismas unidades, así que sí van juntas). Etiqueta directa encima de
+// cada barra; la leyenda la pinta la tarjeta (HTML), no el SVG.
+function GraficaIngresosEgresos({mIngresos,mEgresos,meses}){
+  const n=meses.length;
+  const W=960,H=290,pL=80,pR=20,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const {ticks,min,max}=ticksEje(0,Math.max(...mIngresos,...mEgresos,0));
+  const yP=v=>pT+cH-((v-min)/(max-min))*cH;
+  const slot=cW/n, grupo=slot*0.72, barW=(grupo-2)/2;
+  const xP=i=>pL+slot*i+slot/2;
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
+      {meses.map((m,i)=>{
+        const y0=yP(0);
+        // Etiquetas a dos alturas (ajuste del 11-sep-2026): la de Ingresos más
+        // arriba de su barra (-15) y la de Egresos más pegada a la suya (-4).
+        // Así alternan alto/bajo a lo largo del eje y dejan de rozarse las de
+        // meses vecinos, sin bajar el tamaño de fuente.
+        return [["Ingresos",mIngresos[i],GRAF_INGRESOS,xP(i)-grupo/2,15],["Egresos",mEgresos[i],GRAF_EGRESOS,xP(i)-grupo/2+barW+2,4]].map(([serie,v,color,x,dy])=>{
+          const h=Math.max(v>0?1:0,(v/(max-min))*cH);
+          return (
+            <g key={serie}>
+              <title>{`${m} · ${serie}: ${fmt(v)}`}</title>
+              <path d={pathBarraV(x,y0-h,barW,h,true)} fill={color}/>
+              {v!==0&&<text x={x+barW/2} y={y0-h-dy} textAnchor="middle" fontSize="9" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(v)}</text>}
+            </g>
+          );
+        });
+      })}
+      <EjeX meses={meses} xP={xP} y={H-12}/>
+    </svg>
+  );
+}
+
+// TARJETA 2 · Flujo mensual — UNA serie con polaridad: oro si el mes es positivo,
+// rojo si es negativo. Sin leyenda. Línea del cero visible y rotulada; el eje va
+// del mínimo al máximo REALES del flujo (no ±máximo), que es lo que deja ver los
+// meses negativos como barras de tamaño legible (criterio duro 7.6).
+function GraficaFlujoMensual({mFlujo,meses}){
+  const n=meses.length;
+  const W=960,H=300,pL=80,pR=20,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const {ticks,min,max}=ticksEje(Math.min(...mFlujo,0),Math.max(...mFlujo,0));
+  const yP=v=>pT+cH-((v-min)/(max-min))*cH;
+  const slot=cW/n, barW=slot*0.55, xP=i=>pL+slot*i+slot/2;
+  const y0=yP(0);
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
+      {mFlujo.map((v,i)=>{
+        const h=Math.abs(v)/(max-min)*cH, pos=v>=0, x=xP(i)-barW/2;
+        return (
+          <g key={i}>
+            <title>{`${meses[i]} · Flujo mensual: ${fmt(v)}`}</title>
+            <path d={pathBarraV(x,pos?y0-h:y0,barW,Math.max(h,v!==0?1:0),pos)} fill={pos?GRAF_POS:GRAF_NEG}/>
+            {v!==0&&<text x={xP(i)} y={pos?y0-h-5:y0+h+12} textAnchor="middle" fontSize="10" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(v)}</text>}
+          </g>
+        );
+      })}
+      <EjeX meses={meses} xP={xP} y={H-12}/>
+    </svg>
+  );
+}
+
+// TARJETA 3 · Flujo acumulado — línea con área tenue, UNA serie, EJE PROPIO (esta
+// separación es la corrección de fondo: antes compartía plano con el flujo
+// mensual y le imponía su escala). Marcadores ≥8 px con tooltip; etiqueta
+// directa solo en el primer y el último punto (nunca en cada punto).
+function GraficaFlujoAcumulado({mFlujoAcum,meses}){
+  const n=meses.length;
+  const W=960,H=290,pL=80,pR=40,pT=34,pB=40, cW=W-pL-pR, cH=H-pT-pB;
+  const {ticks,min,max}=ticksEje(Math.min(...mFlujoAcum,0),Math.max(...mFlujoAcum,0));
+  const yP=v=>pT+cH-((v-min)/(max-min))*cH;
+  const xP=i=>pL+(n>1?(i/(n-1))*cW:cW/2);
+  const pts=mFlujoAcum.map((v,i)=>`${xP(i)},${yP(v)}`);
+  const area=`M${xP(0)},${yP(0)} L${pts.join(" L")} L${xP(n-1)},${yP(0)} Z`;
+  const ult=n-1;
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      <rect x={pL} y={pT} width={cW} height={cH} fill="#FAFAFA" rx="3"/>
+      <EjeY ticks={ticks} yP={yP} pL={pL} xFin={W-pR}/>
+      <path d={area} fill={GRAF_ACUM} opacity="0.12"/>
+      <polyline points={pts.join(" ")} fill="none" stroke={GRAF_ACUM} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+      {mFlujoAcum.map((v,i)=>(
+        <g key={i}>
+          <title>{`${meses[i]} · Flujo acumulado: ${fmt(v)}`}</title>
+          <circle cx={xP(i)} cy={yP(v)} r="4.5" fill={GRAF_ACUM} stroke={C.white} strokeWidth="2"/>
+          {(i===0||i===ult)&&(
+            <text x={xP(i)} y={yP(v)-11} textAnchor={i===0?"start":"end"} fontSize="10" fontWeight="600" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(v)}</text>
+          )}
+        </g>
+      ))}
+      <EjeX meses={meses} xP={xP} y={H-12}/>
+    </svg>
+  );
+}
+
+// TARJETA 4 · Egresos por rubro — barras horizontales, de mayor a menor. Fuente:
+// las filas de construirFilasServicio. Total por rubro = su fila `subtotal`
+// (sumando bloques capex+opex si el rubro sale en ambos) o, si no la tiene, sus
+// filas `detalle` (decisión 8.2a). Top 8 en un solo color (#C4571C, el de
+// Egresos); el resto sumado en «Otros» gris. SIN CATEGORÍA nunca entra al top
+// ni a «Otros»: va aparte, al final, en rojo de alerta, solo si su total no es
+// cero (8.2b).
+function rubrosParaGrafica(filas){
+  const SIN="SIN CATEGORÍA";
+  const sub=new Map(), det=new Map();
+  filas.forEach(f=>{
+    if(!f.macro||f.bloque==="ingresos") return;
+    if(f.tipo==="subtotal") sub.set(f.macro,(sub.get(f.macro)||0)+(Number(f.total)||0));
+    else if(f.tipo==="detalle") det.set(f.macro,(det.get(f.macro)||0)+(Number(f.total)||0));
+  });
+  const tot=new Map(sub);
+  det.forEach((v,k)=>{ if(!sub.has(k)) tot.set(k,v); });
+  const sinCat=tot.get(SIN)||0; tot.delete(SIN);
+  const orden=[...tot.entries()].filter(([,v])=>v!==0).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  // Un solo color para los ocho rubros (ajuste del 11-sep-2026): con el nombre
+  // pegado a cada barra el color no carga identidad, y así no hay color-por-
+  // posición (SERVICIOS saldría oro en un presupuesto y azul en otro). Es el
+  // mismo #C4571C de «Egresos» en la tarjeta 1: son egresos.
+  const top=orden.slice(0,8).map(([nombre,total])=>({nombre,total,color:GRAF_EGRESOS,tipo:"rubro"}));
+  const resto=orden.slice(8);
+  const items=[...top];
+  if(resto.length) items.push({nombre:`Otros (${resto.length})`,total:resto.reduce((s,[,v])=>s+v,0),color:GRAF_OTROS,tipo:"otros",detalle:resto.map(([n,v])=>`${n}: ${fmt(v)}`).join("\n")});
+  if(sinCat!==0) items.push({nombre:"⚠ "+SIN,total:sinCat,color:GRAF_ALERTA,tipo:"alerta"});
+  return items;
+}
+function GraficaEgresosRubro({filas}){
+  const items=rubrosParaGrafica(filas);
+  if(items.length===0) return null;
+  const fila=30, W=960,pL=250,pR=110,pT=12,pB=12, cW=W-pL-pR, H=pT+pB+fila*items.length;
+  const maxV=Math.max(...items.map(it=>Math.abs(it.total)),1);
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+      {items.map((it,i)=>{
+        const y=pT+fila*i, h=20, w=Math.max(Math.abs(it.total)/maxV*cW,it.total!==0?2:0);
+        return (
+          <g key={it.nombre}>
+            <title>{`${it.nombre}: ${fmt(it.total)}${it.detalle?"\n"+it.detalle:""}`}</title>
+            <text x={pL-12} y={y+h/2+4} textAnchor="end" fontSize="11" fontWeight={it.tipo==="alerta"?"700":"600"} fill={C.grayMid} fontFamily={GRAF_FONT}>{it.nombre}</text>
+            <line x1={pL} y1={y-2} x2={pL} y2={y+h+2} stroke="#ccc" strokeWidth="1"/>
+            <path d={pathBarraH(pL,y,w,h)} fill={it.color}/>
+            <text x={pL+w+8} y={y+h/2+4} fontSize="11" fill={C.grayMid} fontFamily={GRAF_FONT}>{fmtAbrev(it.total)}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// Tarjeta común: misma cáscara que tenían las gráficas anteriores (chart-card
+// para que el PDF no la parta). La leyenda solo se pinta cuando hay 2+ series.
+function TarjetaGrafica({titulo, subtitulo, leyenda, children}){
+  return(
+    <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+      padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+      <div style={{marginBottom:12}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+          <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>{titulo}</h3>
+        </div>
+        {subtitulo&&<div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>{subtitulo}</div>}
+      </div>
+      {leyenda&&leyenda.length>=2&&(
+        <div className="graf-leyenda" style={{display:"flex",gap:20,marginBottom:10,marginLeft:13}}>
+          {leyenda.map(s=>(
+            <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{width:12,height:12,borderRadius:3,background:s.color}}/>
+              <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+// ── Tarea 8, paso 1 — las gráficas del Resumen. Rediseñadas el 11-sep-2026
+// (SPEC 07): cuatro tarjetas de una métrica en vez de las dos anteriores.
+// NO CALCULA NADA: las series llegan ya construidas por calcularSerieMensual y
+// construirFilasServicio.
+function GraficasPresupuesto({mIngresos, mEgresos, mFlujo, mFlujoAcum, MESES13_MES, filasServicio}){
   return(
     <>
-          {/* ── Gráfica: flujo de efectivo ── */}
-          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Flujo de efectivo</h3>
-              </div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-                Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado
-              </div>
-            </div>
-            <div style={{display:"flex",gap:20,marginBottom:12}}>
-              {[
-                {label:"Flujo mensual positivo",color:C.yellow},
-                {label:"Flujo mensual negativo",color:C.danger},
-                {label:"Flujo acumulado",       color:"#374151"},
-              ].map(s=>(
-                <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
-                  <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
-          </div>
-
-          {/* ── Gráfica: OPEX por categoría ── */}
-          <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
-            padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
-                <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>OPEX por categoría</h3>
-              </div>
-              <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
-                Líneas por categoría contable mes a mes
-              </div>
-            </div>
-            {catOpexSeries.length>0?(
-              <>
-                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
-                  {catOpexSeries.map(s=>(
-                    <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
-                      <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
-                      <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
-              </>
-            ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
-          </div>
+      <TarjetaGrafica titulo="Ingresos vs Egresos por mes"
+        subtitulo="Barras agrupadas por mes, misma escala · pasa el cursor sobre una barra para ver la cifra completa"
+        leyenda={[{label:"Ingresos",color:GRAF_INGRESOS},{label:"Egresos",color:GRAF_EGRESOS}]}>
+        <GraficaIngresosEgresos mIngresos={mIngresos} mEgresos={mEgresos} meses={MESES13_MES}/>
+      </TarjetaGrafica>
+      <TarjetaGrafica titulo="Flujo mensual"
+        subtitulo="Ingresos menos egresos de cada mes · oro = positivo, rojo = negativo">
+        <GraficaFlujoMensual mFlujo={mFlujo} meses={MESES13_MES}/>
+      </TarjetaGrafica>
+      <TarjetaGrafica titulo="Flujo acumulado"
+        subtitulo="Suma corrida del flujo mensual, con su propia escala">
+        <GraficaFlujoAcumulado mFlujoAcum={mFlujoAcum} meses={MESES13_MES}/>
+      </TarjetaGrafica>
+      <TarjetaGrafica titulo="Egresos por rubro — los ocho mayores"
+        subtitulo="Total del año por rubro contable, de mayor a menor · el resto se suma en «Otros» · SIN CATEGORÍA aparte, si la hay">
+        {rubrosParaGrafica(filasServicio||[]).length>0
+          ? <GraficaEgresosRubro filas={filasServicio||[]}/>
+          : <div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas en las áreas para ver esta gráfica.</div>}
+      </TarjetaGrafica>
     </>
   );
 }
+
+// ── Versión anterior de GraficasPresupuesto (Tarea 8, paso 1), RETIRADA el
+// 11-sep-2026 por SPEC 07. Se deja comentada, no borrada: FlowChart y
+// CatLinesChart siguen definidas arriba sin consumidor.
+// function GraficasPresupuesto({mFlujo, mFlujoAcum, MESES13_MES, catOpexSeries}){
+//   return(
+//     <>
+//           {/* ── Gráfica: flujo de efectivo ── */}
+//           <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+//             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+//             <div style={{marginBottom:16}}>
+//               <div style={{display:"flex",alignItems:"center",gap:10}}>
+//                 <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+//                 <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>Flujo de efectivo</h3>
+//               </div>
+//               <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+//                 Barras: flujo mensual (amarillo=positivo, rojo=negativo) · Línea: flujo acumulado
+//               </div>
+//             </div>
+//             <div style={{display:"flex",gap:20,marginBottom:12}}>
+//               {[
+//                 {label:"Flujo mensual positivo",color:C.yellow},
+//                 {label:"Flujo mensual negativo",color:C.danger},
+//                 {label:"Flujo acumulado",       color:"#374151"},
+//               ].map(s=>(
+//                 <div key={s.label} style={{display:"flex",alignItems:"center",gap:6}}>
+//                   <div style={{width:14,height:14,borderRadius:3,background:s.color}}/>
+//                   <span style={{fontSize:11,color:C.grayMid,fontWeight:600}}>{s.label}</span>
+//                 </div>
+//               ))}
+//             </div>
+//             <div style={{overflowX:"auto",overflowY:"hidden"}}><FlowChart barData={mFlujo} lineData={mFlujoAcum} height={240} meses={MESES13_MES}/></div>
+//           </div>
+//
+//           {/* ── Gráfica: OPEX por categoría ── */}
+//           <div className="chart-card" style={{background:C.white,border:`1px solid ${C.grayBorder}`,borderRadius:10,
+//             padding:24,marginBottom:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
+//             <div style={{marginBottom:16}}>
+//               <div style={{display:"flex",alignItems:"center",gap:10}}>
+//                 <div style={{width:3,height:18,background:C.yellow,borderRadius:2}}/>
+//                 <h3 style={{margin:0,fontSize:15,fontWeight:800,color:C.grayDark}}>OPEX por categoría</h3>
+//               </div>
+//               <div style={{fontSize:11,color:C.grayMid,marginTop:4,marginLeft:13}}>
+//                 Líneas por categoría contable mes a mes
+//               </div>
+//             </div>
+//             {catOpexSeries.length>0?(
+//               <>
+//                 <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:12}}>
+//                   {catOpexSeries.map(s=>(
+//                     <div key={s.label} style={{display:"flex",alignItems:"center",gap:5}}>
+//                       <div style={{width:12,height:12,borderRadius:2,background:s.color}}/>
+//                       <span style={{fontSize:10,color:C.grayMid}}>{s.label}</span>
+//                     </div>
+//                   ))}
+//                 </div>
+//                 <div style={{overflowX:"auto",overflowY:"hidden"}}><CatLinesChart series={catOpexSeries} height={240} meses={MESES13_MES}/></div>
+//               </>
+//             ):<div style={{padding:20,color:C.grayMid,fontSize:13,textAlign:"center"}}>Captura partidas OPEX en las áreas para ver esta gráfica.</div>}
+//           </div>
+//     </>
+//   );
+// }
 
 export default function App(){
   const [step,setStep]         = useState(0);
@@ -6604,8 +6886,12 @@ export default function App(){
               Excel, y ahora dicen "Flujo de efectivo" y "OPEX por categoría", que es
               como estaban rotuladas en Información general. Mismos datos, mismas dos
               gráficas, mismo orden. ── */}
-          <GraficasPresupuesto mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
-            MESES13_MES={MESES13_MES} catOpexSeries={catOpexSeries}/>
+          {/* SPEC 07 (11-sep-2026): cuatro tarjetas. Reciben las series ya
+              calculadas (mIngresos, mEgresos, mFlujo, mFlujoAcum) y las filas de
+              la tabla contable (filasServicio) para «Egresos por rubro».
+              catOpexSeries ya no se pasa: quedó sin consumidor. */}
+          <GraficasPresupuesto mIngresos={mIngresos} mEgresos={mEgresos} mFlujo={mFlujo} mFlujoAcum={mFlujoAcum}
+            MESES13_MES={MESES13_MES} filasServicio={filasServicio}/>
 
           {/* ── TABLA 3: Resumen por área ────────────────────────────────── */}
           {
