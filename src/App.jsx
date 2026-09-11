@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, Fragment } from "react";
 import { supabase } from "./supabaseClient";
 import { listarPresupuestos, guardarPresupuestoEnNube, cargarPresupuestoDeNube, eliminarPresupuestoDeNube, buscarArticulosAlmacen } from "./supabaseApi";
-import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO } from "./catalogoUnidades";
+import { UNIDADES_NEGOCIO, etiquetaUnidad, UNIDAD_DEPARTAMENTO, textoOpcionUnidad, MARCA_FUERA_CATALOGO } from "./catalogoUnidades";
 import { claveDeRubro, RUBROS_EGRESOS, CLAVE_FACTURACION } from "./catalogoClaves";
 import { rubroDeSubcuenta, TOTAL_SUBCUENTAS, RUBROS_DEL_CSV, SUBCUENTAS_CONTABLES } from "./catalogoContable";
 // xlsx-js-style, no "xlsx" (04-sep-2026): la build comunitaria de SheetJS IGNORA
@@ -5461,12 +5461,17 @@ export default function App(){
               */}
 
               {/* UNIDAD DE NEGOCIO (02-sep-2026, pedido de Anel) — a la altura de
-                  Fecha inicio, en fila propia de ancho completo: son 30 opciones
+                  Fecha inicio, en fila propia de ancho completo: son opciones
                   con clave y nombre largos y no caben en media rejilla.
                   Se guarda SOLO la clave (catalogoUnidades.js). En modoEdit se
                   muestra deshabilitado con el valor guardado a la vista: abrir su
                   edición hoy es la misma pregunta sin responder que la de las
-                  fechas (A1 de docs/MD/DECISIONES.md). */}
+                  fechas (A1 de docs/MD/DECISIONES.md).
+                  11-sep-2026 (punto 3 del backlog): el catálogo sale de
+                  src/data/unidades-negocio.csv. <select> PLANO con los hijos
+                  justo debajo de su padre y con sangría (textoOpcionUnidad); no
+                  se usa <optgroup> porque su etiqueta no se puede elegir y el
+                  padre (F218385 INFRAESTRUCTURA) sí es una unidad real. */}
               <div style={{gridColumn:"1 / -1"}}>
                 <FL required={!modoEdit}>Unidad de negocio {modoEdit&&<span style={{color:C.grayMid,fontSize:10,fontWeight:400,marginLeft:6,textTransform:"none"}}>— no editable por ahora</span>}</FL>
                 <select value={form.unidadNegocio||""} disabled={modoEdit}
@@ -5484,13 +5489,17 @@ export default function App(){
                     color:modoEdit?C.grayMid:C.grayDark,
                     cursor:modoEdit?"not-allowed":"pointer"}}>
                   <option value="">— Selecciona la unidad de negocio —</option>
-                  {/* Una clave guardada que ya no esté en el catálogo se agrega
-                      como opción para que el <select> no la borre al pintarse. */}
+                  {/* REGLA QUE NO SE NEGOCIA: una clave guardada que no esté en el
+                      catálogo (hoy Cuervito, F218301A) se agrega como opción
+                      seleccionada, marcada «(fuera de catálogo)». Si no estuviera,
+                      el <select> se pintaría vacío y el siguiente guardado
+                      mandaría NULL: el presupuesto perdería su unidad en silencio.
+                      Nunca se cambia ni se borra sola. */}
                   {form.unidadNegocio&&!UNIDADES_NEGOCIO.some(u=>u.clave===form.unidadNegocio)&&(
-                    <option value={form.unidadNegocio}>{form.unidadNegocio} — (fuera del catálogo)</option>
+                    <option value={form.unidadNegocio}>{form.unidadNegocio} — {MARCA_FUERA_CATALOGO}</option>
                   )}
                   {UNIDADES_NEGOCIO.map(u=>(
-                    <option key={u.clave} value={u.clave}>{u.clave} — {u.nombre}</option>
+                    <option key={u.clave} value={u.clave}>{textoOpcionUnidad(u)}</option>
                   ))}
                 </select>
                 {intentoGuardar&&!modoEdit&&!form.unidadNegocio&&(

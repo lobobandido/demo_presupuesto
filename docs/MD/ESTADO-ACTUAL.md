@@ -164,13 +164,30 @@ Resumen mensual y el pie del PDF exportado.
 **Select de «Unidad de negocio»** (agregado el 2026-09-02, pedido de Anel). Fila propia de ancho
 completo a la altura de Fecha inicio.
 
-- Catálogo en `src/catalogoUnidades.js`: **30 opciones**, `INTERNO` primero (presupuestos sin
-  unidad propia, como el de TI). Se despliega `CLAVE — NOMBRE` y **se guarda solo la clave**, en la
-  columna `presupuestos.unidad_negocio` (`text`, nullable, sin default).
-- **Es copia provisional**: la fuente real es el módulo de viáticos de `apps.nuvoil.com` (Django,
-  `id_un_clave`). Queda vieja en cuanto den de alta una unidad. Pendiente preguntar a Anel si hay
-  API o export, y confirmar `C18000`/`C18`/`F21858`/`BHSA` y los sub-proyectos
-  `F218385P001/P002/P003` — todo anotado en el encabezado del archivo.
+- Catálogo (desde el 2026-09-11, punto 3 del backlog) en **`src/data/unidades-negocio.csv`**,
+  **20 unidades** con columnas `clave, descripcion, compania, tipo, clave_padre`. Lo importa
+  `src/catalogoUnidades.js` con el sufijo `?raw` de Vite y lo parsea al cargar el módulo: entra al
+  bundle en compilación, sin petición en tiempo de ejecución ni plugin. Para dar de alta una
+  unidad se agrega el renglón al CSV. Se despliega `CLAVE — NOMBRE` y **se guarda solo la
+  clave**, en la columna `presupuestos.unidad_negocio` (`text`, nullable, sin default).
+- **Jerarquía**: `<select>` plano, raíces en el orden del CSV y cada hijo (`clave_padre`) justo
+  debajo de su padre con sangría (`textoOpcionUnidad`, espacios duros). Sin `<optgroup>`: el padre
+  también es seleccionable (`F218385` INFRAESTRUCTURA tiene tres proyectos `P0001..P0003`;
+  `F218382` tiene `F218382A`). Se guarda la clave del renglón elegido; el padre no se guarda.
+- **Clave guardada que no está en el CSV** (hoy `F218301A` de Cuervito y `G18ADMIN` de TI H1
+  2026): el `<select>` la agrega como opción seleccionada con la marca `(fuera de catálogo)`
+  (`MARCA_FUERA_CATALOGO`). Nunca se cambia ni se borra sola. Para encabezado y listado,
+  `etiquetaUnidad` resuelve el nombre en este orden: catálogo oficial → `UNIDADES_HEREDADAS`
+  (constante pequeña junto al import del CSV, con `F218301A` y `G18ADMIN` y sus nombres de
+  antes; no entran al desplegable ni al CSV, que es la lista oficial de contabilidad) → sólo la
+  clave. `UNIDAD_DEPARTAMENTO` sigue en `G18ADMIN` aunque el CSV trae `C18ADMIN`: decidir con la
+  contadora cuál es la buena (el guardarraíl de desarrollo avisa en consola). El select sigue
+  **deshabilitado en modo Editar** (A1): la unidad es la identidad del presupuesto; un cambio de
+  unidad se hace con `UPDATE` en Supabase.
+- Claves del catálogo anterior (30 fijas en código, copiadas del módulo de viáticos) que no
+  vienen en el CSV: `INTERNO`, `F118147`, `F218136POZ`, `F218147`, `F218152`, `F218152OPE`,
+  `F218158`, `F218169`, `F218178`, `F218250`, `F218265`, `F218298`, `F218301A`, `F218368`,
+  `G18ADMIN`. Anotadas en el encabezado de `catalogoUnidades.js`.
 - **Obligatorio al crear**: `guardarPres` no navega si falta (`faltaUnidad`). **No** se exige en
   `modoEdit`, porque ahí el select va **deshabilitado** con el valor guardado a la vista — abrir su
   edición es la misma pregunta sin responder que la de las fechas (**A1**).
